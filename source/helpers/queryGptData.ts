@@ -33,6 +33,7 @@ export async function queryGptData<GptMessageData>(
         Authorization: `Bearer ${$$_OPEN_AI_KEY_$$}`,
       },
       body: JSON.stringify({
+        // model: "gpt-4-1106-preview",
         model: "gpt-4",
         max_tokens: maxTokens,
         temperature: temperature,

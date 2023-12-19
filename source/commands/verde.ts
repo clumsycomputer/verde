@@ -1,7 +1,7 @@
 import { Command } from "../deps/cliffy.ts";
-import { outlineCommand } from "./outline.ts";
+import { sketchRecordCommand } from "./sketchRecord.ts";
 
 export const verdeCommand = new Command()
   .name("verde")
-  .description("a prototyping assistant")
-  .command(outlineCommand.getName(), outlineCommand);
+  .description("a data assistant")
+  .command(sketchRecordCommand.getName(), sketchRecordCommand);

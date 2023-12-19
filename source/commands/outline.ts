@@ -19,30 +19,31 @@ interface MakeVerdeOutlineApi {
 
 async function makeVerdeOutline(api: MakeVerdeOutlineApi) {
   const { outputFilePath } = api;
-  const solutionBriefDescription = await Input.prompt(
-    "A brief description of a solution:"
+  const implementationDescription = await Input.prompt(
+    "What do you want to implement?"
   );
-  const solutionOutlineGptData = await queryGptData({
+  const implementationOutlineGptData = await queryGptData({
     maxTokens: 1024,
     numberOfResults: 1,
-    temperature: 0,
+    temperature: 1,
     topProbability: 1,
-    systemPrompt: getSolutionOutlineSystemPrompt(),
-    userQuery: getSolutionOutlineUserQuery({
-      solutionBriefDescription,
+    systemPrompt: getImplementationOutlineSystemPrompt(),
+    userQuery: getImplementationOutlineUserQuery({
+      implementationDescription,
     }),
-    dataItemSchema: getSolutionOutlineDataItemSchema(),
+    dataItemSchema: getImplementationOutlineDataItemSchema(),
   });
-  const solutionOutlineJson =
-    solutionOutlineGptData[0] ?? throwInvalidPathError("solutionOutlineJson");
-  console.log(solutionOutlineJson);
+  const implementationOutlineJson =
+    implementationOutlineGptData[0] ??
+    throwInvalidPathError("implementationOutlineJson");
+  console.log(implementationOutlineJson);
   await Deno.writeTextFile(
     Path.join(Deno.cwd(), outputFilePath, `verde.json`),
-    JSON.stringify(solutionOutlineJson, null, 2)
+    JSON.stringify(implementationOutlineJson, null, 2)
   );
 }
 
-function getSolutionOutlineSystemPrompt() {
+function getImplementationOutlineSystemPrompt() {
   return `the engineering community considers you the foremost expert in software architecture and system design.
 
   your responses are categorized as complete, comprehensive, exhaustive, accurate, accessible, accountable, calculated, deterministic, semantic, direct, explicit, and forthcoming.
@@ -52,38 +53,38 @@ function getSolutionOutlineSystemPrompt() {
   use the type definitions below when responding and make sure to only include the raw json omitting the \`\`\`json\`\`\` markdown
   
   \`\`\`typescript
-  type PseudoCodeOutline = Array<PseudoCodeFunction>
-  
-  interface PseudoCodeFunction  {
-     functionName: string;
-     functionOverview: string;
-     functionPurpose:  string;
+  interface ImplementationOutlineSequence = Array<ImplementationFunction>;
+
+  interface ImplementationFunction {
+    functionName: string;
   }
   \`\`\`
   `;
 }
 
-interface GetSolutionOutlineUserQueryApi {
-  solutionBriefDescription: string;
+interface GetImplementationOutlineUserQueryApi {
+  implementationDescription: string;
 }
 
-function getSolutionOutlineUserQuery(api: GetSolutionOutlineUserQueryApi) {
-  const { solutionBriefDescription } = api;
-  return `an outline for an implementation described by: "${solutionBriefDescription}"`;
+function getImplementationOutlineUserQuery(
+  api: GetImplementationOutlineUserQueryApi
+) {
+  const { implementationDescription } = api;
+  return `an implementation outline described by: "${implementationDescription}"`;
 }
 
-function getSolutionOutlineDataItemSchema() {
-  return PseudoCodeOutlineSchema;
+function getImplementationOutlineDataItemSchema() {
+  return Zod.array(getImplementationFunctionSchema());
 }
 
-const PseudoCodeFunctionSchema = Zod.object({
-  functionName: Zod.string(),
-  functionOverview: Zod.string(),
-  functionPurpose: Zod.string(),
-  // functionSourcesOfComplexity: Array<string>;
-  // functionEdgeCases: Array<string>;
-  // functionAssumptions: Array<string>;
-  // functionTechninalSuggestions: Array<string>;
-});
-
-const PseudoCodeOutlineSchema = Zod.array(PseudoCodeFunctionSchema);
+function getImplementationFunctionSchema() {
+  return Zod.object({
+    functionName: Zod.string(),
+    // functionOverview: Zod.string(),
+    // functionPurpose: Zod.string(),
+    // functionSourcesOfComplexity: Array<string>;
+    // functionEdgeCases: Array<string>;
+    // functionAssumptions: Array<string>;
+    // functionTechninalSuggestions: Array<string>;
+  });
+}
