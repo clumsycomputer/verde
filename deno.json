@@ -13,7 +13,9 @@
       "exclude": ["no-empty-interface"]
     }
   },
-  "imports": {},
+  "imports": {
+    "verde": "./source/library/index.ts"
+  },
   "tasks": {
     "verde": "deno run --allow-all ./source/main.ts"
   }
