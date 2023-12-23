@@ -149,6 +149,7 @@ async function setupProject(api: SetupProjectApi) {
 interface TryGetExportedTypeAliasNodeApi {
   schemaModuleFile: Typescript.SourceFile;
 }
+
 function tryGetExportedTypeAliasNode(api: TryGetExportedTypeAliasNodeApi) {
   const { schemaModuleFile } = api;
   const exportedTypeAliasDeclarationsResult: Array<Typescript.TypeAliasDeclaration> =

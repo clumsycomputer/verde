@@ -1,7 +1,9 @@
+// deno-lint-ignore-file no-namespace
 import * as Types from "./types.ts";
 
 namespace Verde {
-  export type Schema<T> = Types.VerdeSchema<T>;
+  export type Verify<T extends [any, ...Array<any>]> = Types.VerdeVerify<T>;
+  export type Schema<T extends [any, ...Array<any>]> = Types.VerdeSchema<T>;
   export type String = Types.VerdeString;
   export type Float = Types.VerdeFloat;
   export type Integer = Types.VerdeInteger;

@@ -1,10 +1,12 @@
 import Verde from "verde";
 
-export interface CoolMusicPerson extends MusicPersonBase<"cool"> {
+export type MusicPersonSchema = [CoolMusicPerson, SillyMusicPerson];
+
+interface CoolMusicPerson extends MusicPersonBase<"cool"> {
   personGroup: Verde.String;
 }
 
-export interface SillyMusicPerson extends MusicPersonBase<"silly">, Thing {}
+interface SillyMusicPerson extends MusicPersonBase<"silly">, Thing {}
 
 interface MusicPersonBase<PersonType> {
   personType: PersonType;
