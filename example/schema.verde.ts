@@ -1,16 +1,8 @@
-// import Verde, { VerdeSchema as Foo } from "verde";
-import Verde, { VerdeSchema as Foo } from "../source/library/index.ts";
+import Verde from "../source/library/index.ts";
+import { MusicAlbum } from "./schemas/MusicAlbum.ts";
+import { CoolMusicPerson, SillyMusicPerson } from "./schemas/MusicPerson.ts";
+import { MusicTrack } from "./schemas/MusicTrack.ts";
 
-export type ExampleSchema = Foo<[music_album: MusicAlbum, MusicTrack]>;
-
-interface MusicAlbum {
-  albumTitle: string;
-  albumArtist: string;
-}
-
-interface MusicTrack {
-  trackTitle: string;
-  trackArtist: string;
-}
-
-interface __VERDE_SCHEMA<T> {}
+export type ExampleSchema = Verde.Schema<
+  [MusicAlbum, MusicTrack, CoolMusicPerson, SillyMusicPerson]
+>;

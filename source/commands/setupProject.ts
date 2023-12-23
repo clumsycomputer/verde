@@ -44,42 +44,99 @@ async function setupProject(api: SetupProjectApi) {
     );
     console.log(schemaTypeChecker.typeToString(exportedTypeAliasType));
     console.log(exportedTypeAliasType.symbol.name);
+    console.log("");
     const { exportedSchemaMembers } =
       exportedTypeAliasType.symbol.name === "__VERDE_SCHEMA"
         ? tryGetExportedSchemaMembers({
             exportedTypeAliasNode,
           })
         : throwError("exported schema not properly validated");
-    exportedSchemaMembers.forEach((foo) => {
-      console.log(foo.getText());
+    exportedSchemaMembers.forEach((someMemberReferenceNode) => {
+      const memberReferenceType = schemaTypeChecker.getTypeAtLocation(
+        someMemberReferenceNode
+      );
+      const memberReferenceSymbol = memberReferenceType.symbol;
+      const memberDeclarationNode =
+        (memberReferenceSymbol.declarations &&
+          memberReferenceSymbol.declarations[0] &&
+          memberReferenceSymbol.declarations.length === 1 &&
+          Typescript.isInterfaceDeclaration(
+            memberReferenceSymbol.declarations[0]
+          ) &&
+          memberReferenceSymbol.declarations[0]) ||
+        throwInvalidPathError("memberDeclarationNode");
+      const memberDeclarationType = schemaTypeChecker.getTypeAtLocation(
+        memberDeclarationNode
+      );
+      console.log(memberDeclarationNode.getText());
+      console.log(
+        `interface ${schemaTypeChecker.typeToString(memberDeclarationType)}`
+      );
+      memberDeclarationNode.members.forEach((somePropertyNode) => {
+        if (Typescript.isPropertySignature(somePropertyNode)) {
+          const propertySignatureChildren = somePropertyNode.getChildren();
+          const propertyIdentifierNode =
+            (propertySignatureChildren[0] &&
+              Typescript.isIdentifier(propertySignatureChildren[0]) &&
+              propertySignatureChildren[0]) ||
+            throwInvalidPathError("propertyIdentifierNode");
+          const propertyTypeReference =
+            (propertySignatureChildren[2] &&
+              Typescript.isTypeReferenceNode(propertySignatureChildren[2]) &&
+              propertySignatureChildren[2]) ||
+            throwInvalidPathError("propertyTypeReference");
+          console.log(
+            `  ${propertyIdentifierNode.getText()}: ${propertyTypeReference.getText()}`
+          );
+        }
+      });
+      const memberHeritageExpressions =
+        (memberDeclarationNode.heritageClauses &&
+          memberDeclarationNode.heritageClauses[0] &&
+          memberDeclarationNode.heritageClauses[0].types) ||
+        [];
+      memberHeritageExpressions.forEach((someHeritageExpressionNode) => {
+        const heritageExpressionType = schemaTypeChecker.getTypeAtLocation(
+          someHeritageExpressionNode
+        );
+        const heritageExpressionSymbol = heritageExpressionType.symbol;
+        console.log(`  ${heritageExpressionSymbol.getName()}`);
+        const heritageDeclarationNode =
+          (heritageExpressionSymbol.declarations &&
+            heritageExpressionSymbol.declarations[0] &&
+            heritageExpressionSymbol.declarations.length === 1 &&
+            Typescript.isInterfaceDeclaration(
+              heritageExpressionSymbol.declarations[0]
+            ) &&
+            heritageExpressionSymbol.declarations[0]) ||
+          throwInvalidPathError("heritageExpressionSymbol");
+        heritageDeclarationNode.members.forEach((somePropertyNode) => {
+          if (Typescript.isPropertySignature(somePropertyNode)) {
+            const propertySignatureChildren = somePropertyNode.getChildren();
+            const propertyIdentifierNode =
+              (propertySignatureChildren[0] &&
+                Typescript.isIdentifier(propertySignatureChildren[0]) &&
+                propertySignatureChildren[0]) ||
+              throwInvalidPathError("propertyIdentifierNode");
+            const propertyTypeReference =
+              (propertySignatureChildren[2] &&
+                Typescript.isTypeReferenceNode(propertySignatureChildren[2]) &&
+                propertySignatureChildren[2]) ||
+              throwInvalidPathError("propertyTypeReference");
+            const resolvedPropertyType =
+              heritageExpressionType.getProperty(
+                propertyIdentifierNode.getText()
+              ) ?? throwInvalidPathError("resolvedPropertyType");
+            console.log(
+              `    ${propertyIdentifierNode.getText()}: ${schemaTypeChecker.typeToString(
+                schemaTypeChecker.getTypeOfSymbol(resolvedPropertyType)
+              )}`
+            );
+          }
+        });
+      });
+      console.log("");
     });
-    // schemaModuleFile.forEachChild((someTopLevelNode) => {
-    //   if (
-    //     Typescript.isTypeAliasDeclaration(someTopLevelNode) &&
-    //     Typescript.getCombinedModifierFlags(someTopLevelNode) &
-    //       Typescript.ModifierFlags.Export
-    //   ) {
-    //     const aliasExportNodeText = someTopLevelNode.getText();
-    //     const aliasExportType =
-    //       schemaTypeChecker.getTypeAtLocation(someTopLevelNode);
-
-    //     console.log(aliasExportNodeText);
-    //     console.log(schemaTypeChecker.typeToString(aliasExportType));
-    //     console.log(aliasExportType.symbol.getName());
-    //     aliasExportType.symbol.declarations?.forEach((someDeclarationNode) => {
-    //       if (Typescript.isInterfaceDeclaration(someDeclarationNode)) {
-    //         const declarationType =
-    //           schemaTypeChecker.getTypeAtLocation(someDeclarationNode);
-    //         console.log(someDeclarationNode.getText());
-    //         console.log(schemaTypeChecker.typeToString(declarationType));
-    //       }
-    //     });
-    //     // console.log(aliasExportTypeReferenceNode.getText());
-    //     // BUG: mistyped or wrong implementation => aliasExportSymbol === undefined
-    //     // const aliasExportSymbol = aliasExportType.symbol;
-    //     // BUG
-    //   }
-    // });
   } else {
     // throw error
     // or
