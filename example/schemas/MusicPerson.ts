@@ -13,6 +13,10 @@ interface MusicPersonBase<PersonType> {
   personName: Verde.String;
 }
 
-interface Thing {
+interface Thing extends DeepFoo {
   thingThang: Verde.Float;
+}
+
+interface DeepFoo {
+  whoa: string;
 }
