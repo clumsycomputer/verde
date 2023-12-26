@@ -1,8 +1,20 @@
 import Verde from "../source/library/index.ts";
-import { MusicAlbum } from "./schemas/MusicAlbum.ts";
-import { MusicPersonSchema } from "./schemas/MusicPerson.ts";
-import { MusicTrack } from "./schemas/MusicTrack.ts";
+export type ExampleSchema = Verde.Schema<Verde.Verify<[CoolestPerson]>>;
 
-export type ExampleSchema = Verde.Schema<
-  Verde.Verify<[MusicAlbum, MusicTrack, ...MusicPersonSchema]>
->;
+type CoolString = string;
+
+type CoolestPersonName<T> = T;
+
+interface CoolestPerson
+  extends CoolPerson<"coolName", CoolestPersonName<CoolString>> {
+  coolestName: string;
+}
+
+interface CoolPerson<ThisCoolNameAaa, ThisPersonNameBbb>
+  extends Person<ThisPersonNameBbb> {
+  coolName: ThisCoolNameAaa;
+}
+
+interface Person<ThisPersonNameAaa> {
+  personName: ThisPersonNameAaa;
+}

@@ -65,7 +65,7 @@ async function setupProject(api: SetupProjectApi) {
           schemaTypeChecker,
           topLevelInterface: someTopLevelInterface,
           someSchemaInterface: someTopLevelInterface,
-          interfaceDepth: 0,
+          // interfaceDepth: 0,
         });
         console.log("");
       });
@@ -87,7 +87,7 @@ interface ProcessSchemaInterfaceApi {
   schemaTypeChecker: Typescript.TypeChecker;
   topLevelInterface: Typescript.Type;
   someSchemaInterface: Typescript.Type;
-  interfaceDepth: number;
+  // interfaceDepth: number;
 }
 
 function processSchemaInterface(api: ProcessSchemaInterfaceApi) {
@@ -95,20 +95,47 @@ function processSchemaInterface(api: ProcessSchemaInterfaceApi) {
     someSchemaInterface,
     schemaTypeChecker,
     topLevelInterface,
-    interfaceDepth,
+    // interfaceDepth,
   } = api;
-  const depthSpacer = new Array(interfaceDepth).fill("  ").join("");
+  console.log(
+    `processSchemaInterface: ${schemaTypeChecker.typeToString(
+      someSchemaInterface
+    )}`
+  );
+  console.log(`${someSchemaInterface.symbol.getName()}`);
   if (isInterfaceType(someSchemaInterface)) {
+    // someSchemaInterface.localTypeParameters?.forEach((foo) => {
+    //   console.log(schemaTypeChecker.typeToString(foo));
+    // });
+    // if (
+    //   someSchemaInterface.symbol.declarations &&
+    //   someSchemaInterface.symbol.declarations[0] &&
+    //   Typescript.isInterfaceDeclaration(
+    //     someSchemaInterface.symbol.declarations[0]
+    //   )
+    // ) {
+    //   console.log(someSchemaInterface.symbol.declarations[0].getText());
+    //   someSchemaInterface.symbol.declarations[0].heritageClauses?.forEach(
+    //     (foo) => {
+    //       console.log(foo.getText());
+    //       foo.types.forEach((foo) => {
+    //         console.log(foo.getText());
+    //         foo.typeArguments?.forEach((foo) => {
+    //           console.log(foo.getText());
+    //           console.log(foo.kind);
+    //         });
+    //       });
+    //     }
+    //   );
+    // }
+    // someSchemaInterface.outerTypeParameters
+    // console.log("ttt");
     const immediateProperties = Array.from(
       someSchemaInterface.symbol.members
         ? someSchemaInterface.symbol.members.values()
         : throwInvalidPathError("someSchemaInterface.symbol.members")
     ).filter((someInterfaceMember) => isPropertySymbol(someInterfaceMember));
-    const directBaseInterfaces =
-      schemaTypeChecker.getBaseTypes(someSchemaInterface);
-    console.log(`${depthSpacer}${someSchemaInterface.symbol.getName()}`);
     immediateProperties.forEach((someImmediateProperty) => {
-      // console.log(immediatePropertyValue.getText());
       processValueTypeNode({
         schemaTypeChecker,
         topLevelInterface,
@@ -122,25 +149,35 @@ function processSchemaInterface(api: ProcessSchemaInterfaceApi) {
             someImmediateProperty.declarations[0].type) ||
           throwInvalidPathError("immediatePropertyTypeNode"),
       });
-      console.log("");
     });
-    directBaseInterfaces.forEach((someBaseInterface) => {
-      const nextSchemaInterface =
-        (someBaseInterface.symbol.declarations &&
-          someBaseInterface.symbol.declarations[0] &&
-          schemaTypeChecker.getTypeAtLocation(
-            someBaseInterface.symbol.declarations[0]
-          )) ||
-        throwInvalidPathError("nextSchemaInterface");
+    const immediateBaseInterfaces =
+      schemaTypeChecker.getBaseTypes(someSchemaInterface);
+    immediateBaseInterfaces.forEach((someImmediateBaseInterface) => {
+      const nextSchemaInterfaceDeclaration =
+        (someImmediateBaseInterface.symbol.declarations &&
+          someImmediateBaseInterface.symbol.declarations[0] &&
+          Typescript.isInterfaceDeclaration(
+            someImmediateBaseInterface.symbol.declarations[0]
+          ) &&
+          someImmediateBaseInterface.symbol.declarations[0]) ||
+        throwInvalidPathError("nextSchemaInterfaceDeclaration");
+      // const fooTypes =
+      //   (nextSchemaInterfaceDeclaration.heritageClauses &&
+      //     nextSchemaInterfaceDeclaration.heritageClauses[0] &&
+      //     nextSchemaInterfaceDeclaration.heritageClauses[0].types) ??
+      //   throwInvalidPathError("fooTypes");
+      const nextSchemaInterface = schemaTypeChecker.getTypeAtLocation(
+        nextSchemaInterfaceDeclaration
+      );
       processSchemaInterface({
         schemaTypeChecker,
         topLevelInterface,
         someSchemaInterface: nextSchemaInterface,
-        interfaceDepth: interfaceDepth + 1,
+        // interfaceDepth: interfaceDepth + 1,
       });
     });
   } else {
-    throwInvalidPathError("processSchemaItem");
+    throwInvalidPathError("processSchemaInterface");
   }
 }
 
@@ -158,10 +195,10 @@ function processValueTypeNode(api: ProcessValueTypeNodeApi) {
     topLevelInterface,
     thisPropertyName,
   } = api;
-
+  console.log(`processValueTypeNode: ${someValueTypeNode.getText()}`);
+  console.log(thisPropertyName);
   if (Typescript.isLiteralTypeNode(someValueTypeNode)) {
     console.log("literal");
-    console.log(someValueTypeNode.literal.getText());
   } else if (
     [
       Typescript.SyntaxKind.StringKeyword,
@@ -171,6 +208,7 @@ function processValueTypeNode(api: ProcessValueTypeNodeApi) {
   ) {
     console.log("keyword");
   } else if (Typescript.isTypeReferenceNode(someValueTypeNode)) {
+    console.log("reference node");
     const propertyValueReferenceSymbol =
       schemaTypeChecker.getSymbolAtLocation(someValueTypeNode.typeName) ??
       throwInvalidPathError("propertyValueReferenceSymbol");
@@ -178,9 +216,10 @@ function processValueTypeNode(api: ProcessValueTypeNodeApi) {
       (propertyValueReferenceSymbol.declarations &&
         propertyValueReferenceSymbol.declarations[0]) ??
       throwInvalidPathError("propertyValueReferenceDeclaration");
+    console.log(propertyValueReferenceSymbol.getName());
+    console.log(propertyValueReferenceDeclaration.getText());
     if (Typescript.isTypeAliasDeclaration(propertyValueReferenceDeclaration)) {
-      console.log("a");
-      console.log(propertyValueReferenceDeclaration.getText());
+      console.log("type alias declaration");
       console.log(propertyValueReferenceDeclaration.type.getText());
       processValueTypeNode({
         schemaTypeChecker,
@@ -191,42 +230,32 @@ function processValueTypeNode(api: ProcessValueTypeNodeApi) {
     } else if (
       Typescript.isImportSpecifier(propertyValueReferenceDeclaration)
     ) {
-      console.log("b");
-      console.log(propertyValueReferenceDeclaration.getText());
+      console.log("import specifier");
       console.log(propertyValueReferenceDeclaration.propertyName?.getText());
-      const originalImportReferenceSymbol =
-        schemaTypeChecker.getSymbolAtLocation(
-          propertyValueReferenceDeclaration.propertyName!
-        ) ?? throwInvalidPathError("originalImportReferenceSymbol");
-      const originalImportReferenceDeclararation =
-        (originalImportReferenceSymbol.declarations &&
-          originalImportReferenceSymbol.declarations[0]) ||
-        throwInvalidPathError("originalImportReferenceDeclararation");
-      if (
-        Typescript.isTypeAliasDeclaration(originalImportReferenceDeclararation)
-      ) {
-        processValueTypeNode({
-          schemaTypeChecker,
-          topLevelInterface,
-          thisPropertyName,
-          someValueTypeNode: originalImportReferenceDeclararation.type,
-        });
-      } else if (
-        Typescript.isInterfaceDeclaration(originalImportReferenceDeclararation)
-      ) {
-        console.log("interface");
-      } else {
-        throwInvalidPathError(
-          "narrowing => originalImportReferenceDeclararation"
-        );
-      }
+
+      processPropertyDeclarationSymbol({
+        processValueTypeNode,
+        schemaTypeChecker,
+        topLevelInterface,
+        thisPropertyName,
+        somePropertyDeclarationSymbol:
+          schemaTypeChecker.getSymbolAtLocation(
+            propertyValueReferenceDeclaration.propertyName!
+          ) ?? throwInvalidPathError("originalImportReferenceSymbol"),
+      });
     } else if (
       Typescript.isTypeParameterDeclaration(propertyValueReferenceDeclaration)
     ) {
+      console.log("");
+      console.log("");
       const resolvedPropertyType = schemaTypeChecker.getTypeOfSymbol(
         topLevelInterface.getProperty(thisPropertyName) ??
           throwInvalidPathError("resolvedPropertySymbol")
       );
+
+      console.log("type parameter declaration");
+      console.log(schemaTypeChecker.typeToString(resolvedPropertyType));
+
       if (resolvedPropertyType.isLiteral()) {
         console.log("parameter => literal");
       } else if (
@@ -238,15 +267,60 @@ function processValueTypeNode(api: ProcessValueTypeNodeApi) {
         console.log("parameter => keyword");
       } else if (resolvedPropertyType.symbol) {
         console.log("parameter => symbol");
+
+        processPropertyDeclarationSymbol({
+          processValueTypeNode,
+          schemaTypeChecker,
+          topLevelInterface,
+          thisPropertyName,
+          somePropertyDeclarationSymbol: resolvedPropertyType.symbol,
+        });
       }
-      console.log("c");
-      console.log(propertyValueReferenceDeclaration.getText());
-      console.log(schemaTypeChecker.typeToString(resolvedPropertyType));
     } else {
       throwInvalidPathError("narrowing: immediatePropertyDeclaration");
     }
   } else {
     throwInvalidPathError("someValueTypeNode");
+  }
+}
+
+interface ProcessPropertyDeclarationSymbolApi
+  extends Pick<
+    ProcessValueTypeNodeApi,
+    "schemaTypeChecker" | "topLevelInterface" | "thisPropertyName"
+  > {
+  processValueTypeNode: typeof processValueTypeNode;
+  somePropertyDeclarationSymbol: Typescript.Symbol;
+}
+
+function processPropertyDeclarationSymbol(
+  api: ProcessPropertyDeclarationSymbolApi
+) {
+  const {
+    somePropertyDeclarationSymbol,
+    schemaTypeChecker,
+    topLevelInterface,
+    thisPropertyName,
+  } = api;
+
+  console.log(
+    `processPropertyDeclarationSymbol: ${somePropertyDeclarationSymbol.getName()}`
+  );
+
+  const propertyDeclaration =
+    (somePropertyDeclarationSymbol.declarations &&
+      somePropertyDeclarationSymbol.declarations[0]) ||
+    throwInvalidPathError("propertyDeclaration");
+  if (Typescript.isTypeAliasDeclaration(propertyDeclaration)) {
+    processValueTypeNode({
+      schemaTypeChecker,
+      topLevelInterface,
+      thisPropertyName,
+      someValueTypeNode: propertyDeclaration.type,
+    });
+  } else if (Typescript.isInterfaceDeclaration(propertyDeclaration)) {
+  } else {
+    throwInvalidPathError("processPropertyDeclarationSymbol");
   }
 }
 
