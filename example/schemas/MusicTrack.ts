@@ -1,6 +1,12 @@
-import Verde from "verde";
+import Verde from "../../source/library/index.ts";
 
-export interface MusicTrack {
-  trackTitle: Verde.String;
-  trackArtist: Verde.String;
+export interface MusicTrack extends MusicTrackBase<string> {}
+
+interface MusicTrackBase<SomeThang> {
+  trackTitle: "what";
+  trackArtist: SomeThang;
+}
+
+interface Thang {
+  foo: string;
 }

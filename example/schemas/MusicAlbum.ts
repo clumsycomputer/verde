@@ -1,6 +1,6 @@
-import Verde from "verde";
+import verde from "../../source/library/index.ts";
 
 export interface MusicAlbum {
-  albumTitle: Verde.String;
-  albumArtist: Verde.String;
+  albumTitle: verde.String;
+  albumArtist: string;
 }

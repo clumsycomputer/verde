@@ -5,5 +5,4 @@ import { MusicTrack } from "./schemas/MusicTrack.ts";
 
 export type ExampleSchema = Verde.Schema<
   Verde.Verify<[MusicAlbum, MusicTrack, ...MusicPersonSchema]>
-  // [MusicAlbum, MusicTrack, ...MusicPersonSchema]
 >;

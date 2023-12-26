@@ -1,4 +1,4 @@
-import Verde from "verde";
+import Verde, { VerdeString as Foo } from "../../source/library/index.ts";
 
 export type MusicPersonSchema = [CoolMusicPerson, SillyMusicPerson];
 
@@ -18,5 +18,5 @@ interface Thing extends DeepFoo {
 }
 
 interface DeepFoo {
-  whoa: string;
+  whoa: Foo;
 }
