@@ -61,13 +61,14 @@ async function setupProject(api: SetupProjectApi) {
           schemaTypeChecker.getTypeArguments(rootSchemaType)) ||
         throwInvalidPathError("topLevelSchemaTypes");
       topLevelSchemaTypes.forEach((someTopLevelInterface) => {
-        processSchemaInterface({
-          schemaTypeChecker,
-          topLevelInterface: someTopLevelInterface,
-          someSchemaInterface: someTopLevelInterface,
-          // interfaceDepth: 0,
-        });
-        console.log("");
+        if (isTypeReferenceType(someTopLevelInterface)) {
+          processSchemaInterface({
+            schemaTypeChecker,
+            someSchemaInterface: someTopLevelInterface,
+          });
+        } else {
+          throwInvalidPathError("someTopLevelInterface");
+        }
       });
     } else if (resolvedSchemaSymbol.name === "VerdeError") {
       console.error(schemaTypeChecker.typeToString(schemaExportType));
@@ -76,251 +77,6 @@ async function setupProject(api: SetupProjectApi) {
     }
   } else {
     // throw error
-    // or
-    // if (projectDirectoryStats.isDirectory === false) {
-    //   await Deno.mkdir(resolvedProjectDirectoryPath);
-    // }
-  }
-}
-
-interface ProcessSchemaInterfaceApi {
-  schemaTypeChecker: Typescript.TypeChecker;
-  topLevelInterface: Typescript.Type;
-  someSchemaInterface: Typescript.Type;
-  // interfaceDepth: number;
-}
-
-function processSchemaInterface(api: ProcessSchemaInterfaceApi) {
-  const {
-    someSchemaInterface,
-    schemaTypeChecker,
-    topLevelInterface,
-    // interfaceDepth,
-  } = api;
-  console.log(
-    `processSchemaInterface: ${schemaTypeChecker.typeToString(
-      someSchemaInterface
-    )}`
-  );
-  console.log(`${someSchemaInterface.symbol.getName()}`);
-  if (isInterfaceType(someSchemaInterface)) {
-    // someSchemaInterface.localTypeParameters?.forEach((foo) => {
-    //   console.log(schemaTypeChecker.typeToString(foo));
-    // });
-    // if (
-    //   someSchemaInterface.symbol.declarations &&
-    //   someSchemaInterface.symbol.declarations[0] &&
-    //   Typescript.isInterfaceDeclaration(
-    //     someSchemaInterface.symbol.declarations[0]
-    //   )
-    // ) {
-    //   console.log(someSchemaInterface.symbol.declarations[0].getText());
-    //   someSchemaInterface.symbol.declarations[0].heritageClauses?.forEach(
-    //     (foo) => {
-    //       console.log(foo.getText());
-    //       foo.types.forEach((foo) => {
-    //         console.log(foo.getText());
-    //         foo.typeArguments?.forEach((foo) => {
-    //           console.log(foo.getText());
-    //           console.log(foo.kind);
-    //         });
-    //       });
-    //     }
-    //   );
-    // }
-    // someSchemaInterface.outerTypeParameters
-    // console.log("ttt");
-    const immediateProperties = Array.from(
-      someSchemaInterface.symbol.members
-        ? someSchemaInterface.symbol.members.values()
-        : throwInvalidPathError("someSchemaInterface.symbol.members")
-    ).filter((someInterfaceMember) => isPropertySymbol(someInterfaceMember));
-    immediateProperties.forEach((someImmediateProperty) => {
-      processValueTypeNode({
-        schemaTypeChecker,
-        topLevelInterface,
-        thisPropertyName: someImmediateProperty.getName(),
-        someValueTypeNode:
-          (someImmediateProperty.declarations &&
-            someImmediateProperty.declarations[0] &&
-            Typescript.isPropertySignature(
-              someImmediateProperty.declarations[0]
-            ) &&
-            someImmediateProperty.declarations[0].type) ||
-          throwInvalidPathError("immediatePropertyTypeNode"),
-      });
-    });
-    const immediateBaseInterfaces =
-      schemaTypeChecker.getBaseTypes(someSchemaInterface);
-    immediateBaseInterfaces.forEach((someImmediateBaseInterface) => {
-      const nextSchemaInterfaceDeclaration =
-        (someImmediateBaseInterface.symbol.declarations &&
-          someImmediateBaseInterface.symbol.declarations[0] &&
-          Typescript.isInterfaceDeclaration(
-            someImmediateBaseInterface.symbol.declarations[0]
-          ) &&
-          someImmediateBaseInterface.symbol.declarations[0]) ||
-        throwInvalidPathError("nextSchemaInterfaceDeclaration");
-      // const fooTypes =
-      //   (nextSchemaInterfaceDeclaration.heritageClauses &&
-      //     nextSchemaInterfaceDeclaration.heritageClauses[0] &&
-      //     nextSchemaInterfaceDeclaration.heritageClauses[0].types) ??
-      //   throwInvalidPathError("fooTypes");
-      const nextSchemaInterface = schemaTypeChecker.getTypeAtLocation(
-        nextSchemaInterfaceDeclaration
-      );
-      processSchemaInterface({
-        schemaTypeChecker,
-        topLevelInterface,
-        someSchemaInterface: nextSchemaInterface,
-        // interfaceDepth: interfaceDepth + 1,
-      });
-    });
-  } else {
-    throwInvalidPathError("processSchemaInterface");
-  }
-}
-
-interface ProcessValueTypeNodeApi {
-  schemaTypeChecker: Typescript.TypeChecker;
-  topLevelInterface: Typescript.Type;
-  thisPropertyName: string;
-  someValueTypeNode: Typescript.Node;
-}
-
-function processValueTypeNode(api: ProcessValueTypeNodeApi) {
-  const {
-    someValueTypeNode,
-    schemaTypeChecker,
-    topLevelInterface,
-    thisPropertyName,
-  } = api;
-  console.log(`processValueTypeNode: ${someValueTypeNode.getText()}`);
-  console.log(thisPropertyName);
-  if (Typescript.isLiteralTypeNode(someValueTypeNode)) {
-    console.log("literal");
-  } else if (
-    [
-      Typescript.SyntaxKind.StringKeyword,
-      Typescript.SyntaxKind.NumberKeyword,
-      Typescript.SyntaxKind.BooleanKeyword,
-    ].includes(someValueTypeNode.kind)
-  ) {
-    console.log("keyword");
-  } else if (Typescript.isTypeReferenceNode(someValueTypeNode)) {
-    console.log("reference node");
-    const propertyValueReferenceSymbol =
-      schemaTypeChecker.getSymbolAtLocation(someValueTypeNode.typeName) ??
-      throwInvalidPathError("propertyValueReferenceSymbol");
-    const propertyValueReferenceDeclaration =
-      (propertyValueReferenceSymbol.declarations &&
-        propertyValueReferenceSymbol.declarations[0]) ??
-      throwInvalidPathError("propertyValueReferenceDeclaration");
-    console.log(propertyValueReferenceSymbol.getName());
-    console.log(propertyValueReferenceDeclaration.getText());
-    if (Typescript.isTypeAliasDeclaration(propertyValueReferenceDeclaration)) {
-      console.log("type alias declaration");
-      console.log(propertyValueReferenceDeclaration.type.getText());
-      processValueTypeNode({
-        schemaTypeChecker,
-        topLevelInterface,
-        thisPropertyName,
-        someValueTypeNode: propertyValueReferenceDeclaration.type,
-      });
-    } else if (
-      Typescript.isImportSpecifier(propertyValueReferenceDeclaration)
-    ) {
-      console.log("import specifier");
-      console.log(propertyValueReferenceDeclaration.propertyName?.getText());
-
-      processPropertyDeclarationSymbol({
-        processValueTypeNode,
-        schemaTypeChecker,
-        topLevelInterface,
-        thisPropertyName,
-        somePropertyDeclarationSymbol:
-          schemaTypeChecker.getSymbolAtLocation(
-            propertyValueReferenceDeclaration.propertyName!
-          ) ?? throwInvalidPathError("originalImportReferenceSymbol"),
-      });
-    } else if (
-      Typescript.isTypeParameterDeclaration(propertyValueReferenceDeclaration)
-    ) {
-      console.log("");
-      console.log("");
-      const resolvedPropertyType = schemaTypeChecker.getTypeOfSymbol(
-        topLevelInterface.getProperty(thisPropertyName) ??
-          throwInvalidPathError("resolvedPropertySymbol")
-      );
-
-      console.log("type parameter declaration");
-      console.log(schemaTypeChecker.typeToString(resolvedPropertyType));
-
-      if (resolvedPropertyType.isLiteral()) {
-        console.log("parameter => literal");
-      } else if (
-        resolvedPropertyType.flags &
-        (Typescript.TypeFlags.Boolean |
-          Typescript.TypeFlags.Number |
-          Typescript.TypeFlags.String)
-      ) {
-        console.log("parameter => keyword");
-      } else if (resolvedPropertyType.symbol) {
-        console.log("parameter => symbol");
-
-        processPropertyDeclarationSymbol({
-          processValueTypeNode,
-          schemaTypeChecker,
-          topLevelInterface,
-          thisPropertyName,
-          somePropertyDeclarationSymbol: resolvedPropertyType.symbol,
-        });
-      }
-    } else {
-      throwInvalidPathError("narrowing: immediatePropertyDeclaration");
-    }
-  } else {
-    throwInvalidPathError("someValueTypeNode");
-  }
-}
-
-interface ProcessPropertyDeclarationSymbolApi
-  extends Pick<
-    ProcessValueTypeNodeApi,
-    "schemaTypeChecker" | "topLevelInterface" | "thisPropertyName"
-  > {
-  processValueTypeNode: typeof processValueTypeNode;
-  somePropertyDeclarationSymbol: Typescript.Symbol;
-}
-
-function processPropertyDeclarationSymbol(
-  api: ProcessPropertyDeclarationSymbolApi
-) {
-  const {
-    somePropertyDeclarationSymbol,
-    schemaTypeChecker,
-    topLevelInterface,
-    thisPropertyName,
-  } = api;
-
-  console.log(
-    `processPropertyDeclarationSymbol: ${somePropertyDeclarationSymbol.getName()}`
-  );
-
-  const propertyDeclaration =
-    (somePropertyDeclarationSymbol.declarations &&
-      somePropertyDeclarationSymbol.declarations[0]) ||
-    throwInvalidPathError("propertyDeclaration");
-  if (Typescript.isTypeAliasDeclaration(propertyDeclaration)) {
-    processValueTypeNode({
-      schemaTypeChecker,
-      topLevelInterface,
-      thisPropertyName,
-      someValueTypeNode: propertyDeclaration.type,
-    });
-  } else if (Typescript.isInterfaceDeclaration(propertyDeclaration)) {
-  } else {
-    throwInvalidPathError("processPropertyDeclarationSymbol");
   }
 }
 
@@ -362,6 +118,308 @@ function isObjectFlagsType(
         Typescript.TypeFlags.Intersection)
   );
 }
+
+interface ProcessSchemaInterfaceApi {
+  schemaTypeChecker: Typescript.TypeChecker;
+  someSchemaInterface: Typescript.TypeReference;
+}
+
+function processSchemaInterface(api: ProcessSchemaInterfaceApi) {
+  const { someSchemaInterface, schemaTypeChecker } = api;
+  console.log(schemaTypeChecker.typeToString(someSchemaInterface));
+  console.log(schemaTypeChecker.typeToString(someSchemaInterface.target));
+  someSchemaInterface.target.typeParameters?.forEach(
+    (someParameter, parameterIndex) => {
+      console.log(
+        `${schemaTypeChecker.typeToString(
+          someParameter
+        )} => ${schemaTypeChecker.typeToString(
+          someSchemaInterface.typeArguments![parameterIndex]!
+        )}`
+      );
+    }
+  );
+  const directInterfaceProperties =
+    (someSchemaInterface.symbol.members &&
+      Array.from(someSchemaInterface.symbol.members.values()).filter(
+        isPropertySymbol
+      )) ??
+    [];
+  directInterfaceProperties.forEach((someDirectProperty) => {
+    const directPropertyName = someDirectProperty.getName();
+    const resolvedPropertyValue =
+      someSchemaInterface.getProperty(directPropertyName) ??
+      throwInvalidPathError("resolvedPropertyValue");
+    const resolvedPropertyValueType = schemaTypeChecker.getTypeOfSymbol(
+      resolvedPropertyValue
+    );
+    console.log(
+      `${directPropertyName}: ${schemaTypeChecker.typeToString(
+        schemaTypeChecker.getTypeOfSymbol(
+          someSchemaInterface.target.getProperty(directPropertyName)!
+        )
+      )} => ${schemaTypeChecker.typeToString(resolvedPropertyValueType)}`
+    );
+  });
+  const schemaBaseInterfaces = someSchemaInterface.target.getBaseTypes();
+  if (schemaBaseInterfaces) {
+    schemaBaseInterfaces.forEach((someBaseInterface) => {
+      if (someBaseInterface.isIntersection()) {
+        console.log("intersection");
+        console.log(schemaTypeChecker.typeToString(someBaseInterface));
+      } else if (someBaseInterface.isClass()) {
+        console.log("class");
+        console.log(schemaTypeChecker.typeToString(someBaseInterface));
+      } else if (isTypeReferenceType(someBaseInterface)) {
+        console.log("reference");
+        processSchemaInterface({
+          schemaTypeChecker,
+          someSchemaInterface: someBaseInterface,
+        });
+      }
+    });
+  }
+}
+
+// interface ProcessSchemaInterfaceApi {
+//   schemaTypeChecker: Typescript.TypeChecker;
+//   topLevelInterface: Typescript.Type;
+//   someSchemaInterface: Typescript.Type;
+// }
+
+// function processSchemaInterface(api: ProcessSchemaInterfaceApi) {
+//   const {
+//     someSchemaInterface,
+//     schemaTypeChecker,
+//     topLevelInterface,
+//     // interfaceDepth,
+//   } = api;
+//   console.log(
+//     `processSchemaInterface: ${schemaTypeChecker.typeToString(
+//       someSchemaInterface
+//     )}`
+//   );
+//   console.log(`${someSchemaInterface.symbol.getName()}`);
+//   if (isInterfaceType(someSchemaInterface)) {
+//     // someSchemaInterface.localTypeParameters?.forEach((foo) => {
+//     //   console.log(schemaTypeChecker.typeToString(foo));
+//     // });
+//     // if (
+//     //   someSchemaInterface.symbol.declarations &&
+//     //   someSchemaInterface.symbol.declarations[0] &&
+//     //   Typescript.isInterfaceDeclaration(
+//     //     someSchemaInterface.symbol.declarations[0]
+//     //   )
+//     // ) {
+//     //   console.log(someSchemaInterface.symbol.declarations[0].getText());
+//     //   someSchemaInterface.symbol.declarations[0].heritageClauses?.forEach(
+//     //     (foo) => {
+//     //       console.log(foo.getText());
+//     //       foo.types.forEach((foo) => {
+//     //         console.log(foo.getText());
+//     //         foo.typeArguments?.forEach((foo) => {
+//     //           console.log(foo.getText());
+//     //           console.log(foo.kind);
+//     //         });
+//     //       });
+//     //     }
+//     //   );
+//     // }
+//     // someSchemaInterface.outerTypeParameters
+//     // console.log("ttt");
+//     const immediateProperties = Array.from(
+//       someSchemaInterface.symbol.members
+//         ? someSchemaInterface.symbol.members.values()
+//         : throwInvalidPathError("someSchemaInterface.symbol.members")
+//     ).filter((someInterfaceMember) => isPropertySymbol(someInterfaceMember));
+//     immediateProperties.forEach((someImmediateProperty) => {
+//       processValueTypeNode({
+//         schemaTypeChecker,
+//         topLevelInterface,
+//         thisPropertyName: someImmediateProperty.getName(),
+//         someValueTypeNode:
+//           (someImmediateProperty.declarations &&
+//             someImmediateProperty.declarations[0] &&
+//             Typescript.isPropertySignature(
+//               someImmediateProperty.declarations[0]
+//             ) &&
+//             someImmediateProperty.declarations[0].type) ||
+//           throwInvalidPathError("immediatePropertyTypeNode"),
+//       });
+//     });
+//     const immediateBaseInterfaces =
+//       schemaTypeChecker.getBaseTypes(someSchemaInterface);
+//     immediateBaseInterfaces.forEach((someImmediateBaseInterface) => {
+//       const nextSchemaInterfaceDeclaration =
+//         (someImmediateBaseInterface.symbol.declarations &&
+//           someImmediateBaseInterface.symbol.declarations[0] &&
+//           Typescript.isInterfaceDeclaration(
+//             someImmediateBaseInterface.symbol.declarations[0]
+//           ) &&
+//           someImmediateBaseInterface.symbol.declarations[0]) ||
+//         throwInvalidPathError("nextSchemaInterfaceDeclaration");
+//       // const fooTypes =
+//       //   (nextSchemaInterfaceDeclaration.heritageClauses &&
+//       //     nextSchemaInterfaceDeclaration.heritageClauses[0] &&
+//       //     nextSchemaInterfaceDeclaration.heritageClauses[0].types) ??
+//       //   throwInvalidPathError("fooTypes");
+//       const nextSchemaInterface = schemaTypeChecker.getTypeAtLocation(
+//         nextSchemaInterfaceDeclaration
+//       );
+//       processSchemaInterface({
+//         schemaTypeChecker,
+//         topLevelInterface,
+//         someSchemaInterface: nextSchemaInterface,
+//         // interfaceDepth: interfaceDepth + 1,
+//       });
+//     });
+//   } else {
+//     throwInvalidPathError("processSchemaInterface");
+//   }
+// }
+
+// interface ProcessValueTypeNodeApi {
+//   schemaTypeChecker: Typescript.TypeChecker;
+//   topLevelInterface: Typescript.Type;
+//   thisPropertyName: string;
+//   someValueTypeNode: Typescript.Node;
+// }
+
+// function processValueTypeNode(api: ProcessValueTypeNodeApi) {
+//   const {
+//     someValueTypeNode,
+//     schemaTypeChecker,
+//     topLevelInterface,
+//     thisPropertyName,
+//   } = api;
+//   console.log(`processValueTypeNode: ${someValueTypeNode.getText()}`);
+//   console.log(thisPropertyName);
+//   if (Typescript.isLiteralTypeNode(someValueTypeNode)) {
+//     console.log("literal");
+//   } else if (
+//     [
+//       Typescript.SyntaxKind.StringKeyword,
+//       Typescript.SyntaxKind.NumberKeyword,
+//       Typescript.SyntaxKind.BooleanKeyword,
+//     ].includes(someValueTypeNode.kind)
+//   ) {
+//     console.log("keyword");
+//   } else if (Typescript.isTypeReferenceNode(someValueTypeNode)) {
+//     console.log("reference node");
+//     const propertyValueReferenceSymbol =
+//       schemaTypeChecker.getSymbolAtLocation(someValueTypeNode.typeName) ??
+//       throwInvalidPathError("propertyValueReferenceSymbol");
+//     const propertyValueReferenceDeclaration =
+//       (propertyValueReferenceSymbol.declarations &&
+//         propertyValueReferenceSymbol.declarations[0]) ??
+//       throwInvalidPathError("propertyValueReferenceDeclaration");
+//     console.log(propertyValueReferenceSymbol.getName());
+//     console.log(propertyValueReferenceDeclaration.getText());
+//     if (Typescript.isTypeAliasDeclaration(propertyValueReferenceDeclaration)) {
+//       console.log("type alias declaration");
+//       console.log(propertyValueReferenceDeclaration.type.getText());
+//       processValueTypeNode({
+//         schemaTypeChecker,
+//         topLevelInterface,
+//         thisPropertyName,
+//         someValueTypeNode: propertyValueReferenceDeclaration.type,
+//       });
+//     } else if (
+//       Typescript.isImportSpecifier(propertyValueReferenceDeclaration)
+//     ) {
+//       console.log("import specifier");
+//       console.log(propertyValueReferenceDeclaration.propertyName?.getText());
+
+//       processPropertyDeclarationSymbol({
+//         processValueTypeNode,
+//         schemaTypeChecker,
+//         topLevelInterface,
+//         thisPropertyName,
+//         somePropertyDeclarationSymbol:
+//           schemaTypeChecker.getSymbolAtLocation(
+//             propertyValueReferenceDeclaration.propertyName!
+//           ) ?? throwInvalidPathError("originalImportReferenceSymbol"),
+//       });
+//     } else if (
+//       Typescript.isTypeParameterDeclaration(propertyValueReferenceDeclaration)
+//     ) {
+//       console.log("");
+//       console.log("");
+//       const resolvedPropertyType = schemaTypeChecker.getTypeOfSymbol(
+//         topLevelInterface.getProperty(thisPropertyName) ??
+//           throwInvalidPathError("resolvedPropertySymbol")
+//       );
+
+//       console.log("type parameter declaration");
+//       console.log(schemaTypeChecker.typeToString(resolvedPropertyType));
+
+//       if (resolvedPropertyType.isLiteral()) {
+//         console.log("parameter => literal");
+//       } else if (
+//         resolvedPropertyType.flags &
+//         (Typescript.TypeFlags.Boolean |
+//           Typescript.TypeFlags.Number |
+//           Typescript.TypeFlags.String)
+//       ) {
+//         console.log("parameter => keyword");
+//       } else if (resolvedPropertyType.symbol) {
+//         console.log("parameter => symbol");
+
+//         processPropertyDeclarationSymbol({
+//           processValueTypeNode,
+//           schemaTypeChecker,
+//           topLevelInterface,
+//           thisPropertyName,
+//           somePropertyDeclarationSymbol: resolvedPropertyType.symbol,
+//         });
+//       }
+//     } else {
+//       throwInvalidPathError("narrowing: immediatePropertyDeclaration");
+//     }
+//   } else {
+//     throwInvalidPathError("someValueTypeNode");
+//   }
+// }
+
+// interface ProcessPropertyDeclarationSymbolApi
+//   extends Pick<
+//     ProcessValueTypeNodeApi,
+//     "schemaTypeChecker" | "topLevelInterface" | "thisPropertyName"
+//   > {
+//   processValueTypeNode: typeof processValueTypeNode;
+//   somePropertyDeclarationSymbol: Typescript.Symbol;
+// }
+
+// function processPropertyDeclarationSymbol(
+//   api: ProcessPropertyDeclarationSymbolApi
+// ) {
+//   const {
+//     somePropertyDeclarationSymbol,
+//     schemaTypeChecker,
+//     topLevelInterface,
+//     thisPropertyName,
+//   } = api;
+
+//   console.log(
+//     `processPropertyDeclarationSymbol: ${somePropertyDeclarationSymbol.getName()}`
+//   );
+
+//   const propertyDeclaration =
+//     (somePropertyDeclarationSymbol.declarations &&
+//       somePropertyDeclarationSymbol.declarations[0]) ||
+//     throwInvalidPathError("propertyDeclaration");
+//   if (Typescript.isTypeAliasDeclaration(propertyDeclaration)) {
+//     processValueTypeNode({
+//       schemaTypeChecker,
+//       topLevelInterface,
+//       thisPropertyName,
+//       someValueTypeNode: propertyDeclaration.type,
+//     });
+//   } else if (Typescript.isInterfaceDeclaration(propertyDeclaration)) {
+//   } else {
+//     throwInvalidPathError("processPropertyDeclarationSymbol");
+//   }
+// }
 
 // interface TableSchema {
 //   tableName: string;
