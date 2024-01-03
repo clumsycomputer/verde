@@ -1,0 +1,19 @@
+version: "2.1"
+services:
+  code-server:
+    container_name: verde-code-server
+    build: 
+      context: .
+      dockerfile: code-server.dockerfile
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - SUDO_PASSWORD=password #optional
+      - DEFAULT_WORKSPACE=/home/verde
+    volumes:
+      - .:/home/verde
+      - ./.code-server:/config
+    ports:
+      - 8443:8443
+    restart: unless-stopped
