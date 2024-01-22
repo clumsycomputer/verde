@@ -18,5 +18,10 @@
   },
   "tasks": {
     "verde": "deno run --allow-all ./source/main.ts"
+  },
+  "test": {
+    "include": [
+      "tests/*.ts"
+    ]
   }
 }

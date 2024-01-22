@@ -1,4 +1,5 @@
 import Verde from "../source/library/index.ts";
+
 export type ExampleSchema = Verde.Schema<Verde.Verify<[CoolestPerson]>>;
 
 type CoolString = "dang";

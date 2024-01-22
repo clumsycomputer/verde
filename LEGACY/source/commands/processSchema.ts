@@ -1,24 +1,23 @@
-import { Command, Input, Type } from "../deps/cliffy.ts";
+import { Command } from "../deps/cliffy.ts";
 import { Path } from "../deps/path.ts";
-import { Sqlite } from "../deps/sqlite.ts";
 import { Typescript } from "../deps/typescript.ts";
-import { throwError, throwInvalidPathError } from "../helpers/errors.ts";
+import { throwInvalidPathError } from "../helpers/errors.ts";
 //
 
-export const setupProjectCommand = new Command()
+export const processSchemaCommand = new Command()
   .name("setup")
   .arguments("<projectDirectoryPath>")
   .action(async (___, projectDirectoryPath) => {
-    await setupProject({
+    await processSchema({
       projectDirectoryPath,
     });
   });
 
-interface SetupProjectApi {
+interface ProcessSchemaApi {
   projectDirectoryPath: string;
 }
 
-async function setupProject(api: SetupProjectApi) {
+async function processSchema(api: ProcessSchemaApi) {
   const { projectDirectoryPath } = api;
   const resolvedProjectDirectoryPath = Path.isAbsolute(projectDirectoryPath)
     ? projectDirectoryPath
