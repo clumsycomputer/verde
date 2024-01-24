@@ -7,7 +7,15 @@ export interface LoadSchemaModuleApi {
   schemaModulePath: string;
 }
 
-export function loadSchemaModule(api: LoadSchemaModuleApi) {
+export interface LoadSchemaModuleResult {
+  schemaTypeChecker: Typescript.TypeChecker;
+  lhsSchemaExportSymbol: Typescript.Symbol;
+  rhsSchemaExportType: Typescript.Type;
+}
+
+export function loadSchemaModule(
+  api: LoadSchemaModuleApi,
+): LoadSchemaModuleResult {
   const { schemaModulePath } = api;
   const workingDirectoryPath = Deno.cwd();
   const resolvedSchemaModulePath = Path.isAbsolute(schemaModulePath)
@@ -23,26 +31,42 @@ export function loadSchemaModule(api: LoadSchemaModuleApi) {
   const schemaTypeChecker = schemaProgram.getTypeChecker();
   const schemaModuleFile = schemaProgram.getSourceFile(schemaModulePath) ??
     throwInvalidPathError('schemaFile');
-  const schemaModuleSymbol = schemaTypeChecker.getSymbolAtLocation(schemaModuleFile)
+  const schemaModuleSymbol = schemaTypeChecker.getSymbolAtLocation(
+    schemaModuleFile,
+  );
   if (schemaModuleSymbol === undefined) {
-    throwUserError(`invalid schema module: no exports at "${schemaModulePath}"`)
+    throwUserError(
+      `invalid schema module: no exports at "${schemaModulePath}"`,
+    );
   }
   const schemaExports = schemaTypeChecker.getExportsOfModule(
-    schemaModuleSymbol
+    schemaModuleSymbol,
   );
   if (schemaExports.length > 1) {
-    throwUserError(`invalid schema module: multiple exports at "${schemaModulePath}"`)
+    throwUserError(
+      `invalid schema module: multiple exports at "${schemaModulePath}"`,
+    );
   }
-  const lhsSchemaExportSymbol = (schemaExports.length === 1 && schemaExports[0]) ||
-    throwInvalidPathError('schemaExportSymbol');
-  const schemaExportNode =
-    (lhsSchemaExportSymbol.declarations && lhsSchemaExportSymbol.declarations[0]) ??
-      throwInvalidPathError('schemaExportNode');
+  const lhsSchemaExportSymbol =
+    (schemaExports.length === 1 && schemaExports[0]) ||
+    throwInvalidPathError('schemaExportSymbol');  
+  if (lhsSchemaExportSymbol.valueDeclaration) {
+    throwUserError(
+      `invalid schema module: non-type export at "${schemaModulePath}"`,
+    );
+  }
+  const schemaExportNode = (lhsSchemaExportSymbol.declarations &&
+    lhsSchemaExportSymbol.declarations[0]) ??
+    throwInvalidPathError('schemaExportNode');
+  if (Typescript.isInterfaceDeclaration(schemaExportNode)) {
+    throwUserError(`invalid schema module: interface export at "${schemaModulePath}"`)
+  }
   const rhsSchemaExportType = schemaTypeChecker.getTypeAtLocation(
     schemaExportNode,
   );
   return {
+    schemaTypeChecker,
     lhsSchemaExportSymbol,
-    rhsSchemaExportType
-  }
+    rhsSchemaExportType,
+  };
 }

@@ -1,10 +1,7 @@
-import { VerdeSchema, VerdeVerify } from '../imports/Verde.ts';
 
-export type BasicSchema = VerdeSchema<
-  VerdeVerify<[BasicItem]>
->;
+export type BasicSchema = [BasicSchemaItem]
 
-interface BasicItem {
+interface BasicSchemaItem {
   basicString: string;
   basicNumber: number;
   basicNull: null;
