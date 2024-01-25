@@ -1,6 +1,7 @@
 import { throwInvalidPathError, throwUserError } from './helpers/throwError.ts';
 import { LoadSchemaModuleResult } from './loadSchemaModule.ts';
 import { Typescript } from './imports/Typescript.ts';
+import { SchemaItem, SchemaMap } from './SchemaMap.ts';
 
 export interface ProcessSchemaExportApi extends
   Pick<
@@ -8,7 +9,7 @@ export interface ProcessSchemaExportApi extends
     'schemaTypeChecker' | 'lhsSchemaExportSymbol' | 'rhsSchemaExportType'
   > {}
 
-export function processSchemaExport(api: ProcessSchemaExportApi) {
+export function processSchemaExport(api: ProcessSchemaExportApi): SchemaMap {
   const { schemaTypeChecker, rhsSchemaExportType, lhsSchemaExportSymbol } = api;
   if (schemaTypeChecker.isTupleType(rhsSchemaExportType) === false) {
     throwUserError(
@@ -17,30 +18,78 @@ export function processSchemaExport(api: ProcessSchemaExportApi) {
       } is not a tuple`,
     );
   }
-  const schemaItemTypes = (isTypeReferenceType(rhsSchemaExportType) &&
+  const schemaMapResult: SchemaMap = {
+    schemaName: lhsSchemaExportSymbol.name,
+    schemaItems: {},
+  };
+  const topLevelItems = (isTypeReferenceType(rhsSchemaExportType) &&
     schemaTypeChecker.getTypeArguments(rhsSchemaExportType)) ||
-    throwInvalidPathError('topLevelSchemaTypes');
-    schemaItemTypes.forEach((someSchemaItemType) => {
-    if (isInterfaceType(someSchemaItemType) === false) {
+    throwInvalidPathError('schemaItemTypes');
+  topLevelItems.forEach((someTopLevelItem) => {
+    if (isInterfaceType(someTopLevelItem) === false) {
       throwUserError(
-        `invalid schema item: ${
-          schemaTypeChecker.typeToString(someSchemaItemType)
+        `invalid top-level item: ${
+          schemaTypeChecker.typeToString(someTopLevelItem)
         }`,
       );
     }
-    processSchemaItem({
-      someSchemaItemType,
+    processInterfaceItem({
+      schemaTypeChecker,
+      schemaMapResult,
+      someInterfaceItem: someTopLevelItem,
     });
   });
+  return schemaMapResult;
 }
 
-interface ProcessSchemaItemApi {
-  someSchemaItemType: Typescript.InterfaceType;
+interface ProcessInterfaceItemApi
+  extends Pick<ProcessSchemaExportApi, 'schemaTypeChecker'> {
+  schemaMapResult: SchemaMap;
+  someInterfaceItem: Typescript.InterfaceType;
 }
 
-function processSchemaItem(api: ProcessSchemaItemApi) {
-  const { someSchemaItemType } = api;
-  console.log(someSchemaItemType.symbol.name);
+function processInterfaceItem(api: ProcessInterfaceItemApi) {
+  const { someInterfaceItem, schemaMapResult, schemaTypeChecker } = api;
+  const itemName = someInterfaceItem.symbol.name;
+  if (Object.hasOwn(schemaMapResult.schemaItems, itemName)) {
+    return;
+  }
+  const newSchemaItemResult: SchemaItem = {
+    itemName,
+    itemProperties: {},
+    itemBaseItems: [],
+  };
+  someInterfaceItem.typeParameters?.forEach((someInterfaceParameter) => {
+    console.log(someInterfaceParameter.symbol.name);
+  });
+  const itemDirectProperties = (someInterfaceItem.symbol.members &&
+    Array.from(someInterfaceItem.symbol.members.values()).filter(
+      isPropertySymbol,
+    )) ??
+    [];
+  itemDirectProperties.forEach((someDirectyProperty) => {
+    const propertyName = someDirectyProperty.name;
+    const propertyType = schemaTypeChecker.getTypeOfSymbol(someDirectyProperty);
+    newSchemaItemResult.itemProperties[propertyName] = {
+      propertyName,
+      propertyType: {
+        typeKind: 'primitive',
+        typeName: schemaTypeChecker.typeToString(propertyType)
+      }
+    };
+  });
+  const itemBaseItems = someInterfaceItem.getBaseTypes() ?? [];
+  itemBaseItems.forEach((someBaseItem) => {
+    // todo
+  });
+  schemaMapResult.schemaItems[newSchemaItemResult.itemName] =
+    newSchemaItemResult;
+}
+
+function isPropertySymbol(
+  someSymbol: Typescript.Symbol,
+): someSymbol is Typescript.Symbol {
+  return Boolean(someSymbol.flags & Typescript.SymbolFlags.Property);
 }
 
 function isInterfaceType(

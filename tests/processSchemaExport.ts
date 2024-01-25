@@ -17,20 +17,42 @@ Deno.test({ name: 'non-tuple export type' }, () => {
   );
 });
 
-Deno.test({ name: "non-interface schema item"}, () => {
-  Assert.assertThrows(() => {
-    processSchemaExport(loadSchemaModule({
-      schemaModulePath: resolveCasePath({
-        someCaseName: 'NonInterfaceSchemaItem',
-      }),
-    }));
-  }, Error, `invalid schema item: unknown`)
-})
+Deno.test({ name: 'non-interface schema item' }, () => {
+  Assert.assertThrows(
+    () => {
+      processSchemaExport(loadSchemaModule({
+        schemaModulePath: resolveCasePath({
+          someCaseName: 'NonInterfaceSchemaItem',
+        }),
+      }));
+    },
+    Error,
+    `invalid top-level item: TypeReferenceItem<unknown>`,
+  );
+});
 
 Deno.test({ name: 'basic schema' }, () => {
-  processSchemaExport(loadSchemaModule({
+  const basicSchemaMap = processSchemaExport(loadSchemaModule({
     schemaModulePath: resolveCasePath({
       someCaseName: 'BasicSchema',
     }),
   }));
+  Assert.assertEquals(basicSchemaMap, {
+    schemaName: 'BasicSchema',
+    schemaItems: {
+      BasicSchemaItem: {
+        itemName: 'BasicSchemaItem',
+        itemBaseItems: [],
+        itemProperties: {
+          basicProperty: {
+            propertyName: 'basicProperty',
+            propertyType: {
+              typeKind: 'primitive',
+              typeName: 'string',
+            },
+          }
+        },
+      },
+    },
+  });
 });
