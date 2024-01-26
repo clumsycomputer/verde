@@ -31,28 +31,99 @@ Deno.test({ name: 'non-interface schema item' }, () => {
   );
 });
 
-Deno.test({ name: 'basic schema' }, () => {
-  const basicSchemaMap = processSchemaExport(loadSchemaModule({
+Deno.test({ name: 'invalid property type' }, () => {
+  Assert.assertThrows(
+    () => {
+      processSchemaExport(loadSchemaModule({
+        schemaModulePath: resolveCasePath({
+          someCaseName: 'InvalidPropertyType',
+        }),
+      }));
+    },
+    Error,
+    `invalid property type: FooSchemaItem["invalidProperty"]`,
+  );
+});
+
+Deno.test({ name: 'invalid base item'}, () => {
+  Assert.assertThrows(() => {
+    processSchemaExport(loadSchemaModule({
+      schemaModulePath: resolveCasePath({
+        someCaseName: 'InvalidBaseItem',
+      }),
+    }));
+  }, Error, 'invalid base item: InvalidBaseItem<unknown> on InvalidExtensionItem')
+})
+
+Deno.test({ name: 'valid schema' }, () => {
+  const validSchemaMap = processSchemaExport(loadSchemaModule({
     schemaModulePath: resolveCasePath({
-      someCaseName: 'BasicSchema',
+      someCaseName: 'ValidSchema',
     }),
   }));
-  Assert.assertEquals(basicSchemaMap, {
-    schemaName: 'BasicSchema',
+  Assert.assertEquals(validSchemaMap, {
+    schemaId: 'ValidSchema',
     schemaItems: {
       BasicSchemaItem: {
-        itemName: 'BasicSchemaItem',
-        itemBaseItems: [],
+        itemId: 'BasicSchemaItem',
+        itemBaseIds: [],
         itemProperties: {
-          basicProperty: {
-            propertyName: 'basicProperty',
+          stringProperty: {
+            propertyId: 'stringProperty',
             propertyType: {
               typeKind: 'primitive',
-              typeName: 'string',
+              typeId: 'string',
             },
+          },
+          numberProperty: {
+            propertyId: 'numberProperty',
+            propertyType: {
+              typeKind: 'primitive',
+              typeId: 'number',
+            },
+          },
+          booleanProperty: {
+            propertyId: 'booleanProperty',
+            propertyType: {
+              typeKind: 'primitive',
+              typeId: 'boolean',
+            },
+          },
+          interfaceProperty: {
+            propertyId: 'interfaceProperty',
+            propertyType: {
+              typeKind: 'interface',
+              typeId: 'FooItem'
+            }
           }
         },
       },
+      FooItem: {
+        itemId: 'FooItem',
+        itemBaseIds: [],
+        itemProperties: {
+          fooProperty: {
+            propertyId: 'fooProperty',
+            propertyType: {
+              typeKind: 'primitive',
+              typeId: 'string'
+            }
+          }
+        }
+      },
+      ExtensionSchemaItem: {
+        itemId: "ExtensionSchemaItem",
+        itemBaseIds: ["BasicSchemaItem"],
+        itemProperties: {
+          extensionStringProperty: {
+            propertyId: "extensionStringProperty",
+            propertyType: {
+              typeKind: "primitive",
+              typeId: "string"
+            }
+          }
+        }
+      }
     },
   });
 });

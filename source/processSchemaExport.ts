@@ -19,7 +19,7 @@ export function processSchemaExport(api: ProcessSchemaExportApi): SchemaMap {
     );
   }
   const schemaMapResult: SchemaMap = {
-    schemaName: lhsSchemaExportSymbol.name,
+    schemaId: lhsSchemaExportSymbol.name,
     schemaItems: {},
   };
   const topLevelItems = (isTypeReferenceType(rhsSchemaExportType) &&
@@ -50,14 +50,14 @@ interface ProcessInterfaceItemApi
 
 function processInterfaceItem(api: ProcessInterfaceItemApi) {
   const { someInterfaceItem, schemaMapResult, schemaTypeChecker } = api;
-  const itemName = someInterfaceItem.symbol.name;
-  if (Object.hasOwn(schemaMapResult.schemaItems, itemName)) {
-    return;
+  const itemSymbolName = someInterfaceItem.symbol.name;
+  if (Object.hasOwn(schemaMapResult.schemaItems, itemSymbolName)) {
+    return itemSymbolName;
   }
   const newSchemaItemResult: SchemaItem = {
-    itemName,
+    itemId: itemSymbolName,
     itemProperties: {},
-    itemBaseItems: [],
+    itemBaseIds: [],
   };
   someInterfaceItem.typeParameters?.forEach((someInterfaceParameter) => {
     console.log(someInterfaceParameter.symbol.name);
@@ -68,28 +68,70 @@ function processInterfaceItem(api: ProcessInterfaceItemApi) {
     )) ??
     [];
   itemDirectProperties.forEach((someDirectyProperty) => {
-    const propertyName = someDirectyProperty.name;
+    const propertySymbolName = someDirectyProperty.name;
     const propertyType = schemaTypeChecker.getTypeOfSymbol(someDirectyProperty);
-    newSchemaItemResult.itemProperties[propertyName] = {
-      propertyName,
-      propertyType: {
-        typeKind: 'primitive',
-        typeName: schemaTypeChecker.typeToString(propertyType)
-      }
-    };
+    if (
+      isStringType(propertyType) ||
+      isNumberType(propertyType) ||
+      isBooleanType(propertyType)
+    ) {
+      newSchemaItemResult.itemProperties[propertySymbolName] = {
+        propertyId: propertySymbolName,
+        propertyType: {
+          typeKind: 'primitive',
+          typeId: schemaTypeChecker.typeToString(propertyType),
+        },
+      };
+    } else if (isInterfaceType(propertyType)) {
+      const propertyTypeName = processInterfaceItem({
+        schemaTypeChecker,
+        schemaMapResult,
+        someInterfaceItem: propertyType,
+      });
+      newSchemaItemResult.itemProperties[propertySymbolName] = {
+        propertyId: propertySymbolName,
+        propertyType: {
+          typeKind: 'interface',
+          typeId: propertyTypeName,
+        },
+      };
+    } else {
+      throwUserError(
+        `invalid property type: ${itemSymbolName}["${propertySymbolName}"]`,
+      );
+    }
   });
   const itemBaseItems = someInterfaceItem.getBaseTypes() ?? [];
   itemBaseItems.forEach((someBaseItem) => {
-    // todo
+    if (isInterfaceType(someBaseItem)) {
+      const baseItemName = processInterfaceItem({
+        schemaTypeChecker,
+        schemaMapResult,
+        someInterfaceItem: someBaseItem,
+      });
+      newSchemaItemResult.itemBaseIds.push(baseItemName);
+    } else {
+      throwUserError(
+        `invalid base item: ${
+          schemaTypeChecker.typeToString(someBaseItem)
+        } on ${newSchemaItemResult.itemId}`,
+      );
+    }
   });
-  schemaMapResult.schemaItems[newSchemaItemResult.itemName] =
-    newSchemaItemResult;
+  schemaMapResult.schemaItems[newSchemaItemResult.itemId] = newSchemaItemResult;
+  return newSchemaItemResult.itemId;
 }
 
-function isPropertySymbol(
-  someSymbol: Typescript.Symbol,
-): someSymbol is Typescript.Symbol {
-  return Boolean(someSymbol.flags & Typescript.SymbolFlags.Property);
+function isStringType(someType: Typescript.Type) {
+  return Boolean(someType.flags & Typescript.TypeFlags.String);
+}
+
+function isNumberType(someType: Typescript.Type) {
+  return Boolean(someType.flags & Typescript.TypeFlags.Number);
+}
+
+function isBooleanType(someType: Typescript.Type) {
+  return Boolean(someType.flags & Typescript.TypeFlags.Boolean);
 }
 
 function isInterfaceType(
@@ -123,4 +165,10 @@ function isObjectFlagsType(
         Typescript.TypeFlags.Union |
         Typescript.TypeFlags.Intersection),
   );
+}
+
+function isPropertySymbol(
+  someSymbol: Typescript.Symbol,
+): someSymbol is Typescript.Symbol {
+  return Boolean(someSymbol.flags & Typescript.SymbolFlags.Property);
 }

@@ -93,12 +93,11 @@ Deno.test({ name: 'default non-type export at "schemaModulePath"' }, () => {
 });
 
 Deno.test({ name: 'valid schema module format' }, () => {
-  const basicSchemaCasePath = resolveCasePath({
-    someCaseName: 'BasicSchema',
+  const validSchemaCasePath = resolveCasePath({
+    someCaseName: 'ValidSchema',
   });
-  const { lhsSchemaExportSymbol, rhsSchemaExportType } = loadSchemaModule({
-    schemaModulePath: basicSchemaCasePath,
+  const { lhsSchemaExportSymbol } = loadSchemaModule({
+    schemaModulePath: validSchemaCasePath,
   });
-  Assert.assert(lhsSchemaExportSymbol.name === 'BasicSchema');
-  Assert.assert(rhsSchemaExportType.symbol.name === 'ProvidedVerdeSchema');
+  Assert.assert(lhsSchemaExportSymbol.name === 'ValidSchema');
 });

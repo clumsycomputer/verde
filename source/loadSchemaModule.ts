@@ -27,6 +27,7 @@ export function loadSchemaModule(
   const schemaProgram = Typescript.createProgram([schemaModulePath], {
     target: Typescript.ScriptTarget.Latest,
     rootDir: workingDirectoryPath,
+    strictNullChecks: true
   });
   const schemaTypeChecker = schemaProgram.getTypeChecker();
   const schemaModuleFile = schemaProgram.getSourceFile(schemaModulePath) ??

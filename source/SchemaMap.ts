@@ -1,25 +1,26 @@
 export interface SchemaMap {
-  schemaName: string;
+  schemaId: string;
   schemaItems: Record<string, SchemaItem>;
 }
 
 export interface SchemaItem {
-  itemName: string;
-  itemProperties: Record<string, SchemaProperty>;
-  itemBaseItems: Array<string>;
+  itemId: string;
+  itemBaseIds: Array<string>;
+  itemProperties: Record<string, SchemaProperty>;  
 }
 
 export interface SchemaProperty {
-  propertyName: string;
+  propertyId: string;
   propertyType: SchemaType;
 }
 
-export type SchemaType = PrimitiveSchemaType
-
+export type SchemaType = PrimitiveSchemaType | InterfaceSchemaType;
 
 interface PrimitiveSchemaType extends SchemaTypeBase<'primitive'> {}
 
+interface InterfaceSchemaType extends SchemaTypeBase<'interface'> {}
+
 interface SchemaTypeBase<TypeKind> {
   typeKind: TypeKind;
-  typeName: string
+  typeId: string;
 }
