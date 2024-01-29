@@ -1,26 +1,89 @@
 export interface SchemaMap {
-  schemaId: string;
-  schemaItems: Record<string, SchemaItem>;
+  schemaSymbol: string;
+  schemaModels: Record<SchemaModel['modelId'], SchemaModel>;
 }
 
-export interface SchemaItem {
-  itemId: string;
-  itemBaseIds: Array<string>;
-  itemProperties: Record<string, SchemaProperty>;  
+export type SchemaModel = DataModel | TemplateModel;
+
+export interface DataModel extends SchemaModelBase<'data'> {}
+
+export type TemplateModel =
+  | GenericTemplateModel
+  | ConcreteTemplateModel;
+
+export interface GenericTemplateModel extends TemplateSchemaBase<'generic'> {
+  templateParameters: Array<TemplateParameter>;
 }
 
-export interface SchemaProperty {
-  propertyId: string;
-  propertyType: SchemaType;
+interface TemplateParameter {
+  parameterSymbol: string;
 }
 
-export type SchemaType = PrimitiveSchemaType | InterfaceSchemaType;
+export interface ConcreteTemplateModel extends TemplateSchemaBase<'concrete'> {}
 
-interface PrimitiveSchemaType extends SchemaTypeBase<'primitive'> {}
+interface TemplateSchemaBase<TemplateKind> extends SchemaModelBase<'template'> {
+  templateKind: TemplateKind;
+}
 
-interface InterfaceSchemaType extends SchemaTypeBase<'interface'> {}
+interface SchemaModelBase<TypeKind> {
+  modelKind: TypeKind;
+  modelId: string;
+  modelSymbol: string;
+  modelExtensions: Array<ModelExtension>;
+  modelProperties: Record<
+    ModelProperty['propertyKey'],
+    ModelProperty
+  >;
+}
 
-interface SchemaTypeBase<TypeKind> {
-  typeKind: TypeKind;
-  typeId: string;
+export type ModelExtension =
+  | ConcreteModelExtension
+  | GenericModelExtension;
+
+export interface ConcreteModelExtension
+  extends ModelExtensionBase<ConcreteTemplateModel['templateKind']> {}
+
+export interface GenericModelExtension
+  extends ModelExtensionBase<GenericTemplateModel['templateKind']> {
+  extensionTypeArguments: Array<unknown>;
+}
+
+interface ModelExtensionBase<
+  ExtensionKind extends TemplateModel['templateKind'],
+> {
+  extensionKind: ExtensionKind;
+  extensionModelId: TemplateModel['modelId'];
+}
+
+export type ModelProperty =
+  | DataModelModelProperty
+  | PrimitiveModelProperty;
+
+export interface DataModelModelProperty
+  extends ModelPropertyBase<'dataModel'> {
+  dataModelId: DataModel['modelId'];
+}
+
+export type PrimitiveModelProperty =
+  | StringModelProperty
+  | NumberModelProperty
+  | BooleanModelProperty;
+
+export interface StringModelProperty
+  extends PrimitiveModelPropertyBase<'string'> {}
+
+export interface NumberModelProperty
+  extends PrimitiveModelPropertyBase<'number'> {}
+
+export interface BooleanModelProperty
+  extends PrimitiveModelPropertyBase<'boolean'> {}
+
+interface PrimitiveModelPropertyBase<PrimitiveKind>
+  extends ModelPropertyBase<'primitive'> {
+  primitiveKind: PrimitiveKind;
+}
+
+interface ModelPropertyBase<PropertyKind> {
+  propertyKind: PropertyKind;
+  propertyKey: string;
 }

@@ -1,16 +1,23 @@
-export type ValidSchema = [BasicSchemaItem, ExtensionSchemaItem];
+export type ValidSchema = [
+  BasicDataModel, 
+  CompositeDataModel
+];
 
-interface BasicSchemaItem {
+interface BasicDataModel {
   stringProperty: string;
   numberProperty: number;
   booleanProperty: boolean;
-  interfaceProperty: FooItem;
+  interfaceProperty: PropertyDataModel;
 }
 
-interface FooItem {
+interface PropertyDataModel {
   fooProperty: string;
 }
 
-interface ExtensionSchemaItem extends BasicSchemaItem {
-  extensionStringProperty: string;
+interface CompositeDataModel extends MetaConcreteTemplateModel {
+  bazProperty: number
+}
+
+interface MetaConcreteTemplateModel {
+  tazProperty: string
 }

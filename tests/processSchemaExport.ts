@@ -17,43 +17,47 @@ Deno.test({ name: 'non-tuple export type' }, () => {
   );
 });
 
-Deno.test({ name: 'non-interface schema item' }, () => {
+Deno.test({ name: 'invalid top-level model' }, () => {
   Assert.assertThrows(
     () => {
       processSchemaExport(loadSchemaModule({
         schemaModulePath: resolveCasePath({
-          someCaseName: 'NonInterfaceSchemaItem',
+          someCaseName: 'InvalidTopLevelModel',
         }),
       }));
     },
     Error,
-    `invalid top-level item: TypeReferenceItem<unknown>`,
+    `invalid top-level model: FooModel<unknown>`,
   );
 });
 
-Deno.test({ name: 'invalid property type' }, () => {
+Deno.test({ name: 'invalid model property' }, () => {
   Assert.assertThrows(
     () => {
       processSchemaExport(loadSchemaModule({
         schemaModulePath: resolveCasePath({
-          someCaseName: 'InvalidPropertyType',
+          someCaseName: 'InvalidModelProperty',
         }),
       }));
     },
     Error,
-    `invalid property type: FooSchemaItem["invalidProperty"]`,
+    `invalid model property: FooDataModel["invalidProperty"]`,
   );
 });
 
-Deno.test({ name: 'invalid base item'}, () => {
-  Assert.assertThrows(() => {
-    processSchemaExport(loadSchemaModule({
-      schemaModulePath: resolveCasePath({
-        someCaseName: 'InvalidBaseItem',
-      }),
-    }));
-  }, Error, 'invalid base item: InvalidBaseItem<unknown> on InvalidExtensionItem')
-})
+Deno.test({ name: 'invalid model extension' }, () => {
+  Assert.assertThrows(
+    () => {
+      processSchemaExport(loadSchemaModule({
+        schemaModulePath: resolveCasePath({
+          someCaseName: 'InvalidModelExtension',
+        }),
+      }));
+    },
+    Error,
+    'invalid model extension: BazTemplateModel<unknown> on FooDataModel',
+  );
+});
 
 Deno.test({ name: 'valid schema' }, () => {
   const validSchemaMap = processSchemaExport(loadSchemaModule({
@@ -62,65 +66,76 @@ Deno.test({ name: 'valid schema' }, () => {
     }),
   }));
   Assert.assertEquals(validSchemaMap, {
-    schemaId: 'ValidSchema',
-    schemaItems: {
-      BasicSchemaItem: {
-        itemId: 'BasicSchemaItem',
-        itemBaseIds: [],
-        itemProperties: {
+    schemaSymbol: 'ValidSchema',
+    schemaModels: {
+      BasicDataModel: {
+        modelKind: 'data',
+        modelId: 'BasicDataModel',
+        modelSymbol: 'BasicDataModel',
+        modelExtensions: [],
+        modelProperties: {
           stringProperty: {
-            propertyId: 'stringProperty',
-            propertyType: {
-              typeKind: 'primitive',
-              typeId: 'string',
-            },
+            propertyKey: 'stringProperty',
+            propertyKind: 'primitive',
+            primitiveKind: 'string',
           },
           numberProperty: {
-            propertyId: 'numberProperty',
-            propertyType: {
-              typeKind: 'primitive',
-              typeId: 'number',
-            },
+            propertyKey: 'numberProperty',
+            propertyKind: 'primitive',
+            primitiveKind: 'number',
           },
           booleanProperty: {
-            propertyId: 'booleanProperty',
-            propertyType: {
-              typeKind: 'primitive',
-              typeId: 'boolean',
-            },
+            propertyKey: 'booleanProperty',
+            propertyKind: 'primitive',
+            primitiveKind: 'boolean',
           },
           interfaceProperty: {
-            propertyId: 'interfaceProperty',
-            propertyType: {
-              typeKind: 'interface',
-              typeId: 'FooItem'
-            }
-          }
+            propertyKey: 'interfaceProperty',
+            propertyKind: 'dataModel',
+            dataModelId: 'PropertyDataModel',
+          },
         },
       },
-      FooItem: {
-        itemId: 'FooItem',
-        itemBaseIds: [],
-        itemProperties: {
+      PropertyDataModel: {
+        modelKind: 'data',
+        modelId: 'PropertyDataModel',
+        modelSymbol: 'PropertyDataModel',
+        modelExtensions: [],
+        modelProperties: {
           fooProperty: {
-            propertyId: 'fooProperty',
-            propertyType: {
-              typeKind: 'primitive',
-              typeId: 'string'
-            }
-          }
-        }
+            propertyKey: 'fooProperty',
+            propertyKind: 'primitive',
+            primitiveKind: 'string',
+          },
+        },
       },
-      ExtensionSchemaItem: {
-        itemId: "ExtensionSchemaItem",
-        itemBaseIds: ["BasicSchemaItem"],
-        itemProperties: {
-          extensionStringProperty: {
-            propertyId: "extensionStringProperty",
-            propertyType: {
-              typeKind: "primitive",
-              typeId: "string"
-            }
+      CompositeDataModel: {
+        modelKind: 'data',
+        modelId: 'CompositeDataModel',
+        modelSymbol: 'CompositeDataModel',
+        modelExtensions: [{
+          extensionKind: 'concrete',
+          extensionModelId: 'MetaConcreteTemplateModel',
+        }],
+        modelProperties: {
+          bazProperty: {
+            propertyKey: 'bazProperty',
+            propertyKind: 'primitive',
+            primitiveKind: 'number',
+          },
+        },
+      },
+      MetaConcreteTemplateModel: {
+        modelKind: 'template',
+        templateKind: 'concrete',
+        modelId: 'MetaConcreteTemplateModel',
+        modelSymbol: 'MetaConcreteTemplateModel',
+        modelExtensions: [],
+        modelProperties: {
+          tazProperty: {
+            propertyKey: 'tazProperty',
+            propertyKind: 'primitive',
+            primitiveKind: 'string'
           }
         }
       }
