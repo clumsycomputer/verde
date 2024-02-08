@@ -15,7 +15,7 @@ export interface GenericTemplateModel extends TemplateSchemaBase<'generic'> {
   templateParameters: Array<TemplateParameter>;
 }
 
-interface TemplateParameter {
+export interface TemplateParameter {
   parameterSymbol: string;
 }
 
@@ -45,7 +45,11 @@ export interface ConcreteModelExtension
 
 export interface GenericModelExtension
   extends ModelExtensionBase<GenericTemplateModel['templateKind']> {
-  extensionTypeArguments: Array<unknown>;
+  extensionArguments: Array<ExtensionArgument>;
+}
+
+export interface ExtensionArgument {
+  argumentElement: ModelElement;
 }
 
 interface ModelExtensionBase<
@@ -55,35 +59,76 @@ interface ModelExtensionBase<
   extensionModelId: TemplateModel['modelId'];
 }
 
-export type ModelProperty =
-  | DataModelModelProperty
-  | PrimitiveModelProperty;
+export interface ModelProperty {
+  propertyKey: string;
+  propertyElement: ModelElement;
+}
 
-export interface DataModelModelProperty
-  extends ModelPropertyBase<'dataModel'> {
+export type ModelElement =
+  | ParameterModelElement
+  | DataModelModelElement
+  | PrimitiveModelElement
+  | LiteralModelElement;
+
+export type ParameterModelElement =
+  | BasicParameterModelElement
+  | ConstrainedParameterModelElement;
+
+export interface BasicParameterModelElement
+  extends ParameterModelElementBase<'basic'> {}
+
+export interface ConstrainedParameterModelElement
+  extends ParameterModelElementBase<'constrained'> {
+}
+
+interface ParameterModelElementBase<ParameterKind>
+  extends ModelElementBase<'parameter'> {
+  parameterKind: ParameterKind;
+}
+
+export interface DataModelModelElement extends ModelElementBase<'dataModel'> {
   dataModelId: DataModel['modelId'];
 }
 
-export type PrimitiveModelProperty =
-  | StringModelProperty
-  | NumberModelProperty
-  | BooleanModelProperty;
+export type PrimitiveModelElement =
+  | StringModelElement
+  | NumberModelElement
+  | BooleanModelElement;
 
-export interface StringModelProperty
-  extends PrimitiveModelPropertyBase<'string'> {}
+export interface StringModelElement
+  extends PrimitiveModelElementBase<'string'> {}
 
-export interface NumberModelProperty
-  extends PrimitiveModelPropertyBase<'number'> {}
+export interface NumberModelElement
+  extends PrimitiveModelElementBase<'number'> {}
 
-export interface BooleanModelProperty
-  extends PrimitiveModelPropertyBase<'boolean'> {}
+export interface BooleanModelElement
+  extends PrimitiveModelElementBase<'boolean'> {}
 
-interface PrimitiveModelPropertyBase<PrimitiveKind>
-  extends ModelPropertyBase<'primitive'> {
+interface PrimitiveModelElementBase<PrimitiveKind>
+  extends ModelElementBase<'primitive'> {
   primitiveKind: PrimitiveKind;
 }
 
-interface ModelPropertyBase<PropertyKind> {
-  propertyKind: PropertyKind;
-  propertyKey: string;
+export type LiteralModelElement =
+  | StringLiteralModelElement
+  | NumberLiteralModelElement
+  | BooleanLiteralModelElement;
+
+export interface StringLiteralModelElement
+  extends LiteralModelElementBase<'string'> {}
+
+export interface NumberLiteralModelElement
+  extends LiteralModelElementBase<'number'> {}
+
+export interface BooleanLiteralModelElement
+  extends LiteralModelElementBase<'boolean'> {}
+
+interface LiteralModelElementBase<LiteralKind>
+  extends ModelElementBase<'literal'> {
+  literalKind: LiteralKind;
+  literalSymbol: string;
+}
+
+interface ModelElementBase<ElementKind> {
+  elementKind: ElementKind;
 }

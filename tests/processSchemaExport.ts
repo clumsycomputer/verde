@@ -55,7 +55,7 @@ Deno.test({ name: 'invalid model extension' }, () => {
       }));
     },
     Error,
-    'invalid model extension: BazTemplateModel<unknown> on FooDataModel',
+    'invalid extension argument: unknown in BazTemplateModel<unknown> on FooDataModel',
   );
 });
 
@@ -68,77 +68,153 @@ Deno.test({ name: 'valid schema' }, () => {
   Assert.assertEquals(validSchemaMap, {
     schemaSymbol: 'ValidSchema',
     schemaModels: {
-      BasicDataModel: {
+      BasicDataModel_EXAMPLE: {
         modelKind: 'data',
-        modelId: 'BasicDataModel',
-        modelSymbol: 'BasicDataModel',
+        modelId: 'BasicDataModel_EXAMPLE',
+        modelSymbol: 'BasicDataModel_EXAMPLE',
         modelExtensions: [],
         modelProperties: {
-          stringProperty: {
-            propertyKey: 'stringProperty',
-            propertyKind: 'primitive',
-            primitiveKind: 'string',
+          stringProperty_EXAMPLE: {
+            propertyKey: 'stringProperty_EXAMPLE',
+            propertyElement: {
+              elementKind: 'primitive',
+              primitiveKind: 'string',
+            },
           },
-          numberProperty: {
-            propertyKey: 'numberProperty',
-            propertyKind: 'primitive',
-            primitiveKind: 'number',
+          numberProperty_EXAMPLE: {
+            propertyKey: 'numberProperty_EXAMPLE',
+            propertyElement: {
+              elementKind: 'primitive',
+              primitiveKind: 'number',
+            },
           },
-          booleanProperty: {
-            propertyKey: 'booleanProperty',
-            propertyKind: 'primitive',
-            primitiveKind: 'boolean',
+          booleanProperty_EXAMPLE: {
+            propertyKey: 'booleanProperty_EXAMPLE',
+            propertyElement: {
+              elementKind: 'primitive',
+              primitiveKind: 'boolean',
+            },
           },
-          interfaceProperty: {
-            propertyKey: 'interfaceProperty',
-            propertyKind: 'dataModel',
-            dataModelId: 'PropertyDataModel',
+          interfaceProperty_EXAMPLE: {
+            propertyKey: 'interfaceProperty_EXAMPLE',
+            propertyElement: {
+              elementKind: 'dataModel',
+              dataModelId: 'PropertyDataModel_EXAMPLE',
+            },
           },
         },
       },
-      PropertyDataModel: {
+      PropertyDataModel_EXAMPLE: {
         modelKind: 'data',
-        modelId: 'PropertyDataModel',
-        modelSymbol: 'PropertyDataModel',
+        modelId: 'PropertyDataModel_EXAMPLE',
+        modelSymbol: 'PropertyDataModel_EXAMPLE',
         modelExtensions: [],
         modelProperties: {
           fooProperty: {
             propertyKey: 'fooProperty',
-            propertyKind: 'primitive',
-            primitiveKind: 'string',
+            propertyElement: {
+              elementKind: 'primitive',
+              primitiveKind: 'string',
+            },
           },
         },
       },
-      CompositeDataModel: {
+      CompositeDataModel_EXAMPLE: {
         modelKind: 'data',
-        modelId: 'CompositeDataModel',
-        modelSymbol: 'CompositeDataModel',
+        modelId: 'CompositeDataModel_EXAMPLE',
+        modelSymbol: 'CompositeDataModel_EXAMPLE',
         modelExtensions: [{
           extensionKind: 'concrete',
-          extensionModelId: 'MetaConcreteTemplateModel',
+          extensionModelId: 'ConcreteTemplateModel_EXAMPLE',
+        }, {
+          extensionKind: 'generic',
+          extensionModelId: 'GenericTemplateModel_EXAMPLE',
+          extensionArguments: [
+            {
+              argumentElement: {
+                elementKind: 'dataModel',
+                dataModelId: 'PropertyDataModel_EXAMPLE',
+              },
+            },
+            {
+              argumentElement: {
+                elementKind: 'literal',
+                literalKind: 'number',
+                literalSymbol: '7',
+              },
+            },
+            {
+              argumentElement: {
+                elementKind: 'primitive',
+                primitiveKind: 'string',
+              },
+            },
+          ],
         }],
         modelProperties: {
           bazProperty: {
             propertyKey: 'bazProperty',
-            propertyKind: 'primitive',
-            primitiveKind: 'number',
+            propertyElement: {
+              elementKind: 'primitive',
+              primitiveKind: 'number',
+            },
           },
         },
       },
-      MetaConcreteTemplateModel: {
+      ConcreteTemplateModel_EXAMPLE: {
         modelKind: 'template',
         templateKind: 'concrete',
-        modelId: 'MetaConcreteTemplateModel',
-        modelSymbol: 'MetaConcreteTemplateModel',
+        modelId: 'ConcreteTemplateModel_EXAMPLE',
+        modelSymbol: 'ConcreteTemplateModel_EXAMPLE',
         modelExtensions: [],
         modelProperties: {
           tazProperty: {
             propertyKey: 'tazProperty',
-            propertyKind: 'primitive',
-            primitiveKind: 'string'
-          }
-        }
-      }
+            propertyElement: {
+              elementKind: 'primitive',
+              primitiveKind: 'string',
+            },
+          },
+        },
+      },
+      GenericTemplateModel_EXAMPLE: {
+        modelKind: 'template',
+        templateKind: 'generic',
+        modelId: 'GenericTemplateModel_EXAMPLE',
+        modelSymbol: 'GenericTemplateModel_EXAMPLE',
+        modelExtensions: [],
+        templateParameters: [
+          { parameterSymbol: 'BasicParameter_EXAMPLE' },
+          { parameterSymbol: 'ConstrainedParameter_EXAMPLE' },
+          { parameterSymbol: 'DefaultParameter_EXAMPLE' },
+        ],
+        modelProperties: {
+          basicParameterProperty_EXAMPLE: {
+            propertyKey: 'basicParameterProperty_EXAMPLE',
+            propertyElement: {
+              elementKind: 'parameter',
+              parameterKind: 'basic',
+              // parameterSymbol: 'BasicParameter_EXAMPLE',
+            },
+          },
+          constrainedParameterProperty_EXAMPLE: {
+            propertyKey: 'constrainedParameterProperty_EXAMPLE',
+            propertyElement: {
+              elementKind: 'parameter',
+              parameterKind: 'constrained',
+              // parameterSymbol: 'ConstrainedParameter_EXAMPLE',
+            },
+          },
+          defaultParameterProperty_EXAMPLE: {
+            propertyKey: 'defaultParameterProperty_EXAMPLE',
+            propertyElement: {
+              elementKind: 'parameter',
+              parameterKind: 'basic',
+              // parameterSymbol: 'DefaultParameter_EXAMPLE',
+            },
+          },
+        },
+      },
     },
   });
 });

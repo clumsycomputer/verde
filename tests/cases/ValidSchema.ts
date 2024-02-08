@@ -1,23 +1,36 @@
 export type ValidSchema = [
-  BasicDataModel, 
-  CompositeDataModel
+  BasicDataModel_EXAMPLE,
+  CompositeDataModel_EXAMPLE,
 ];
 
-interface BasicDataModel {
-  stringProperty: string;
-  numberProperty: number;
-  booleanProperty: boolean;
-  interfaceProperty: PropertyDataModel;
+interface BasicDataModel_EXAMPLE {
+  stringProperty_EXAMPLE: string;
+  numberProperty_EXAMPLE: number;
+  booleanProperty_EXAMPLE: boolean;
+  interfaceProperty_EXAMPLE: PropertyDataModel_EXAMPLE;
 }
 
-interface PropertyDataModel {
+interface PropertyDataModel_EXAMPLE {
   fooProperty: string;
 }
 
-interface CompositeDataModel extends MetaConcreteTemplateModel {
-  bazProperty: number
+interface CompositeDataModel_EXAMPLE
+  extends
+    ConcreteTemplateModel_EXAMPLE,
+    GenericTemplateModel_EXAMPLE<PropertyDataModel_EXAMPLE, 7> {
+  bazProperty: number;
 }
 
-interface MetaConcreteTemplateModel {
-  tazProperty: string
+interface ConcreteTemplateModel_EXAMPLE {
+  tazProperty: string;
+}
+
+interface GenericTemplateModel_EXAMPLE<
+  BasicParameter_EXAMPLE,
+  ConstrainedParameter_EXAMPLE extends number,
+  DefaultParameter_EXAMPLE = string,
+> {
+  basicParameterProperty_EXAMPLE: BasicParameter_EXAMPLE;
+  constrainedParameterProperty_EXAMPLE: ConstrainedParameter_EXAMPLE;
+  defaultParameterProperty_EXAMPLE: DefaultParameter_EXAMPLE;
 }
