@@ -1,16 +1,15 @@
-import { loadSchemaModule } from '../source/loadSchemaModule.ts';
-import { processSchemaExport } from '../source/processSchemaExport.ts';
+import { deriveIntermediateSchemaMap } from '../source/library/module.ts';
 import { resolveCasePath } from './helpers/resolveCasePath.ts';
 import { Assert } from './imports/Assert.ts';
 
 Deno.test({ name: 'non-tuple export type' }, () => {
   Assert.assertThrows(
     () => {
-      processSchemaExport(loadSchemaModule({
+      deriveIntermediateSchemaMap({
         schemaModulePath: resolveCasePath({
           someCaseName: 'NonTupleExportType',
         }),
-      }));
+      });
     },
     Error,
     `NonTupleExportType: unknown is not a tuple`,
@@ -20,11 +19,11 @@ Deno.test({ name: 'non-tuple export type' }, () => {
 Deno.test({ name: 'invalid top-level model' }, () => {
   Assert.assertThrows(
     () => {
-      processSchemaExport(loadSchemaModule({
+      deriveIntermediateSchemaMap({
         schemaModulePath: resolveCasePath({
           someCaseName: 'InvalidTopLevelModel',
         }),
-      }));
+      });
     },
     Error,
     `invalid top-level model: FooModel<unknown>`,
@@ -34,11 +33,11 @@ Deno.test({ name: 'invalid top-level model' }, () => {
 Deno.test({ name: 'invalid model property' }, () => {
   Assert.assertThrows(
     () => {
-      processSchemaExport(loadSchemaModule({
+      deriveIntermediateSchemaMap({
         schemaModulePath: resolveCasePath({
           someCaseName: 'InvalidModelProperty',
         }),
-      }));
+      });
     },
     Error,
     `invalid model property: FooDataModel["invalidProperty"]`,
@@ -48,11 +47,11 @@ Deno.test({ name: 'invalid model property' }, () => {
 Deno.test({ name: 'invalid model extension' }, () => {
   Assert.assertThrows(
     () => {
-      processSchemaExport(loadSchemaModule({
+      deriveIntermediateSchemaMap({
         schemaModulePath: resolveCasePath({
           someCaseName: 'InvalidModelExtension',
         }),
-      }));
+      });
     },
     Error,
     'invalid extension argument: unknown in BazTemplateModel<unknown> on FooDataModel',
@@ -60,19 +59,19 @@ Deno.test({ name: 'invalid model extension' }, () => {
 });
 
 Deno.test({ name: 'valid schema' }, () => {
-  const validSchemaMap = processSchemaExport(loadSchemaModule({
+  const validSchemaMap = deriveIntermediateSchemaMap({
     schemaModulePath: resolveCasePath({
       someCaseName: 'ValidSchema',
     }),
-  }));
+  });
   Assert.assertEquals(validSchemaMap, {
     schemaSymbol: 'ValidSchema',
     schemaModels: {
       BasicDataModel_EXAMPLE: {
         modelKind: 'data',
-        modelId: 'BasicDataModel_EXAMPLE',
+        modelKey: 'BasicDataModel_EXAMPLE',
         modelSymbol: 'BasicDataModel_EXAMPLE',
-        modelExtensions: [],
+        modelTemplates: [],
         modelProperties: {
           stringProperty_EXAMPLE: {
             propertyKey: 'stringProperty_EXAMPLE',
@@ -99,16 +98,16 @@ Deno.test({ name: 'valid schema' }, () => {
             propertyKey: 'interfaceProperty_EXAMPLE',
             propertyElement: {
               elementKind: 'dataModel',
-              dataModelId: 'PropertyDataModel_EXAMPLE',
+              dataModelKey: 'PropertyDataModel_EXAMPLE',
             },
           },
         },
       },
       PropertyDataModel_EXAMPLE: {
         modelKind: 'data',
-        modelId: 'PropertyDataModel_EXAMPLE',
+        modelKey: 'PropertyDataModel_EXAMPLE',
         modelSymbol: 'PropertyDataModel_EXAMPLE',
-        modelExtensions: [],
+        modelTemplates: [],
         modelProperties: {
           fooProperty: {
             propertyKey: 'fooProperty',
@@ -121,19 +120,19 @@ Deno.test({ name: 'valid schema' }, () => {
       },
       CompositeDataModel_EXAMPLE: {
         modelKind: 'data',
-        modelId: 'CompositeDataModel_EXAMPLE',
+        modelKey: 'CompositeDataModel_EXAMPLE',
         modelSymbol: 'CompositeDataModel_EXAMPLE',
-        modelExtensions: [{
-          extensionKind: 'concrete',
-          extensionModelId: 'ConcreteTemplateModel_EXAMPLE',
+        modelTemplates: [{
+          templateKind: 'concrete',
+          templateModelKey: 'ConcreteTemplateModel_EXAMPLE',
         }, {
-          extensionKind: 'generic',
-          extensionModelId: 'GenericTemplateModel_EXAMPLE',
-          extensionArguments: [
+          templateKind: 'generic',
+          templateModelKey: 'GenericTemplateModel_EXAMPLE',
+          genericArguments: [
             {
               argumentElement: {
                 elementKind: 'dataModel',
-                dataModelId: 'PropertyDataModel_EXAMPLE',
+                dataModelKey: 'PropertyDataModel_EXAMPLE',
               },
             },
             {
@@ -164,9 +163,9 @@ Deno.test({ name: 'valid schema' }, () => {
       ConcreteTemplateModel_EXAMPLE: {
         modelKind: 'template',
         templateKind: 'concrete',
-        modelId: 'ConcreteTemplateModel_EXAMPLE',
+        modelKey: 'ConcreteTemplateModel_EXAMPLE',
         modelSymbol: 'ConcreteTemplateModel_EXAMPLE',
-        modelExtensions: [],
+        modelTemplates: [],
         modelProperties: {
           tazProperty: {
             propertyKey: 'tazProperty',
@@ -180,10 +179,10 @@ Deno.test({ name: 'valid schema' }, () => {
       GenericTemplateModel_EXAMPLE: {
         modelKind: 'template',
         templateKind: 'generic',
-        modelId: 'GenericTemplateModel_EXAMPLE',
+        modelKey: 'GenericTemplateModel_EXAMPLE',
         modelSymbol: 'GenericTemplateModel_EXAMPLE',
-        modelExtensions: [],
-        templateParameters: [
+        modelTemplates: [],
+        genericParameters: [
           { parameterSymbol: 'BasicParameter_EXAMPLE' },
           { parameterSymbol: 'ConstrainedParameter_EXAMPLE' },
           { parameterSymbol: 'DefaultParameter_EXAMPLE' },

@@ -1,10 +1,14 @@
-import { FileSystem } from './imports/FileSystem.ts';
-import { Path } from './imports/Path.ts';
-import { Typescript } from './imports/Typescript.ts';
-import { throwInvalidPathError, throwUserError } from './helpers/throwError.ts';
+import { FileSystem } from '../../imports/FileSystem.ts';
+import { Path } from '../../imports/Path.ts';
+import { Typescript } from '../../imports/Typescript.ts';
+import {
+  throwInvalidPathError,
+  throwUserError,
+} from '../../helpers/throwError.ts';
+import { DeriveIntermediateSchemaMapApi } from './deriveIntermediateSchemaMap.ts';
 
-export interface LoadSchemaModuleApi {
-  schemaModulePath: string;
+export interface LoadSchemaModuleApi
+  extends Pick<DeriveIntermediateSchemaMapApi, 'schemaModulePath'> {
 }
 
 export interface LoadSchemaModuleResult {
@@ -27,7 +31,7 @@ export function loadSchemaModule(
   const schemaProgram = Typescript.createProgram([schemaModulePath], {
     target: Typescript.ScriptTarget.Latest,
     rootDir: workingDirectoryPath,
-    strictNullChecks: true
+    strictNullChecks: true,
   });
   const schemaTypeChecker = schemaProgram.getTypeChecker();
   const schemaModuleFile = schemaProgram.getSourceFile(schemaModulePath) ??
@@ -50,7 +54,7 @@ export function loadSchemaModule(
   }
   const lhsSchemaExportSymbol =
     (schemaExports.length === 1 && schemaExports[0]) ||
-    throwInvalidPathError('schemaExportSymbol');  
+    throwInvalidPathError('schemaExportSymbol');
   if (lhsSchemaExportSymbol.valueDeclaration) {
     throwUserError(
       `invalid schema module: non-type export at "${schemaModulePath}"`,
@@ -60,7 +64,9 @@ export function loadSchemaModule(
     lhsSchemaExportSymbol.declarations[0]) ??
     throwInvalidPathError('schemaExportNode');
   if (Typescript.isInterfaceDeclaration(schemaExportNode)) {
-    throwUserError(`invalid schema module: interface export at "${schemaModulePath}"`)
+    throwUserError(
+      `invalid schema module: interface export at "${schemaModulePath}"`,
+    );
   }
   const rhsSchemaExportType = schemaTypeChecker.getTypeAtLocation(
     schemaExportNode,

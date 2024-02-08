@@ -17,7 +17,8 @@
     "verde": "./source/library/index.ts"
   },
   "tasks": {
-    "verde": "deno run --allow-all ./source/main.ts"
+    "verde": "deno run --allow-all ./source/main.ts",
+    "test": "deno test --allow-read"
   },
   "test": {
     "include": [

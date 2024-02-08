@@ -1,15 +1,18 @@
 import {
-  ConcreteTemplateModel,
-  DataModel,
-  ExtensionArgument,
-  GenericTemplateModel,
-  ModelElement,
-  ModelExtension,
-  SchemaMap,
-  SchemaModel,
-} from './SchemaMap.ts';
-import { throwInvalidPathError, throwUserError } from './helpers/throwError.ts';
-import { Typescript } from './imports/Typescript.ts';
+  throwInvalidPathError,
+  throwUserError,
+} from '../../helpers/throwError.ts';
+import { Typescript } from '../../imports/Typescript.ts';
+import {
+  ConcreteTemplateIntermediateSchemaModel,
+  DataIntermediateSchemaModel,
+  GenericTemplateIntermediateSchemaModel,
+  IntermediateSchemaMap,
+  IntermediateModelElement,
+  IntermediateSchemaModel,
+  ModelTemplate,
+  GenericArgument,
+} from '../types/IntermediateSchemaMap.ts';
 import { LoadSchemaModuleResult } from './loadSchemaModule.ts';
 
 export interface ProcessSchemaExportApi extends
@@ -18,7 +21,9 @@ export interface ProcessSchemaExportApi extends
     'schemaTypeChecker' | 'lhsSchemaExportSymbol' | 'rhsSchemaExportType'
   > {}
 
-export function processSchemaExport(api: ProcessSchemaExportApi): SchemaMap {
+export function processSchemaExport(
+  api: ProcessSchemaExportApi,
+): IntermediateSchemaMap {
   const { schemaTypeChecker, rhsSchemaExportType, lhsSchemaExportSymbol } = api;
   if (schemaTypeChecker.isTupleType(rhsSchemaExportType) === false) {
     throwUserError(
@@ -27,7 +32,7 @@ export function processSchemaExport(api: ProcessSchemaExportApi): SchemaMap {
       } is not a tuple`,
     );
   }
-  const schemaMapResult: SchemaMap = {
+  const schemaResult: IntermediateSchemaMap = {
     schemaSymbol: lhsSchemaExportSymbol.name,
     schemaModels: {},
   };
@@ -44,24 +49,27 @@ export function processSchemaExport(api: ProcessSchemaExportApi): SchemaMap {
     }
     processDataModelType({
       schemaTypeChecker,
-      schemaMapResult,
+      schemaResult,
       someModelType: someTopLevelModelType,
     });
   });
-  return schemaMapResult;
+  return schemaResult;
 }
 
 interface ProcessDataModelTypeApi extends
   Pick<
-    ProcessSchemaModelTypeApi<Typescript.InterfaceType, DataModel>,
-    'schemaTypeChecker' | 'schemaMapResult' | 'someModelType'
+    ProcessSchemaModelTypeApi<
+      Typescript.InterfaceType,
+      DataIntermediateSchemaModel
+    >,
+    'schemaTypeChecker' | 'schemaResult' | 'someModelType'
   > {}
 
 function processDataModelType(api: ProcessDataModelTypeApi) {
-  const { schemaTypeChecker, schemaMapResult, someModelType } = api;
+  const { schemaTypeChecker, schemaResult, someModelType } = api;
   return processSchemaModelType({
     schemaTypeChecker,
-    schemaMapResult,
+    schemaResult,
     someModelType,
     isTargetModel: isDataModel,
     processTargetModelType: _processDataModelType,
@@ -69,37 +77,40 @@ function processDataModelType(api: ProcessDataModelTypeApi) {
 }
 
 function isDataModel(
-  someSchemaModel: SchemaModel,
-): someSchemaModel is DataModel {
+  someSchemaModel: IntermediateSchemaModel,
+): someSchemaModel is DataIntermediateSchemaModel {
   return someSchemaModel.modelKind === 'data';
 }
 
 function _processDataModelType(
-  api: ProcessTargetModelTypeApi<Typescript.InterfaceType, DataModel>,
-): DataModel {
-  const { modelId, modelSymbol, modelExtensions, modelProperties } = api;
+  api: ProcessTargetModelTypeApi<
+    Typescript.InterfaceType,
+    DataIntermediateSchemaModel
+  >,
+): DataIntermediateSchemaModel {
+  const { modelKey, modelSymbol, modelTemplates, modelProperties } = api;
   return {
     modelKind: 'data',
-    modelId,
+    modelKey,
     modelSymbol,
-    modelExtensions,
+    modelTemplates,
     modelProperties,
   };
 }
 
 interface ProcessConcreteTemplateModelTypeApi extends
   Pick<
-    ProcessSchemaModelTypeApi<Typescript.InterfaceType, ConcreteTemplateModel>,
-    'schemaTypeChecker' | 'schemaMapResult' | 'someModelType'
+    ProcessSchemaModelTypeApi<Typescript.InterfaceType, ConcreteTemplateIntermediateSchemaModel>,
+    'schemaTypeChecker' | 'schemaResult' | 'someModelType'
   > {}
 
 function processConcreteTemplateModelType(
   api: ProcessConcreteTemplateModelTypeApi,
 ) {
-  const { schemaTypeChecker, schemaMapResult, someModelType } = api;
+  const { schemaTypeChecker, schemaResult, someModelType } = api;
   return processSchemaModelType({
     schemaTypeChecker,
-    schemaMapResult,
+    schemaResult,
     someModelType,
     isTargetModel: isConcreteTemplateModel,
     processTargetModelType: _processConcreteTemplateModelType,
@@ -107,8 +118,8 @@ function processConcreteTemplateModelType(
 }
 
 function isConcreteTemplateModel(
-  someSchemaModel: SchemaModel,
-): someSchemaModel is ConcreteTemplateModel {
+  someSchemaModel: IntermediateSchemaModel,
+): someSchemaModel is ConcreteTemplateIntermediateSchemaModel {
   return someSchemaModel.modelKind === 'template' &&
     someSchemaModel.templateKind === 'concrete';
 }
@@ -116,34 +127,34 @@ function isConcreteTemplateModel(
 function _processConcreteTemplateModelType(
   api: ProcessTargetModelTypeApi<
     Typescript.InterfaceType,
-    ConcreteTemplateModel
+    ConcreteTemplateIntermediateSchemaModel
   >,
-): ConcreteTemplateModel {
-  const { modelId, modelSymbol, modelExtensions, modelProperties } = api;
+): ConcreteTemplateIntermediateSchemaModel {
+  const { modelKey, modelSymbol, modelTemplates, modelProperties } = api;
   return {
     modelKind: 'template',
     templateKind: 'concrete',
-    modelId,
+    modelKey,
     modelSymbol,
-    modelExtensions,
+    modelTemplates,
     modelProperties,
   };
 }
 
 interface ProcessGenericTemplateModelTypeApi extends
   Pick<
-    ProcessSchemaModelTypeApi<Typescript.TypeReference, GenericTemplateModel>,
-    'schemaTypeChecker' | 'schemaMapResult' | 'someModelType'
+    ProcessSchemaModelTypeApi<Typescript.TypeReference, GenericTemplateIntermediateSchemaModel>,
+    'schemaTypeChecker' | 'schemaResult' | 'someModelType'
   > {
 }
 
 function processGenericTemplateModelType(
   api: ProcessGenericTemplateModelTypeApi,
-): GenericTemplateModel {
-  const { schemaTypeChecker, schemaMapResult, someModelType } = api;
+): GenericTemplateIntermediateSchemaModel {
+  const { schemaTypeChecker, schemaResult, someModelType } = api;
   return processSchemaModelType({
     schemaTypeChecker,
-    schemaMapResult,
+    schemaResult,
     someModelType,
     isTargetModel: isGenericTemplateModel,
     processTargetModelType: _processGenericTemplateModelType,
@@ -151,8 +162,8 @@ function processGenericTemplateModelType(
 }
 
 function isGenericTemplateModel(
-  someSchemaModel: SchemaModel,
-): someSchemaModel is GenericTemplateModel {
+  someSchemaModel: IntermediateSchemaModel,
+): someSchemaModel is GenericTemplateIntermediateSchemaModel {
   return someSchemaModel.modelKind === 'template' &&
     someSchemaModel.templateKind === 'generic';
 }
@@ -160,13 +171,13 @@ function isGenericTemplateModel(
 function _processGenericTemplateModelType(
   api: ProcessTargetModelTypeApi<
     Typescript.TypeReference,
-    GenericTemplateModel
+    GenericTemplateIntermediateSchemaModel
   >,
-): GenericTemplateModel {
+): GenericTemplateIntermediateSchemaModel {
   const {
-    modelId,
+    modelKey,
     modelSymbol,
-    modelExtensions,
+    modelTemplates,
     modelProperties,
     someModelType,
   } = api;
@@ -175,11 +186,11 @@ function _processGenericTemplateModelType(
   return {
     modelKind: 'template',
     templateKind: 'generic',
-    modelId,
+    modelKey,
     modelSymbol,
-    modelExtensions,
+    modelTemplates,
     modelProperties,
-    templateParameters: typeParameterTypes.map((
+    genericParameters: typeParameterTypes.map((
       someTypeParameter,
     ) => ({
       parameterSymbol: someTypeParameter.symbol.name,
@@ -189,12 +200,12 @@ function _processGenericTemplateModelType(
 
 interface ProcessSchemaModelTypeApi<
   ModelType extends Typescript.Type,
-  SchemaModelResult extends SchemaModel,
+  SchemaModelResult extends IntermediateSchemaModel,
 > extends Pick<ProcessSchemaExportApi, 'schemaTypeChecker'> {
-  schemaMapResult: SchemaMap;
+  schemaResult: IntermediateSchemaMap;
   someModelType: ModelType;
   isTargetModel: (
-    someSchemaModel: SchemaModel,
+    someSchemaModel: IntermediateSchemaModel,
   ) => someSchemaModel is SchemaModelResult;
   processTargetModelType: (
     api: ProcessTargetModelTypeApi<ModelType, SchemaModelResult>,
@@ -203,34 +214,34 @@ interface ProcessSchemaModelTypeApi<
 
 interface ProcessTargetModelTypeApi<
   ModelType extends Typescript.Type,
-  SchemaModelResult extends SchemaModel,
+  SchemaModelResult extends IntermediateSchemaModel,
 > extends
   Pick<
     ProcessSchemaModelTypeApi<ModelType, SchemaModelResult>,
-    'schemaTypeChecker' | 'schemaMapResult' | 'someModelType'
+    'schemaTypeChecker' | 'schemaResult' | 'someModelType'
   >,
   Pick<
-    SchemaModel,
-    'modelId' | 'modelSymbol' | 'modelExtensions' | 'modelProperties'
+    IntermediateSchemaModel,
+    'modelKey' | 'modelSymbol' | 'modelProperties' | 'modelTemplates'
   > {}
 
 function processSchemaModelType<
   ModelType extends Typescript.Type,
-  SchemaModelResult extends SchemaModel,
+  SchemaModelResult extends IntermediateSchemaModel,
 >(
   api: ProcessSchemaModelTypeApi<ModelType, SchemaModelResult>,
 ): SchemaModelResult {
   const {
     someModelType,
-    schemaMapResult,
+    schemaResult,
     isTargetModel,
     schemaTypeChecker,
     processTargetModelType,
   } = api;
   const modelSymbol = someModelType.symbol.name;
-  // todo: find way to generate deterministic modelId from symbol name and scope
-  const modelId = modelSymbol;
-  const alreadyProcessedSchemaModel = schemaMapResult.schemaModels[modelId];
+  // todo: find way to generate deterministic modelKey from symbol name and scope
+  const modelKey = modelSymbol;
+  const alreadyProcessedSchemaModel = schemaResult.schemaModels[modelKey];
   if (alreadyProcessedSchemaModel !== undefined) {
     return (isTargetModel(alreadyProcessedSchemaModel) &&
       alreadyProcessedSchemaModel) ||
@@ -238,48 +249,49 @@ function processSchemaModelType<
   } else {
     const targetSchemaModel = processTargetModelType({
       someModelType,
-      schemaMapResult,
+      schemaResult,
       schemaTypeChecker,
-      modelId,
+      modelKey,
       modelSymbol,
-      modelExtensions: processModelExtensions({
+      modelTemplates: processModelTemplates({
         schemaTypeChecker,
-        schemaMapResult,
+        schemaResult,
         someModelType,
       }),
       modelProperties: processModelProperties({
         schemaTypeChecker,
-        schemaMapResult,
+        schemaResult,
         someModelType,
       }),
     });
-    schemaMapResult.schemaModels[targetSchemaModel.modelId] = targetSchemaModel;
+    schemaResult.schemaModels[targetSchemaModel.modelKey] = targetSchemaModel;
     return targetSchemaModel;
   }
 }
 
-interface ProcessModelExtensionsApi extends
+interface ProcessModelTemplatesApi extends
   Pick<
-    ProcessSchemaModelTypeApi<Typescript.Type, SchemaModel>,
-    'schemaTypeChecker' | 'schemaMapResult' | 'someModelType'
+    ProcessSchemaModelTypeApi<Typescript.Type, IntermediateSchemaModel>,
+    'schemaTypeChecker' | 'schemaResult' | 'someModelType'
   > {}
 
-function processModelExtensions(
-  api: ProcessModelExtensionsApi,
-): SchemaModel['modelExtensions'] {
-  const { someModelType, schemaTypeChecker, schemaMapResult } = api;
+function processModelTemplates(
+  api: ProcessModelTemplatesApi,
+): IntermediateSchemaModel['modelTemplates'] {
+  const { someModelType, schemaTypeChecker, schemaResult } = api;
   const typeBases = someModelType.getBaseTypes() ?? [];
-  return typeBases.map<ModelExtension>(
+  return typeBases.map<ModelTemplate>(
     (someTypeBase) => {
       if (isInterfaceType(someTypeBase)) {
         const concreteTemplateModel = processConcreteTemplateModelType({
           schemaTypeChecker,
-          schemaMapResult,
+          schemaResult,
           someModelType: someTypeBase,
         });
         return {
-          extensionKind: 'concrete',
-          extensionModelId: concreteTemplateModel.modelId,
+          templateKind: 'concrete',
+          templateModelKey: concreteTemplateModel.modelKey
+          // dataModelKey: concreteTemplateModel.modelId,
         };
       } else if (
         isTypeReferenceType(someTypeBase) &&
@@ -289,18 +301,18 @@ function processModelExtensions(
           throwInvalidPathError('typeArgumentTypes');
         const genericTemplateModel = processGenericTemplateModelType({
           schemaTypeChecker,
-          schemaMapResult,
+          schemaResult,
           someModelType: someTypeBase,
         });
         return {
-          extensionKind: 'generic',
-          extensionModelId: genericTemplateModel.modelId,
-          extensionArguments: typeArgumentTypes.map<ExtensionArgument>((
+          templateKind: 'generic',
+          templateModelKey: genericTemplateModel.modelKey,
+          genericArguments: typeArgumentTypes.map<GenericArgument>((
             someTypeArgumentType,
           ) => ({
             argumentElement: processArgumentElement({
               schemaTypeChecker,
-              schemaMapResult,
+              schemaResult,
               someModelType,
               someTypeBase,
               someElementType: someTypeArgumentType,
@@ -320,27 +332,27 @@ function processModelExtensions(
 
 interface ProcessModelPropertiesApi extends
   Pick<
-    ProcessSchemaModelTypeApi<Typescript.Type, SchemaModel>,
-    'schemaTypeChecker' | 'schemaMapResult' | 'someModelType'
+    ProcessSchemaModelTypeApi<Typescript.Type, IntermediateSchemaModel>,
+    'schemaTypeChecker' | 'schemaResult' | 'someModelType'
   > {}
 
 function processModelProperties(
   api: ProcessModelPropertiesApi,
-): SchemaModel['modelProperties'] {
-  const { someModelType, schemaTypeChecker, schemaMapResult } = api;
+): IntermediateSchemaModel['modelProperties'] {
+  const { someModelType, schemaTypeChecker, schemaResult } = api;
   const typeProperties = (someModelType.symbol.members &&
     Array.from(someModelType.symbol.members.values()).filter(
       isPropertySymbol,
     )) ??
     [];
-  return typeProperties.reduce<SchemaModel['modelProperties']>(
+  return typeProperties.reduce<IntermediateSchemaModel['modelProperties']>(
     (modelPropertiesResult, someTypeProperty) => {
       const propertyKey = someTypeProperty.name;
       modelPropertiesResult[propertyKey] = {
         propertyKey,
         propertyElement: processPropertyElement({
           schemaTypeChecker,
-          schemaMapResult,
+          schemaResult,
           someModelType,
           propertyKey,
           someElementType: schemaTypeChecker.getTypeOfSymbol(someTypeProperty),
@@ -355,7 +367,7 @@ function processModelProperties(
 interface ProcessArgumentElementApi extends
   Pick<
     ProcessModelElementApi,
-    'schemaTypeChecker' | 'schemaMapResult' | 'someElementType'
+    'schemaTypeChecker' | 'schemaResult' | 'someElementType'
   >,
   Pick<ProcessModelPropertiesApi, 'someModelType'> {
   someTypeBase: Typescript.TypeReference;
@@ -367,7 +379,7 @@ function processArgumentElement(api: ProcessArgumentElementApi) {
     someTypeBase,
     someModelType,
     schemaTypeChecker,
-    schemaMapResult,
+    schemaResult,
   } = api;
   return processModelElement({
     preformattedUserError: `invalid extension argument: ${
@@ -376,7 +388,7 @@ function processArgumentElement(api: ProcessArgumentElementApi) {
       schemaTypeChecker.typeToString(someModelType)
     }`,
     schemaTypeChecker,
-    schemaMapResult,
+    schemaResult,
     someElementType,
   });
 }
@@ -384,7 +396,7 @@ function processArgumentElement(api: ProcessArgumentElementApi) {
 interface ProcessPropertyElementApi extends
   Pick<
     ProcessModelElementApi,
-    'schemaTypeChecker' | 'schemaMapResult' | 'someElementType'
+    'schemaTypeChecker' | 'schemaResult' | 'someElementType'
   >,
   Pick<ProcessModelPropertiesApi, 'someModelType'> {
   propertyKey: string;
@@ -395,32 +407,32 @@ function processPropertyElement(api: ProcessPropertyElementApi) {
     someModelType,
     propertyKey,
     schemaTypeChecker,
-    schemaMapResult,
+    schemaResult,
     someElementType,
   } = api;
   return processModelElement({
     preformattedUserError:
       `invalid model property: ${someModelType.symbol.name}["${propertyKey}"]`,
     schemaTypeChecker,
-    schemaMapResult,
+    schemaResult,
     someElementType,
   });
 }
 
 interface ProcessModelElementApi extends
   Pick<
-    ProcessSchemaModelTypeApi<Typescript.Type, SchemaModel>,
-    'schemaTypeChecker' | 'schemaMapResult'
+    ProcessSchemaModelTypeApi<Typescript.Type, IntermediateSchemaModel>,
+    'schemaTypeChecker' | 'schemaResult'
   > {
   someElementType: Typescript.Type;
   preformattedUserError: string;
 }
 
-function processModelElement(api: ProcessModelElementApi): ModelElement {
+function processModelElement(api: ProcessModelElementApi): IntermediateModelElement {
   const {
     someElementType,
     schemaTypeChecker,
-    schemaMapResult,
+    schemaResult,
     preformattedUserError,
   } = api;
   if (isStringLiteralType(someElementType)) {
@@ -459,12 +471,12 @@ function processModelElement(api: ProcessModelElementApi): ModelElement {
   } else if (isInterfaceType(someElementType)) {
     const elementDataModel = processDataModelType({
       schemaTypeChecker,
-      schemaMapResult,
+      schemaResult,
       someModelType: someElementType,
     });
     return {
       elementKind: 'dataModel',
-      dataModelId: elementDataModel.modelId,
+      dataModelKey: elementDataModel.modelKey,
     };
   } else if (
     isParameterType(someElementType) &&
