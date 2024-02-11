@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "noUncheckedIndexedAccess": true
+    "strict": true,
+    "noUncheckedIndexedAccess": true  
   },
   "fmt": {
     "useTabs": false,

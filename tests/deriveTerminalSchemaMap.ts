@@ -6,11 +6,12 @@ import { resolveCasePath } from './helpers/resolveCasePath.ts';
 import { Assert } from './imports/Assert.ts';
 
 Deno.test({ name: 'valid schema' }, () => {
-  deriveTerminalSchemaMap({
+  const validTerminalSchemaMap = deriveTerminalSchemaMap({
     someIntermediateSchemaMap: deriveIntermediateSchemaMap({
       schemaModulePath: resolveCasePath({
         someCaseName: 'ValidSchema',
       }),
     }),
   });
+  console.log(validTerminalSchemaMap)
 });

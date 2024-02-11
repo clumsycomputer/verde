@@ -1,36 +1,31 @@
 export interface SchemaMap<
-  ThisSchemaModel extends AnySchemaModel,
+  ThisSchemaModel extends SchemaModel_Core<any>,
 > {
   schemaSymbol: string;
   schemaModels: Record<ThisSchemaModel['modelKey'], ThisSchemaModel>;
 }
 
-type AnySchemaModel = SchemaModel<ModelProperty<any>>;
-
-type UnknownSchemaModel = SchemaModel<ModelProperty<unknown>>;
-
-export interface SchemaModel<
-  ThisModelProperty extends AnyModelProperty,
-> {
+export interface SchemaModel_Core<ThisModelElement> {
   modelKey: string;
   modelSymbol: string;
-  modelProperties: Record<ThisModelProperty['propertyKey'], ThisModelProperty>;
+  modelProperties: Record<
+    ModelProperty<ThisModelElement>['propertyKey'],
+    ModelProperty<ThisModelElement>
+  >;
 }
-
-type AnyModelProperty = ModelProperty<any>;
 
 export interface ModelProperty<ThisPropertyElement> {
   propertyKey: string;
   propertyElement: ThisPropertyElement;
 }
 
-export type ModelElement<ThisDataModel extends UnknownSchemaModel> =
+export type ModelElement<ThisDataModel extends SchemaModel_Core<unknown>> =
   | DataModelElement<ThisDataModel>
   | LiteralModelElement
   | PrimitiveModelElement;
 
 export interface DataModelElement<
-  ThisDataModel extends UnknownSchemaModel,
+  ThisDataModel extends SchemaModel_Core<unknown>,
 > extends ModelElementBase<'dataModel'> {
   dataModelKey: ThisDataModel['modelKey'];
 }

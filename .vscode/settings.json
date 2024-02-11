@@ -1,4 +1,7 @@
 {
     "editor.tabSize": 2,
-    "deno.enable": true
+    "deno.enable": true,
+    "deno.disablePaths": [
+        "./.code-server"
+    ]
 }

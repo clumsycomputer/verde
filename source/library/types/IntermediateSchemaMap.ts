@@ -1,9 +1,8 @@
 import {
-  SchemaMap,
   ModelElement,
   ModelElementBase,
-  ModelProperty,
-  SchemaModel,
+  SchemaMap,
+  SchemaModel_Core,
 } from './SchemaMap.ts';
 
 export interface IntermediateSchemaMap
@@ -14,17 +13,25 @@ export type IntermediateSchemaModel =
   | TemplateIntermediateSchemaModel;
 
 export interface DataIntermediateSchemaModel
-  extends IntermediateSchemaModelBase<'data'> {}
+  extends IntermediateSchemaModel_Core<'data', CoreIntermediateModelElement> {}
 
 export type TemplateIntermediateSchemaModel =
   | ConcreteTemplateIntermediateSchemaModel
   | GenericTemplateIntermediateSchemaModel;
 
 export interface ConcreteTemplateIntermediateSchemaModel
-  extends TemplateIntermediateSchemaModelBase<'concrete'> {}
+  extends
+    TemplateIntermediateSchemaModel_Core<
+      'concrete',
+      CoreIntermediateModelElement
+    > {}
 
 export interface GenericTemplateIntermediateSchemaModel
-  extends TemplateIntermediateSchemaModelBase<'generic'> {
+  extends
+    TemplateIntermediateSchemaModel_Core<
+      'generic',
+      GenericTemplateIntermediateModelElement
+    > {
   genericParameters: Array<GenericParameter>;
 }
 
@@ -32,27 +39,37 @@ export interface GenericParameter {
   parameterSymbol: string;
 }
 
-interface TemplateIntermediateSchemaModelBase<TemplateKind>
-  extends IntermediateSchemaModelBase<'template'> {
+interface TemplateIntermediateSchemaModel_Core<TemplateKind, ThisModelElement>
+  extends IntermediateSchemaModel_Core<'template', ThisModelElement> {
   templateKind: TemplateKind;
 }
 
-interface IntermediateSchemaModelBase<ModelKind>
-  extends SchemaModel<IntermediateModelProperty> {
+export interface IntermediateSchemaModel_Core<
+  ModelKind,
+  ThisModelElement,
+> extends SchemaModel_Core<ThisModelElement> {
   modelKind: ModelKind;
-  modelTemplates: Array<ModelTemplate>;
+  modelTemplates: Array<ModelTemplate<ThisModelElement>>;
 }
 
-export type ModelTemplate = ConcreteModelTemplate | GenericModelTemplate;
+export type ModelTemplate<ThisModelElement> =
+  | ConcreteModelTemplate
+  | GenericModelTemplate<ThisModelElement>;
 
 export interface ConcreteModelTemplate extends ModelTemplateBase<'concrete'> {}
 
-export interface GenericModelTemplate extends ModelTemplateBase<'generic'> {
-  genericArguments: Array<GenericArgument>;
+export interface GenericModelTemplate<ThisArgumentElement>
+  extends ModelTemplateBase<'generic'> {
+  genericArguments: Record<
+    GenericArgument<ThisArgumentElement>['argumentSymbol'],
+    GenericArgument<ThisArgumentElement>
+  >;
 }
 
-export interface GenericArgument {
-  argumentElement: IntermediateModelElement;
+export interface GenericArgument<ThisArgumentElement> {
+  argumentSymbol: string;
+  argumentIndex: number;
+  argumentElement: ThisArgumentElement;
 }
 
 interface ModelTemplateBase<TemplateKind> {
@@ -60,12 +77,9 @@ interface ModelTemplateBase<TemplateKind> {
   templateModelKey: TemplateIntermediateSchemaModel['modelKey'];
 }
 
-export interface IntermediateModelProperty
-  extends ModelProperty<IntermediateModelElement> {}
-
-export type IntermediateModelElement =
+export type GenericTemplateIntermediateModelElement =
   | ParameterModelElement
-  | ModelElement<DataIntermediateSchemaModel>;
+  | CoreIntermediateModelElement;
 
 export type ParameterModelElement =
   | BasicParameterModelElement
@@ -80,4 +94,9 @@ export interface ConstrainedParameterModelElement
 interface ParameterModelElementBase<ParameterKind>
   extends ModelElementBase<'parameter'> {
   parameterKind: ParameterKind;
+  parameterSymbol: string;
 }
+
+export type CoreIntermediateModelElement = ModelElement<
+  DataIntermediateSchemaModel
+>;

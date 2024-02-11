@@ -6,12 +6,11 @@ import { Typescript } from '../../imports/Typescript.ts';
 import {
   ConcreteTemplateIntermediateSchemaModel,
   DataIntermediateSchemaModel,
+  GenericArgument,
   GenericTemplateIntermediateSchemaModel,
   IntermediateSchemaMap,
-  IntermediateModelElement,
   IntermediateSchemaModel,
   ModelTemplate,
-  GenericArgument,
 } from '../types/IntermediateSchemaMap.ts';
 import { LoadSchemaModuleResult } from './loadSchemaModule.ts';
 
@@ -100,7 +99,10 @@ function _processDataModelType(
 
 interface ProcessConcreteTemplateModelTypeApi extends
   Pick<
-    ProcessSchemaModelTypeApi<Typescript.InterfaceType, ConcreteTemplateIntermediateSchemaModel>,
+    ProcessSchemaModelTypeApi<
+      Typescript.InterfaceType,
+      ConcreteTemplateIntermediateSchemaModel
+    >,
     'schemaTypeChecker' | 'schemaResult' | 'someModelType'
   > {}
 
@@ -143,7 +145,10 @@ function _processConcreteTemplateModelType(
 
 interface ProcessGenericTemplateModelTypeApi extends
   Pick<
-    ProcessSchemaModelTypeApi<Typescript.TypeReference, GenericTemplateIntermediateSchemaModel>,
+    ProcessSchemaModelTypeApi<
+      Typescript.TypeReference,
+      GenericTemplateIntermediateSchemaModel
+    >,
     'schemaTypeChecker' | 'schemaResult' | 'someModelType'
   > {
 }
@@ -239,7 +244,7 @@ function processSchemaModelType<
     processTargetModelType,
   } = api;
   const modelSymbol = someModelType.symbol.name;
-  // todo: find way to generate deterministic modelKey from symbol name and scope
+  // todo: find way to generate deterministic modelKey from symbol name and scope (filename???)
   const modelKey = modelSymbol;
   const alreadyProcessedSchemaModel = schemaResult.schemaModels[modelKey];
   if (alreadyProcessedSchemaModel !== undefined) {
@@ -290,7 +295,7 @@ function processModelTemplates(
         });
         return {
           templateKind: 'concrete',
-          templateModelKey: concreteTemplateModel.modelKey
+          templateModelKey: concreteTemplateModel.modelKey,
           // dataModelKey: concreteTemplateModel.modelId,
         };
       } else if (
@@ -304,6 +309,7 @@ function processModelTemplates(
           schemaResult,
           someModelType: someTypeBase,
         });
+        // genericTemplateModel.genericParameters
         return {
           templateKind: 'generic',
           templateModelKey: genericTemplateModel.modelKey,
@@ -428,7 +434,9 @@ interface ProcessModelElementApi extends
   preformattedUserError: string;
 }
 
-function processModelElement(api: ProcessModelElementApi): IntermediateModelElement {
+function processModelElement(
+  api: ProcessModelElementApi,
+): IntermediateSchemaModel['modelProperties'][string]['propertyElement'] {
   const {
     someElementType,
     schemaTypeChecker,
@@ -485,13 +493,13 @@ function processModelElement(api: ProcessModelElementApi): IntermediateModelElem
     return {
       elementKind: 'parameter',
       parameterKind: 'constrained',
-      // parameterSymbol: someElementType.symbol.name
+      parameterSymbol: someElementType.symbol.name,
     };
   } else if (isParameterType(someElementType)) {
     return {
       elementKind: 'parameter',
       parameterKind: 'basic',
-      // parameterSymbol: someElementType.symbol.name,
+      parameterSymbol: someElementType.symbol.name,
     };
   } else {
     throwUserError(preformattedUserError);
