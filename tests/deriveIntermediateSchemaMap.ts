@@ -44,17 +44,17 @@ Deno.test({ name: 'invalid model property' }, () => {
   );
 });
 
-Deno.test({ name: 'invalid model extension' }, () => {
+Deno.test({ name: 'invalid model argument' }, () => {
   Assert.assertThrows(
     () => {
       deriveIntermediateSchemaMap({
         schemaModulePath: resolveCasePath({
-          someCaseName: 'InvalidModelExtension',
+          someCaseName: 'InvalidModelArgument',
         }),
       });
     },
     Error,
-    'invalid extension argument: unknown in BazTemplateModel<unknown> on FooDataModel',
+    'invalid model argument: unknown in BazTemplateModel<unknown> on FooDataModel',
   );
 });
 
@@ -128,27 +128,33 @@ Deno.test({ name: 'valid schema' }, () => {
         }, {
           templateKind: 'generic',
           templateModelKey: 'GenericTemplateModel_EXAMPLE',
-          genericArguments: [
-            {
+          genericArguments: {
+            'BasicParameter_EXAMPLE': {
+              argumentIndex: 0,
+              argumentSymbol: 'BasicParameter_EXAMPLE',
               argumentElement: {
                 elementKind: 'dataModel',
                 dataModelKey: 'PropertyDataModel_EXAMPLE',
               },
             },
-            {
+            'ConstrainedParameter_EXAMPLE': {
+              argumentIndex: 1,
+              argumentSymbol: 'ConstrainedParameter_EXAMPLE',
               argumentElement: {
                 elementKind: 'literal',
                 literalKind: 'number',
                 literalSymbol: '7',
               },
             },
-            {
+            'DefaultParameter_EXAMPLE': {
+              argumentIndex: 2,
+              argumentSymbol: 'DefaultParameter_EXAMPLE',
               argumentElement: {
                 elementKind: 'primitive',
                 primitiveKind: 'string',
               },
             },
-          ],
+          },
         }],
         modelProperties: {
           bazProperty: {
@@ -193,7 +199,7 @@ Deno.test({ name: 'valid schema' }, () => {
             propertyElement: {
               elementKind: 'parameter',
               parameterKind: 'basic',
-              // parameterSymbol: 'BasicParameter_EXAMPLE',
+              parameterSymbol: 'BasicParameter_EXAMPLE',
             },
           },
           constrainedParameterProperty_EXAMPLE: {
@@ -201,7 +207,7 @@ Deno.test({ name: 'valid schema' }, () => {
             propertyElement: {
               elementKind: 'parameter',
               parameterKind: 'constrained',
-              // parameterSymbol: 'ConstrainedParameter_EXAMPLE',
+              parameterSymbol: 'ConstrainedParameter_EXAMPLE',
             },
           },
           defaultParameterProperty_EXAMPLE: {
@@ -209,7 +215,7 @@ Deno.test({ name: 'valid schema' }, () => {
             propertyElement: {
               elementKind: 'parameter',
               parameterKind: 'basic',
-              // parameterSymbol: 'DefaultParameter_EXAMPLE',
+              parameterSymbol: 'DefaultParameter_EXAMPLE',
             },
           },
         },

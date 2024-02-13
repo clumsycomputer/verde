@@ -1,4 +1,4 @@
-export type InvalidModelExtensionSchema = [FooDataModel];
+export type InvalidModelArgumentSchema = [FooDataModel];
 
 interface FooDataModel extends BazTemplateModel<unknown> {}
 
