@@ -6,13 +6,15 @@ import { irrelevantAny } from '../../helpers/types.ts';
 import { Typescript } from '../../imports/Typescript.ts';
 import {
   ConcreteTemplateIntermediateSchemaModel,
+  CoreIntermediateModelElement,
   DataIntermediateSchemaModel,
   GenericModelTemplate,
+  GenericTemplateIntermediateModelElement,
   GenericTemplateIntermediateSchemaModel,
   IntermediateSchemaMap,
   IntermediateSchemaModel,
-  IntermediateSchemaModel_Core,
 } from '../types/IntermediateSchemaMap.ts';
+import { ModelElementBase } from '../types/SchemaMap.ts';
 import {
   isBooleanLiteralType,
   isBooleanType,
@@ -92,18 +94,11 @@ function deriveSchemaMap(api: DeriveSchemaMapApi): IntermediateSchemaMap {
   return schemaMapResult;
 }
 
-interface DeriveDataModelApi extends
-  Pick<
-    __DeriveDefinitiveModel<irrelevantAny, irrelevantAny>,
-    'schemaTypeChecker' | 'schemaMapResult'
-  > {
-  someDataModelType: __DeriveDefinitiveModel<
-    Typescript.InterfaceType,
-    irrelevantAny
-  >['someModelType'];
+interface DeriveDataModelApi extends Static__DeriveIntermediateModelApi {
+  someDataModelType: Typescript.InterfaceType;
 }
 
-function deriveDataModel(api: DeriveDataModelApi) {
+function deriveDataModel(api: DeriveDataModelApi): DataIntermediateSchemaModel {
   const { schemaTypeChecker, schemaMapResult, someDataModelType } = api;
   return __deriveDefinitiveModel({
     isCachedResultKind: isCachedResultKind__deriveDataModel,
@@ -124,8 +119,8 @@ function isCachedResultKind__deriveDataModel(
 
 function deriveResultModel__deriveDataModel(
   api: DeriveResultModelApi<
-    Typescript.InterfaceType,
-    DataIntermediateSchemaModel
+    DataIntermediateSchemaModel,
+    Typescript.InterfaceType
   >,
 ): DataIntermediateSchemaModel {
   const { modelKey, modelSymbol, modelTemplates, modelProperties } = api;
@@ -138,15 +133,9 @@ function deriveResultModel__deriveDataModel(
   };
 }
 
-interface DeriveConcreteTemplateModelApi extends
-  Pick<
-    __DeriveDefinitiveModel<irrelevantAny, irrelevantAny>,
-    'schemaTypeChecker' | 'schemaMapResult'
-  > {
-  someConcreteTemplateModelType: __DeriveDefinitiveModel<
-    Typescript.InterfaceType,
-    irrelevantAny
-  >['someModelType'];
+interface DeriveConcreteTemplateModelApi
+  extends Static__DeriveIntermediateModelApi {
+  someConcreteTemplateModelType: Typescript.InterfaceType;
 }
 
 function deriveConcreteTemplateModel(
@@ -174,8 +163,8 @@ function isCachedResultKind__deriveConcreteTemplateModel(
 
 function deriveResultModel__deriveConcreteTemplateModel(
   api: DeriveResultModelApi<
-    Typescript.InterfaceType,
-    ConcreteTemplateIntermediateSchemaModel
+    ConcreteTemplateIntermediateSchemaModel,
+    Typescript.InterfaceType
   >,
 ): ConcreteTemplateIntermediateSchemaModel {
   const { modelKey, modelSymbol, modelTemplates, modelProperties } = api;
@@ -190,11 +179,14 @@ function deriveResultModel__deriveConcreteTemplateModel(
 }
 
 interface __DeriveDefinitiveModel<
-  ThisModelType extends Typescript.Type,
   ThisResultModel extends IntermediateSchemaModel,
+  ThisModelType extends Typescript.Type,
 > extends
   Pick<
-    __DeriveIntermediateModelApi<ThisModelType, ThisResultModel>,
+    __DeriveIntermediateModelApi<
+      ThisResultModel,
+      ThisModelType
+    >,
     | 'isCachedResultKind'
     | 'deriveResultModel'
     | 'schemaTypeChecker'
@@ -203,9 +195,14 @@ interface __DeriveDefinitiveModel<
   > {}
 
 function __deriveDefinitiveModel<
-  ThisModelType extends Typescript.Type,
   ThisResultModel extends IntermediateSchemaModel,
->(api: __DeriveDefinitiveModel<ThisModelType, ThisResultModel>) {
+  ThisModelType extends Typescript.Type,
+>(
+  api: __DeriveDefinitiveModel<
+    ThisResultModel,
+    ThisModelType
+  >,
+) {
   const {
     isCachedResultKind,
     deriveResultModel,
@@ -214,7 +211,7 @@ function __deriveDefinitiveModel<
     someModelType,
   } = api;
   return __deriveIntermediateModel({
-    elementTypeCases: getDefinitiveElementTypeCases<ThisResultModel>(),
+    elementTypeCases: getDefinitiveElementTypeCases(),
     isCachedResultKind,
     deriveResultModel,
     schemaTypeChecker,
@@ -223,15 +220,9 @@ function __deriveDefinitiveModel<
   });
 }
 
-interface DeriveGenericTemplateModelApi extends
-  Pick<
-    __DeriveIntermediateModelApi<irrelevantAny, irrelevantAny>,
-    'schemaTypeChecker' | 'schemaMapResult'
-  > {
-  someGenericTemplateModelType: __DeriveIntermediateModelApi<
-    Typescript.TypeReference,
-    irrelevantAny
-  >['someModelType'];
+interface DeriveGenericTemplateModelApi
+  extends Static__DeriveIntermediateModelApi {
+  someGenericTemplateModelType: Typescript.TypeReference;
 }
 
 function deriveGenericTemplateModel(
@@ -260,8 +251,8 @@ function isCachedResultKind__deriveGenericTemplateModel(
 
 function deriveResultModel__deriveGenericTemplateModel(
   api: DeriveResultModelApi<
-    Typescript.TypeReference,
-    GenericTemplateIntermediateSchemaModel
+    GenericTemplateIntermediateSchemaModel,
+    Typescript.TypeReference
   >,
 ): GenericTemplateIntermediateSchemaModel {
   const {
@@ -289,40 +280,64 @@ function deriveResultModel__deriveGenericTemplateModel(
 }
 
 interface __DeriveIntermediateModelApi<
-  ThisModelType extends Typescript.Type,
   ThisResultModel extends IntermediateSchemaModel,
-> extends Pick<DeriveSchemaMapApi, 'schemaTypeChecker'> {
+  ThisModelType extends Typescript.Type,
+> extends
+  Static__DeriveIntermediateModelApi,
+  Custom__DeriveIntermediateModelApi<
+    ThisResultModel,
+    ThisModelType
+  > {
+}
+
+interface Static__DeriveIntermediateModelApi
+  extends Pick<DeriveSchemaMapApi, 'schemaTypeChecker'> {
   schemaMapResult: IntermediateSchemaMap;
-  someModelType: ThisModelType;
+}
+
+interface Custom__DeriveIntermediateModelApi<
+  ThisResultModel extends IntermediateSchemaModel,
+  ThisModelType extends Typescript.Type,
+> {
   isCachedResultKind: (
     maybeCachedResultModel: IntermediateSchemaModel | undefined,
   ) => maybeCachedResultModel is ThisResultModel;
   deriveResultModel: (
-    api: DeriveResultModelApi<ThisModelType, ThisResultModel>,
+    api: DeriveResultModelApi<ThisResultModel, ThisModelType>,
   ) => ThisResultModel;
   elementTypeCases: Array<
-    ElementTypeCase<ThisResultModel, Typescript.Type>
+    ElementTypeCase<
+      GetThisModelElement<ThisResultModel>,
+      Typescript.Type
+    >
   >;
+  someModelType: ThisModelType;
 }
 
 interface DeriveResultModelApi<
-  ModelType extends Typescript.Type,
-  ResultModel extends IntermediateSchemaModel,
+  ThisResultModel extends IntermediateSchemaModel,
+  ThisModelType extends Typescript.Type,
 > extends
   Pick<
-    __DeriveIntermediateModelApi<ModelType, ResultModel>,
+    __DeriveIntermediateModelApi<
+      irrelevantAny,
+      ThisModelType
+    >,
     'schemaTypeChecker' | 'schemaMapResult' | 'someModelType'
   >,
   Pick<
-    ResultModel,
+    ThisResultModel,
     'modelKey' | 'modelSymbol' | 'modelTemplates' | 'modelProperties'
   > {}
 
 function __deriveIntermediateModel<
-  ThisModelType extends Typescript.Type,
   ThisResultModel extends IntermediateSchemaModel,
+  ThisModelType extends Typescript.Type,
 >(
-  api: __DeriveIntermediateModelApi<ThisModelType, ThisResultModel>,
+  api: __DeriveIntermediateModelApi<
+    ThisResultModel,
+    ThisModelType
+  >,
 ): ThisResultModel {
   const {
     someModelType,
@@ -368,11 +383,14 @@ function __deriveIntermediateModel<
 }
 
 interface DeriveModelTemplatesApi<
-  ThisModelType extends Typescript.Type,
   ThisResultModel extends IntermediateSchemaModel,
+  ThisModelType extends Typescript.Type,
 > extends
   Pick<
-    __DeriveIntermediateModelApi<ThisModelType, ThisResultModel>,
+    __DeriveIntermediateModelApi<
+      ThisResultModel,
+      ThisModelType
+    >,
     | 'schemaTypeChecker'
     | 'schemaMapResult'
     | 'elementTypeCases'
@@ -380,10 +398,13 @@ interface DeriveModelTemplatesApi<
   > {}
 
 function deriveModelTemplates<
-  ThisModelType extends Typescript.Type,
   ThisResultModel extends IntermediateSchemaModel,
+  ThisModelType extends Typescript.Type,
 >(
-  api: DeriveModelTemplatesApi<ThisModelType, ThisResultModel>,
+  api: DeriveModelTemplatesApi<
+    ThisResultModel,
+    ThisModelType
+  >,
 ): ThisResultModel['modelTemplates'] {
   const {
     someModelType,
@@ -438,9 +459,13 @@ function deriveModelTemplates<
 
 interface DeriveGenericArgumentsApi<
   ThisResultModel extends IntermediateSchemaModel,
+  ThisModelType extends Typescript.Type,
 > extends
   Pick<
-    DeriveModelTemplatesApi<irrelevantAny, ThisResultModel>,
+    DeriveModelTemplatesApi<
+      ThisResultModel,
+      ThisModelType
+    >,
     | 'schemaTypeChecker'
     | 'schemaMapResult'
     | 'elementTypeCases'
@@ -452,8 +477,12 @@ interface DeriveGenericArgumentsApi<
 
 function deriveGenericArguments<
   ThisResultModel extends IntermediateSchemaModel,
+  ThisModelType extends Typescript.Type,
 >(
-  api: DeriveGenericArgumentsApi<ThisResultModel>,
+  api: DeriveGenericArgumentsApi<
+    ThisResultModel,
+    ThisModelType
+  >,
 ): GenericModelTemplate<
   GetThisModelElement<ThisResultModel>
 >['genericArguments'] {
@@ -493,11 +522,14 @@ function deriveGenericArguments<
 }
 
 interface DeriveModelPropertiesApi<
-  ThisModelType extends Typescript.Type,
   ThisResultModel extends IntermediateSchemaModel,
+  ThisModelType extends Typescript.Type,
 > extends
   Pick<
-    __DeriveIntermediateModelApi<ThisModelType, ThisResultModel>,
+    __DeriveIntermediateModelApi<
+      ThisResultModel,
+      ThisModelType
+    >,
     | 'schemaTypeChecker'
     | 'schemaMapResult'
     | 'elementTypeCases'
@@ -505,10 +537,13 @@ interface DeriveModelPropertiesApi<
   > {}
 
 function deriveModelProperties<
-  ThisModelType extends Typescript.Type,
   ThisResultModel extends IntermediateSchemaModel,
+  ThisModelType extends Typescript.Type,
 >(
-  api: DeriveModelPropertiesApi<ThisModelType, ThisResultModel>,
+  api: DeriveModelPropertiesApi<
+    ThisResultModel,
+    ThisModelType
+  >,
 ): ThisResultModel['modelProperties'] {
   const {
     someModelType,
@@ -543,152 +578,25 @@ function deriveModelProperties<
   );
 }
 
-function getDefinitiveElementTypeCases<
+interface DeriveArgumentElementApi<
   ThisResultModel extends IntermediateSchemaModel,
->() {
-  return __getElementTypeCases<ThisResultModel>({
-    uniqueElementTypeCases: [],
-  });
-}
-
-function getGenericElementTypeCases() {
-  return __getElementTypeCases<GenericTemplateIntermediateSchemaModel>({
-    uniqueElementTypeCases: [{
-      assertCase: isContrainedParameterType,
-      handleCase: ({ someElementType }) => ({
-        elementKind: 'parameter',
-        parameterKind: 'constrained',
-        parameterSymbol: someElementType.symbol.name,
-      }),
-    }, {
-      assertCase: isParameterType,
-      handleCase: ({ someElementType }) => ({
-        elementKind: 'parameter',
-        parameterKind: 'basic',
-        parameterSymbol: someElementType.symbol.name,
-      }),
-    }],
-  });
-}
-
-interface __GetElementTypeCasesApi<
-  ThisResultModel extends IntermediateSchemaModel,
-> {
-  uniqueElementTypeCases: Array<
-    ElementTypeCase<ThisResultModel, Typescript.Type>
-  >;
-}
-
-function __getElementTypeCases<
-  ThisResultModel extends IntermediateSchemaModel,
->(
-  api: __GetElementTypeCasesApi<ThisResultModel>,
-): Array<ElementTypeCase<ThisResultModel, Typescript.Type>> {
-  const { uniqueElementTypeCases } = api;
-  return [
-    {
-      assertCase: isStringLiteralType,
-      handleCase: ({ schemaTypeChecker, someElementType }) => ({
-        elementKind: 'literal',
-        literalKind: 'string',
-        literalSymbol: schemaTypeChecker.typeToString(someElementType),
-      }),
-    },
-    {
-      assertCase: isNumberLiteralType,
-      handleCase: ({ schemaTypeChecker, someElementType }) => ({
-        elementKind: 'literal',
-        literalKind: 'number',
-        literalSymbol: schemaTypeChecker.typeToString(someElementType),
-      }),
-    },
-    {
-      assertCase: isBooleanLiteralType,
-      handleCase: ({ schemaTypeChecker, someElementType }) => ({
-        elementKind: 'literal',
-        literalKind: 'boolean',
-        literalSymbol: schemaTypeChecker.typeToString(someElementType),
-      }),
-    },
-    {
-      assertCase: isStringType,
-      handleCase: () => ({
-        elementKind: 'primitive',
-        primitiveKind: 'string',
-      }),
-    },
-    {
-      assertCase: isNumberType,
-      handleCase: () => ({
-        elementKind: 'primitive',
-        primitiveKind: 'number',
-      }),
-    },
-    {
-      assertCase: isBooleanType,
-      handleCase: () => ({
-        elementKind: 'primitive',
-        primitiveKind: 'boolean',
-      }),
-    },
-    {
-      assertCase: isInterfaceType,
-      handleCase: (
-        { schemaTypeChecker, schemaMapResult, someElementType },
-      ) => {
-        const elementDataModel = deriveDataModel({
-          schemaTypeChecker,
-          schemaMapResult,
-          someDataModelType: someElementType as any,
-        });
-        return {
-          elementKind: 'dataModel',
-          dataModelKey: elementDataModel.modelKey,
-        };
-      },
-    },
-    ...uniqueElementTypeCases,
-  ];
-}
-
-interface ElementTypeCase<
-  ThisResultModel extends IntermediateSchemaModel,
-  ThisElementType extends Typescript.Type,
-> {
-  assertCase: (
-    someElementType: Typescript.Type,
-  ) => someElementType is ThisElementType;
-  handleCase: (
-    api: ElementTypeCaseHandlerApi<ThisElementType>,
-  ) => GetThisModelElement<ThisResultModel>;
-}
-
-interface ElementTypeCaseHandlerApi<ThisElementType extends Typescript.Type>
-  extends
-    Pick<
-      __DeriveModelElementApi<irrelevantAny>,
-      'schemaTypeChecker' | 'schemaMapResult'
-    > {
-  someElementType: ThisElementType;
-}
-
-interface DeriveArgumentElementApi extends
+  ThisModelType extends Typescript.Type,
+> extends
   Pick<
-    DeriveGenericArgumentsApi<irrelevantAny>,
+    DeriveGenericArgumentsApi<irrelevantAny, ThisModelType>,
     'someModelType' | 'someGenericModelTemplateType'
   >,
   Pick<
-    __DeriveModelElementApi<
-      irrelevantAny
-    >,
+    __DeriveModelElementApi<ThisResultModel>,
     'schemaTypeChecker' | 'schemaMapResult' | 'elementTypeCases'
   > {
-  someArgumentElementType: __DeriveModelElementApi<
-    irrelevantAny
-  >['someElementType'];
+  someArgumentElementType: Typescript.Type;
 }
 
-function deriveArgumentElement(api: DeriveArgumentElementApi) {
+function deriveArgumentElement<
+  ThisResultModel extends IntermediateSchemaModel,
+  ThisModelType extends Typescript.Type,
+>(api: DeriveArgumentElementApi<ThisResultModel, ThisModelType>) {
   const {
     someArgumentElementType,
     someGenericModelTemplateType,
@@ -710,25 +618,27 @@ function deriveArgumentElement(api: DeriveArgumentElementApi) {
   });
 }
 
-interface DerivePropertyElementApi extends
+interface DerivePropertyElementApi<
+  ThisResultModel extends IntermediateSchemaModel,
+  ThisModelType extends Typescript.Type,
+> extends
   Pick<
-    DeriveModelPropertiesApi<irrelevantAny, irrelevantAny>,
+    DeriveModelPropertiesApi<irrelevantAny, ThisModelType>,
     'someModelType'
   >,
   Pick<
-    __DeriveModelElementApi<
-      irrelevantAny
-    >,
+    __DeriveModelElementApi<ThisResultModel>,
     'schemaTypeChecker' | 'schemaMapResult' | 'elementTypeCases'
   > {
   propertyKey: string;
-  somePropertyElementType: __DeriveModelElementApi<
-    irrelevantAny
-  >['someElementType'];
+  somePropertyElementType: Typescript.Type;
 }
 
-function derivePropertyElement(
-  api: DerivePropertyElementApi,
+function derivePropertyElement<
+  ThisResultModel extends IntermediateSchemaModel,
+  ThisModelType extends Typescript.Type,
+>(
+  api: DerivePropertyElementApi<ThisResultModel, ThisModelType>,
 ) {
   const {
     someModelType,
@@ -753,7 +663,7 @@ interface __DeriveModelElementApi<
   ThisResultModel extends IntermediateSchemaModel,
 > extends
   Pick<
-    __DeriveIntermediateModelApi<irrelevantAny, ThisResultModel>,
+    __DeriveIntermediateModelApi<ThisResultModel, irrelevantAny>,
     | 'schemaTypeChecker'
     | 'schemaMapResult'
     | 'elementTypeCases'
@@ -784,6 +694,180 @@ function __deriveModelElement<ThisResultModel extends IntermediateSchemaModel>(
     : throwUserError(invalidModelElementMessage);
 }
 
-type GetThisModelElement<
-  ThisResultModel extends IntermediateSchemaModel_Core<any, any>,
-> = ThisResultModel['modelProperties'][string]['propertyElement'];
+type GetThisModelElement<ThisResultModel extends IntermediateSchemaModel> =
+  ThisResultModel['modelProperties'][string]['propertyElement'];
+
+function getDefinitiveElementTypeCases() {
+  return __getElementTypeCases({
+    uniqueElementTypeCases: [],
+  }) as Array<
+    ElementTypeCase<
+      CoreIntermediateModelElement,
+      Typescript.Type
+    >
+  >;
+}
+
+function getGenericElementTypeCases() {
+  return __getElementTypeCases({
+    uniqueElementTypeCases: [
+      extensionTypeCase({
+        assertCase: isContrainedParameterType,
+        handleCase: ({ someElementType }) => ({
+          elementKind: 'parameter',
+          parameterKind: 'constrained',
+          parameterSymbol: someElementType.symbol.name,
+        }),
+      }),
+      extensionTypeCase({
+        assertCase: isParameterType,
+        handleCase: ({ someElementType }) => ({
+          elementKind: 'parameter',
+          parameterKind: 'basic',
+          parameterSymbol: someElementType.symbol.name,
+        }),
+      }),
+    ],
+  }) as Array<
+    ElementTypeCase<
+      GenericTemplateIntermediateModelElement,
+      Typescript.Type
+    >
+  >;
+}
+
+interface __GetElementTypeCasesApi<
+  SomeUniqueModelElement extends ModelElementBase<string>,
+  SomeUniqueElementType extends Typescript.Type,
+  ThisUniqueElementTypeCases extends [
+    ElementTypeCase<SomeUniqueModelElement, SomeUniqueElementType>,
+    ...Array<ElementTypeCase<SomeUniqueModelElement, SomeUniqueElementType>>,
+  ] | [],
+> {
+  uniqueElementTypeCases: ThisUniqueElementTypeCases;
+}
+
+function __getElementTypeCases<
+  SomeUniqueModelKind extends string,
+  SomeUniqueModelElement extends ModelElementBase<SomeUniqueModelKind>,
+  SomeUniqueElementType extends Typescript.Type,
+  SomeElementTypeCase extends ElementTypeCase<
+    SomeUniqueModelElement,
+    SomeUniqueElementType
+  >,
+  ThisUniqueElementTypeCases extends [
+    SomeElementTypeCase,
+    ...Array<SomeElementTypeCase>,
+  ] | [],
+>(
+  api: __GetElementTypeCasesApi<
+    SomeUniqueModelElement,
+    SomeUniqueElementType,
+    ThisUniqueElementTypeCases
+  >,
+) {
+  const { uniqueElementTypeCases } = api;
+  return extendedTuple([
+    extensionTypeCase({
+      assertCase: isStringLiteralType,
+      handleCase: ({ schemaTypeChecker, someElementType }) => ({
+        elementKind: 'literal',
+        literalKind: 'string',
+        literalSymbol: schemaTypeChecker.typeToString(someElementType),
+      }),
+    }),
+    extensionTypeCase({
+      assertCase: isNumberLiteralType,
+      handleCase: ({ schemaTypeChecker, someElementType }) => ({
+        elementKind: 'literal',
+        literalKind: 'number',
+        literalSymbol: schemaTypeChecker.typeToString(someElementType),
+      }),
+    }),
+    extensionTypeCase({
+      assertCase: isBooleanLiteralType,
+      handleCase: ({ schemaTypeChecker, someElementType }) => ({
+        elementKind: 'literal',
+        literalKind: 'boolean',
+        literalSymbol: schemaTypeChecker.typeToString(someElementType),
+      }),
+    }),
+    extensionTypeCase({
+      assertCase: isStringType,
+      handleCase: () => ({
+        elementKind: 'primitive',
+        primitiveKind: 'string',
+      }),
+    }),
+    extensionTypeCase({
+      assertCase: isNumberType,
+      handleCase: () => ({
+        elementKind: 'primitive',
+        primitiveKind: 'number',
+      }),
+    }),
+    extensionTypeCase({
+      assertCase: isBooleanType,
+      handleCase: () => ({
+        elementKind: 'primitive',
+        primitiveKind: 'boolean',
+      }),
+    }),
+    extensionTypeCase({
+      assertCase: isInterfaceType,
+      handleCase: (
+        { schemaTypeChecker, schemaMapResult, someElementType },
+      ) => {
+        const elementDataModel = deriveDataModel({
+          schemaTypeChecker,
+          schemaMapResult,
+          someDataModelType: someElementType,
+        });
+        return {
+          elementKind: 'dataModel',
+          dataModelKey: elementDataModel.modelKey,
+        };
+      },
+    }),
+  ], uniqueElementTypeCases);
+}
+
+interface ElementTypeCase<
+  ThisModelElement extends ModelElementBase<string>,
+  ThisElementType extends Typescript.Type,
+> {
+  assertCase: (
+    someElementType: Typescript.Type,
+  ) => someElementType is ThisElementType;
+  handleCase: (
+    api: ElementTypeCaseHandlerApi<ThisElementType>,
+  ) => ThisModelElement;
+}
+
+interface ElementTypeCaseHandlerApi<ThisElementType extends Typescript.Type>
+  extends
+    Pick<
+      __DeriveModelElementApi<irrelevantAny>,
+      'schemaTypeChecker' | 'schemaMapResult'
+    > {
+  someElementType: ThisElementType;
+}
+
+function extendedTuple<
+  ThisCoreTuple extends [any, ...Array<any>],
+  ThisExtensionTuple extends [any, ...Array<any>] | [],
+>(
+  thisCoreTuple: ThisCoreTuple,
+  thisExtensionTuple: ThisExtensionTuple,
+): [...ThisCoreTuple, ...ThisExtensionTuple] {
+  return [...thisCoreTuple, ...thisExtensionTuple];
+}
+
+function extensionTypeCase<
+  ThisModelElement extends IntermediateSchemaModel['modelProperties'][string][
+    'propertyElement'
+  ],
+  ThisElementType extends Typescript.Type,
+>(thisExtensionTypeCase: ElementTypeCase<ThisModelElement, ThisElementType>) {
+  return thisExtensionTypeCase;
+}
