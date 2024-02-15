@@ -1,11 +1,13 @@
+import { genericAny } from '../../helpers/types.ts';
+
 export interface SchemaMap<
-  ThisSchemaModel extends SchemaModel_Core<any>,
+  ThisSchemaModel extends __SchemaModel<genericAny>,
 > {
   schemaSymbol: string;
   schemaModels: Record<ThisSchemaModel['modelKey'], ThisSchemaModel>;
 }
 
-export interface SchemaModel_Core<ThisModelElement> {
+export interface __SchemaModel<ThisModelElement> {
   modelKey: string;
   modelSymbol: string;
   modelProperties: Record<
@@ -19,13 +21,13 @@ export interface ModelProperty<ThisPropertyElement> {
   propertyElement: ThisPropertyElement;
 }
 
-export type ModelElement<ThisDataModel extends SchemaModel_Core<unknown>> =
+export type ModelElement<ThisDataModel extends __SchemaModel<unknown>> =
   | DataModelElement<ThisDataModel>
   | LiteralModelElement
   | PrimitiveModelElement;
 
 export interface DataModelElement<
-  ThisDataModel extends SchemaModel_Core<unknown>,
+  ThisDataModel extends __SchemaModel<unknown>,
 > extends ModelElementBase<'dataModel'> {
   dataModelKey: ThisDataModel['modelKey'];
 }

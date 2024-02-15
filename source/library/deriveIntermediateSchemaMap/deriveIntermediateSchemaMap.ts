@@ -2,7 +2,7 @@ import {
   throwInvalidPathError,
   throwUserError,
 } from '../../helpers/throwError.ts';
-import { irrelevantAny } from '../../helpers/types.ts';
+import { genericAny, irrelevantAny } from '../../helpers/types.ts';
 import { Typescript } from '../../imports/Typescript.ts';
 import {
   ConcreteTemplateIntermediateSchemaModel,
@@ -854,8 +854,8 @@ interface ElementTypeCaseHandlerApi<ThisElementType extends Typescript.Type>
 }
 
 function extendedTuple<
-  ThisCoreTuple extends [any, ...Array<any>],
-  ThisExtensionTuple extends [any, ...Array<any>] | [],
+  ThisCoreTuple extends [genericAny, ...Array<genericAny>],
+  ThisExtensionTuple extends [genericAny, ...Array<genericAny>] | [],
 >(
   thisCoreTuple: ThisCoreTuple,
   thisExtensionTuple: ThisExtensionTuple,

@@ -1,8 +1,4 @@
 import { Typescript } from '../../imports/Typescript.ts';
-import {
-  IntermediateSchemaModel,
-  IntermediateSchemaModel_Core,
-} from '../types/IntermediateSchemaMap.ts';
 
 export function isInterfaceType(
   someType: Typescript.Type,

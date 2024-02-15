@@ -2,7 +2,7 @@ import {
   ModelElement,
   ModelElementBase,
   SchemaMap,
-  SchemaModel_Core,
+  __SchemaModel,
 } from './SchemaMap.ts';
 
 export interface IntermediateSchemaMap
@@ -13,7 +13,7 @@ export type IntermediateSchemaModel =
   | TemplateIntermediateSchemaModel;
 
 export interface DataIntermediateSchemaModel
-  extends IntermediateSchemaModel_Core<'data', CoreIntermediateModelElement> {}
+  extends __IntermediateSchemaModel<'data', CoreIntermediateModelElement> {}
 
 export type TemplateIntermediateSchemaModel =
   | ConcreteTemplateIntermediateSchemaModel
@@ -40,14 +40,14 @@ export interface GenericParameter {
 }
 
 interface TemplateIntermediateSchemaModel_Core<TemplateKind, ThisModelElement>
-  extends IntermediateSchemaModel_Core<'template', ThisModelElement> {
+  extends __IntermediateSchemaModel<'template', ThisModelElement> {
   templateKind: TemplateKind;
 }
 
-export interface IntermediateSchemaModel_Core<
+export interface __IntermediateSchemaModel<
   ModelKind,
   ThisModelElement,
-> extends SchemaModel_Core<ThisModelElement> {
+> extends __SchemaModel<ThisModelElement> {
   modelKind: ModelKind;
   modelTemplates: Array<ModelTemplate<ThisModelElement>>;
 }
