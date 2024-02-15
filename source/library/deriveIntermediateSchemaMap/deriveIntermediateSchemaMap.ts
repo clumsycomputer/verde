@@ -211,7 +211,19 @@ function __deriveDefinitiveModel<
     someModelType,
   } = api;
   return __deriveIntermediateModel({
-    elementTypeCases: getDefinitiveElementTypeCases(),
+    elementTypeCases:
+      getDefinitiveElementTypeCases() satisfies VerifiedElementTypeCases<
+        ElementTypeCase<
+          CoreIntermediateModelElement,
+          Typescript.Type
+        >,
+        ReturnType<typeof getDefinitiveElementTypeCases>
+      > as Array<
+        ElementTypeCase<
+          CoreIntermediateModelElement,
+          Typescript.Type
+        >
+      >,
     isCachedResultKind,
     deriveResultModel,
     schemaTypeChecker,
@@ -233,7 +245,19 @@ function deriveGenericTemplateModel(
   return __deriveIntermediateModel({
     isCachedResultKind: isCachedResultKind__deriveGenericTemplateModel,
     deriveResultModel: deriveResultModel__deriveGenericTemplateModel,
-    elementTypeCases: getGenericElementTypeCases(),
+    elementTypeCases:
+      getGenericElementTypeCases() satisfies VerifiedElementTypeCases<
+        ElementTypeCase<
+          GenericTemplateIntermediateModelElement,
+          Typescript.Type
+        >,
+        ReturnType<typeof getGenericElementTypeCases>
+      > as Array<
+        ElementTypeCase<
+          GenericTemplateIntermediateModelElement,
+          Typescript.Type
+        >
+      >,
     schemaTypeChecker,
     schemaMapResult,
     someModelType: someGenericTemplateModelType,
@@ -700,12 +724,7 @@ type GetThisModelElement<ThisResultModel extends IntermediateSchemaModel> =
 function getDefinitiveElementTypeCases() {
   return __getElementTypeCases({
     uniqueElementTypeCases: [],
-  }) as Array<
-    ElementTypeCase<
-      CoreIntermediateModelElement,
-      Typescript.Type
-    >
-  >;
+  });
 }
 
 function getGenericElementTypeCases() {
@@ -728,12 +747,7 @@ function getGenericElementTypeCases() {
         }),
       }),
     ],
-  }) as Array<
-    ElementTypeCase<
-      GenericTemplateIntermediateModelElement,
-      Typescript.Type
-    >
-  >;
+  });
 }
 
 interface __GetElementTypeCasesApi<
@@ -844,12 +858,11 @@ interface ElementTypeCase<
   ) => ThisModelElement;
 }
 
-interface ElementTypeCaseHandlerApi<ThisElementType extends Typescript.Type>
-  extends
-    Pick<
-      __DeriveModelElementApi<irrelevantAny>,
-      'schemaTypeChecker' | 'schemaMapResult'
-    > {
+interface ElementTypeCaseHandlerApi<ThisElementType> extends
+  Pick<
+    __DeriveModelElementApi<irrelevantAny>,
+    'schemaTypeChecker' | 'schemaMapResult'
+  > {
   someElementType: ThisElementType;
 }
 
@@ -871,3 +884,39 @@ function extensionTypeCase<
 >(thisExtensionTypeCase: ElementTypeCase<ThisModelElement, ThisElementType>) {
   return thisExtensionTypeCase;
 }
+
+type VerifiedElementTypeCases<
+  TargetElementTypeCase extends ElementTypeCase<genericAny, genericAny>,
+  ThisElementTypeCases extends Array<ElementTypeCase<genericAny, genericAny>>,
+> = VerifyElementTypeCases<
+  TargetElementTypeCase,
+  ThisElementTypeCases,
+  []
+>;
+
+type VerifyElementTypeCases<
+  TargetElementTypeCase extends ElementTypeCase<genericAny, genericAny>,
+  CurrentElementTypeCases extends Array<genericAny>,
+  ResultElementTypeCases extends Array<
+    CurrentElementTypeCases[number]
+  >,
+> = TargetElementTypeCase extends
+  ElementTypeCase<infer TargetModelElement, infer TargetElementType>
+  ? CurrentElementTypeCases extends
+    [infer CurrentElementTypeCase, ...infer RemainingElementTypeCases]
+    ? CurrentElementTypeCase extends
+      ElementTypeCase<infer CurrentModelElement, infer CurrentElementType>
+      ? CurrentModelElement extends TargetModelElement
+        ? CurrentElementType extends TargetElementType ? VerifyElementTypeCases<
+            TargetElementTypeCase,
+            RemainingElementTypeCases,
+            [
+              ...ResultElementTypeCases,
+              CurrentElementTypeCase,
+            ]
+          >
+        : never
+      : never
+    : never
+  : ResultElementTypeCases
+  : never;
