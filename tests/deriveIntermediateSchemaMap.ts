@@ -30,35 +30,21 @@ Deno.test({ name: 'invalid top-level model' }, () => {
   );
 });
 
-Deno.test({ name: 'invalid model property' }, () => {
+Deno.test({ name: 'invalid model element' }, () => {
   Assert.assertThrows(
     () => {
       deriveIntermediateSchemaMap({
         schemaModulePath: resolveCasePath({
-          someCaseName: 'InvalidModelProperty',
+          someCaseName: 'InvalidModelElement',
         }),
       });
     },
     Error,
-    `invalid model property: FooDataModel["invalidProperty"]`,
+    `invalid model element: TODO`,
   );
 });
 
-Deno.test({ name: 'invalid model argument' }, () => {
-  Assert.assertThrows(
-    () => {
-      deriveIntermediateSchemaMap({
-        schemaModulePath: resolveCasePath({
-          someCaseName: 'InvalidModelArgument',
-        }),
-      });
-    },
-    Error,
-    'invalid model argument: unknown in BazTemplateModel<unknown> on FooDataModel',
-  );
-});
-
-Deno.test({ name: 'valid schema', only: true }, () => {
+Deno.test({ name: 'valid schema' }, () => {
   const validSchemaMap = deriveIntermediateSchemaMap({
     schemaModulePath: resolveCasePath({
       someCaseName: 'ValidSchema',

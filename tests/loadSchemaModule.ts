@@ -1,4 +1,4 @@
-import { loadSchemaModule } from '../source/library/deriveIntermediateSchemaMap/loadSchemaModule.ts';
+import { loadSchemaModule } from '../source/library/deriveIntermediateSchemaMap/components/loadSchemaModule.ts';
 import { resolveCasePath } from './helpers/resolveCasePath.ts';
 import { Assert } from './imports/Assert.ts';
 
@@ -47,21 +47,6 @@ Deno.test({ name: 'multiple exports at "schemaModulePath"' }, () => {
   );
 });
 
-Deno.test({ name: 'interface export at "schemaModulePath"' }, () => {
-  const interfaceExportCasePath = resolveCasePath({
-    someCaseName: 'InterfaceExport',
-  });
-  Assert.assertThrows(
-    () => {
-      loadSchemaModule({
-        schemaModulePath: interfaceExportCasePath,
-      });
-    },
-    Error,
-    `invalid schema module: interface export at "${interfaceExportCasePath}"`,
-  );
-});
-
 Deno.test({ name: 'non-type export at "schemaModulePath"' }, () => {
   const codeExportCasePath = resolveCasePath({
     someCaseName: 'CodeExport',
@@ -89,6 +74,21 @@ Deno.test({ name: 'default non-type export at "schemaModulePath"' }, () => {
     },
     Error,
     `invalid schema module: non-type export at "${defaultExportCasePath}"`,
+  );
+});
+
+Deno.test({ name: 'not concrete type-alias export' }, () => {
+  const notConcreteTypeAliasExportCasePath = resolveCasePath({
+    someCaseName: 'NotConcreteTypeAliasExport',
+  });
+  Assert.assertThrows(
+    () => {
+      loadSchemaModule({
+        schemaModulePath: notConcreteTypeAliasExportCasePath,
+      });
+    },
+    Error,
+    `invalid schema module: not a concrete type-alias export at "${notConcreteTypeAliasExportCasePath}"`,
   );
 });
 

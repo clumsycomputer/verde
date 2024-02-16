@@ -1,4 +1,4 @@
-import { Typescript } from '../../imports/Typescript.ts';
+import { Typescript } from '../../../imports/Typescript.ts';
 
 export function isInterfaceType(
   someType: Typescript.Type,
