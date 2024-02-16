@@ -26,9 +26,8 @@ export function deriveTerminalSchemaMap(
     schemaModels: intermediateDataModels.reduce<
       TerminalSchemaMap['schemaModels']
     >((modelsResult, someDataIntermediateModel) => {
-      modelsResult[someDataIntermediateModel.modelKey] = {
-        modelKey: someDataIntermediateModel.modelKey,
-        modelSymbol: someDataIntermediateModel.modelSymbol,
+      modelsResult[someDataIntermediateModel.modelSymbolKey] = {
+        modelSymbolKey: someDataIntermediateModel.modelSymbolKey,
         modelProperties: processModelProperties({
           someIntermediateModel: someDataIntermediateModel,
           propertiesResult: {},

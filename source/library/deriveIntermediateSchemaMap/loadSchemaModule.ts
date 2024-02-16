@@ -54,7 +54,7 @@ export function loadSchemaModule(
   }
   const lhsSchemaExportSymbol =
     (schemaExports.length === 1 && schemaExports[0]) ||
-    throwInvalidPathError('schemaExportSymbol');
+    throwInvalidPathError('lhsSchemaExportSymbol');
   if (lhsSchemaExportSymbol.valueDeclaration) {
     throwUserError(
       `invalid schema module: non-type export at "${schemaModulePath}"`,

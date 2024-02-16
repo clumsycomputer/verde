@@ -58,7 +58,7 @@ Deno.test({ name: 'invalid model argument' }, () => {
   );
 });
 
-Deno.test({ name: 'valid schema' }, () => {
+Deno.test({ name: 'valid schema', only: true }, () => {
   const validSchemaMap = deriveIntermediateSchemaMap({
     schemaModulePath: resolveCasePath({
       someCaseName: 'ValidSchema',
@@ -69,8 +69,7 @@ Deno.test({ name: 'valid schema' }, () => {
     schemaModels: {
       BasicDataModel_EXAMPLE: {
         modelKind: 'data',
-        modelKey: 'BasicDataModel_EXAMPLE',
-        modelSymbol: 'BasicDataModel_EXAMPLE',
+        modelSymbolKey: 'BasicDataModel_EXAMPLE',
         modelTemplates: [],
         modelProperties: {
           stringProperty_EXAMPLE: {
@@ -98,15 +97,14 @@ Deno.test({ name: 'valid schema' }, () => {
             propertyKey: 'interfaceProperty_EXAMPLE',
             propertyElement: {
               elementKind: 'dataModel',
-              dataModelKey: 'PropertyDataModel_EXAMPLE',
+              dataModelSymbolKey: 'PropertyDataModel_EXAMPLE',
             },
           },
         },
       },
       PropertyDataModel_EXAMPLE: {
         modelKind: 'data',
-        modelKey: 'PropertyDataModel_EXAMPLE',
-        modelSymbol: 'PropertyDataModel_EXAMPLE',
+        modelSymbolKey: 'PropertyDataModel_EXAMPLE',
         modelTemplates: [],
         modelProperties: {
           fooProperty: {
@@ -120,42 +118,44 @@ Deno.test({ name: 'valid schema' }, () => {
       },
       CompositeDataModel_EXAMPLE: {
         modelKind: 'data',
-        modelKey: 'CompositeDataModel_EXAMPLE',
-        modelSymbol: 'CompositeDataModel_EXAMPLE',
-        modelTemplates: [{
-          templateKind: 'concrete',
-          templateModelKey: 'ConcreteTemplateModel_EXAMPLE',
-        }, {
-          templateKind: 'generic',
-          templateModelKey: 'GenericTemplateModel_EXAMPLE',
-          genericArguments: {
-            'BasicParameter_EXAMPLE': {
-              argumentIndex: 0,
-              argumentSymbol: 'BasicParameter_EXAMPLE',
-              argumentElement: {
-                elementKind: 'dataModel',
-                dataModelKey: 'PropertyDataModel_EXAMPLE',
+        modelSymbolKey: 'CompositeDataModel_EXAMPLE',
+        modelTemplates: [
+          {
+            templateKind: 'concrete',
+            templateModelSymbolKey: 'ConcreteTemplateModel_EXAMPLE',
+          },
+          {
+            templateKind: 'generic',
+            templateModelSymbolKey: 'GenericTemplateModel_EXAMPLE',
+            genericArguments: {
+              'BasicParameter_EXAMPLE': {
+                argumentIndex: 0,
+                argumentSymbolKey: 'BasicParameter_EXAMPLE',
+                argumentElement: {
+                  elementKind: 'dataModel',
+                  dataModelSymbolKey: 'PropertyDataModel_EXAMPLE',
+                },
               },
-            },
-            'ConstrainedParameter_EXAMPLE': {
-              argumentIndex: 1,
-              argumentSymbol: 'ConstrainedParameter_EXAMPLE',
-              argumentElement: {
-                elementKind: 'literal',
-                literalKind: 'number',
-                literalSymbol: '7',
+              'ConstrainedParameter_EXAMPLE': {
+                argumentIndex: 1,
+                argumentSymbolKey: 'ConstrainedParameter_EXAMPLE',
+                argumentElement: {
+                  elementKind: 'literal',
+                  literalKind: 'number',
+                  literalSymbol: '7',
+                },
               },
-            },
-            'DefaultParameter_EXAMPLE': {
-              argumentIndex: 2,
-              argumentSymbol: 'DefaultParameter_EXAMPLE',
-              argumentElement: {
-                elementKind: 'primitive',
-                primitiveKind: 'string',
+              'DefaultParameter_EXAMPLE': {
+                argumentIndex: 2,
+                argumentSymbolKey: 'DefaultParameter_EXAMPLE',
+                argumentElement: {
+                  elementKind: 'primitive',
+                  primitiveKind: 'string',
+                },
               },
             },
           },
-        }],
+        ],
         modelProperties: {
           bazProperty: {
             propertyKey: 'bazProperty',
@@ -169,8 +169,7 @@ Deno.test({ name: 'valid schema' }, () => {
       ConcreteTemplateModel_EXAMPLE: {
         modelKind: 'template',
         templateKind: 'concrete',
-        modelKey: 'ConcreteTemplateModel_EXAMPLE',
-        modelSymbol: 'ConcreteTemplateModel_EXAMPLE',
+        modelSymbolKey: 'ConcreteTemplateModel_EXAMPLE',
         modelTemplates: [],
         modelProperties: {
           tazProperty: {
@@ -185,8 +184,7 @@ Deno.test({ name: 'valid schema' }, () => {
       GenericTemplateModel_EXAMPLE: {
         modelKind: 'template',
         templateKind: 'generic',
-        modelKey: 'GenericTemplateModel_EXAMPLE',
-        modelSymbol: 'GenericTemplateModel_EXAMPLE',
+        modelSymbolKey: 'GenericTemplateModel_EXAMPLE',
         modelTemplates: [],
         genericParameters: [
           { parameterSymbol: 'BasicParameter_EXAMPLE' },

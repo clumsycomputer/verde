@@ -61,20 +61,20 @@ export interface ConcreteModelTemplate extends ModelTemplateBase<'concrete'> {}
 export interface GenericModelTemplate<ThisArgumentElement>
   extends ModelTemplateBase<'generic'> {
   genericArguments: Record<
-    GenericArgument<ThisArgumentElement>['argumentSymbol'],
+    GenericArgument<ThisArgumentElement>['argumentSymbolKey'],
     GenericArgument<ThisArgumentElement>
   >;
 }
 
 export interface GenericArgument<ThisArgumentElement> {
-  argumentSymbol: string;
+  argumentSymbolKey: string;
   argumentIndex: number;
   argumentElement: ThisArgumentElement;
 }
 
 interface ModelTemplateBase<TemplateKind> {
   templateKind: TemplateKind;
-  templateModelKey: TemplateIntermediateSchemaModel['modelKey'];
+  templateModelSymbolKey: TemplateIntermediateSchemaModel['modelSymbolKey'];
 }
 
 export type GenericTemplateIntermediateModelElement =

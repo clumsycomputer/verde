@@ -4,12 +4,11 @@ export interface SchemaMap<
   ThisSchemaModel extends __SchemaModel<genericAny>,
 > {
   schemaSymbol: string;
-  schemaModels: Record<ThisSchemaModel['modelKey'], ThisSchemaModel>;
+  schemaModels: Record<ThisSchemaModel['modelSymbolKey'], ThisSchemaModel>;
 }
 
 export interface __SchemaModel<ThisModelElement> {
-  modelKey: string;
-  modelSymbol: string;
+  modelSymbolKey: string;
   modelProperties: Record<
     ModelProperty<ThisModelElement>['propertyKey'],
     ModelProperty<ThisModelElement>
@@ -29,7 +28,7 @@ export type ModelElement<ThisDataModel extends __SchemaModel<unknown>> =
 export interface DataModelElement<
   ThisDataModel extends __SchemaModel<unknown>,
 > extends ModelElementBase<'dataModel'> {
-  dataModelKey: ThisDataModel['modelKey'];
+  dataModelSymbolKey: ThisDataModel['modelSymbolKey'];
 }
 
 export type LiteralModelElement =

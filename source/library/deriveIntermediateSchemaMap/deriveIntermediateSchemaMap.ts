@@ -1,6 +1,5 @@
 import {
-  throwInvalidPathError,
-  throwUserError,
+  throwInvalidPathError
 } from '../../helpers/throwError.ts';
 import { genericAny, irrelevantAny } from '../../helpers/types.ts';
 import { Typescript } from '../../imports/Typescript.ts';
@@ -16,6 +15,12 @@ import {
 } from '../types/IntermediateSchemaMap.ts';
 import { ModelElementBase } from '../types/SchemaMap.ts';
 import {
+  throwInvalidModelElement,
+  throwInvalidModelTemplate,
+  throwInvalidTopLevelModel,
+  throwSchemaExportNotTuple,
+} from './errors.ts';
+import {
   isBooleanLiteralType,
   isBooleanType,
   isContrainedParameterType,
@@ -29,8 +34,8 @@ import {
   isTypeReference,
 } from './helpers.ts';
 import {
-  loadSchemaModule,
   LoadSchemaModuleResult,
+  loadSchemaModule,
 } from './loadSchemaModule.ts';
 
 export interface DeriveIntermediateSchemaMapApi {
@@ -55,7 +60,7 @@ export function deriveIntermediateSchemaMap(
   });
 }
 
-interface DeriveSchemaMapApi extends
+export interface DeriveSchemaMapApi extends
   Pick<
     LoadSchemaModuleResult,
     'schemaTypeChecker' | 'lhsSchemaExportSymbol' | 'rhsSchemaExportType'
@@ -64,48 +69,59 @@ interface DeriveSchemaMapApi extends
 function deriveSchemaMap(api: DeriveSchemaMapApi): IntermediateSchemaMap {
   const { schemaTypeChecker, rhsSchemaExportType, lhsSchemaExportSymbol } = api;
   if (false === schemaTypeChecker.isTupleType(rhsSchemaExportType)) {
-    throwUserError(
-      `${lhsSchemaExportSymbol.name}: ${
-        schemaTypeChecker.typeToString(rhsSchemaExportType)
-      } is not a tuple`,
-    );
+    throwSchemaExportNotTuple({
+      schemaTypeChecker,
+      rhsSchemaExportType,
+      lhsSchemaExportSymbol,
+    });
   }
   const schemaMapResult: IntermediateSchemaMap = {
     schemaSymbol: lhsSchemaExportSymbol.name,
     schemaModels: {},
   };
-  const topDataModelTypes = (isTypeReference(rhsSchemaExportType) &&
+  const topLevelDataModelTypes = (isTypeReference(rhsSchemaExportType) &&
     schemaTypeChecker.getTypeArguments(rhsSchemaExportType)) ||
-    throwInvalidPathError('topDataModelTypes');
-  topDataModelTypes.forEach((someTopDataModelType) => {
-    if (false === isInterfaceType(someTopDataModelType)) {
-      throwUserError(
-        `invalid top-level model: ${
-          schemaTypeChecker.typeToString(someTopDataModelType)
-        }`,
-      );
+    throwInvalidPathError('topLevelDataModelTypes');
+  topLevelDataModelTypes.forEach((someTopLevelDataModelType) => {
+    if (false === isInterfaceType(someTopLevelDataModelType)) {
+      throwInvalidTopLevelModel({
+        schemaTypeChecker,
+        someTopLevelDataModelType,
+      });
     }
     deriveDataModel({
       schemaTypeChecker,
       schemaMapResult,
-      someDataModelType: someTopDataModelType,
+      someDataModelType: someTopLevelDataModelType,
     });
   });
   return schemaMapResult;
 }
 
-interface DeriveDataModelApi extends Static__DeriveIntermediateModelApi {
+interface DeriveDataModelApi extends
+  Pick<
+    Defined__DeriveIntermediateModelApi,
+    'schemaTypeChecker' | 'schemaMapResult'
+  > {
   someDataModelType: Typescript.InterfaceType;
 }
 
 function deriveDataModel(api: DeriveDataModelApi): DataIntermediateSchemaModel {
-  const { schemaTypeChecker, schemaMapResult, someDataModelType } = api;
+  const {
+    schemaTypeChecker,
+    schemaMapResult,
+    someDataModelType,
+  } = api;
   return __deriveDefinitiveModel({
     isCachedResultKind: isCachedResultKind__deriveDataModel,
     deriveResultModel: deriveResultModel__deriveDataModel,
     schemaTypeChecker,
     schemaMapResult,
     someModelType: someDataModelType,
+    typeContext: [{
+      infoKind: 'dataModel',
+      infoType: someDataModelType,
+    }],
   });
 }
 
@@ -123,31 +139,35 @@ function deriveResultModel__deriveDataModel(
     Typescript.InterfaceType
   >,
 ): DataIntermediateSchemaModel {
-  const { modelKey, modelSymbol, modelTemplates, modelProperties } = api;
+  const { modelSymbolKey, modelTemplates, modelProperties } = api;
   return {
     modelKind: 'data',
-    modelKey,
-    modelSymbol,
+    modelSymbolKey,
     modelTemplates,
     modelProperties,
   };
 }
 
 interface DeriveConcreteTemplateModelApi
-  extends Static__DeriveIntermediateModelApi {
+  extends Defined__DeriveIntermediateModelApi {
   someConcreteTemplateModelType: Typescript.InterfaceType;
 }
 
 function deriveConcreteTemplateModel(
   api: DeriveConcreteTemplateModelApi,
 ) {
-  const { schemaTypeChecker, schemaMapResult, someConcreteTemplateModelType } =
-    api;
+  const {
+    schemaTypeChecker,
+    schemaMapResult,
+    typeContext,
+    someConcreteTemplateModelType,
+  } = api;
   return __deriveDefinitiveModel({
     isCachedResultKind: isCachedResultKind__deriveConcreteTemplateModel,
     deriveResultModel: deriveResultModel__deriveConcreteTemplateModel,
     schemaTypeChecker,
     schemaMapResult,
+    typeContext,
     someModelType: someConcreteTemplateModelType,
   });
 }
@@ -167,12 +187,11 @@ function deriveResultModel__deriveConcreteTemplateModel(
     Typescript.InterfaceType
   >,
 ): ConcreteTemplateIntermediateSchemaModel {
-  const { modelKey, modelSymbol, modelTemplates, modelProperties } = api;
+  const { modelSymbolKey, modelTemplates, modelProperties } = api;
   return {
     modelKind: 'template',
     templateKind: 'concrete',
-    modelKey,
-    modelSymbol,
+    modelSymbolKey,
     modelTemplates,
     modelProperties,
   };
@@ -192,6 +211,7 @@ interface __DeriveDefinitiveModel<
     | 'schemaTypeChecker'
     | 'schemaMapResult'
     | 'someModelType'
+    | 'typeContext'
   > {}
 
 function __deriveDefinitiveModel<
@@ -208,6 +228,7 @@ function __deriveDefinitiveModel<
     deriveResultModel,
     schemaTypeChecker,
     schemaMapResult,
+    typeContext,
     someModelType,
   } = api;
   return __deriveIntermediateModel({
@@ -228,20 +249,25 @@ function __deriveDefinitiveModel<
     deriveResultModel,
     schemaTypeChecker,
     schemaMapResult,
+    typeContext,
     someModelType,
   });
 }
 
 interface DeriveGenericTemplateModelApi
-  extends Static__DeriveIntermediateModelApi {
+  extends Defined__DeriveIntermediateModelApi {
   someGenericTemplateModelType: Typescript.TypeReference;
 }
 
 function deriveGenericTemplateModel(
   api: DeriveGenericTemplateModelApi,
 ) {
-  const { schemaTypeChecker, schemaMapResult, someGenericTemplateModelType } =
-    api;
+  const {
+    schemaTypeChecker,
+    schemaMapResult,
+    typeContext,
+    someGenericTemplateModelType,
+  } = api;
   return __deriveIntermediateModel({
     isCachedResultKind: isCachedResultKind__deriveGenericTemplateModel,
     deriveResultModel: deriveResultModel__deriveGenericTemplateModel,
@@ -260,6 +286,7 @@ function deriveGenericTemplateModel(
       >,
     schemaTypeChecker,
     schemaMapResult,
+    typeContext,
     someModelType: someGenericTemplateModelType,
   });
 }
@@ -280,8 +307,7 @@ function deriveResultModel__deriveGenericTemplateModel(
   >,
 ): GenericTemplateIntermediateSchemaModel {
   const {
-    modelKey,
-    modelSymbol,
+    modelSymbolKey,
     modelTemplates,
     modelProperties,
     someModelType,
@@ -291,8 +317,7 @@ function deriveResultModel__deriveGenericTemplateModel(
   return {
     modelKind: 'template',
     templateKind: 'generic',
-    modelKey,
-    modelSymbol,
+    modelSymbolKey,
     modelTemplates,
     modelProperties,
     genericParameters: genericTypeParameters.map((
@@ -307,16 +332,53 @@ interface __DeriveIntermediateModelApi<
   ThisResultModel extends IntermediateSchemaModel,
   ThisModelType extends Typescript.Type,
 > extends
-  Static__DeriveIntermediateModelApi,
+  Defined__DeriveIntermediateModelApi,
   Custom__DeriveIntermediateModelApi<
     ThisResultModel,
     ThisModelType
   > {
 }
 
-interface Static__DeriveIntermediateModelApi
+interface Defined__DeriveIntermediateModelApi
   extends Pick<DeriveSchemaMapApi, 'schemaTypeChecker'> {
   schemaMapResult: IntermediateSchemaMap;
+  typeContext: TypeContext;
+}
+
+type TypeContext = [
+  DataModelTypeInfo,
+  ...Array<SecondaryModelTypeInfo>,
+];
+
+interface DataModelTypeInfo extends __TypeInfo<'dataModel'> {}
+
+type SecondaryModelTypeInfo = TemplateTypeInfo | ElementTypeInfo;
+
+type TemplateTypeInfo = ConcreteTemplateTypeInfo | GenericTemplateTypeInfo;
+
+interface ConcreteTemplateTypeInfo extends __TemplateTypeInfo<'concrete'> {}
+
+interface GenericTemplateTypeInfo extends __TemplateTypeInfo<'generic'> {}
+
+interface __TemplateTypeInfo<TemplateKind> extends __TypeInfo<'template'> {
+  templateKind: TemplateKind;
+}
+
+type ElementTypeInfo = ArgumentElementTypeInfo | PropertyElementTypeInfo;
+
+interface ArgumentElementTypeInfo extends __ElementTypeInfo<'argument'> {}
+
+interface PropertyElementTypeInfo extends __ElementTypeInfo<'property'> {
+  propertyKey: string;
+}
+
+interface __ElementTypeInfo<ElementKind> extends __TypeInfo<'element'> {
+  elementKind: ElementKind;
+}
+
+interface __TypeInfo<InfoKind> {
+  infoKind: InfoKind;
+  infoType: Typescript.Type;
 }
 
 interface Custom__DeriveIntermediateModelApi<
@@ -351,7 +413,7 @@ interface DeriveResultModelApi<
   >,
   Pick<
     ThisResultModel,
-    'modelKey' | 'modelSymbol' | 'modelTemplates' | 'modelProperties'
+    'modelSymbolKey' | 'modelTemplates' | 'modelProperties'
   > {}
 
 function __deriveIntermediateModel<
@@ -369,17 +431,17 @@ function __deriveIntermediateModel<
     isCachedResultKind,
     deriveResultModel,
     schemaTypeChecker,
+    typeContext,
     elementTypeCases,
   } = api;
   // todo:
   //    1. check if declaration symbol for `someModelType` is unique, a.k.a,
   //       check for naming collisions with other processed model type declarations
   //
-  //    2. derive deterministic `modelKey` from symbol (append suffix if declaration symbol not unique)
+  //    2. if declaration symbol not unique, throw user error
   //
-  const modelSymbol = someModelType.symbol.name;
-  const modelKey = modelSymbol;
-  const maybeCachedResultModel = schemaMapResult.schemaModels[modelKey];
+  const modelSymbolKey = someModelType.symbol.name;
+  const maybeCachedResultModel = schemaMapResult.schemaModels[modelSymbolKey];
   if (isCachedResultKind(maybeCachedResultModel)) {
     return maybeCachedResultModel;
   }
@@ -387,26 +449,27 @@ function __deriveIntermediateModel<
     someModelType,
     schemaMapResult,
     schemaTypeChecker,
-    modelSymbol,
-    modelKey,
+    modelSymbolKey,
     modelTemplates: deriveModelTemplates({
       someModelType,
       schemaMapResult,
       schemaTypeChecker,
+      typeContext,
       elementTypeCases,
     }),
     modelProperties: deriveModelProperties({
       someModelType,
       schemaMapResult,
       schemaTypeChecker,
+      typeContext,
       elementTypeCases,
     }),
   });
-  schemaMapResult.schemaModels[resultModel.modelKey] = resultModel;
+  schemaMapResult.schemaModels[resultModel.modelSymbolKey] = resultModel;
   return resultModel;
 }
 
-interface DeriveModelTemplatesApi<
+export interface DeriveModelTemplatesApi<
   ThisResultModel extends IntermediateSchemaModel,
   ThisModelType extends Typescript.Type,
 > extends
@@ -417,6 +480,7 @@ interface DeriveModelTemplatesApi<
     >,
     | 'schemaTypeChecker'
     | 'schemaMapResult'
+    | 'typeContext'
     | 'elementTypeCases'
     | 'someModelType'
   > {}
@@ -434,6 +498,7 @@ function deriveModelTemplates<
     someModelType,
     schemaTypeChecker,
     schemaMapResult,
+    typeContext,
     elementTypeCases,
   } = api;
   const modelTemplateTypes = someModelType.getBaseTypes() ?? [];
@@ -444,10 +509,18 @@ function deriveModelTemplates<
           schemaTypeChecker,
           schemaMapResult,
           someConcreteTemplateModelType: someModelTemplateType,
+          typeContext: [
+            ...typeContext,
+            {
+              infoKind: 'template',
+              templateKind: 'concrete',
+              infoType: someModelTemplateType,
+            },
+          ],
         });
         return {
           templateKind: 'concrete',
-          templateModelKey: concreteTemplateModel.modelKey,
+          templateModelSymbolKey: concreteTemplateModel.modelSymbolKey,
         };
       } else if (
         isTypeReference(someModelTemplateType) &&
@@ -457,25 +530,33 @@ function deriveModelTemplates<
           schemaTypeChecker,
           schemaMapResult,
           someGenericTemplateModelType: someModelTemplateType,
+          typeContext: [
+            ...typeContext,
+            {
+              infoKind: 'template',
+              templateKind: 'generic',
+              infoType: someModelTemplateType,
+            },
+          ],
         });
         return {
           templateKind: 'generic',
-          templateModelKey: genericTemplateModel.modelKey,
+          templateModelSymbolKey: genericTemplateModel.modelSymbolKey,
           genericArguments: deriveGenericArguments({
-            someModelType,
             schemaTypeChecker,
             schemaMapResult,
+            typeContext,
             elementTypeCases,
             genericTemplateModel,
             someGenericModelTemplateType: someModelTemplateType,
           }),
         };
       } else {
-        throwUserError(
-          `invalid model template: ${
-            schemaTypeChecker.typeToString(someModelTemplateType)
-          } on ${someModelType.symbol.name}`,
-        );
+        throwInvalidModelTemplate({
+          schemaTypeChecker,
+          someModelType,
+          someModelTemplateType,
+        });
       }
     },
   );
@@ -492,8 +573,8 @@ interface DeriveGenericArgumentsApi<
     >,
     | 'schemaTypeChecker'
     | 'schemaMapResult'
+    | 'typeContext'
     | 'elementTypeCases'
-    | 'someModelType'
   > {
   genericTemplateModel: GenericTemplateIntermediateSchemaModel;
   someGenericModelTemplateType: Typescript.TypeReference;
@@ -513,9 +594,9 @@ function deriveGenericArguments<
   const {
     someGenericModelTemplateType,
     genericTemplateModel,
-    someModelType,
     schemaTypeChecker,
     schemaMapResult,
+    typeContext,
     elementTypeCases,
   } = api;
   const argumentElementTypes = someGenericModelTemplateType.typeArguments ??
@@ -528,17 +609,23 @@ function deriveGenericArguments<
     const argumentParameter =
       genericTemplateModel.genericParameters[argumentIndex] ??
         throwInvalidPathError('argumentParameter');
-    const argumentSymbol = argumentParameter.parameterSymbol;
-    argumentsResult[argumentSymbol] = {
+    const argumentSymbolKey = argumentParameter.parameterSymbol;
+    argumentsResult[argumentSymbolKey] = {
       argumentIndex,
-      argumentSymbol,
-      argumentElement: deriveArgumentElement({
-        someGenericModelTemplateType,
-        someModelType,
+      argumentSymbolKey,
+      argumentElement: deriveModelElement({
         schemaTypeChecker,
         schemaMapResult,
         elementTypeCases,
-        someArgumentElementType,
+        someElementType: someArgumentElementType,
+        typeContext: [
+          ...typeContext,
+          {
+            infoKind: 'element',
+            elementKind: 'argument',
+            infoType: someArgumentElementType,
+          },
+        ],
       }),
     };
     return argumentsResult;
@@ -556,6 +643,7 @@ interface DeriveModelPropertiesApi<
     >,
     | 'schemaTypeChecker'
     | 'schemaMapResult'
+    | 'typeContext'
     | 'elementTypeCases'
     | 'someModelType'
   > {}
@@ -573,6 +661,7 @@ function deriveModelProperties<
     someModelType,
     schemaTypeChecker,
     schemaMapResult,
+    typeContext,
     elementTypeCases,
   } = api;
   const typeProperties = (someModelType.symbol.members &&
@@ -583,17 +672,25 @@ function deriveModelProperties<
   return typeProperties.reduce<ThisResultModel['modelProperties']>(
     (modelPropertiesResult, someTypeProperty) => {
       const propertyKey = someTypeProperty.name;
+      const somePropertyElementType = schemaTypeChecker.getTypeOfSymbol(
+        someTypeProperty,
+      );
       modelPropertiesResult[propertyKey] = {
         propertyKey,
-        propertyElement: derivePropertyElement({
-          someModelType,
+        propertyElement: deriveModelElement({
           schemaTypeChecker,
           schemaMapResult,
           elementTypeCases,
-          propertyKey,
-          somePropertyElementType: schemaTypeChecker.getTypeOfSymbol(
-            someTypeProperty,
-          ),
+          someElementType: somePropertyElementType,
+          typeContext: [
+            ...typeContext,
+            {
+              infoKind: 'element',
+              elementKind: 'property',
+              propertyKey,
+              infoType: somePropertyElementType,
+            },
+          ],
         }),
       };
       return modelPropertiesResult;
@@ -602,109 +699,28 @@ function deriveModelProperties<
   );
 }
 
-interface DeriveArgumentElementApi<
-  ThisResultModel extends IntermediateSchemaModel,
-  ThisModelType extends Typescript.Type,
-> extends
-  Pick<
-    DeriveGenericArgumentsApi<irrelevantAny, ThisModelType>,
-    'someModelType' | 'someGenericModelTemplateType'
-  >,
-  Pick<
-    __DeriveModelElementApi<ThisResultModel>,
-    'schemaTypeChecker' | 'schemaMapResult' | 'elementTypeCases'
-  > {
-  someArgumentElementType: Typescript.Type;
-}
-
-function deriveArgumentElement<
-  ThisResultModel extends IntermediateSchemaModel,
-  ThisModelType extends Typescript.Type,
->(api: DeriveArgumentElementApi<ThisResultModel, ThisModelType>) {
-  const {
-    someArgumentElementType,
-    someGenericModelTemplateType,
-    someModelType,
-    schemaTypeChecker,
-    schemaMapResult,
-    elementTypeCases,
-  } = api;
-  return __deriveModelElement({
-    invalidModelElementMessage: `invalid model argument: ${
-      schemaTypeChecker.typeToString(someArgumentElementType)
-    } in ${schemaTypeChecker.typeToString(someGenericModelTemplateType)} on ${
-      schemaTypeChecker.typeToString(someModelType)
-    }`,
-    schemaTypeChecker,
-    schemaMapResult,
-    elementTypeCases,
-    someElementType: someArgumentElementType,
-  });
-}
-
-interface DerivePropertyElementApi<
-  ThisResultModel extends IntermediateSchemaModel,
-  ThisModelType extends Typescript.Type,
-> extends
-  Pick<
-    DeriveModelPropertiesApi<irrelevantAny, ThisModelType>,
-    'someModelType'
-  >,
-  Pick<
-    __DeriveModelElementApi<ThisResultModel>,
-    'schemaTypeChecker' | 'schemaMapResult' | 'elementTypeCases'
-  > {
-  propertyKey: string;
-  somePropertyElementType: Typescript.Type;
-}
-
-function derivePropertyElement<
-  ThisResultModel extends IntermediateSchemaModel,
-  ThisModelType extends Typescript.Type,
->(
-  api: DerivePropertyElementApi<ThisResultModel, ThisModelType>,
-) {
-  const {
-    someModelType,
-    propertyKey,
-    schemaTypeChecker,
-    schemaMapResult,
-    elementTypeCases,
-    somePropertyElementType,
-  } = api;
-  return __deriveModelElement({
-    invalidModelElementMessage: `invalid model property: ${
-      schemaTypeChecker.typeToString(someModelType)
-    }["${propertyKey}"]`,
-    schemaTypeChecker,
-    schemaMapResult,
-    elementTypeCases,
-    someElementType: somePropertyElementType,
-  });
-}
-
-interface __DeriveModelElementApi<
+export interface DeriveModelElementApi<
   ThisResultModel extends IntermediateSchemaModel,
 > extends
   Pick<
     __DeriveIntermediateModelApi<ThisResultModel, irrelevantAny>,
     | 'schemaTypeChecker'
     | 'schemaMapResult'
+    | 'typeContext'
     | 'elementTypeCases'
   > {
-  invalidModelElementMessage: string;
   someElementType: Typescript.Type;
 }
 
-function __deriveModelElement<ThisResultModel extends IntermediateSchemaModel>(
-  api: __DeriveModelElementApi<ThisResultModel>,
+function deriveModelElement<ThisResultModel extends IntermediateSchemaModel>(
+  api: DeriveModelElementApi<ThisResultModel>,
 ): GetThisModelElement<ThisResultModel> {
   const {
     elementTypeCases,
     someElementType,
     schemaTypeChecker,
     schemaMapResult,
-    invalidModelElementMessage,
+    typeContext,
   } = api;
   const targetElementTypeCase = elementTypeCases.find((someElementTypeCase) =>
     someElementTypeCase.assertCase(someElementType)
@@ -715,7 +731,10 @@ function __deriveModelElement<ThisResultModel extends IntermediateSchemaModel>(
       schemaTypeChecker,
       schemaMapResult,
     })
-    : throwUserError(invalidModelElementMessage);
+    : throwInvalidModelElement({
+      schemaTypeChecker,
+      typeContext,
+    });
 }
 
 type GetThisModelElement<ThisResultModel extends IntermediateSchemaModel> =
@@ -730,7 +749,7 @@ function getDefinitiveElementTypeCases() {
 function getGenericElementTypeCases() {
   return __getElementTypeCases({
     uniqueElementTypeCases: [
-      extensionTypeCase({
+      elementTypeCase({
         assertCase: isContrainedParameterType,
         handleCase: ({ someElementType }) => ({
           elementKind: 'parameter',
@@ -738,7 +757,7 @@ function getGenericElementTypeCases() {
           parameterSymbol: someElementType.symbol.name,
         }),
       }),
-      extensionTypeCase({
+      elementTypeCase({
         assertCase: isParameterType,
         handleCase: ({ someElementType }) => ({
           elementKind: 'parameter',
@@ -781,8 +800,8 @@ function __getElementTypeCases<
   >,
 ) {
   const { uniqueElementTypeCases } = api;
-  return extendedTuple([
-    extensionTypeCase({
+  return getExtendedTuple([
+    elementTypeCase({
       assertCase: isStringLiteralType,
       handleCase: ({ schemaTypeChecker, someElementType }) => ({
         elementKind: 'literal',
@@ -790,7 +809,7 @@ function __getElementTypeCases<
         literalSymbol: schemaTypeChecker.typeToString(someElementType),
       }),
     }),
-    extensionTypeCase({
+    elementTypeCase({
       assertCase: isNumberLiteralType,
       handleCase: ({ schemaTypeChecker, someElementType }) => ({
         elementKind: 'literal',
@@ -798,7 +817,7 @@ function __getElementTypeCases<
         literalSymbol: schemaTypeChecker.typeToString(someElementType),
       }),
     }),
-    extensionTypeCase({
+    elementTypeCase({
       assertCase: isBooleanLiteralType,
       handleCase: ({ schemaTypeChecker, someElementType }) => ({
         elementKind: 'literal',
@@ -806,31 +825,35 @@ function __getElementTypeCases<
         literalSymbol: schemaTypeChecker.typeToString(someElementType),
       }),
     }),
-    extensionTypeCase({
+    elementTypeCase({
       assertCase: isStringType,
       handleCase: () => ({
         elementKind: 'primitive',
         primitiveKind: 'string',
       }),
     }),
-    extensionTypeCase({
+    elementTypeCase({
       assertCase: isNumberType,
       handleCase: () => ({
         elementKind: 'primitive',
         primitiveKind: 'number',
       }),
     }),
-    extensionTypeCase({
+    elementTypeCase({
       assertCase: isBooleanType,
       handleCase: () => ({
         elementKind: 'primitive',
         primitiveKind: 'boolean',
       }),
     }),
-    extensionTypeCase({
+    elementTypeCase({
       assertCase: isInterfaceType,
       handleCase: (
-        { schemaTypeChecker, schemaMapResult, someElementType },
+        {
+          schemaTypeChecker,
+          schemaMapResult,
+          someElementType,
+        },
       ) => {
         const elementDataModel = deriveDataModel({
           schemaTypeChecker,
@@ -839,7 +862,7 @@ function __getElementTypeCases<
         });
         return {
           elementKind: 'dataModel',
-          dataModelKey: elementDataModel.modelKey,
+          dataModelSymbolKey: elementDataModel.modelSymbolKey,
         };
       },
     }),
@@ -860,13 +883,13 @@ interface ElementTypeCase<
 
 interface ElementTypeCaseHandlerApi<ThisElementType> extends
   Pick<
-    __DeriveModelElementApi<irrelevantAny>,
+    DeriveModelElementApi<irrelevantAny>,
     'schemaTypeChecker' | 'schemaMapResult'
   > {
   someElementType: ThisElementType;
 }
 
-function extendedTuple<
+function getExtendedTuple<
   ThisCoreTuple extends [genericAny, ...Array<genericAny>],
   ThisExtensionTuple extends [genericAny, ...Array<genericAny>] | [],
 >(
@@ -876,13 +899,13 @@ function extendedTuple<
   return [...thisCoreTuple, ...thisExtensionTuple];
 }
 
-function extensionTypeCase<
+function elementTypeCase<
   ThisModelElement extends IntermediateSchemaModel['modelProperties'][string][
     'propertyElement'
   ],
   ThisElementType extends Typescript.Type,
->(thisExtensionTypeCase: ElementTypeCase<ThisModelElement, ThisElementType>) {
-  return thisExtensionTypeCase;
+>(thisElementTypeCase: ElementTypeCase<ThisModelElement, ThisElementType>) {
+  return thisElementTypeCase;
 }
 
 type VerifiedElementTypeCases<
