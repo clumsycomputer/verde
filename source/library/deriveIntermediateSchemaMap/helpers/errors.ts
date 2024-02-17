@@ -6,21 +6,18 @@ import { DeriveModelTemplatesApi } from '../components/deriveModelTemplates.ts';
 import { LoadSchemaModuleApi } from '../components/loadSchemaModule.ts';
 import { DeriveSchemaMapApi } from '../deriveIntermediateSchemaMap.ts';
 
-export interface ThrowInvalidSchemaModulePathApi
+export interface ThrowInvalidSchemaModuleApi
   extends Pick<LoadSchemaModuleApi, 'schemaModulePath'> {}
 
-export function throwInvalidSchemaModulePath(
-  api: ThrowInvalidSchemaModulePathApi,
+export function throwInvalidSchemaModule_PathDoesNotExist(
+  api: ThrowInvalidSchemaModuleApi,
 ): never {
   const { schemaModulePath } = api;
-  throwUserError(`schemaModulePath: "${schemaModulePath}" doesn't exist`);
+  throwUserError(`invalid schema module: "${schemaModulePath}" does not exist`);
 }
 
-export interface ThrowNoExportsSchemaModuleApi
-  extends Pick<LoadSchemaModuleApi, 'schemaModulePath'> {}
-
-export function throwNoExportsSchemaModule(
-  api: ThrowNoExportsSchemaModuleApi,
+export function throwInvalidSchemaModule__NoExports(
+  api: ThrowInvalidSchemaModuleApi,
 ): never {
   const { schemaModulePath } = api;
   throwUserError(
@@ -28,11 +25,8 @@ export function throwNoExportsSchemaModule(
   );
 }
 
-export interface ThrowMultipleExportsSchemaModuleApi
-  extends Pick<LoadSchemaModuleApi, 'schemaModulePath'> {}
-
-export function throwMultipleExportsSchemaModule(
-  api: ThrowMultipleExportsSchemaModuleApi,
+export function throwInvalidSchemaModule__MultipleExports(
+  api: ThrowInvalidSchemaModuleApi,
 ): never {
   const { schemaModulePath } = api;
   throwUserError(
@@ -40,44 +34,47 @@ export function throwMultipleExportsSchemaModule(
   );
 }
 
-export interface ThrowNonTypeExportSchemaModuleApi
-  extends Pick<LoadSchemaModuleApi, 'schemaModulePath'> {}
-
-export function throwNonTypeExportSchemaModule(
-  api: ThrowNonTypeExportSchemaModuleApi,
+export function throwInvalidSchemaModule__CodeExport(
+  api: ThrowInvalidSchemaModuleApi,
 ): never {
   const { schemaModulePath } = api;
   throwUserError(
-    `invalid schema module: non-type export at "${schemaModulePath}"`,
+    `invalid schema module: code export at "${schemaModulePath}"`,
   );
 }
 
-export interface ThrowNotConcreteTypeAliasExportSchemaModuleApi
-  extends Pick<LoadSchemaModuleApi, 'schemaModulePath'> {}
-
-export function throwNotConcreteTypeAliasExportSchemaModule(
-  api: ThrowNotConcreteTypeAliasExportSchemaModuleApi,
+export function throwInvalidSchemaModule__NonTypeAliasExport(
+  api: ThrowInvalidSchemaModuleApi,
 ): never {
   const { schemaModulePath } = api;
   throwUserError(
-    `invalid schema module: not a concrete type-alias export at "${schemaModulePath}"`,
+    `invalid schema module: non type-alias export at "${schemaModulePath}"`,
   );
 }
 
-export interface ThrowSchemaExportNotTuple extends
+export function throwInvalidSchemaModule__GenericTypeAliasExport(
+  api: ThrowInvalidSchemaModuleApi,
+): never {
+  const { schemaModulePath } = api;
+  throwUserError(
+    `invalid schema module: generic type-alias export at "${schemaModulePath}"`,
+  );
+}
+
+export interface ThrowInvalidSchemaExportApi extends
   Pick<
     DeriveSchemaMapApi,
-    'schemaTypeChecker' | 'lhsSchemaExportSymbol' | 'rhsSchemaExportType'
+    'schemaTypeChecker' | 'rhsSchemaExportType'
   > {}
 
-export function throwSchemaExportNotTuple(
-  api: ThrowSchemaExportNotTuple,
+export function throwInvalidSchemaExport__NotTuple(
+  api: ThrowInvalidSchemaExportApi,
 ): never {
-  const { lhsSchemaExportSymbol, schemaTypeChecker, rhsSchemaExportType } = api;
+  const { schemaTypeChecker, rhsSchemaExportType } = api;
   throwUserError(
-    `${lhsSchemaExportSymbol.name}: ${
+    `invalid schema export: "${
       schemaTypeChecker.typeToString(rhsSchemaExportType)
-    } is not a tuple`,
+    }" is not a tuple`,
   );
 }
 

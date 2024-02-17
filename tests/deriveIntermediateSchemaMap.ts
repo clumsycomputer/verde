@@ -2,17 +2,17 @@ import { deriveIntermediateSchemaMap } from '../source/library/module.ts';
 import { resolveCasePath } from './helpers/resolveCasePath.ts';
 import { Assert } from './imports/Assert.ts';
 
-Deno.test({ name: 'non-tuple export type' }, () => {
+Deno.test({ name: 'invalid schema export => not tuple' }, () => {
   Assert.assertThrows(
     () => {
       deriveIntermediateSchemaMap({
         schemaModulePath: resolveCasePath({
-          someCaseName: 'NonTupleExportType',
+          someCaseName: 'Error_InvalidSchemaExport_NotTuple',
         }),
       });
     },
     Error,
-    `NonTupleExportType: unknown is not a tuple`,
+    `invalid schema export: "unknown" is not a tuple`,
   );
 });
 
@@ -21,7 +21,7 @@ Deno.test({ name: 'invalid top-level model' }, () => {
     () => {
       deriveIntermediateSchemaMap({
         schemaModulePath: resolveCasePath({
-          someCaseName: 'InvalidTopLevelModel',
+          someCaseName: 'Error_InvalidTopLevelModel',
         }),
       });
     },
@@ -30,12 +30,26 @@ Deno.test({ name: 'invalid top-level model' }, () => {
   );
 });
 
+Deno.test({ name: 'invalid model template' }, () => {
+  Assert.assertThrows(
+    () => {
+      deriveIntermediateSchemaMap({
+        schemaModulePath: resolveCasePath({
+          someCaseName: 'Error_InvalidModelTemplate',
+        }),
+      });
+    },
+    Error,
+    `invalid model template: UnionTemplateModel on FooDataModel`,
+  );
+});
+
 Deno.test({ name: 'invalid model element' }, () => {
   Assert.assertThrows(
     () => {
       deriveIntermediateSchemaMap({
         schemaModulePath: resolveCasePath({
-          someCaseName: 'InvalidModelElement',
+          someCaseName: 'Error_InvalidModelElement',
         }),
       });
     },

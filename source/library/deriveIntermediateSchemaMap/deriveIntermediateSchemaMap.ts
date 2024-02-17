@@ -9,7 +9,7 @@ import {
 } from './components/loadSchemaModule.ts';
 import {
   throwInvalidTopLevelModel,
-  throwSchemaExportNotTuple
+  throwInvalidSchemaExport__NotTuple
 } from './helpers/errors.ts';
 import {
   isInterfaceType,
@@ -46,11 +46,10 @@ export interface DeriveSchemaMapApi extends
 
 function deriveSchemaMap(api: DeriveSchemaMapApi): IntermediateSchemaMap {
   const { schemaTypeChecker, rhsSchemaExportType, lhsSchemaExportSymbol } = api;
-  if (false === schemaTypeChecker.isTupleType(rhsSchemaExportType)) {
-    throwSchemaExportNotTuple({
+  if (true !== schemaTypeChecker.isTupleType(rhsSchemaExportType)) {
+    throwInvalidSchemaExport__NotTuple({
       schemaTypeChecker,
       rhsSchemaExportType,
-      lhsSchemaExportSymbol,
     });
   }
   const schemaMapResult: IntermediateSchemaMap = {
@@ -61,7 +60,7 @@ function deriveSchemaMap(api: DeriveSchemaMapApi): IntermediateSchemaMap {
     schemaTypeChecker.getTypeArguments(rhsSchemaExportType)) ||
     throwInvalidPathError('topLevelDataModelTypes');
   topLevelDataModelTypes.forEach((someTopLevelDataModelType) => {
-    if (false === isInterfaceType(someTopLevelDataModelType)) {
+    if (true !== isInterfaceType(someTopLevelDataModelType)) {
       throwInvalidTopLevelModel({
         schemaTypeChecker,
         someTopLevelDataModelType,

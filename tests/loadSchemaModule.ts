@@ -2,7 +2,7 @@ import { loadSchemaModule } from '../source/library/deriveIntermediateSchemaMap/
 import { resolveCasePath } from './helpers/resolveCasePath.ts';
 import { Assert } from './imports/Assert.ts';
 
-Deno.test({ name: `non-existent "schemaModulePath"` }, () => {
+Deno.test({ name: `invalid schema module => path does not exist` }, () => {
   const nonExistentCasePath = resolveCasePath({
     someCaseName: 'NonExistentCase',
   });
@@ -13,28 +13,28 @@ Deno.test({ name: `non-existent "schemaModulePath"` }, () => {
       });
     },
     Error,
-    `schemaModulePath: "${nonExistentCasePath}" doesn't exist`,
+    `invalid schema module: "${nonExistentCasePath}" does not exist`,
   );
 });
 
-Deno.test({ name: 'no exports at "schemaModulePath"' }, () => {
-  const emptyFileCasePath = resolveCasePath({
-    someCaseName: 'EmptyFile',
+Deno.test({ name: 'invalid schema module => no exports' }, () => {
+  const noExportsCasePath = resolveCasePath({
+    someCaseName: 'Error_InvalidSchemaModule_NoExports',
   });
   Assert.assertThrows(
     () => {
       loadSchemaModule({
-        schemaModulePath: emptyFileCasePath,
+        schemaModulePath: noExportsCasePath,
       });
     },
     Error,
-    `invalid schema module: no exports at "${emptyFileCasePath}"`,
+    `invalid schema module: no exports at "${noExportsCasePath}"`,
   );
 });
 
-Deno.test({ name: 'multiple exports at "schemaModulePath"' }, () => {
+Deno.test({ name: 'invalid schema module => multiple exports' }, () => {
   const multipleExportsCasePath = resolveCasePath({
-    someCaseName: 'MultipleExports',
+    someCaseName: 'Error_InvalidSchemaModule_MultipleExports',
   });
   Assert.assertThrows(
     () => {
@@ -47,9 +47,9 @@ Deno.test({ name: 'multiple exports at "schemaModulePath"' }, () => {
   );
 });
 
-Deno.test({ name: 'non-type export at "schemaModulePath"' }, () => {
+Deno.test({ name: 'invalid schema module => code export' }, () => {
   const codeExportCasePath = resolveCasePath({
-    someCaseName: 'CodeExport',
+    someCaseName: 'Error_InvalidSchemaModule_CodeExport',
   });
   Assert.assertThrows(
     () => {
@@ -58,41 +58,56 @@ Deno.test({ name: 'non-type export at "schemaModulePath"' }, () => {
       });
     },
     Error,
-    `invalid schema module: non-type export at "${codeExportCasePath}"`,
+    `invalid schema module: code export at "${codeExportCasePath}"`,
   );
 });
 
-Deno.test({ name: 'default non-type export at "schemaModulePath"' }, () => {
-  const defaultExportCasePath = resolveCasePath({
-    someCaseName: 'DefaultCodeExport',
+Deno.test({ name: 'invalid schema module => default code export' }, () => {
+  const defaultCodeExportCasePath = resolveCasePath({
+    someCaseName: 'Error_InvalidSchemaModule_DefaultCodeExport',
   });
   Assert.assertThrows(
     () => {
       loadSchemaModule({
-        schemaModulePath: defaultExportCasePath,
+        schemaModulePath: defaultCodeExportCasePath,
       });
     },
     Error,
-    `invalid schema module: non-type export at "${defaultExportCasePath}"`,
+    `invalid schema module: code export at "${defaultCodeExportCasePath}"`,
   );
 });
 
-Deno.test({ name: 'not concrete type-alias export' }, () => {
-  const notConcreteTypeAliasExportCasePath = resolveCasePath({
-    someCaseName: 'NotConcreteTypeAliasExport',
+Deno.test({ name: 'invalid schema module => non type-alias export' }, () => {
+  const nonTypeAliasExportCasePath = resolveCasePath({
+    someCaseName: 'Error_InvalidSchemaModule_NonTypeAliasExport',
   });
   Assert.assertThrows(
     () => {
       loadSchemaModule({
-        schemaModulePath: notConcreteTypeAliasExportCasePath,
+        schemaModulePath: nonTypeAliasExportCasePath,
       });
     },
     Error,
-    `invalid schema module: not a concrete type-alias export at "${notConcreteTypeAliasExportCasePath}"`,
+    `invalid schema module: non type-alias export at "${nonTypeAliasExportCasePath}"`,
   );
 });
 
-Deno.test({ name: 'valid schema module format' }, () => {
+Deno.test({ name: 'invalid schema module => generic type-alias export' }, () => {
+  const genericTypeAliasExportCasePath = resolveCasePath({
+    someCaseName: 'Error_InvalidSchemaModule_GenericTypeAliasExport',
+  });
+  Assert.assertThrows(
+    () => {
+      loadSchemaModule({
+        schemaModulePath: genericTypeAliasExportCasePath,
+      });
+    },
+    Error,
+    `invalid schema module: generic type-alias export at "${genericTypeAliasExportCasePath}"`,
+  );
+});
+
+Deno.test({ name: 'valid schema module' }, () => {
   const validSchemaCasePath = resolveCasePath({
     someCaseName: 'ValidSchema',
   });

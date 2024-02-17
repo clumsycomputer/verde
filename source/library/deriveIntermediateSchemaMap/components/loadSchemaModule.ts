@@ -1,16 +1,15 @@
-import {
-  throwInvalidPathError
-} from '../../../helpers/throwError.ts';
+import { throwInvalidPathError } from '../../../helpers/throwError.ts';
 import { FileSystem } from '../../../imports/FileSystem.ts';
 import { Path } from '../../../imports/Path.ts';
 import { Typescript } from '../../../imports/Typescript.ts';
 import { DeriveIntermediateSchemaMapApi } from '../deriveIntermediateSchemaMap.ts';
 import {
-  throwInvalidSchemaModulePath,
-  throwMultipleExportsSchemaModule,
-  throwNoExportsSchemaModule,
-  throwNonTypeExportSchemaModule,
-  throwNotConcreteTypeAliasExportSchemaModule,
+  throwInvalidSchemaModule_PathDoesNotExist,
+  throwInvalidSchemaModule__CodeExport,
+  throwInvalidSchemaModule__GenericTypeAliasExport,
+  throwInvalidSchemaModule__MultipleExports,
+  throwInvalidSchemaModule__NoExports,
+  throwInvalidSchemaModule__NonTypeAliasExport
 } from '../helpers/errors.ts';
 
 export interface LoadSchemaModuleApi
@@ -32,7 +31,7 @@ export function loadSchemaModule(
     ? schemaModulePath
     : Path.join(workingDirectoryPath, schemaModulePath);
   if (true !== FileSystem.existsSync(resolvedSchemaModulePath)) {
-    throwInvalidSchemaModulePath({
+    throwInvalidSchemaModule_PathDoesNotExist({
       schemaModulePath,
     });
   }
@@ -43,12 +42,12 @@ export function loadSchemaModule(
   });
   const schemaTypeChecker = schemaProgram.getTypeChecker();
   const schemaModuleFile = schemaProgram.getSourceFile(schemaModulePath) ??
-    throwInvalidPathError('schemaFile');
+    throwInvalidPathError('schemaModuleFile');
   const schemaModuleSymbol = schemaTypeChecker.getSymbolAtLocation(
     schemaModuleFile,
   );
   if (undefined === schemaModuleSymbol) {
-    throwNoExportsSchemaModule({
+    throwInvalidSchemaModule__NoExports({
       schemaModulePath,
     });
   }
@@ -56,7 +55,7 @@ export function loadSchemaModule(
     schemaModuleSymbol,
   );
   if (1 < schemaExports.length) {
-    throwMultipleExportsSchemaModule({
+    throwInvalidSchemaModule__MultipleExports({
       schemaModulePath,
     });
   }
@@ -64,20 +63,22 @@ export function loadSchemaModule(
     (schemaExports.length === 1 && schemaExports[0]) ||
     throwInvalidPathError('lhsSchemaExportSymbol');
   if (undefined !== lhsSchemaExportSymbol.valueDeclaration) {
-    throwNonTypeExportSchemaModule({
+    throwInvalidSchemaModule__CodeExport({
       schemaModulePath,
     });
   }
   const schemaExportNode = (lhsSchemaExportSymbol.declarations &&
     lhsSchemaExportSymbol.declarations[0]) ??
     throwInvalidPathError('schemaExportNode');
-  if (
-    true !== Typescript.isTypeAliasDeclaration(schemaExportNode) ||
-    undefined !== schemaExportNode.typeParameters
-  ) {
-    throwNotConcreteTypeAliasExportSchemaModule({
-      schemaModulePath
-    })
+  if (true !== Typescript.isTypeAliasDeclaration(schemaExportNode)) {
+    throwInvalidSchemaModule__NonTypeAliasExport({
+      schemaModulePath,
+    });
+  }
+  if (undefined !== schemaExportNode.typeParameters) {
+    throwInvalidSchemaModule__GenericTypeAliasExport({
+      schemaModulePath,
+    });
   }
   const rhsSchemaExportType = schemaTypeChecker.getTypeAtLocation(
     schemaExportNode,
