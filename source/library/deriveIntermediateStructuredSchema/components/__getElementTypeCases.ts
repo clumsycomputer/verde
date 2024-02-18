@@ -1,9 +1,7 @@
 import { genericAny, irrelevantAny } from '../../../helpers/types.ts';
 import { Typescript } from '../../../imports/Typescript.ts';
-import {
-  IntermediateSchemaModel,
-} from '../../types/IntermediateSchemaMap.ts';
-import { ModelElementBase } from '../../types/SchemaMap.ts';
+import { IntermediateSchema } from '../../types/IntermediateSchema.ts';
+import { ModelElementBase } from '../../types/StructuredSchema.ts';
 import {
   isBooleanLiteralType,
   isBooleanType,
@@ -30,16 +28,14 @@ export function getGenericElementTypeCases() {
       elementTypeCase({
         assertCase: isContrainedParameterType,
         handleCase: ({ someElementType }) => ({
-          elementKind: 'parameter',
-          parameterKind: 'constrained',
+          elementKind: 'constrainedParameter',
           parameterSymbol: someElementType.symbol.name,
         }),
       }),
       elementTypeCase({
         assertCase: isParameterType,
         handleCase: ({ someElementType }) => ({
-          elementKind: 'parameter',
-          parameterKind: 'basic',
+          elementKind: 'basicParameter',
           parameterSymbol: someElementType.symbol.name,
         }),
       }),
@@ -129,13 +125,13 @@ function __getElementTypeCases<
       handleCase: (
         {
           schemaTypeChecker,
-          schemaMapResult,
+          schemaResult,
           someElementType,
         },
       ) => {
         const elementDataModel = deriveDataModel({
           schemaTypeChecker,
-          schemaMapResult,
+          schemaResult,
           someDataModelType: someElementType,
         });
         return {
@@ -162,7 +158,7 @@ export interface ElementTypeCase<
 interface ElementTypeCaseHandlerApi<ThisElementType> extends
   Pick<
     DeriveModelElementApi<irrelevantAny>,
-    'schemaTypeChecker' | 'schemaMapResult'
+    'schemaTypeChecker' | 'schemaResult'
   > {
   someElementType: ThisElementType;
 }
@@ -178,9 +174,10 @@ function getExtendedTuple<
 }
 
 function elementTypeCase<
-  ThisModelElement extends IntermediateSchemaModel['modelProperties'][string][
-    'propertyElement'
-  ],
+  ThisModelElement
+    extends IntermediateSchema['schemaMap'][
+      keyof IntermediateSchema['schemaMap']
+    ][string]['modelProperties'][string]['propertyElement'],
   ThisElementType extends Typescript.Type,
 >(thisElementTypeCase: ElementTypeCase<ThisModelElement, ThisElementType>) {
   return thisElementTypeCase;

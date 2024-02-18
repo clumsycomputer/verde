@@ -1,10 +1,8 @@
 import { genericAny } from '../../helpers/types.ts';
 
-export interface SchemaMap<
-  ThisSchemaModel extends __SchemaModel<genericAny>,
-> {
+export interface StructuredSchema<ThisSchemaMap> {
   schemaSymbol: string;
-  schemaModels: Record<ThisSchemaModel['modelSymbolKey'], ThisSchemaModel>;
+  schemaMap: ThisSchemaMap
 }
 
 export interface __SchemaModel<ThisModelElement> {

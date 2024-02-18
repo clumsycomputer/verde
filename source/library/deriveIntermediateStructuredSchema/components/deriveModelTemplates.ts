@@ -2,57 +2,61 @@ import { throwInvalidPathError } from '../../../helpers/throwError.ts';
 import { Typescript } from '../../../imports/Typescript.ts';
 import {
   GenericModelTemplate,
-  GenericTemplateIntermediateSchemaModel,
-  IntermediateSchemaModel,
-} from '../../types/IntermediateSchemaMap.ts';
+  GenericTemplateIntermediateModel,
+  IntermediateSchema,
+} from '../../types/IntermediateSchema.ts';
 import { throwInvalidModelTemplate } from '../helpers/errors.ts';
 import { isInterfaceType, isTypeReference } from '../helpers/typeguards.ts';
 import {
-__DeriveIntermediateModelApi,
+  __DeriveIntermediateModelApi,
   deriveConcreteTemplateModel,
   deriveGenericTemplateModel,
 } from './__deriveIntermediateModel.ts';
-import { GetThisModelElement, deriveModelElement } from './deriveModelElement.ts';
+import { deriveModelElement } from './deriveModelElement.ts';
 
 export interface DeriveModelTemplatesApi<
-  ThisResultModel extends IntermediateSchemaModel,
+  ThisTargetKind extends keyof IntermediateSchema['schemaMap'],
   ThisModelType extends Typescript.Type,
 > extends
   Pick<
     __DeriveIntermediateModelApi<
-      ThisResultModel,
+      ThisTargetKind,
       ThisModelType
     >,
     | 'schemaTypeChecker'
-    | 'schemaMapResult'
+    | 'schemaResult'
     | 'typeContext'
     | 'elementTypeCases'
     | 'someModelType'
   > {}
 
 export function deriveModelTemplates<
-  ThisResultModel extends IntermediateSchemaModel,
+  ThisTargetKind extends keyof IntermediateSchema['schemaMap'],
   ThisModelType extends Typescript.Type,
 >(
   api: DeriveModelTemplatesApi<
-    ThisResultModel,
+    ThisTargetKind,
     ThisModelType
   >,
-): ThisResultModel['modelTemplates'] {
+): IntermediateSchema['schemaMap'][ThisTargetKind][string]['modelTemplates'] {
   const {
     someModelType,
     schemaTypeChecker,
-    schemaMapResult,
+    schemaResult,
     typeContext,
     elementTypeCases,
   } = api;
   const modelTemplateTypes = someModelType.getBaseTypes() ?? [];
-  return modelTemplateTypes.map<ThisResultModel['modelTemplates'][number]>(
+  return modelTemplateTypes.map<
+    IntermediateSchema['schemaMap'][ThisTargetKind][string]['modelTemplates'][
+      number
+    ]
+  >(
     (someModelTemplateType) => {
       if (isInterfaceType(someModelTemplateType)) {
         const concreteTemplateModel = deriveConcreteTemplateModel({
           schemaTypeChecker,
-          schemaMapResult,
+          schemaResult,
           someConcreteTemplateModelType: someModelTemplateType,
           typeContext: [
             ...typeContext,
@@ -64,7 +68,7 @@ export function deriveModelTemplates<
           ],
         });
         return {
-          templateKind: 'concrete',
+          templateKind: 'concreteTemplate',
           templateModelSymbolKey: concreteTemplateModel.modelSymbolKey,
         };
       } else if (
@@ -73,7 +77,7 @@ export function deriveModelTemplates<
       ) {
         const genericTemplateModel = deriveGenericTemplateModel({
           schemaTypeChecker,
-          schemaMapResult,
+          schemaResult,
           someGenericTemplateModelType: someModelTemplateType,
           typeContext: [
             ...typeContext,
@@ -85,11 +89,11 @@ export function deriveModelTemplates<
           ],
         });
         return {
-          templateKind: 'generic',
+          templateKind: 'genericTemplate',
           templateModelSymbolKey: genericTemplateModel.modelSymbolKey,
           genericArguments: deriveGenericArguments({
             schemaTypeChecker,
-            schemaMapResult,
+            schemaResult,
             typeContext,
             elementTypeCases,
             genericTemplateModel,
@@ -108,39 +112,41 @@ export function deriveModelTemplates<
 }
 
 interface DeriveGenericArgumentsApi<
-  ThisResultModel extends IntermediateSchemaModel,
+  ThisTargetKind extends keyof IntermediateSchema['schemaMap'],
   ThisModelType extends Typescript.Type,
 > extends
   Pick<
     DeriveModelTemplatesApi<
-      ThisResultModel,
+      ThisTargetKind,
       ThisModelType
     >,
     | 'schemaTypeChecker'
-    | 'schemaMapResult'
+    | 'schemaResult'
     | 'typeContext'
     | 'elementTypeCases'
   > {
-  genericTemplateModel: GenericTemplateIntermediateSchemaModel;
+  genericTemplateModel: GenericTemplateIntermediateModel;
   someGenericModelTemplateType: Typescript.TypeReference;
 }
 
 function deriveGenericArguments<
-  ThisResultModel extends IntermediateSchemaModel,
+  ThisTargetKind extends keyof IntermediateSchema['schemaMap'],
   ThisModelType extends Typescript.Type,
 >(
   api: DeriveGenericArgumentsApi<
-    ThisResultModel,
+    ThisTargetKind,
     ThisModelType
   >,
 ): GenericModelTemplate<
-  GetThisModelElement<ThisResultModel>
+  IntermediateSchema['schemaMap'][ThisTargetKind][string][
+    'modelProperties'
+  ][string]['propertyElement']
 >['genericArguments'] {
   const {
     someGenericModelTemplateType,
     genericTemplateModel,
     schemaTypeChecker,
-    schemaMapResult,
+    schemaResult,
     typeContext,
     elementTypeCases,
   } = api;
@@ -148,7 +154,9 @@ function deriveGenericArguments<
     throwInvalidPathError('argumentElementTypes');
   return argumentElementTypes.reduce<
     GenericModelTemplate<
-      GetThisModelElement<ThisResultModel>
+      IntermediateSchema['schemaMap'][ThisTargetKind][string][
+        'modelProperties'
+      ][string]['propertyElement']
     >['genericArguments']
   >((argumentsResult, someArgumentElementType, argumentIndex) => {
     const argumentParameter =
@@ -160,7 +168,7 @@ function deriveGenericArguments<
       argumentSymbolKey,
       argumentElement: deriveModelElement({
         schemaTypeChecker,
-        schemaMapResult,
+        schemaResult,
         elementTypeCases,
         someElementType: someArgumentElementType,
         typeContext: [

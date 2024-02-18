@@ -3,11 +3,11 @@ import { irrelevantAny } from '../../../helpers/types.ts';
 import { Typescript } from '../../../imports/Typescript.ts';
 import { DeriveModelElementApi } from '../components/deriveModelElement.ts';
 import { DeriveModelTemplatesApi } from '../components/deriveModelTemplates.ts';
-import { LoadSchemaModuleApi } from '../components/loadSchemaModule.ts';
-import { DeriveSchemaMapApi } from '../deriveIntermediateSchemaMap.ts';
+import { __LoadSchemaModuleApi } from '../components/loadSchemaModule.ts';
+import { __DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
 
 export interface ThrowInvalidSchemaModuleApi
-  extends Pick<LoadSchemaModuleApi, 'schemaModulePath'> {}
+  extends Pick<__LoadSchemaModuleApi, 'schemaModulePath'> {}
 
 export function throwInvalidSchemaModule_PathDoesNotExist(
   api: ThrowInvalidSchemaModuleApi,
@@ -63,7 +63,7 @@ export function throwInvalidSchemaModule__GenericTypeAliasExport(
 
 export interface ThrowInvalidSchemaExportApi extends
   Pick<
-    DeriveSchemaMapApi,
+    __DeriveIntermediateSchemaApi,
     'schemaTypeChecker' | 'rhsSchemaExportType'
   > {}
 
@@ -80,7 +80,7 @@ export function throwInvalidSchemaExport__NotTuple(
 
 export interface ThrowInvalidTopLevelModelApi extends
   Pick<
-    DeriveSchemaMapApi,
+  __DeriveIntermediateSchemaApi,
     'schemaTypeChecker'
   > {
   someTopLevelDataModelType: Typescript.Type;

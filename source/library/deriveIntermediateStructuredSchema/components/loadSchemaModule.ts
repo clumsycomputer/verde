@@ -2,29 +2,29 @@ import { throwInvalidPathError } from '../../../helpers/throwError.ts';
 import { FileSystem } from '../../../imports/FileSystem.ts';
 import { Path } from '../../../imports/Path.ts';
 import { Typescript } from '../../../imports/Typescript.ts';
-import { DeriveIntermediateSchemaMapApi } from '../deriveIntermediateSchemaMap.ts';
+import { DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
 import {
-  throwInvalidSchemaModule_PathDoesNotExist,
   throwInvalidSchemaModule__CodeExport,
   throwInvalidSchemaModule__GenericTypeAliasExport,
   throwInvalidSchemaModule__MultipleExports,
   throwInvalidSchemaModule__NoExports,
-  throwInvalidSchemaModule__NonTypeAliasExport
+  throwInvalidSchemaModule__NonTypeAliasExport,
+  throwInvalidSchemaModule_PathDoesNotExist,
 } from '../helpers/errors.ts';
 
-export interface LoadSchemaModuleApi
-  extends Pick<DeriveIntermediateSchemaMapApi, 'schemaModulePath'> {
+export interface __LoadSchemaModuleApi
+  extends Pick<DeriveIntermediateSchemaApi, 'schemaModulePath'> {
 }
 
-export interface LoadSchemaModuleResult {
+export interface __LoadSchemaModuleResult {
   schemaTypeChecker: Typescript.TypeChecker;
   lhsSchemaExportSymbol: Typescript.Symbol;
   rhsSchemaExportType: Typescript.Type;
 }
 
-export function loadSchemaModule(
-  api: LoadSchemaModuleApi,
-): LoadSchemaModuleResult {
+export function __loadSchemaModule(
+  api: __LoadSchemaModuleApi,
+): __LoadSchemaModuleResult {
   const { schemaModulePath } = api;
   const workingDirectoryPath = Deno.cwd();
   const resolvedSchemaModulePath = Path.isAbsolute(schemaModulePath)

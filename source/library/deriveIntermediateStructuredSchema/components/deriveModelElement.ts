@@ -1,30 +1,30 @@
 import { irrelevantAny } from '../../../helpers/types.ts';
 import { Typescript } from '../../../imports/Typescript.ts';
-import { IntermediateSchemaModel } from '../../types/IntermediateSchemaMap.ts';
+import { IntermediateSchema } from '../../types/IntermediateSchema.ts';
 import { throwInvalidModelElement } from '../helpers/errors.ts';
 import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
 
 export interface DeriveModelElementApi<
-  ThisResultModel extends IntermediateSchemaModel,
+  ThisTargetKind extends keyof IntermediateSchema['schemaMap'],
 > extends
   Pick<
-    __DeriveIntermediateModelApi<ThisResultModel, irrelevantAny>,
+    __DeriveIntermediateModelApi<ThisTargetKind, irrelevantAny>,
     | 'schemaTypeChecker'
-    | 'schemaMapResult'
+    | 'schemaResult'
     | 'typeContext'
     | 'elementTypeCases'
   > {
   someElementType: Typescript.Type;
 }
 
-export function deriveModelElement<ThisResultModel extends IntermediateSchemaModel>(
-  api: DeriveModelElementApi<ThisResultModel>,
-): GetThisModelElement<ThisResultModel> {
+export function deriveModelElement<ThisTargetKind extends keyof IntermediateSchema['schemaMap']>(
+  api: DeriveModelElementApi<ThisTargetKind>,
+): IntermediateSchema['schemaMap'][ThisTargetKind][string]['modelProperties'][string]['propertyElement'] {
   const {
     elementTypeCases,
     someElementType,
     schemaTypeChecker,
-    schemaMapResult,
+    schemaResult,
     typeContext,
   } = api;
   const targetElementTypeCase = elementTypeCases.find((someElementTypeCase) =>
@@ -34,7 +34,7 @@ export function deriveModelElement<ThisResultModel extends IntermediateSchemaMod
     ? targetElementTypeCase.handleCase({
       someElementType,
       schemaTypeChecker,
-      schemaMapResult,
+      schemaResult,
     })
     : throwInvalidModelElement({
       schemaTypeChecker,
@@ -42,5 +42,5 @@ export function deriveModelElement<ThisResultModel extends IntermediateSchemaMod
     });
 }
 
-export type GetThisModelElement<ThisResultModel extends IntermediateSchemaModel> =
-  ThisResultModel['modelProperties'][string]['propertyElement'];
+// export type GetThisModelElement<ThisResultModel extends IntermediateSchemaModel> =
+//   ThisResultModel['modelProperties'][string]['propertyElement'];

@@ -1,38 +1,38 @@
 import { Typescript } from '../../../imports/Typescript.ts';
-import { IntermediateSchemaModel } from '../../types/IntermediateSchemaMap.ts';
+import { IntermediateSchema } from '../../types/IntermediateSchema.ts';
 import { isPropertySymbol } from '../helpers/typeguards.ts';
 import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
 import { deriveModelElement } from './deriveModelElement.ts';
 
 export interface DeriveModelPropertiesApi<
-  ThisResultModel extends IntermediateSchemaModel,
+  ThisTargetKind extends keyof IntermediateSchema['schemaMap'],
   ThisModelType extends Typescript.Type,
 > extends
   Pick<
     __DeriveIntermediateModelApi<
-      ThisResultModel,
+      ThisTargetKind,
       ThisModelType
     >,
     | 'schemaTypeChecker'
-    | 'schemaMapResult'
+    | 'schemaResult'
     | 'typeContext'
     | 'elementTypeCases'
     | 'someModelType'
   > {}
 
 export function deriveModelProperties<
-  ThisResultModel extends IntermediateSchemaModel,
+  ThisTargetKind extends keyof IntermediateSchema['schemaMap'],
   ThisModelType extends Typescript.Type,
 >(
   api: DeriveModelPropertiesApi<
-    ThisResultModel,
+    ThisTargetKind,
     ThisModelType
   >,
-): ThisResultModel['modelProperties'] {
+): IntermediateSchema['schemaMap'][ThisTargetKind][string]['modelProperties'] {
   const {
     someModelType,
     schemaTypeChecker,
-    schemaMapResult,
+    schemaResult,
     typeContext,
     elementTypeCases,
   } = api;
@@ -41,7 +41,7 @@ export function deriveModelProperties<
       isPropertySymbol,
     )) ??
     [];
-  return typeProperties.reduce<ThisResultModel['modelProperties']>(
+  return typeProperties.reduce<IntermediateSchema['schemaMap'][ThisTargetKind][string]['modelProperties'] >(
     (modelPropertiesResult, someTypeProperty) => {
       const propertyKey = someTypeProperty.name;
       const somePropertyElementType = schemaTypeChecker.getTypeOfSymbol(
@@ -51,7 +51,7 @@ export function deriveModelProperties<
         propertyKey,
         propertyElement: deriveModelElement({
           schemaTypeChecker,
-          schemaMapResult,
+          schemaResult,
           elementTypeCases,
           someElementType: somePropertyElementType,
           typeContext: [

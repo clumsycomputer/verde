@@ -1,11 +1,11 @@
 import { throwInvalidPathError } from '../../helpers/throwError.ts';
 import {
-  IntermediateSchemaMap
-} from '../types/IntermediateSchemaMap.ts';
+  IntermediateSchema
+} from '../types/IntermediateSchema.ts';
 import { deriveDataModel } from './components/__deriveIntermediateModel.ts';
 import {
-  LoadSchemaModuleResult,
-  loadSchemaModule,
+  __LoadSchemaModuleResult,
+  __loadSchemaModule,
 } from './components/loadSchemaModule.ts';
 import {
   throwInvalidTopLevelModel,
@@ -16,35 +16,35 @@ import {
   isTypeReference
 } from './helpers/typeguards.ts';
 
-export interface DeriveIntermediateSchemaMapApi {
+export interface DeriveIntermediateSchemaApi {
   schemaModulePath: string;
 }
 
-export function deriveIntermediateSchemaMap(
-  api: DeriveIntermediateSchemaMapApi,
-): IntermediateSchemaMap {
+export function deriveIntermediateSchema(
+  api: DeriveIntermediateSchemaApi,
+): IntermediateSchema {
   const { schemaModulePath } = api;
   const {
     schemaTypeChecker,
     lhsSchemaExportSymbol,
     rhsSchemaExportType,
-  } = loadSchemaModule({
+  } = __loadSchemaModule({
     schemaModulePath,
   });
-  return deriveSchemaMap({
+  return __deriveIntermediateSchema({
     schemaTypeChecker,
     lhsSchemaExportSymbol,
     rhsSchemaExportType,
   });
 }
 
-export interface DeriveSchemaMapApi extends
+export interface __DeriveIntermediateSchemaApi extends
   Pick<
-    LoadSchemaModuleResult,
+    __LoadSchemaModuleResult,
     'schemaTypeChecker' | 'lhsSchemaExportSymbol' | 'rhsSchemaExportType'
   > {}
 
-function deriveSchemaMap(api: DeriveSchemaMapApi): IntermediateSchemaMap {
+function __deriveIntermediateSchema(api: __DeriveIntermediateSchemaApi): IntermediateSchema {
   const { schemaTypeChecker, rhsSchemaExportType, lhsSchemaExportSymbol } = api;
   if (true !== schemaTypeChecker.isTupleType(rhsSchemaExportType)) {
     throwInvalidSchemaExport__NotTuple({
@@ -52,9 +52,13 @@ function deriveSchemaMap(api: DeriveSchemaMapApi): IntermediateSchemaMap {
       rhsSchemaExportType,
     });
   }
-  const schemaMapResult: IntermediateSchemaMap = {
+  const schemaResult: IntermediateSchema = {
     schemaSymbol: lhsSchemaExportSymbol.name,
-    schemaModels: {},
+    schemaMap: {
+      data: {},
+      concreteTemplate: {},
+      genericTemplate: {}
+    },
   };
   const topLevelDataModelTypes = (isTypeReference(rhsSchemaExportType) &&
     schemaTypeChecker.getTypeArguments(rhsSchemaExportType)) ||
@@ -68,11 +72,11 @@ function deriveSchemaMap(api: DeriveSchemaMapApi): IntermediateSchemaMap {
     }
     deriveDataModel({
       schemaTypeChecker,
-      schemaMapResult,
+      schemaResult,
       someDataModelType: someTopLevelDataModelType,
     });
   });
-  return schemaMapResult;
+  return schemaResult;
 }
 
 
