@@ -36,8 +36,8 @@ export function deriveDataModel(
     someDataModelType,
   } = api;
   return __deriveDefinitiveModel({
-    targetKind: 'data',
     deriveTargetModel: deriveTargetModel__deriveDataModel,
+    targetKind: 'data',
     schemaTypeChecker,
     schemaResult,
     someModelType: someDataModelType,
@@ -47,20 +47,6 @@ export function deriveDataModel(
     }],
   });
 }
-
-// function tryGetCachedResultModel__deriveDataModel(
-//   api: TryGetCachedResultModelApi,
-// ) {
-//   const { schemaResult, modelSymbolKey } = api;
-//   return schemaResult.schemaMap['data'][modelSymbolKey];
-// }
-
-// function cacheResultModel__deriveDataModel(
-//   api: CacheResultModelApi<DataIntermediateSchemaModel>,
-// ) {
-//   const { schemaResult, resultModel } = api;
-//   schemaResult.schemaMap['data'][resultModel.modelSymbolKey] = resultModel;
-// }
 
 function deriveTargetModel__deriveDataModel(
   api: DeriveTargetModelApi<
@@ -92,29 +78,14 @@ export function deriveConcreteTemplateModel(
     someConcreteTemplateModelType,
   } = api;
   return __deriveDefinitiveModel({
-    targetKind: 'concreteTemplate',
     deriveTargetModel: deriveResultModel__deriveConcreteTemplateModel,
+    targetKind: 'concreteTemplate',
     schemaTypeChecker,
     schemaResult,
     typeContext,
     someModelType: someConcreteTemplateModelType,
   });
 }
-
-// function tryGetCachedResultModel__deriveConcreteTemplateModel(
-//   api: TryGetCachedResultModelApi,
-// ) {
-//   const { schemaResult, modelSymbolKey } = api;
-//   return schemaResult.schemaMap['template']['concrete'][modelSymbolKey];
-// }
-
-// function cacheResultModel__deriveConcreteTemplateModel(
-//   api: CacheResultModelApi<ConcreteTemplateIntermediateSchemaModel>,
-// ) {
-//   const { schemaResult, resultModel } = api;
-//   schemaResult.schemaMap['template']['concrete'][resultModel.modelSymbolKey] =
-//     resultModel;
-// }
 
 function deriveResultModel__deriveConcreteTemplateModel(
   api: DeriveTargetModelApi<
@@ -203,8 +174,8 @@ export function deriveGenericTemplateModel(
     someGenericTemplateModelType,
   } = api;
   return __deriveIntermediateModel({
-    targetKind: 'genericTemplate',
     deriveTargetModel: deriveTargetModel__deriveGenericTemplateModel,
+    targetKind: 'genericTemplate',
     elementTypeCases:
       getGenericElementTypeCases() satisfies VerifiedElementTypeCases<
         ElementTypeCase<
@@ -224,21 +195,6 @@ export function deriveGenericTemplateModel(
     someModelType: someGenericTemplateModelType,
   });
 }
-
-// function tryGetCachedResultModel__deriveGenericTemplateModel(
-//   api: TryGetCachedResultModelApi,
-// ) {
-//   const { schemaResult, modelSymbolKey } = api;
-//   return schemaResult.schemaMap['template']['generic'][modelSymbolKey];
-// }
-
-// function cacheResultModel__deriveGenericTemplateModel(
-//   api: CacheResultModelApi<GenericTemplateIntermediateSchemaModel>,
-// ) {
-//   const { schemaResult, resultModel } = api;
-//   schemaResult.schemaMap['template']['generic'][resultModel.modelSymbolKey] =
-//     resultModel;
-// }
 
 function deriveTargetModel__deriveGenericTemplateModel(
   api: DeriveTargetModelApi<
@@ -345,10 +301,8 @@ function __deriveIntermediateModel<
   //
   const modelSymbolKey = someModelType.symbol.name;
   const maybeCachedTargetModel = schemaResult
-    .schemaMap[targetKind][modelSymbolKey] as
-      | IntermediateSchema['schemaMap'][ThisTargetKind][string]
-      | undefined;
-  if (maybeCachedTargetModel) {
+    .schemaMap[targetKind][modelSymbolKey];
+  if (isCachedTargetKind(targetKind, maybeCachedTargetModel)) {
     return maybeCachedTargetModel;
   }
   const newTargetModel = deriveTargetModel({
@@ -374,6 +328,25 @@ function __deriveIntermediateModel<
   schemaResult.schemaMap[targetKind][newTargetModel.modelSymbolKey] =
     newTargetModel;
   return newTargetModel;
+}
+
+function isCachedTargetKind<
+  ThisTargetKind extends keyof IntermediateSchema['schemaMap'],
+>(
+  targetKind: ThisTargetKind,
+  someIntermediateModel:
+    | IntermediateSchema['schemaMap'][keyof IntermediateSchema['schemaMap']][
+      string
+    ]
+    | undefined,
+): someIntermediateModel is IntermediateSchema['schemaMap'][ThisTargetKind][
+  string
+] {
+  return someIntermediateModel
+    ? someIntermediateModel.modelKind === targetKind
+      ? true
+      : throwInvalidPathError('isCachedTargetKind')
+    : false;
 }
 
 type TypeContext = [

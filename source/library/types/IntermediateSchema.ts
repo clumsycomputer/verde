@@ -10,43 +10,23 @@ export interface IntermediateSchema
 }
 
 interface IntermediateSchemaMap {
-  data: Record<string,DataIntermediateModel>,
-  concreteTemplate: Record<string,ConcreteTemplateIntermediateModel>,
-  genericTemplate: Record<string,GenericTemplateIntermediateModel>
-};
-
-// export type GetIntermediateModel<
-//   TargetModelKind extends IntermediateModel['modelKind'],
-//   RemainingOptions extends [IntermediateModel, ...Array<IntermediateModel>] =
-//     IntermediateModelOptions,
-// > = RemainingOptions[0]['modelKind'] extends TargetModelKind
-//   ? RemainingOptions[0]
-//   : GetIntermediateModel<
-//     TargetModelKind,
-//     RemainingOptions extends [infer StaleOption, ...infer NextRemainingOptions]
-//       ? NextRemainingOptions extends
-//         [IntermediateModel, ...Array<IntermediateModel>] ? NextRemainingOptions
-//       : never
-//       : never
-//   >;
-
-type IntermediateModel = IntermediateModelOptions[number];
-
-export type IntermediateModelOptions = [
-  DataIntermediateModel,
-  ...TemplateIntermediateModelOptions,
-];
+  data: Record<DataIntermediateModel['modelSymbolKey'], DataIntermediateModel>;
+  concreteTemplate: Record<
+    ConcreteTemplateIntermediateModel['modelSymbolKey'],
+    ConcreteTemplateIntermediateModel
+  >;
+  genericTemplate: Record<
+    GenericTemplateIntermediateModel['modelSymbolKey'],
+    GenericTemplateIntermediateModel
+  >;
+}
 
 export interface DataIntermediateModel
   extends __IntermediateModel<'data', CoreIntermediateElement> {}
 
-export type TemplateIntermediateModel =
-  TemplateIntermediateModelOptions[number];
-
-export type TemplateIntermediateModelOptions = [
-  ConcreteTemplateIntermediateModel,
-  GenericTemplateIntermediateModel,
-];
+type TemplateIntermediateModel =
+  | ConcreteTemplateIntermediateModel
+  | GenericTemplateIntermediateModel;
 
 export interface ConcreteTemplateIntermediateModel
   extends

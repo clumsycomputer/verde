@@ -1,3 +1,3 @@
 export * from './IntermediateSchema.ts'
 export * from './StructuredSchema.ts'
-export * from './TerminalStructuredSchema.ts'
+export * from './TerminalSchema.ts'

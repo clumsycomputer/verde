@@ -76,22 +76,19 @@ Deno.test({ name: 'valid schema' }, () => {
             stringProperty_EXAMPLE: {
               propertyKey: 'stringProperty_EXAMPLE',
               propertyElement: {
-                elementKind: 'primitive',
-                primitiveKind: 'string',
+                elementKind: 'stringPrimitive',                
               },
             },
             numberProperty_EXAMPLE: {
               propertyKey: 'numberProperty_EXAMPLE',
               propertyElement: {
-                elementKind: 'primitive',
-                primitiveKind: 'number',
+                elementKind: 'numberPrimitive',
               },
             },
             booleanProperty_EXAMPLE: {
               propertyKey: 'booleanProperty_EXAMPLE',
               propertyElement: {
-                elementKind: 'primitive',
-                primitiveKind: 'boolean',
+                elementKind: 'booleanPrimitive',
               },
             },
             interfaceProperty_EXAMPLE: {
@@ -111,8 +108,7 @@ Deno.test({ name: 'valid schema' }, () => {
             fooProperty: {
               propertyKey: 'fooProperty',
               propertyElement: {
-                elementKind: 'primitive',
-                primitiveKind: 'string',
+                elementKind: 'stringPrimitive',
               },
             },
           },
@@ -141,8 +137,7 @@ Deno.test({ name: 'valid schema' }, () => {
                   argumentIndex: 1,
                   argumentSymbolKey: 'ConstrainedParameter_EXAMPLE',
                   argumentElement: {
-                    elementKind: 'literal',
-                    literalKind: 'number',
+                    elementKind: 'numberLiteral',
                     literalSymbol: '7',
                   },
                 },
@@ -150,8 +145,7 @@ Deno.test({ name: 'valid schema' }, () => {
                   argumentIndex: 2,
                   argumentSymbolKey: 'DefaultParameter_EXAMPLE',
                   argumentElement: {
-                    elementKind: 'primitive',
-                    primitiveKind: 'string',
+                    elementKind: 'stringPrimitive',
                   },
                 },
               },
@@ -161,8 +155,7 @@ Deno.test({ name: 'valid schema' }, () => {
             bazProperty: {
               propertyKey: 'bazProperty',
               propertyElement: {
-                elementKind: 'primitive',
-                primitiveKind: 'number',
+                elementKind: 'numberPrimitive',
               },
             },
           },
@@ -177,8 +170,7 @@ Deno.test({ name: 'valid schema' }, () => {
             tazProperty: {
               propertyKey: 'tazProperty',
               propertyElement: {
-                elementKind: 'primitive',
-                primitiveKind: 'string',
+                elementKind: 'stringPrimitive',
               },
             },
           },

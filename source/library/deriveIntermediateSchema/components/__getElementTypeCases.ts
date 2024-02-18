@@ -78,46 +78,40 @@ function __getElementTypeCases<
     elementTypeCase({
       assertCase: isStringLiteralType,
       handleCase: ({ schemaTypeChecker, someElementType }) => ({
-        elementKind: 'literal',
-        literalKind: 'string',
+        elementKind: 'stringLiteral',
         literalSymbol: schemaTypeChecker.typeToString(someElementType),
       }),
     }),
     elementTypeCase({
       assertCase: isNumberLiteralType,
       handleCase: ({ schemaTypeChecker, someElementType }) => ({
-        elementKind: 'literal',
-        literalKind: 'number',
+        elementKind: 'numberLiteral',
         literalSymbol: schemaTypeChecker.typeToString(someElementType),
       }),
     }),
     elementTypeCase({
       assertCase: isBooleanLiteralType,
       handleCase: ({ schemaTypeChecker, someElementType }) => ({
-        elementKind: 'literal',
-        literalKind: 'boolean',
+        elementKind: 'booleanLiteral',
         literalSymbol: schemaTypeChecker.typeToString(someElementType),
       }),
     }),
     elementTypeCase({
       assertCase: isStringType,
       handleCase: () => ({
-        elementKind: 'primitive',
-        primitiveKind: 'string',
+        elementKind: 'stringPrimitive',
       }),
     }),
     elementTypeCase({
       assertCase: isNumberType,
       handleCase: () => ({
-        elementKind: 'primitive',
-        primitiveKind: 'number',
+        elementKind: 'numberPrimitive',
       }),
     }),
     elementTypeCase({
       assertCase: isBooleanType,
       handleCase: () => ({
-        elementKind: 'primitive',
-        primitiveKind: 'boolean',
+        elementKind: 'booleanPrimitive',
       }),
     }),
     elementTypeCase({

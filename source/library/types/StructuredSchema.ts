@@ -1,8 +1,6 @@
-import { genericAny } from '../../helpers/types.ts';
-
 export interface StructuredSchema<ThisSchemaMap> {
   schemaSymbol: string;
-  schemaMap: ThisSchemaMap
+  schemaMap: ThisSchemaMap;
 }
 
 export interface __SchemaModel<ThisModelElement> {
@@ -35,18 +33,17 @@ export type LiteralModelElement =
   | BooleanLiteralModelElement;
 
 export interface StringLiteralModelElement
-  extends LiteralModelElementBase<'string'> {}
+  extends LiteralModelElementBase<'stringLiteral'> {}
 
 export interface NumberLiteralModelElement
-  extends LiteralModelElementBase<'number'> {}
+  extends LiteralModelElementBase<'numberLiteral'> {}
 
 export interface BooleanLiteralModelElement
-  extends LiteralModelElementBase<'boolean'> {}
+  extends LiteralModelElementBase<'booleanLiteral'> {}
 
 interface LiteralModelElementBase<
-  LiteralKind extends PrimitiveModelElement['primitiveKind'],
-> extends ModelElementBase<'literal'> {
-  literalKind: LiteralKind;
+  ThisElementKind,
+> extends ModelElementBase<ThisElementKind> {
   literalSymbol: string;
 }
 
@@ -56,18 +53,16 @@ export type PrimitiveModelElement =
   | BooleanModelElement;
 
 export interface StringModelElement
-  extends PrimitiveModelElementBase<'string'> {}
+  extends PrimitiveModelElementBase<'stringPrimitive'> {}
 
 export interface NumberModelElement
-  extends PrimitiveModelElementBase<'number'> {}
+  extends PrimitiveModelElementBase<'numberPrimitive'> {}
 
 export interface BooleanModelElement
-  extends PrimitiveModelElementBase<'boolean'> {}
+  extends PrimitiveModelElementBase<'booleanPrimitive'> {}
 
-interface PrimitiveModelElementBase<PrimitiveKind>
-  extends ModelElementBase<'primitive'> {
-  primitiveKind: PrimitiveKind;
-}
+interface PrimitiveModelElementBase<ThisElementKind>
+  extends ModelElementBase<ThisElementKind> {}
 
 export interface ModelElementBase<ElementKind> {
   elementKind: ElementKind;
