@@ -3,6 +3,7 @@ import { Typescript } from '../../../imports/Typescript.ts';
 import {
   GenericModelTemplate,
   GenericTemplateIntermediateModel,
+  GetThisIntermediateElement,
   IntermediateSchema,
 } from '../../types/IntermediateSchema.ts';
 import { throwInvalidModelTemplate } from '../helpers/errors.ts';
@@ -38,7 +39,9 @@ export function deriveModelTemplates<
     ThisTargetModelKind,
     ThisModelType
   >,
-): IntermediateSchema['schemaMap'][ThisTargetModelKind][string]['modelTemplates'] {
+): IntermediateSchema['schemaMap'][ThisTargetModelKind][string][
+  'modelTemplates'
+] {
   const {
     someModelType,
     schemaTypeChecker,
@@ -48,7 +51,9 @@ export function deriveModelTemplates<
   } = api;
   const modelTemplateTypes = someModelType.getBaseTypes() ?? [];
   return modelTemplateTypes.map<
-    IntermediateSchema['schemaMap'][ThisTargetModelKind][string]['modelTemplates'][
+    IntermediateSchema['schemaMap'][ThisTargetModelKind][string][
+      'modelTemplates'
+    ][
       number
     ]
   >(
@@ -138,9 +143,7 @@ function deriveGenericArguments<
     ThisModelType
   >,
 ): GenericModelTemplate<
-  IntermediateSchema['schemaMap'][ThisTargetModelKind][string][
-    'modelProperties'
-  ][string]['propertyElement']
+  GetThisIntermediateElement<ThisTargetModelKind>
 >['genericArguments'] {
   const {
     someGenericModelTemplateType,
@@ -154,9 +157,7 @@ function deriveGenericArguments<
     throwInvalidPathError('argumentElementTypes');
   return argumentElementTypes.reduce<
     GenericModelTemplate<
-      IntermediateSchema['schemaMap'][ThisTargetModelKind][string][
-        'modelProperties'
-      ][string]['propertyElement']
+      GetThisIntermediateElement<ThisTargetModelKind>
     >['genericArguments']
   >((argumentsResult, someArgumentElementType, argumentIndex) => {
     const argumentParameter =

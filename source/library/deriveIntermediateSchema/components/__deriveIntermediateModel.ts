@@ -4,6 +4,8 @@ import {
   CoreIntermediateElement,
   DataIntermediateModel,
   GenericTemplateIntermediateElement,
+  GetThisIntermediateElement,
+  GetThisIntermediateModel,
   IntermediateSchema
 } from '../../types/IntermediateSchema.ts';
 import { __DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
@@ -34,7 +36,7 @@ export function deriveDataModel(
   } = api;
   return __deriveDefinitiveModel({
     targetModelKind: 'data',
-    deriveTargetModel: deriveTargetModel__deriveDataModel,    
+    deriveTargetModel: deriveTargetModel__deriveDataModel,
     schemaTypeChecker,
     schemaResult,
     someModelType: someDataModelType,
@@ -51,7 +53,8 @@ function deriveTargetModel__deriveDataModel(
     Typescript.InterfaceType
   >,
 ) {
-  const { targetModelKind, modelSymbolKey, modelTemplates, modelProperties } = api;
+  const { targetModelKind, modelSymbolKey, modelTemplates, modelProperties } =
+    api;
   return {
     modelKind: targetModelKind,
     modelSymbolKey,
@@ -76,7 +79,7 @@ export function deriveConcreteTemplateModel(
   } = api;
   return __deriveDefinitiveModel({
     targetModelKind: 'concreteTemplate',
-    deriveTargetModel: deriveResultModel__deriveConcreteTemplateModel,    
+    deriveTargetModel: deriveResultModel__deriveConcreteTemplateModel,
     schemaTypeChecker,
     schemaResult,
     typeContext,
@@ -90,7 +93,8 @@ function deriveResultModel__deriveConcreteTemplateModel(
     Typescript.InterfaceType
   >,
 ) {
-  const { targetModelKind, modelSymbolKey, modelTemplates, modelProperties } = api;
+  const { targetModelKind, modelSymbolKey, modelTemplates, modelProperties } =
+    api;
   return {
     modelKind: targetModelKind,
     modelSymbolKey,
@@ -172,7 +176,7 @@ export function deriveGenericTemplateModel(
   } = api;
   return __deriveIntermediateModel({
     targetModelKind: 'genericTemplate',
-    deriveTargetModel: deriveTargetModel__deriveGenericTemplateModel,    
+    deriveTargetModel: deriveTargetModel__deriveGenericTemplateModel,
     elementTypeCases:
       getGenericElementTypeCases() satisfies VerifiedElementTypeCases<
         ElementTypeCase<
@@ -246,12 +250,10 @@ interface Custom__DeriveIntermediateModelApi<
   someModelType: ThisModelType;
   deriveTargetModel: (
     api: DeriveTargetModelApi<ThisTargetModelKind, ThisModelType>,
-  ) => IntermediateSchema['schemaMap'][ThisTargetModelKind][string];
+  ) => GetThisIntermediateModel<ThisTargetModelKind>;
   elementTypeCases: Array<
     ElementTypeCase<
-      IntermediateSchema['schemaMap'][ThisTargetModelKind][string][
-        'modelProperties'
-      ][string]['propertyElement'],
+      GetThisIntermediateElement<ThisTargetModelKind>,
       Typescript.Type
     >
   >;
@@ -269,7 +271,7 @@ interface DeriveTargetModelApi<
     'schemaTypeChecker' | 'schemaResult' | 'someModelType' | 'targetModelKind'
   >,
   Pick<
-    IntermediateSchema['schemaMap'][ThisTargetModelKind][string],
+    GetThisIntermediateModel<ThisTargetModelKind>,
     'modelSymbolKey' | 'modelTemplates' | 'modelProperties'
   > {}
 
@@ -338,7 +340,9 @@ function isCachedTargetKind<
       string
     ]
     | undefined,
-): someIntermediateModel is IntermediateSchema['schemaMap'][ThisTargetModelKind][
+): someIntermediateModel is IntermediateSchema['schemaMap'][
+  ThisTargetModelKind
+][
   string
 ] {
   return someIntermediateModel

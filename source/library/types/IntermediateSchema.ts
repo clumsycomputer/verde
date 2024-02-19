@@ -5,6 +5,16 @@ import {
   StructuredSchema,
 } from './StructuredSchema.ts';
 
+export type GetThisIntermediateElement<
+  ThisModelKind extends keyof IntermediateSchema['schemaMap'],
+> = GetThisIntermediateModel<
+  ThisModelKind
+>['modelProperties'][string]['propertyElement'];
+
+export type GetThisIntermediateModel<
+  ThisModelKind extends keyof IntermediateSchema['schemaMap'],
+> = IntermediateSchema['schemaMap'][ThisModelKind][string];
+
 export interface IntermediateSchema
   extends StructuredSchema<IntermediateSchemaMap> {
 }
@@ -52,7 +62,7 @@ interface __TemplateIntermediateModel<ThisModelKind, ThisModelElement>
   extends __IntermediateModel<ThisModelKind, ThisModelElement> {
 }
 
-export interface __IntermediateModel<
+interface __IntermediateModel<
   ThisModelKind,
   ThisModelElement,
 > extends __SchemaModel<ThisModelElement> {
@@ -60,12 +70,11 @@ export interface __IntermediateModel<
   modelTemplates: Array<ModelTemplate<ThisModelElement>>;
 }
 
-export type ModelTemplate<ThisModelElement> =
+type ModelTemplate<ThisModelElement> =
   | ConcreteModelTemplate
   | GenericModelTemplate<ThisModelElement>;
 
-export interface ConcreteModelTemplate
-  extends ModelTemplateBase<'concreteTemplate'> {}
+interface ConcreteModelTemplate extends ModelTemplateBase<'concreteTemplate'> {}
 
 export interface GenericModelTemplate<ThisArgumentElement>
   extends ModelTemplateBase<'genericTemplate'> {
@@ -75,7 +84,7 @@ export interface GenericModelTemplate<ThisArgumentElement>
   >;
 }
 
-export interface GenericArgument<ThisArgumentElement> {
+interface GenericArgument<ThisArgumentElement> {
   argumentSymbolKey: string;
   argumentIndex: number;
   argumentElement: ThisArgumentElement;
@@ -92,14 +101,14 @@ export type GenericTemplateIntermediateElement =
   | ParameterElement
   | CoreIntermediateElement;
 
-export type ParameterElement =
+type ParameterElement =
   | BasicParameterElement
   | ConstrainedParameterElement;
 
-export interface BasicParameterElement
+interface BasicParameterElement
   extends ParameterElementBase<'basicParameter'> {}
 
-export interface ConstrainedParameterElement
+interface ConstrainedParameterElement
   extends ParameterElementBase<'constrainedParameter'> {}
 
 interface ParameterElementBase<ThisElementKind>

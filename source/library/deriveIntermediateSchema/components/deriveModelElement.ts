@@ -1,6 +1,6 @@
 import { irrelevantAny } from '../../../helpers/types.ts';
 import { Typescript } from '../../../imports/Typescript.ts';
-import { IntermediateSchema } from '../../types/IntermediateSchema.ts';
+import { GetThisIntermediateElement, IntermediateSchema } from '../../types/IntermediateSchema.ts';
 import { throwInvalidModelElement } from '../helpers/errors.ts';
 import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
 
@@ -19,7 +19,7 @@ export interface DeriveModelElementApi<
 
 export function deriveModelElement<ThisTargetModelKind extends keyof IntermediateSchema['schemaMap']>(
   api: DeriveModelElementApi<ThisTargetModelKind>,
-): IntermediateSchema['schemaMap'][ThisTargetModelKind][string]['modelProperties'][string]['propertyElement'] {
+): GetThisIntermediateElement<ThisTargetModelKind> {
   const {
     elementTypeCases,
     someElementType,
@@ -41,6 +41,3 @@ export function deriveModelElement<ThisTargetModelKind extends keyof Intermediat
       typeContext,
     });
 }
-
-// export type GetThisModelElement<ThisResultModel extends IntermediateSchemaModel> =
-//   ThisResultModel['modelProperties'][string]['propertyElement'];

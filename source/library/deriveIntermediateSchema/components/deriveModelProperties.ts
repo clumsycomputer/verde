@@ -1,5 +1,5 @@
 import { Typescript } from '../../../imports/Typescript.ts';
-import { IntermediateSchema } from '../../types/IntermediateSchema.ts';
+import { GetThisIntermediateModel, IntermediateSchema } from '../../types/IntermediateSchema.ts';
 import { isPropertySymbol } from '../helpers/typeguards.ts';
 import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
 import { deriveModelElement } from './deriveModelElement.ts';
@@ -28,7 +28,7 @@ export function deriveModelProperties<
     ThisTargetModelKind,
     ThisModelType
   >,
-): IntermediateSchema['schemaMap'][ThisTargetModelKind][string]['modelProperties'] {
+): GetThisIntermediateModel<ThisTargetModelKind>['modelProperties'] {
   const {
     someModelType,
     schemaTypeChecker,
@@ -41,7 +41,7 @@ export function deriveModelProperties<
       isPropertySymbol,
     )) ??
     [];
-  return typeProperties.reduce<IntermediateSchema['schemaMap'][ThisTargetModelKind][string]['modelProperties'] >(
+  return typeProperties.reduce<GetThisIntermediateModel<ThisTargetModelKind>['modelProperties']>(
     (modelPropertiesResult, someTypeProperty) => {
       const propertyKey = someTypeProperty.name;
       const somePropertyElementType = schemaTypeChecker.getTypeOfSymbol(
