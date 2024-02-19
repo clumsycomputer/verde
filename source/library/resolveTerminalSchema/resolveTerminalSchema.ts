@@ -39,11 +39,9 @@ export function resolveTerminalSchema(
 
 interface ResolveModelPropertiesApi
   extends Pick<ResolveTerminalSchemaApi, 'intermediateSchema'> {
-  someIntermediateModel: this['intermediateSchema']['schemaMap'][
+  someIntermediateModel: GetThisIntermediateModel<
     keyof IntermediateSchema['schemaMap']
-  ][
-    string
-  ];
+  >;
   argumentElements: Record<
     GenericParameter['parameterSymbol'],
     TerminalElement
@@ -71,7 +69,6 @@ function resolveModelProperties(
           argumentElements: resolveArgumentElements({
             argumentElements,
             someModelTemplate,
-            templateIntermediateModel,
           }),
         }),
       };
@@ -133,11 +130,6 @@ interface ResolveArgumentElementsApi
     ResolveModelPropertiesApi['someIntermediateModel']['modelTemplates'][
       number
     ];
-  templateIntermediateModel: GetThisIntermediateModel<
-    ResolveModelPropertiesApi['someIntermediateModel']['modelTemplates'][
-      number
-    ]['templateKind']
-  >;
 }
 
 function resolveArgumentElements(
@@ -154,11 +146,11 @@ function resolveArgumentElements(
       someGenericArgument.argumentElement.elementKind === 'basicParameter' ||
         someGenericArgument.argumentElement.elementKind ===
           'constrainedParameter'
-        ? argumentElements[someGenericArgument.argumentSymbolKey] ??
+        ? argumentElements[someGenericArgument.argumentElement.parameterSymbol] ??
           throwInvalidPathError(
             'argumentsResult[someGenericArgument.argumentSymbolKey]',
           )
         : someGenericArgument.argumentElement;
     return argumentsResult;
-  }, {});
+  }, {});  
 }

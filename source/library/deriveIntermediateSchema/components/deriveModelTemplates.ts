@@ -83,7 +83,7 @@ export function deriveModelTemplates<
         const genericTemplateModel = deriveGenericTemplateModel({
           schemaTypeChecker,
           schemaResult,
-          someGenericTemplateModelType: someModelTemplateType,
+          someGenericTemplateModelType: someModelTemplateType.target,
           typeContext: [
             ...typeContext,
             {
@@ -92,7 +92,7 @@ export function deriveModelTemplates<
               infoType: someModelTemplateType,
             },
           ],
-        });
+        });        
         return {
           templateKind: 'genericTemplate',
           templateModelSymbolKey: genericTemplateModel.modelSymbolKey,

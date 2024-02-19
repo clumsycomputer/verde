@@ -76,7 +76,7 @@ Deno.test({ name: 'valid schema' }, () => {
             stringProperty_EXAMPLE: {
               propertyKey: 'stringProperty_EXAMPLE',
               propertyElement: {
-                elementKind: 'stringPrimitive',                
+                elementKind: 'stringPrimitive',
               },
             },
             numberProperty_EXAMPLE: {
@@ -180,11 +180,26 @@ Deno.test({ name: 'valid schema' }, () => {
         GenericTemplateModel_EXAMPLE: {
           modelKind: 'genericTemplate',
           modelSymbolKey: 'GenericTemplateModel_EXAMPLE',
-          modelTemplates: [],
           genericParameters: [
             { parameterSymbol: 'BasicParameter_EXAMPLE' },
             { parameterSymbol: 'ConstrainedParameter_EXAMPLE' },
             { parameterSymbol: 'DefaultParameter_EXAMPLE' },
+          ],
+          modelTemplates: [
+            {
+              templateKind: 'genericTemplate',
+              templateModelSymbolKey: 'NestedGenericTemplateModel_EXAMPLE',
+              genericArguments: {
+                GenericParameter_EXAMPLE: {
+                  argumentIndex: 0,
+                  argumentSymbolKey: 'GenericParameter_EXAMPLE',
+                  argumentElement: {
+                    elementKind: 'basicParameter',
+                    parameterSymbol: 'BasicParameter_EXAMPLE',
+                  },
+                },
+              },
+            },
           ],
           modelProperties: {
             basicParameterProperty_EXAMPLE: {
@@ -206,6 +221,23 @@ Deno.test({ name: 'valid schema' }, () => {
               propertyElement: {
                 elementKind: 'basicParameter',
                 parameterSymbol: 'DefaultParameter_EXAMPLE',
+              },
+            },
+          },
+        },
+        NestedGenericTemplateModel_EXAMPLE: {
+          modelKind: 'genericTemplate',
+          modelSymbolKey: 'NestedGenericTemplateModel_EXAMPLE',
+          modelTemplates: [],
+          genericParameters: [{
+            parameterSymbol: 'GenericParameter_EXAMPLE',
+          }],
+          modelProperties: {
+            genericParameterProperty_EXAMPLE: {
+              propertyKey: 'genericParameterProperty_EXAMPLE',
+              propertyElement: {
+                elementKind: 'basicParameter',
+                parameterSymbol: 'GenericParameter_EXAMPLE',
               },
             },
           },

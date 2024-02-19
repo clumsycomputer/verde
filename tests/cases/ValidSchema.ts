@@ -29,8 +29,12 @@ interface GenericTemplateModel_EXAMPLE<
   BasicParameter_EXAMPLE,
   ConstrainedParameter_EXAMPLE extends number,
   DefaultParameter_EXAMPLE = string,
-> {
+> extends NestedGenericTemplateModel_EXAMPLE<BasicParameter_EXAMPLE> {
   basicParameterProperty_EXAMPLE: BasicParameter_EXAMPLE;
   constrainedParameterProperty_EXAMPLE: ConstrainedParameter_EXAMPLE;
   defaultParameterProperty_EXAMPLE: DefaultParameter_EXAMPLE;
+}
+
+interface NestedGenericTemplateModel_EXAMPLE<GenericParameter_EXAMPLE> {
+  genericParameterProperty_EXAMPLE: GenericParameter_EXAMPLE
 }

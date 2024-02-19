@@ -92,6 +92,13 @@ Deno.test({ name: 'valid schema' }, () => {
               elementKind: 'stringPrimitive',
             },
           },
+          genericParameterProperty_EXAMPLE: {
+            propertyKey: 'genericParameterProperty_EXAMPLE',
+            propertyElement: {
+              elementKind: 'dataModel',
+              dataModelSymbolKey: 'PropertyDataModel_EXAMPLE',
+            },
+          },
         },
       },
     },
