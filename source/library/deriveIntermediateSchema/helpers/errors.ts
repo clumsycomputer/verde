@@ -3,11 +3,11 @@ import { irrelevantAny } from '../../../helpers/types.ts';
 import { Typescript } from '../../../imports/Typescript.ts';
 import { DeriveModelElementApi } from '../components/deriveModelElement.ts';
 import { DeriveModelTemplatesApi } from '../components/deriveModelTemplates.ts';
-import { __LoadSchemaModuleApi } from '../components/loadSchemaModule.ts';
+import { LoadSchemaModuleApi } from '../components/loadSchemaModule.ts';
 import { __DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
 
 export interface ThrowInvalidSchemaModuleApi
-  extends Pick<__LoadSchemaModuleApi, 'schemaModulePath'> {}
+  extends Pick<LoadSchemaModuleApi, 'schemaModulePath'> {}
 
 export function throwInvalidSchemaModule_PathDoesNotExist(
   api: ThrowInvalidSchemaModuleApi,

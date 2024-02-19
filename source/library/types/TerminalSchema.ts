@@ -7,7 +7,7 @@ import {
 export interface TerminalSchema
   extends StructuredSchema<Record<string, TerminalModel>> {}
 
-export interface TerminalModel
+interface TerminalModel
   extends __SchemaModel<TerminalElement> {}
 
 export type TerminalElement = ModelElement<TerminalModel>;

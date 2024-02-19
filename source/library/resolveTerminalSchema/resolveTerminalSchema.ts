@@ -1,156 +1,166 @@
-// import { throwInvalidPathError } from '../../helpers/throwError.ts';
-// import {
-//   GenericParameter,
-//   IntermediateSchemaModel,
-//   IntermediateStructuredSchema,
-// } from '../types/IntermediateSchema.ts';
-// import {
-//   TerminalStructuredSchema,
-//   TerminalSchemaModel,
-// } from '../types/TerminalStructuredSchema.ts';
+import { throwInvalidPathError } from '../../helpers/throwError.ts';
+import {
+  GenericParameter,
+  IntermediateSchema,
+} from '../types/IntermediateSchema.ts';
+import { TerminalSchema } from '../types/TerminalSchema.ts';
 
-// export interface ResolveTerminalStructuredSchemaApi {
-//   intermediateStructuredSchema: IntermediateStructuredSchema;
-// }
+export interface ResolveTerminalSchemaApi {
+  intermediateSchema: IntermediateSchema;
+}
 
-// export function resolveTerminalStructuredSchema(
-//   api: ResolveTerminalStructuredSchemaApi,
-// ): TerminalStructuredSchema {
-//   const { intermediateStructuredSchema } = api;
-//   return {
-//     schemaSymbol: intermediateStructuredSchema.schemaSymbol,
-//     schemaMap: Object.values(intermediateStructuredSchema.schemaMap.data).reduce<
-//       TerminalStructuredSchema['schemaMap']
-//     >((modelsResult, someDataIntermediateModel) => {
-//       someDataIntermediateModel.modelTemplates;
-//       modelsResult[someDataIntermediateModel.modelSymbolKey] = {
-//         modelSymbolKey: someDataIntermediateModel.modelSymbolKey,
-//         modelProperties: resolveModelProperties({
-//           parameterArguments: {},
-//           intermediateSchemaMap,
-//           someIntermediateModel: someDataIntermediateModel,
-//         }),
-//       };
-//       return modelsResult;
-//     }, {}),
-//   };
-// }
+export function resolveTerminalSchema(
+  api: ResolveTerminalSchemaApi,
+): TerminalSchema {
+  const { intermediateSchema } = api;
+  return {
+    schemaSymbol: intermediateSchema.schemaSymbol,
+    schemaMap: Object.values(intermediateSchema.schemaMap.data).reduce<
+      TerminalSchema['schemaMap']
+    >((modelsResult, someDataIntermediateModel) => {
+      modelsResult[someDataIntermediateModel.modelSymbolKey] = {
+        modelSymbolKey: someDataIntermediateModel.modelSymbolKey,
+        modelProperties: resolveModelProperties({
+          argumentElements: {},
+          intermediateSchema,
+          someIntermediateModel: someDataIntermediateModel,
+        }),
+      };
+      return modelsResult;
+    }, {}),
+  };
+}
 
-// interface ResolveModelPropertiesApi
-//   extends Pick<ResolveTerminalStructuredSchemaApi, 'intermediateStructuredSchema'> {
-//   someIntermediateModel: this['intermediateStructuredSchema']['schemaMap']
-//   parameterArguments: Record<
-//     GenericParameter['parameterSymbol'],
-//     TerminalSchemaModel['modelProperties'][string]['propertyElement']
-//   >;
-// }
+interface ResolveModelPropertiesApi
+  extends Pick<ResolveTerminalSchemaApi, 'intermediateSchema'> {
+  someIntermediateModel: this['intermediateSchema']['schemaMap'][
+    keyof IntermediateSchema['schemaMap']
+  ][
+    string
+  ];
+  argumentElements: Record<
+    GenericParameter['parameterSymbol'],
+    TerminalSchema['schemaMap'][string]['modelProperties'][string][
+      'propertyElement'
+    ]
+  >;
+}
 
-// function resolveModelProperties(
-//   api: ResolveModelPropertiesApi,
-// ): TerminalSchemaModel['modelProperties'] {
-//   const { someIntermediateModel, intermediateSchemaMap, parameterArguments } =
-//     api;
-//   const resolvedTemplateProperties = someIntermediateModel.modelTemplates
-//     .reduce<
-//       TerminalSchemaModel['modelProperties']
-//     >((templatePropertiesResult, someModelTemplate) => {
-//       const templateIntermediateModel = intermediateSchemaMap
-//         .schemaModels[someModelTemplate.templateModelSymbolKey] ??
-//         throwInvalidPathError('templateIntermediateModel');
-//       return {
-//         ...templatePropertiesResult,
-//         ...resolveModelProperties({
-//           intermediateSchemaMap,
-//           someIntermediateModel: templateIntermediateModel,
-//           parameterArguments: resolveParameterArguments({
-//             parameterArguments,
-//             someModelTemplate,
-//             templateIntermediateModel,
-//           }),
-//         }),
-//       };
-//     }, {});
-//   const directProperties = Object.values(someIntermediateModel.modelProperties)
-//     .reduce<
-//       TerminalSchemaModel['modelProperties']
-//     >(
-//       (directPropertiesResult, someIntermediateProperty) => ({
-//         ...directPropertiesResult,
-//         [someIntermediateProperty.propertyKey]: {
-//           propertyKey: someIntermediateProperty.propertyKey,
-//           propertyElement: resolvePropertyElement({
-//             parameterArguments,
-//             someIntermediatePropertyElement:
-//               someIntermediateProperty.propertyElement,
-//           }),
-//         },
-//       }),
-//       {},
-//     );
-//   return {
-//     ...resolvedTemplateProperties,
-//     ...directProperties,
-//   };
-// }
+function resolveModelProperties(
+  api: ResolveModelPropertiesApi,
+): TerminalSchema['schemaMap'][string]['modelProperties'] {
+  const { someIntermediateModel, intermediateSchema, argumentElements } = api;
+  const resolvedTemplateProperties = someIntermediateModel.modelTemplates
+    .reduce<
+      TerminalSchema['schemaMap'][string]['modelProperties']
+    >((templatePropertiesResult, someModelTemplate) => {
+      const templateIntermediateModel = intermediateSchema
+        .schemaMap[someModelTemplate.templateKind][
+          someModelTemplate.templateModelSymbolKey
+        ] ??
+        throwInvalidPathError('templateIntermediateModel');
+      return {
+        ...templatePropertiesResult,
+        ...resolveModelProperties({
+          intermediateSchema,
+          someIntermediateModel: templateIntermediateModel,
+          argumentElements: resolveArgumentElements({
+            argumentElements,
+            someModelTemplate,
+            templateIntermediateModel,
+          }),
+        }),
+      };
+    }, {});
+  const directProperties = Object.values(someIntermediateModel.modelProperties)
+    .reduce<
+      TerminalSchema['schemaMap'][string]['modelProperties']
+    >(
+      (directPropertiesResult, someIntermediateProperty) => ({
+        ...directPropertiesResult,
+        [someIntermediateProperty.propertyKey]: {
+          propertyKey: someIntermediateProperty.propertyKey,
+          propertyElement: resolvePropertyElement({
+            argumentElements,
+            someIntermediatePropertyElement:
+              someIntermediateProperty.propertyElement,
+          }),
+        },
+      }),
+      {},
+    );
+  return {
+    ...resolvedTemplateProperties,
+    ...directProperties,
+  };
+}
 
-// interface ResolvePropertyElementApi
-//   extends Pick<ResolveModelPropertiesApi, 'parameterArguments'> {
-//   someIntermediatePropertyElement:
-//     IntermediateSchemaModel['modelProperties'][string]['propertyElement'];
-// }
+interface ResolvePropertyElementApi
+  extends Pick<ResolveModelPropertiesApi, 'argumentElements'> {
+  someIntermediatePropertyElement: IntermediateSchema['schemaMap'][
+    keyof IntermediateSchema['schemaMap']
+  ][
+    string
+  ]['modelProperties'][string]['propertyElement'];
+}
 
-// function resolvePropertyElement(
-//   api: ResolvePropertyElementApi,
-// ): TerminalSchemaModel['modelProperties'][string]['propertyElement'] {
-//   const { someIntermediatePropertyElement, parameterArguments } = api;
-//   if (
-//     someIntermediatePropertyElement.elementKind === 'literal' ||
-//     someIntermediatePropertyElement.elementKind === 'primitive' ||
-//     someIntermediatePropertyElement.elementKind === 'dataModel'
-//   ) {
-//     return {
-//       ...someIntermediatePropertyElement,
-//     };
-//   } else if (someIntermediatePropertyElement.elementKind === 'parameter') {
-//     const parameterArgumentElement =
-//       parameterArguments[someIntermediatePropertyElement.parameterSymbol] ??
-//         throwInvalidPathError('parameterArgumentElement');
-//     return {
-//       ...parameterArgumentElement,
-//     };
-//   } else {
-//     throwInvalidPathError('resolvePropertyElement');
-//   }
-// }
+function resolvePropertyElement(
+  api: ResolvePropertyElementApi,
+): TerminalSchema['schemaMap'][string]['modelProperties'][string][
+  'propertyElement'
+] {
+  const { someIntermediatePropertyElement, argumentElements } = api;
+  if (
+    someIntermediatePropertyElement.elementKind === 'basicParameter' ||
+    someIntermediatePropertyElement.elementKind === 'constrainedParameter'
+  ) {
+    const resolvedArgumentElement =
+      argumentElements[someIntermediatePropertyElement.parameterSymbol] ??
+        throwInvalidPathError('resolvedArgumentElement');
+    return {
+      ...resolvedArgumentElement,
+    };
+  } else {
+    return {
+      ...someIntermediatePropertyElement,
+    };
+  }
+}
 
-// interface ResolveParameterArgumentsApi
-//   extends Pick<ResolveModelPropertiesApi, 'parameterArguments'> {
-//   someModelTemplate:
-//     ResolveModelPropertiesApi['someIntermediateModel']['modelTemplates'][
-//       number
-//     ];
-//   templateIntermediateModel: IntermediateSchemaMap['schemaModels'][
-//     this['someModelTemplate']['templateModelSymbolKey']
-//   ];
-// }
+interface ResolveArgumentElementsApi
+  extends Pick<ResolveModelPropertiesApi, 'argumentElements'> {
+  someModelTemplate:
+    ResolveModelPropertiesApi['someIntermediateModel']['modelTemplates'][
+      number
+    ];
+  templateIntermediateModel: IntermediateSchema['schemaMap'][
+    ResolveModelPropertiesApi['someIntermediateModel']['modelTemplates'][
+      number
+    ]['templateKind']
+  ][
+    this['someModelTemplate']['templateModelSymbolKey']
+  ];
+}
 
-// function resolveParameterArguments(
-//   api: ResolveParameterArgumentsApi,
-// ) {
-//   const { someModelTemplate, parameterArguments } = api;
-//   if (someModelTemplate.templateKind === 'concrete') {
-//     return {};
-//   }
-//   return Object.values(someModelTemplate.genericArguments).reduce<
-//     ResolveModelPropertiesApi['parameterArguments']
-//   >((argumentsResult, someGenericArgument) => {
-//     argumentsResult[someGenericArgument.argumentSymbolKey] =
-//       someGenericArgument.argumentElement.elementKind === 'parameter'
-//         ? parameterArguments[someGenericArgument.argumentSymbolKey] ??
-//           throwInvalidPathError(
-//             'argumentsResult[someGenericArgument.argumentSymbolKey]',
-//           )
-//         : someGenericArgument.argumentElement;
-//     return argumentsResult;
-//   }, {});
-// }
+function resolveArgumentElements(
+  api: ResolveArgumentElementsApi,
+) {
+  const { someModelTemplate, argumentElements } = api;
+  if (someModelTemplate.templateKind === 'concreteTemplate') {
+    return {};
+  }
+  return Object.values(someModelTemplate.genericArguments).reduce<
+    ResolveModelPropertiesApi['argumentElements']
+  >((argumentsResult, someGenericArgument) => {
+    argumentsResult[someGenericArgument.argumentSymbolKey] =
+      someGenericArgument.argumentElement.elementKind === 'basicParameter' ||
+        someGenericArgument.argumentElement.elementKind ===
+          'constrainedParameter'
+        ? argumentElements[someGenericArgument.argumentSymbolKey] ??
+          throwInvalidPathError(
+            'argumentsResult[someGenericArgument.argumentSymbolKey]',
+          )
+        : someGenericArgument.argumentElement;
+    return argumentsResult;
+  }, {});
+}

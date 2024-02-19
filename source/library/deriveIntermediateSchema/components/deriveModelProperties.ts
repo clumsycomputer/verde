@@ -5,12 +5,12 @@ import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
 import { deriveModelElement } from './deriveModelElement.ts';
 
 export interface DeriveModelPropertiesApi<
-  ThisTargetKind extends keyof IntermediateSchema['schemaMap'],
+  ThisTargetModelKind extends keyof IntermediateSchema['schemaMap'],
   ThisModelType extends Typescript.Type,
 > extends
   Pick<
     __DeriveIntermediateModelApi<
-      ThisTargetKind,
+      ThisTargetModelKind,
       ThisModelType
     >,
     | 'schemaTypeChecker'
@@ -21,14 +21,14 @@ export interface DeriveModelPropertiesApi<
   > {}
 
 export function deriveModelProperties<
-  ThisTargetKind extends keyof IntermediateSchema['schemaMap'],
+  ThisTargetModelKind extends keyof IntermediateSchema['schemaMap'],
   ThisModelType extends Typescript.Type,
 >(
   api: DeriveModelPropertiesApi<
-    ThisTargetKind,
+    ThisTargetModelKind,
     ThisModelType
   >,
-): IntermediateSchema['schemaMap'][ThisTargetKind][string]['modelProperties'] {
+): IntermediateSchema['schemaMap'][ThisTargetModelKind][string]['modelProperties'] {
   const {
     someModelType,
     schemaTypeChecker,
@@ -41,7 +41,7 @@ export function deriveModelProperties<
       isPropertySymbol,
     )) ??
     [];
-  return typeProperties.reduce<IntermediateSchema['schemaMap'][ThisTargetKind][string]['modelProperties'] >(
+  return typeProperties.reduce<IntermediateSchema['schemaMap'][ThisTargetModelKind][string]['modelProperties'] >(
     (modelPropertiesResult, someTypeProperty) => {
       const propertyKey = someTypeProperty.name;
       const somePropertyElementType = schemaTypeChecker.getTypeOfSymbol(

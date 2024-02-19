@@ -4,8 +4,8 @@ import {
 } from '../types/IntermediateSchema.ts';
 import { deriveDataModel } from './components/__deriveIntermediateModel.ts';
 import {
-  __LoadSchemaModuleResult,
-  __loadSchemaModule,
+  LoadSchemaModuleResult,
+  loadSchemaModule,
 } from './components/loadSchemaModule.ts';
 import {
   throwInvalidTopLevelModel,
@@ -28,7 +28,7 @@ export function deriveIntermediateSchema(
     schemaTypeChecker,
     lhsSchemaExportSymbol,
     rhsSchemaExportType,
-  } = __loadSchemaModule({
+  } = loadSchemaModule({
     schemaModulePath,
   });
   return __deriveIntermediateSchema({
@@ -40,7 +40,7 @@ export function deriveIntermediateSchema(
 
 export interface __DeriveIntermediateSchemaApi extends
   Pick<
-    __LoadSchemaModuleResult,
+    LoadSchemaModuleResult,
     'schemaTypeChecker' | 'lhsSchemaExportSymbol' | 'rhsSchemaExportType'
   > {}
 

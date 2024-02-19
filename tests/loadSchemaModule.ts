@@ -1,4 +1,4 @@
-import { __loadSchemaModule } from '../source/library/deriveIntermediateSchema/components/loadSchemaModule.ts';
+import { loadSchemaModule } from '../source/library/deriveIntermediateSchema/components/loadSchemaModule.ts';
 import { resolveCasePath } from './helpers/resolveCasePath.ts';
 import { Assert } from './imports/Assert.ts';
 
@@ -8,7 +8,7 @@ Deno.test({ name: `invalid schema module => path does not exist` }, () => {
   });
   Assert.assertThrows(
     () => {
-      __loadSchemaModule({
+      loadSchemaModule({
         schemaModulePath: nonExistentCasePath,
       });
     },
@@ -23,7 +23,7 @@ Deno.test({ name: 'invalid schema module => no exports' }, () => {
   });
   Assert.assertThrows(
     () => {
-      __loadSchemaModule({
+      loadSchemaModule({
         schemaModulePath: noExportsCasePath,
       });
     },
@@ -38,7 +38,7 @@ Deno.test({ name: 'invalid schema module => multiple exports' }, () => {
   });
   Assert.assertThrows(
     () => {
-      __loadSchemaModule({
+      loadSchemaModule({
         schemaModulePath: multipleExportsCasePath,
       });
     },
@@ -53,7 +53,7 @@ Deno.test({ name: 'invalid schema module => code export' }, () => {
   });
   Assert.assertThrows(
     () => {
-      __loadSchemaModule({
+      loadSchemaModule({
         schemaModulePath: codeExportCasePath,
       });
     },
@@ -68,7 +68,7 @@ Deno.test({ name: 'invalid schema module => default code export' }, () => {
   });
   Assert.assertThrows(
     () => {
-      __loadSchemaModule({
+      loadSchemaModule({
         schemaModulePath: defaultCodeExportCasePath,
       });
     },
@@ -83,7 +83,7 @@ Deno.test({ name: 'invalid schema module => non type-alias export' }, () => {
   });
   Assert.assertThrows(
     () => {
-      __loadSchemaModule({
+      loadSchemaModule({
         schemaModulePath: nonTypeAliasExportCasePath,
       });
     },
@@ -100,7 +100,7 @@ Deno.test(
     });
     Assert.assertThrows(
       () => {
-        __loadSchemaModule({
+        loadSchemaModule({
           schemaModulePath: genericTypeAliasExportCasePath,
         });
       },
@@ -114,7 +114,7 @@ Deno.test({ name: 'valid schema module' }, () => {
   const validSchemaCasePath = resolveCasePath({
     someCaseName: 'ValidSchema',
   });
-  const { lhsSchemaExportSymbol } = __loadSchemaModule({
+  const { lhsSchemaExportSymbol } = loadSchemaModule({
     schemaModulePath: validSchemaCasePath,
   });
   Assert.assert(lhsSchemaExportSymbol.name === 'ValidSchema');

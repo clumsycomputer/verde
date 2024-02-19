@@ -12,19 +12,19 @@ import {
   throwInvalidSchemaModule_PathDoesNotExist,
 } from '../helpers/errors.ts';
 
-export interface __LoadSchemaModuleApi
+export interface LoadSchemaModuleApi
   extends Pick<DeriveIntermediateSchemaApi, 'schemaModulePath'> {
 }
 
-export interface __LoadSchemaModuleResult {
+export interface LoadSchemaModuleResult {
   schemaTypeChecker: Typescript.TypeChecker;
   lhsSchemaExportSymbol: Typescript.Symbol;
   rhsSchemaExportType: Typescript.Type;
 }
 
-export function __loadSchemaModule(
-  api: __LoadSchemaModuleApi,
-): __LoadSchemaModuleResult {
+export function loadSchemaModule(
+  api: LoadSchemaModuleApi,
+): LoadSchemaModuleResult {
   const { schemaModulePath } = api;
   const workingDirectoryPath = Deno.cwd();
   const resolvedSchemaModulePath = Path.isAbsolute(schemaModulePath)

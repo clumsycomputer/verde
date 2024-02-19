@@ -5,10 +5,10 @@ import { throwInvalidModelElement } from '../helpers/errors.ts';
 import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
 
 export interface DeriveModelElementApi<
-  ThisTargetKind extends keyof IntermediateSchema['schemaMap'],
+  ThisTargetModelKind extends keyof IntermediateSchema['schemaMap'],
 > extends
   Pick<
-    __DeriveIntermediateModelApi<ThisTargetKind, irrelevantAny>,
+    __DeriveIntermediateModelApi<ThisTargetModelKind, irrelevantAny>,
     | 'schemaTypeChecker'
     | 'schemaResult'
     | 'typeContext'
@@ -17,9 +17,9 @@ export interface DeriveModelElementApi<
   someElementType: Typescript.Type;
 }
 
-export function deriveModelElement<ThisTargetKind extends keyof IntermediateSchema['schemaMap']>(
-  api: DeriveModelElementApi<ThisTargetKind>,
-): IntermediateSchema['schemaMap'][ThisTargetKind][string]['modelProperties'][string]['propertyElement'] {
+export function deriveModelElement<ThisTargetModelKind extends keyof IntermediateSchema['schemaMap']>(
+  api: DeriveModelElementApi<ThisTargetModelKind>,
+): IntermediateSchema['schemaMap'][ThisTargetModelKind][string]['modelProperties'][string]['propertyElement'] {
   const {
     elementTypeCases,
     someElementType,
