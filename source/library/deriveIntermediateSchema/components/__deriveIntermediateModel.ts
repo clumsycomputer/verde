@@ -297,7 +297,7 @@ function __deriveIntermediateModel<
   //    1. check if declaration symbol for `someModelType` is unique, a.k.a,
   //       check for naming collisions with other processed model type declarations
   //
-  //    2. if declaration symbol not unique, throw user error
+  //    2. if declaration symbol not unique or exists as other modelKind, throw user error
   //
   const modelSymbolKey = someModelType.symbol.name;
   const maybeCachedTargetModel = schemaResult

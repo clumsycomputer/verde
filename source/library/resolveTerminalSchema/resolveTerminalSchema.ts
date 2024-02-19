@@ -1,9 +1,15 @@
 import { throwInvalidPathError } from '../../helpers/throwError.ts';
 import {
   GenericParameter,
+  GetThisIntermediateElement,
+  GetThisIntermediateModel,
   IntermediateSchema,
 } from '../types/IntermediateSchema.ts';
-import { TerminalSchema } from '../types/TerminalSchema.ts';
+import {
+  TerminalElement,
+  TerminalModel,
+  TerminalSchema,
+} from '../types/TerminalSchema.ts';
 
 export interface ResolveTerminalSchemaApi {
   intermediateSchema: IntermediateSchema;
@@ -40,19 +46,17 @@ interface ResolveModelPropertiesApi
   ];
   argumentElements: Record<
     GenericParameter['parameterSymbol'],
-    TerminalSchema['schemaMap'][string]['modelProperties'][string][
-      'propertyElement'
-    ]
+    TerminalElement
   >;
 }
 
 function resolveModelProperties(
   api: ResolveModelPropertiesApi,
-): TerminalSchema['schemaMap'][string]['modelProperties'] {
+): TerminalModel['modelProperties'] {
   const { someIntermediateModel, intermediateSchema, argumentElements } = api;
   const resolvedTemplateProperties = someIntermediateModel.modelTemplates
     .reduce<
-      TerminalSchema['schemaMap'][string]['modelProperties']
+      TerminalModel['modelProperties']
     >((templatePropertiesResult, someModelTemplate) => {
       const templateIntermediateModel = intermediateSchema
         .schemaMap[someModelTemplate.templateKind][
@@ -74,7 +78,7 @@ function resolveModelProperties(
     }, {});
   const directProperties = Object.values(someIntermediateModel.modelProperties)
     .reduce<
-      TerminalSchema['schemaMap'][string]['modelProperties']
+      TerminalModel['modelProperties']
     >(
       (directPropertiesResult, someIntermediateProperty) => ({
         ...directPropertiesResult,
@@ -97,18 +101,14 @@ function resolveModelProperties(
 
 interface ResolvePropertyElementApi
   extends Pick<ResolveModelPropertiesApi, 'argumentElements'> {
-  someIntermediatePropertyElement: IntermediateSchema['schemaMap'][
+  someIntermediatePropertyElement: GetThisIntermediateElement<
     keyof IntermediateSchema['schemaMap']
-  ][
-    string
-  ]['modelProperties'][string]['propertyElement'];
+  >;
 }
 
 function resolvePropertyElement(
   api: ResolvePropertyElementApi,
-): TerminalSchema['schemaMap'][string]['modelProperties'][string][
-  'propertyElement'
-] {
+): TerminalElement {
   const { someIntermediatePropertyElement, argumentElements } = api;
   if (
     someIntermediatePropertyElement.elementKind === 'basicParameter' ||
@@ -133,13 +133,11 @@ interface ResolveArgumentElementsApi
     ResolveModelPropertiesApi['someIntermediateModel']['modelTemplates'][
       number
     ];
-  templateIntermediateModel: IntermediateSchema['schemaMap'][
+  templateIntermediateModel: GetThisIntermediateModel<
     ResolveModelPropertiesApi['someIntermediateModel']['modelTemplates'][
       number
     ]['templateKind']
-  ][
-    this['someModelTemplate']['templateModelSymbolKey']
-  ];
+  >;
 }
 
 function resolveArgumentElements(
