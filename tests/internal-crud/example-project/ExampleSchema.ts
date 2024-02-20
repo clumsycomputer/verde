@@ -4,10 +4,10 @@ interface ExamplePerson {
   personName: string
   personBirthYear: number
   personVerified: boolean
-  personLocation: ExampleLocation
+  // personLocation: ExampleLocation
 }
 
-interface ExampleLocation {
-  locationCountry: string
-  locationCity: string
-}
+// interface ExampleLocation {
+//   locationCountry: string
+//   locationCity: string
+// }
