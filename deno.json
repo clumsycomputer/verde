@@ -23,7 +23,7 @@
   },
   "test": {
     "include": [
-      "tests/*.ts"
+      "tests/**/*.test.ts"
     ]
   }
 }

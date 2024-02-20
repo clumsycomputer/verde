@@ -1,6 +1,6 @@
-import { loadSchemaModule } from '../source/library/deriveIntermediateSchema/components/loadSchemaModule.ts';
+import { loadSchemaModule } from '../../source/library/deriveIntermediateSchema/components/loadSchemaModule.ts';
 import { resolveCasePath } from './helpers/resolveCasePath.ts';
-import { Assert } from './imports/Assert.ts';
+import { Assert } from '../imports/Assert.ts';
 
 Deno.test({ name: `invalid schema module => path does not exist` }, () => {
   const nonExistentCasePath = resolveCasePath({

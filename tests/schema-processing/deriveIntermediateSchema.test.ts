@@ -1,6 +1,6 @@
-import { deriveIntermediateSchema } from '../source/library/module.ts';
+import { deriveIntermediateSchema } from '../../source/library/module.ts';
 import { resolveCasePath } from './helpers/resolveCasePath.ts';
-import { Assert } from './imports/Assert.ts';
+import { Assert } from '../imports/Assert.ts';
 
 Deno.test({ name: 'invalid schema export => not tuple' }, () => {
   Assert.assertThrows(

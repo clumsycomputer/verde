@@ -1,4 +1,4 @@
-import { Path} from '../imports/Path.ts'
+import { Path} from '../../imports/Path.ts'
 
 export interface ResolveCasePathApi {
   someCaseName: string
