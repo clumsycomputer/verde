@@ -1,106 +1,196 @@
-import {
-  deriveIntermediateSchema,
-  resolveSolidifiedSchema,
-} from '../../source/library/module.ts';
-import { resolveCasePath } from './helpers/resolveCasePath.ts';
+import { resolveSolidifiedSchema } from '../../source/library/module.ts';
 import { Assert } from '../imports/Assert.ts';
 
-Deno.test({ name: 'valid schema' }, () => {
-  const validSolidifiedSchema = resolveSolidifiedSchema({
-    intermediateSchema: deriveIntermediateSchema({
-      schemaModulePath: resolveCasePath({
-        someCaseName: 'ValidSchema',
-      }),
-    }),
-  });
-  Assert.assertEquals(validSolidifiedSchema, {
-    schemaSymbol: 'ValidSchema',
-    schemaMap: {
-      PropertyDataModel_EXAMPLE: {
-        modelSymbolKey: 'PropertyDataModel_EXAMPLE',
-        modelProperties: {
-          fooProperty: {
-            propertyKey: 'fooProperty',
-            propertyElement: {
-              elementKind: 'stringPrimitive',
+Deno.test({ name: 'resolveSolidifiedSchema' }, async (testContext) => {
+    const compositeDataModelSolidifiedSchema = resolveSolidifiedSchema({
+      intermediateSchema: {
+        schemaSymbol: 'CompositeDataModelSchema__EXAMPLE',
+        schemaMap: {
+          data: {
+            CompositeDataModel__EXAMPLE: {
+              modelKind: 'data',
+              modelSymbolKey: 'CompositeDataModel__EXAMPLE',
+              modelTemplates: [
+                {
+                  templateKind: 'concreteTemplate',
+                  templateModelSymbolKey: 'ConcreteTemplateModel__EXAMPLE',
+                },
+                {
+                  templateKind: 'genericTemplate',
+                  templateModelSymbolKey:
+                    'CompositeGenericTemplateModel__EXAMPLE',
+                  genericArguments: {
+                    IndirectParameter__EXAMPLE: {
+                      argumentIndex: 0,
+                      argumentParameterSymbolKey: 'IndirectParameter__EXAMPLE',
+                      argumentElement: {
+                        elementKind: 'booleanPrimitive',
+                      },
+                    },
+                  },
+                },
+              ],
+              modelProperties: {
+                dataModelProperty__EXAMPLE: {
+                  propertyKey: 'dataModelProperty__EXAMPLE',
+                  propertyElement: {
+                    elementKind: 'booleanPrimitive',
+                  },
+                },
+              },
+            },
+          },
+          concreteTemplate: {
+            ConcreteTemplateModel__EXAMPLE: {
+              modelKind: 'concreteTemplate',
+              modelSymbolKey: 'ConcreteTemplateModel__EXAMPLE',
+              modelTemplates: [],
+              modelProperties: {
+                concreteTemplateModelProperty__EXAMPLE: {
+                  propertyKey: 'concreteTemplateModelProperty__EXAMPLE',
+                  propertyElement: {
+                    elementKind: 'booleanPrimitive',
+                  },
+                },
+              },
+            },
+          },
+          genericTemplate: {
+            TerminalGenericTemplateModel__EXAMPLE: {
+              modelKind: 'genericTemplate',
+              modelSymbolKey: 'TerminalGenericTemplateModel__EXAMPLE',
+              genericParameters: [
+                {
+                  parameterSymbol: 'BasicParameter__EXAMPLE',
+                },
+                {
+                  parameterSymbol: 'ConstrainedParameter__EXAMPLE',
+                },
+              ],
+              modelTemplates: [],
+              modelProperties: {
+                terminalGenericTemplateModelProperty__EXAMPLE: {
+                  propertyKey: 'terminalGenericTemplateModelProperty__EXAMPLE',
+                  propertyElement: {
+                    elementKind: 'booleanPrimitive',
+                  },
+                },
+                basicParameterProperty__EXAMPLE: {
+                  propertyKey: 'basicParameterProperty__EXAMPLE',
+                  propertyElement: {
+                    elementKind: 'basicParameter',
+                    parameterSymbol: 'BasicParameter__EXAMPLE',
+                  },
+                },
+                constrainedParameterProperty__EXAMPLE: {
+                  propertyKey: 'constrainedParameterProperty__EXAMPLE',
+                  propertyElement: {
+                    elementKind: 'constrainedParameter',
+                    parameterSymbol: 'ConstrainedParameter__EXAMPLE',
+                  },
+                },
+              },
+            },
+            CompositeGenericTemplateModel__EXAMPLE: {
+              modelKind: 'genericTemplate',
+              modelSymbolKey: 'CompositeGenericTemplateModel__EXAMPLE',
+              genericParameters: [
+                {
+                  parameterSymbol: 'IndirectParameter__EXAMPLE',
+                },
+              ],
+              modelTemplates: [
+                {
+                  templateKind: 'genericTemplate',
+                  templateModelSymbolKey:
+                    'TerminalGenericTemplateModel__EXAMPLE',
+                  genericArguments: {
+                    BasicParameter__EXAMPLE: {
+                      argumentIndex: 0,
+                      argumentParameterSymbolKey: 'BasicParameter__EXAMPLE',
+                      argumentElement: {
+                        elementKind: 'basicParameter',
+                        parameterSymbol: 'IndirectParameter__EXAMPLE',
+                      },
+                    },
+                    ConstrainedParameter__EXAMPLE: {
+                      argumentIndex: 1,
+                      argumentParameterSymbolKey:
+                        'ConstrainedParameter__EXAMPLE',
+                      argumentElement: {
+                        elementKind: 'booleanPrimitive',
+                      },
+                    },
+                  },
+                },
+              ],
+              modelProperties: {
+                compositeGenericTemplateModelProperty__EXAMPLE: {
+                  propertyKey: 'compositeGenericTemplateModelProperty__EXAMPLE',
+                  propertyElement: {
+                    elementKind: 'booleanPrimitive',
+                  },
+                },
+              },
             },
           },
         },
       },
-      BasicDataModel_EXAMPLE: {
-        modelSymbolKey: 'BasicDataModel_EXAMPLE',
-        modelProperties: {
-          stringProperty_EXAMPLE: {
-            propertyKey: 'stringProperty_EXAMPLE',
-            propertyElement: {
-              elementKind: 'stringPrimitive',
+    });
+    await testContext.step('generic parameter argument resolved', () => {
+      Assert.assertEquals(
+        compositeDataModelSolidifiedSchema
+          .schemaMap['CompositeDataModel__EXAMPLE']
+          ?.modelProperties['basicParameterProperty__EXAMPLE']?.propertyElement,
+        {
+          elementKind: 'booleanPrimitive',
+        },
+      );
+    });
+    Assert.assertEquals(compositeDataModelSolidifiedSchema, {
+      schemaSymbol: 'CompositeDataModelSchema__EXAMPLE',
+      schemaMap: {
+        CompositeDataModel__EXAMPLE: {
+          modelSymbolKey: 'CompositeDataModel__EXAMPLE',
+          modelProperties: {
+            dataModelProperty__EXAMPLE: {
+              propertyKey: 'dataModelProperty__EXAMPLE',
+              propertyElement: {
+                elementKind: 'booleanPrimitive',
+              },
             },
-          },
-          numberProperty_EXAMPLE: {
-            propertyKey: 'numberProperty_EXAMPLE',
-            propertyElement: {
-              elementKind: 'numberPrimitive',
+            concreteTemplateModelProperty__EXAMPLE: {
+              propertyKey: 'concreteTemplateModelProperty__EXAMPLE',
+              propertyElement: {
+                elementKind: 'booleanPrimitive',
+              },
             },
-          },
-          booleanProperty_EXAMPLE: {
-            propertyKey: 'booleanProperty_EXAMPLE',
-            propertyElement: {
-              elementKind: 'booleanPrimitive',
+            compositeGenericTemplateModelProperty__EXAMPLE: {
+              propertyKey: 'compositeGenericTemplateModelProperty__EXAMPLE',
+              propertyElement: {
+                elementKind: 'booleanPrimitive',
+              },
             },
-          },
-          interfaceProperty_EXAMPLE: {
-            propertyKey: 'interfaceProperty_EXAMPLE',
-            propertyElement: {
-              elementKind: 'dataModel',
-              dataModelSymbolKey: 'PropertyDataModel_EXAMPLE',
+            terminalGenericTemplateModelProperty__EXAMPLE: {
+              propertyKey: 'terminalGenericTemplateModelProperty__EXAMPLE',
+              propertyElement: {
+                elementKind: 'booleanPrimitive',
+              },
+            },
+            basicParameterProperty__EXAMPLE: {
+              propertyKey: 'basicParameterProperty__EXAMPLE',
+              propertyElement: {
+                elementKind: 'booleanPrimitive',
+              },
+            },
+            constrainedParameterProperty__EXAMPLE: {
+              propertyKey: 'constrainedParameterProperty__EXAMPLE',
+              propertyElement: {
+                elementKind: 'booleanPrimitive',
+              },
             },
           },
         },
       },
-      CompositeDataModel_EXAMPLE: {
-        modelSymbolKey: 'CompositeDataModel_EXAMPLE',
-        modelProperties: {
-          bazProperty: {
-            propertyKey: 'bazProperty',
-            propertyElement: {
-              elementKind: 'numberPrimitive',
-            },
-          },
-          tazProperty: {
-            propertyKey: 'tazProperty',
-            propertyElement: {
-              elementKind: 'stringPrimitive',
-            },
-          },
-          basicParameterProperty_EXAMPLE: {
-            propertyKey: 'basicParameterProperty_EXAMPLE',
-            propertyElement: {
-              elementKind: 'dataModel',
-              dataModelSymbolKey: 'PropertyDataModel_EXAMPLE',
-            },
-          },
-          constrainedParameterProperty_EXAMPLE: {
-            propertyKey: 'constrainedParameterProperty_EXAMPLE',
-            propertyElement: {
-              elementKind: 'numberLiteral',
-              literalSymbol: '7',
-            },
-          },
-          defaultParameterProperty_EXAMPLE: {
-            propertyKey: 'defaultParameterProperty_EXAMPLE',
-            propertyElement: {
-              elementKind: 'stringPrimitive',
-            },
-          },
-          genericParameterProperty_EXAMPLE: {
-            propertyKey: 'genericParameterProperty_EXAMPLE',
-            propertyElement: {
-              elementKind: 'dataModel',
-              dataModelSymbolKey: 'PropertyDataModel_EXAMPLE',
-            },
-          },
-        },
-      },
-    },
-  });
+    });
 });

@@ -142,13 +142,13 @@ function resolveArgumentElements(
   return Object.values(someModelTemplate.genericArguments).reduce<
     ResolveModelPropertiesApi['argumentElements']
   >((argumentsResult, someGenericArgument) => {
-    argumentsResult[someGenericArgument.argumentSymbolKey] =
+    argumentsResult[someGenericArgument.argumentParameterSymbolKey] =
       someGenericArgument.argumentElement.elementKind === 'basicParameter' ||
         someGenericArgument.argumentElement.elementKind ===
           'constrainedParameter'
         ? argumentElements[someGenericArgument.argumentElement.parameterSymbol] ??
           throwInvalidPathError(
-            'argumentsResult[someGenericArgument.argumentSymbolKey]',
+            'argumentsResult[someGenericArgument.argumentParameterSymbolKey]',
           )
         : someGenericArgument.argumentElement;
     return argumentsResult;

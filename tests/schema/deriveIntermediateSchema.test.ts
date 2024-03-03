@@ -127,7 +127,7 @@ Deno.test({ name: 'valid schema' }, () => {
               genericArguments: {
                 'BasicParameter_EXAMPLE': {
                   argumentIndex: 0,
-                  argumentSymbolKey: 'BasicParameter_EXAMPLE',
+                  argumentParameterSymbolKey: 'BasicParameter_EXAMPLE',
                   argumentElement: {
                     elementKind: 'dataModel',
                     dataModelSymbolKey: 'PropertyDataModel_EXAMPLE',
@@ -135,7 +135,7 @@ Deno.test({ name: 'valid schema' }, () => {
                 },
                 'ConstrainedParameter_EXAMPLE': {
                   argumentIndex: 1,
-                  argumentSymbolKey: 'ConstrainedParameter_EXAMPLE',
+                  argumentParameterSymbolKey: 'ConstrainedParameter_EXAMPLE',
                   argumentElement: {
                     elementKind: 'numberLiteral',
                     literalSymbol: '7',
@@ -143,7 +143,7 @@ Deno.test({ name: 'valid schema' }, () => {
                 },
                 'DefaultParameter_EXAMPLE': {
                   argumentIndex: 2,
-                  argumentSymbolKey: 'DefaultParameter_EXAMPLE',
+                  argumentParameterSymbolKey: 'DefaultParameter_EXAMPLE',
                   argumentElement: {
                     elementKind: 'stringPrimitive',
                   },
@@ -192,7 +192,7 @@ Deno.test({ name: 'valid schema' }, () => {
               genericArguments: {
                 GenericParameter_EXAMPLE: {
                   argumentIndex: 0,
-                  argumentSymbolKey: 'GenericParameter_EXAMPLE',
+                  argumentParameterSymbolKey: 'GenericParameter_EXAMPLE',
                   argumentElement: {
                     elementKind: 'basicParameter',
                     parameterSymbol: 'BasicParameter_EXAMPLE',

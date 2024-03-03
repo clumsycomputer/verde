@@ -79,13 +79,13 @@ interface ConcreteModelTemplate extends ModelTemplateBase<'concreteTemplate'> {}
 export interface GenericModelTemplate<ThisArgumentElement>
   extends ModelTemplateBase<'genericTemplate'> {
   genericArguments: Record<
-    GenericArgument<ThisArgumentElement>['argumentSymbolKey'],
+    GenericArgument<ThisArgumentElement>['argumentParameterSymbolKey'],
     GenericArgument<ThisArgumentElement>
   >;
 }
 
 interface GenericArgument<ThisArgumentElement> {
-  argumentSymbolKey: string;
+  argumentParameterSymbolKey: string;
   argumentIndex: number;
   argumentElement: ThisArgumentElement;
 }

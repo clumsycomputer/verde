@@ -163,10 +163,10 @@ function deriveGenericArguments<
     const argumentParameter =
       genericTemplateModel.genericParameters[argumentIndex] ??
         throwInvalidPathError('argumentParameter');
-    const argumentSymbolKey = argumentParameter.parameterSymbol;
-    argumentsResult[argumentSymbolKey] = {
+    const argumentParameterSymbolKey = argumentParameter.parameterSymbol;
+    argumentsResult[argumentParameterSymbolKey] = {
       argumentIndex,
-      argumentSymbolKey,
+      argumentParameterSymbolKey,
       argumentElement: deriveModelElement({
         schemaTypeChecker,
         schemaResult,
