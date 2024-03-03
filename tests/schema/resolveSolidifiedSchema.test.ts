@@ -1,19 +1,19 @@
 import {
   deriveIntermediateSchema,
-  resolveTerminalSchema,
+  resolveSolidifiedSchema,
 } from '../../source/library/module.ts';
 import { resolveCasePath } from './helpers/resolveCasePath.ts';
 import { Assert } from '../imports/Assert.ts';
 
 Deno.test({ name: 'valid schema' }, () => {
-  const validTerminalSchema = resolveTerminalSchema({
+  const validSolidifiedSchema = resolveSolidifiedSchema({
     intermediateSchema: deriveIntermediateSchema({
       schemaModulePath: resolveCasePath({
         someCaseName: 'ValidSchema',
       }),
     }),
   });
-  Assert.assertEquals(validTerminalSchema, {
+  Assert.assertEquals(validSolidifiedSchema, {
     schemaSymbol: 'ValidSchema',
     schemaMap: {
       PropertyDataModel_EXAMPLE: {

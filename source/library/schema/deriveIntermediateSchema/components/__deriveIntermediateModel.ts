@@ -1,5 +1,5 @@
-import { throwInvalidPathError } from '../../../helpers/throwError.ts';
-import { Typescript } from '../../../imports/Typescript.ts';
+import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
+import { Typescript } from '../../../../imports/Typescript.ts';
 import {
   CoreIntermediateElement,
   DataIntermediateModel,

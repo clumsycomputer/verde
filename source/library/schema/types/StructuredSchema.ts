@@ -1,3 +1,6 @@
+export interface BasicStructuredSchema<SomeSchemaModel>
+  extends StructuredSchema<Record<string, SomeSchemaModel>> {}
+
 export interface StructuredSchema<ThisSchemaMap> {
   schemaSymbol: string;
   schemaMap: ThisSchemaMap;

@@ -1,6 +1,6 @@
-import { throwUserError } from '../../../helpers/throwError.ts';
-import { irrelevantAny } from '../../../helpers/types.ts';
-import { Typescript } from '../../../imports/Typescript.ts';
+import { throwUserError } from '../../../../helpers/throwError.ts';
+import { irrelevantAny } from '../../../../helpers/types.ts';
+import { Typescript } from '../../../../imports/Typescript.ts';
 import { DeriveModelElementApi } from '../components/deriveModelElement.ts';
 import { DeriveModelTemplatesApi } from '../components/deriveModelTemplates.ts';
 import { LoadSchemaModuleApi } from '../components/loadSchemaModule.ts';

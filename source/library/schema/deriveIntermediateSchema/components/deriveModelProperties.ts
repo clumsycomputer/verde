@@ -1,4 +1,4 @@
-import { Typescript } from '../../../imports/Typescript.ts';
+import { Typescript } from '../../../../imports/Typescript.ts';
 import { GetThisIntermediateModel, IntermediateSchema } from '../../types/IntermediateSchema.ts';
 import { isPropertySymbol } from '../helpers/typeguards.ts';
 import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';

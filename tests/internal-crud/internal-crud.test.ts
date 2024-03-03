@@ -1,25 +1,30 @@
 import {
 createSchemaRecord,
   deriveIntermediateSchema,
-  resolveTerminalSchema,
+  resolveSolidifiedSchema,
 } from '../../source/library/module.ts';
 import { Path } from '../imports/Path.ts';
 
-Deno.test({ name: 'internal data operations' }, async (testContext) => {
-  const exampleTerminalSchema = resolveTerminalSchema({
+Deno.test({ name: 'internal crud' }, async (testContext) => {
+  const projectDirectoryPath = Path.join(
+    Path.fromFileUrl(import.meta.url),
+    '../example-project',
+  )
+  const databaseDirectoryPath = Path.join(projectDirectoryPath, './database')
+  const exampleTerminalSchema = resolveSolidifiedSchema({
     intermediateSchema: deriveIntermediateSchema({
       schemaModulePath: Path.join(
-        Path.fromFileUrl(import.meta.url),
-        '../example-project/ExampleSchema.ts',
+        projectDirectoryPath,
+        './ExampleSchema.ts',
       ),
     }),
   });
-  console.log(exampleTerminalSchema);
   await testContext.step('create record', () => {
     createSchemaRecord({
-      terminalSchema: exampleTerminalSchema,
-      modelSymbolKey: 'ExamplePerson',
-      modelData: {
+      databaseDirectoryPath: databaseDirectoryPath,
+      terminalSchema: exampleTerminalSchema,      
+      recordModelSymbolKey: 'ExamplePerson',
+      recordData: {
         personName: 'John Deere',
         personBirthYear: 1837,
         personVerified: true,

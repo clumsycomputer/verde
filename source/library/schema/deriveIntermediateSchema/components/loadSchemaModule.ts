@@ -1,7 +1,7 @@
-import { throwInvalidPathError } from '../../../helpers/throwError.ts';
-import { FileSystem } from '../../../imports/FileSystem.ts';
-import { Path } from '../../../imports/Path.ts';
-import { Typescript } from '../../../imports/Typescript.ts';
+import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
+import { FileSystem } from '../../../../imports/FileSystem.ts';
+import { Path } from '../../../../imports/Path.ts';
+import { Typescript } from '../../../../imports/Typescript.ts';
 import { DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
 import {
   throwInvalidSchemaModule__CodeExport,

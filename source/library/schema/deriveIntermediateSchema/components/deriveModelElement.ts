@@ -1,5 +1,5 @@
-import { irrelevantAny } from '../../../helpers/types.ts';
-import { Typescript } from '../../../imports/Typescript.ts';
+import { irrelevantAny } from '../../../../helpers/types.ts';
+import { Typescript } from '../../../../imports/Typescript.ts';
 import { GetThisIntermediateElement, IntermediateSchema } from '../../types/IntermediateSchema.ts';
 import { throwInvalidModelElement } from '../helpers/errors.ts';
 import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';

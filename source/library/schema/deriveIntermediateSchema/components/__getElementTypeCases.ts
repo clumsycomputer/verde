@@ -1,5 +1,5 @@
-import { genericAny, irrelevantAny } from '../../../helpers/types.ts';
-import { Typescript } from '../../../imports/Typescript.ts';
+import { genericAny, irrelevantAny } from '../../../../helpers/types.ts';
+import { Typescript } from '../../../../imports/Typescript.ts';
 import { GetThisIntermediateElement, IntermediateSchema } from '../../types/IntermediateSchema.ts';
 import { ModelElementBase } from '../../types/StructuredSchema.ts';
 import {

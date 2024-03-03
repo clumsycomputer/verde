@@ -1,4 +1,4 @@
-import { throwInvalidPathError } from '../../helpers/throwError.ts';
+import { throwInvalidPathError } from '../../../helpers/throwError.ts';
 import {
   IntermediateSchema
 } from '../types/IntermediateSchema.ts';

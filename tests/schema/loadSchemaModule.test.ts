@@ -1,4 +1,4 @@
-import { loadSchemaModule } from '../../source/library/deriveIntermediateSchema/components/loadSchemaModule.ts';
+import { loadSchemaModule } from '../../source/library/schema/deriveIntermediateSchema/components/loadSchemaModule.ts';
 import { resolveCasePath } from './helpers/resolveCasePath.ts';
 import { Assert } from '../imports/Assert.ts';
 

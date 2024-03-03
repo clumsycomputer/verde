@@ -1,4 +1,4 @@
-import { throwInvalidPathError } from '../../helpers/throwError.ts';
+import { throwInvalidPathError } from '../../../helpers/throwError.ts';
 import {
   GenericParameter,
   GetThisIntermediateElement,
@@ -6,23 +6,23 @@ import {
   IntermediateSchema,
 } from '../types/IntermediateSchema.ts';
 import {
-  TerminalElement,
-  TerminalModel,
-  TerminalSchema,
-} from '../types/TerminalSchema.ts';
+  SolidifiedElement,
+  SolidifiedModel,
+  SolidifiedSchema,
+} from '../types/SolidfiedSchema.ts';
 
-export interface ResolveTerminalSchemaApi {
+export interface ResolveSolidifiedSchemaApi {
   intermediateSchema: IntermediateSchema;
 }
 
-export function resolveTerminalSchema(
-  api: ResolveTerminalSchemaApi,
-): TerminalSchema {
+export function resolveSolidifiedSchema(
+  api: ResolveSolidifiedSchemaApi,
+): SolidifiedSchema {
   const { intermediateSchema } = api;
   return {
     schemaSymbol: intermediateSchema.schemaSymbol,
     schemaMap: Object.values(intermediateSchema.schemaMap.data).reduce<
-      TerminalSchema['schemaMap']
+      SolidifiedSchema['schemaMap']
     >((modelsResult, someDataIntermediateModel) => {
       modelsResult[someDataIntermediateModel.modelSymbolKey] = {
         modelSymbolKey: someDataIntermediateModel.modelSymbolKey,
@@ -38,23 +38,23 @@ export function resolveTerminalSchema(
 }
 
 interface ResolveModelPropertiesApi
-  extends Pick<ResolveTerminalSchemaApi, 'intermediateSchema'> {
+  extends Pick<ResolveSolidifiedSchemaApi, 'intermediateSchema'> {
   someIntermediateModel: GetThisIntermediateModel<
     keyof IntermediateSchema['schemaMap']
   >;
   argumentElements: Record<
     GenericParameter['parameterSymbol'],
-    TerminalElement
+    SolidifiedElement
   >;
 }
 
 function resolveModelProperties(
   api: ResolveModelPropertiesApi,
-): TerminalModel['modelProperties'] {
+): SolidifiedModel['modelProperties'] {
   const { someIntermediateModel, intermediateSchema, argumentElements } = api;
   const resolvedTemplateProperties = someIntermediateModel.modelTemplates
     .reduce<
-      TerminalModel['modelProperties']
+      SolidifiedModel['modelProperties']
     >((templatePropertiesResult, someModelTemplate) => {
       const templateIntermediateModel = intermediateSchema
         .schemaMap[someModelTemplate.templateKind][
@@ -75,7 +75,7 @@ function resolveModelProperties(
     }, {});
   const directProperties = Object.values(someIntermediateModel.modelProperties)
     .reduce<
-      TerminalModel['modelProperties']
+      SolidifiedModel['modelProperties']
     >(
       (directPropertiesResult, someIntermediateProperty) => ({
         ...directPropertiesResult,
@@ -105,7 +105,7 @@ interface ResolvePropertyElementApi
 
 function resolvePropertyElement(
   api: ResolvePropertyElementApi,
-): TerminalElement {
+): SolidifiedElement {
   const { someIntermediatePropertyElement, argumentElements } = api;
   if (
     someIntermediatePropertyElement.elementKind === 'basicParameter' ||
