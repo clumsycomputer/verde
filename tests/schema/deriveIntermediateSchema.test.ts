@@ -1,248 +1,260 @@
 import { deriveIntermediateSchema } from '../../source/library/module.ts';
 import { resolveCasePath } from './helpers/resolveCasePath.ts';
 import { Assert } from '../imports/Assert.ts';
+import { throwInvalidPathError } from '../../source/helpers/throwError.ts';
 
-Deno.test({ name: 'invalid schema export => not tuple' }, () => {
-  Assert.assertThrows(
-    () => {
-      deriveIntermediateSchema({
-        schemaModulePath: resolveCasePath({
-          someCaseName: 'Error_InvalidSchemaExport_NotTuple',
-        }),
-      });
-    },
-    Error,
-    `invalid schema export: "unknown" is not a tuple`,
-  );
-});
-
-Deno.test({ name: 'invalid top-level model' }, () => {
-  Assert.assertThrows(
-    () => {
-      deriveIntermediateSchema({
-        schemaModulePath: resolveCasePath({
-          someCaseName: 'Error_InvalidTopLevelModel',
-        }),
-      });
-    },
-    Error,
-    `invalid top-level model: FooModel<unknown>`,
-  );
-});
-
-Deno.test({ name: 'invalid model template' }, () => {
-  Assert.assertThrows(
-    () => {
-      deriveIntermediateSchema({
-        schemaModulePath: resolveCasePath({
-          someCaseName: 'Error_InvalidModelTemplate',
-        }),
-      });
-    },
-    Error,
-    `invalid model template: UnionTemplateModel on FooDataModel`,
-  );
-});
-
-Deno.test({ name: 'invalid model element' }, () => {
-  Assert.assertThrows(
-    () => {
-      deriveIntermediateSchema({
-        schemaModulePath: resolveCasePath({
-          someCaseName: 'Error_InvalidModelElement',
-        }),
-      });
-    },
-    Error,
-    `invalid model element: TODO`,
-  );
-});
-
-Deno.test({ name: 'valid schema' }, () => {
-  const validSchemaMap = deriveIntermediateSchema({
-    schemaModulePath: resolveCasePath({
-      someCaseName: 'ValidSchema',
-    }),
+Deno.test('deriveIntermediateSchema', async (testContext) => {
+  await testContext.step('schema errors', async (subTestContext) => {
+    await subTestContext.step('invalid schema export', () => {
+      Assert.assertThrows(
+        () => {
+          deriveIntermediateSchema({
+            schemaModulePath: resolveCasePath({
+              someCaseName: 'Error_InvalidSchemaExport_NotTuple',
+            }),
+          });
+        },
+        Error,
+        `invalid schema export: "unknown" is not a tuple`,
+      );
+    });
+    await subTestContext.step('invalid top-level model', () => {
+      Assert.assertThrows(
+        () => {
+          deriveIntermediateSchema({
+            schemaModulePath: resolveCasePath({
+              someCaseName: 'Error_InvalidTopLevelModel',
+            }),
+          });
+        },
+        Error,
+        `invalid top-level model: FooModel<unknown>`,
+      );
+    });
+    await subTestContext.step('invalid model template', () => {
+      Assert.assertThrows(
+        () => {
+          deriveIntermediateSchema({
+            schemaModulePath: resolveCasePath({
+              someCaseName: 'Error_InvalidModelTemplate',
+            }),
+          });
+        },
+        Error,
+        `invalid model template: UnionTemplateModel on FooDataModel`,
+      );
+    });
+    await subTestContext.step('invalid model element', () => {
+      Assert.assertThrows(
+        () => {
+          deriveIntermediateSchema({
+            schemaModulePath: resolveCasePath({
+              someCaseName: 'Error_InvalidModelElement',
+            }),
+          });
+        },
+        Error,
+        `invalid model element: TODO`,
+      );
+    });
   });
-  Assert.assertEquals(validSchemaMap, {
-    schemaSymbol: 'ValidSchema',
-    schemaMap: {
-      data: {
-        BasicDataModel_EXAMPLE: {
-          modelKind: 'data',
-          modelSymbolKey: 'BasicDataModel_EXAMPLE',
-          modelTemplates: [],
-          modelProperties: {
-            stringProperty_EXAMPLE: {
-              propertyKey: 'stringProperty_EXAMPLE',
-              propertyElement: {
-                elementKind: 'stringPrimitive',
-              },
+  await testContext.step('valid schema', async (testContextBbb) => {
+    const intermediateSchemaExample = deriveIntermediateSchema({
+      schemaModulePath: resolveCasePath({
+        someCaseName: 'ValidSchema',
+      }),
+    });
+    const compositeDataModelExample = intermediateSchemaExample.schemaMap
+      .data['CompositeDataModel__EXAMPLE']!;
+    const genericTemplateModelExample = intermediateSchemaExample.schemaMap
+      .genericTemplate['GenericTemplateModel__EXAMPLE']!;
+    await testContextBbb.step('model parameters', async (testContextCcc) => {
+      const genericTemplateExample =
+        compositeDataModelExample.modelTemplates[1] &&
+          compositeDataModelExample.modelTemplates[1].templateKind ===
+            'genericTemplate'
+          ? compositeDataModelExample.modelTemplates[1]
+          : throwInvalidPathError('genericTemplate');
+      await testContextCcc.step('basic parameter', () => {
+        Assert.assertEquals(genericTemplateModelExample.genericParameters[0], {
+          parameterSymbol: 'BasicParameter__EXAMPLE',
+        });
+        Assert.assertEquals(
+          genericTemplateExample.genericArguments['BasicParameter__EXAMPLE'],
+          {
+            argumentIndex: 0,
+            argumentParameterSymbolKey: 'BasicParameter__EXAMPLE',
+            argumentElement: {
+              elementKind: 'booleanPrimitive',
             },
-            numberProperty_EXAMPLE: {
-              propertyKey: 'numberProperty_EXAMPLE',
-              propertyElement: {
-                elementKind: 'numberPrimitive',
-              },
+          },
+        );
+      });
+      await testContextCcc.step('constrained parameter', () => {
+        Assert.assertEquals(genericTemplateModelExample.genericParameters[1], {
+          parameterSymbol: 'ConstrainedParameter__EXAMPLE',
+        });
+        Assert.assertEquals(
+          genericTemplateExample
+            .genericArguments['ConstrainedParameter__EXAMPLE'],
+          {
+            argumentIndex: 1,
+            argumentParameterSymbolKey: 'ConstrainedParameter__EXAMPLE',
+            argumentElement: {
+              elementKind: 'numberPrimitive',
             },
-            booleanProperty_EXAMPLE: {
-              propertyKey: 'booleanProperty_EXAMPLE',
-              propertyElement: {
+          },
+        );
+      });
+      await testContextCcc.step('parameter with default', () => {
+        Assert.assertEquals(genericTemplateModelExample.genericParameters[2], {
+          parameterSymbol: 'DefaultParameter__EXAMPLE',
+        });
+        Assert.assertEquals(
+          genericTemplateExample
+            .genericArguments['DefaultParameter__EXAMPLE'],
+          {
+            argumentIndex: 2,
+            argumentParameterSymbolKey: 'DefaultParameter__EXAMPLE',
+            argumentElement: {
+              elementKind: 'stringPrimitive',
+            },
+          },
+        );
+      });
+    });
+    await testContextBbb.step('model templates', async (testContextCcc) => {
+      await testContextCcc.step('concrete template', () => {
+        Assert.assertEquals(compositeDataModelExample.modelTemplates[0], {
+          templateKind: 'concreteTemplate',
+          templateModelSymbolKey: 'ConcreteTemplateModel__EXAMPLE',
+        });
+      });
+      await testContextCcc.step('generic template', () => {
+        Assert.assertEquals(compositeDataModelExample.modelTemplates[1], {
+          templateKind: 'genericTemplate',
+          templateModelSymbolKey: 'GenericTemplateModel__EXAMPLE',
+          genericArguments: {
+            BasicParameter__EXAMPLE: {
+              argumentIndex: 0,
+              argumentParameterSymbolKey: 'BasicParameter__EXAMPLE',
+              argumentElement: {
                 elementKind: 'booleanPrimitive',
               },
             },
-            interfaceProperty_EXAMPLE: {
-              propertyKey: 'interfaceProperty_EXAMPLE',
-              propertyElement: {
-                elementKind: 'dataModel',
-                dataModelSymbolKey: 'PropertyDataModel_EXAMPLE',
-              },
-            },
-          },
-        },
-        PropertyDataModel_EXAMPLE: {
-          modelKind: 'data',
-          modelSymbolKey: 'PropertyDataModel_EXAMPLE',
-          modelTemplates: [],
-          modelProperties: {
-            fooProperty: {
-              propertyKey: 'fooProperty',
-              propertyElement: {
-                elementKind: 'stringPrimitive',
-              },
-            },
-          },
-        },
-        CompositeDataModel_EXAMPLE: {
-          modelKind: 'data',
-          modelSymbolKey: 'CompositeDataModel_EXAMPLE',
-          modelTemplates: [
-            {
-              templateKind: 'concreteTemplate',
-              templateModelSymbolKey: 'ConcreteTemplateModel_EXAMPLE',
-            },
-            {
-              templateKind: 'genericTemplate',
-              templateModelSymbolKey: 'GenericTemplateModel_EXAMPLE',
-              genericArguments: {
-                'BasicParameter_EXAMPLE': {
-                  argumentIndex: 0,
-                  argumentParameterSymbolKey: 'BasicParameter_EXAMPLE',
-                  argumentElement: {
-                    elementKind: 'dataModel',
-                    dataModelSymbolKey: 'PropertyDataModel_EXAMPLE',
-                  },
-                },
-                'ConstrainedParameter_EXAMPLE': {
-                  argumentIndex: 1,
-                  argumentParameterSymbolKey: 'ConstrainedParameter_EXAMPLE',
-                  argumentElement: {
-                    elementKind: 'numberLiteral',
-                    literalSymbol: '7',
-                  },
-                },
-                'DefaultParameter_EXAMPLE': {
-                  argumentIndex: 2,
-                  argumentParameterSymbolKey: 'DefaultParameter_EXAMPLE',
-                  argumentElement: {
-                    elementKind: 'stringPrimitive',
-                  },
-                },
-              },
-            },
-          ],
-          modelProperties: {
-            bazProperty: {
-              propertyKey: 'bazProperty',
-              propertyElement: {
+            ConstrainedParameter__EXAMPLE: {
+              argumentIndex: 1,
+              argumentParameterSymbolKey: 'ConstrainedParameter__EXAMPLE',
+              argumentElement: {
                 elementKind: 'numberPrimitive',
               },
             },
-          },
-        },
-      },
-      concreteTemplate: {
-        ConcreteTemplateModel_EXAMPLE: {
-          modelKind: 'concreteTemplate',
-          modelSymbolKey: 'ConcreteTemplateModel_EXAMPLE',
-          modelTemplates: [],
-          modelProperties: {
-            tazProperty: {
-              propertyKey: 'tazProperty',
-              propertyElement: {
+            DefaultParameter__EXAMPLE: {
+              argumentIndex: 2,
+              argumentParameterSymbolKey: 'DefaultParameter__EXAMPLE',
+              argumentElement: {
                 elementKind: 'stringPrimitive',
               },
             },
           },
-        },
-      },
-      genericTemplate: {
-        GenericTemplateModel_EXAMPLE: {
-          modelKind: 'genericTemplate',
-          modelSymbolKey: 'GenericTemplateModel_EXAMPLE',
-          genericParameters: [
-            { parameterSymbol: 'BasicParameter_EXAMPLE' },
-            { parameterSymbol: 'ConstrainedParameter_EXAMPLE' },
-            { parameterSymbol: 'DefaultParameter_EXAMPLE' },
-          ],
-          modelTemplates: [
-            {
-              templateKind: 'genericTemplate',
-              templateModelSymbolKey: 'NestedGenericTemplateModel_EXAMPLE',
-              genericArguments: {
-                GenericParameter_EXAMPLE: {
-                  argumentIndex: 0,
-                  argumentParameterSymbolKey: 'GenericParameter_EXAMPLE',
-                  argumentElement: {
-                    elementKind: 'basicParameter',
-                    parameterSymbol: 'BasicParameter_EXAMPLE',
-                  },
-                },
-              },
-            },
-          ],
-          modelProperties: {
-            basicParameterProperty_EXAMPLE: {
-              propertyKey: 'basicParameterProperty_EXAMPLE',
-              propertyElement: {
-                elementKind: 'basicParameter',
-                parameterSymbol: 'BasicParameter_EXAMPLE',
-              },
-            },
-            constrainedParameterProperty_EXAMPLE: {
-              propertyKey: 'constrainedParameterProperty_EXAMPLE',
-              propertyElement: {
-                elementKind: 'constrainedParameter',
-                parameterSymbol: 'ConstrainedParameter_EXAMPLE',
-              },
-            },
-            defaultParameterProperty_EXAMPLE: {
-              propertyKey: 'defaultParameterProperty_EXAMPLE',
-              propertyElement: {
-                elementKind: 'basicParameter',
-                parameterSymbol: 'DefaultParameter_EXAMPLE',
-              },
-            },
+        });
+      });
+    });
+    await testContextBbb.step('model elements', async (testContextCcc) => {
+      const basicDataModelExample = intermediateSchemaExample
+        .schemaMap.data['BasicDataModel__EXAMPLE']!;
+      await testContextCcc.step('string primitive', () => {
+        Assert.assertEquals(
+          basicDataModelExample.modelProperties['stringProperty__EXAMPLE']
+            ?.propertyElement,
+          {
+            elementKind: 'stringPrimitive',
           },
-        },
-        NestedGenericTemplateModel_EXAMPLE: {
-          modelKind: 'genericTemplate',
-          modelSymbolKey: 'NestedGenericTemplateModel_EXAMPLE',
-          modelTemplates: [],
-          genericParameters: [{
-            parameterSymbol: 'GenericParameter_EXAMPLE',
-          }],
-          modelProperties: {
-            genericParameterProperty_EXAMPLE: {
-              propertyKey: 'genericParameterProperty_EXAMPLE',
-              propertyElement: {
-                elementKind: 'basicParameter',
-                parameterSymbol: 'GenericParameter_EXAMPLE',
-              },
-            },
+        );
+      });
+      await testContextCcc.step('number primitive', () => {
+        Assert.assertEquals(
+          basicDataModelExample.modelProperties['numberProperty__EXAMPLE']
+            ?.propertyElement,
+          {
+            elementKind: 'numberPrimitive',
           },
-        },
-      },
-    },
+        );
+      });
+      await testContextCcc.step('boolean primitive', () => {
+        Assert.assertEquals(
+          basicDataModelExample.modelProperties['booleanProperty__EXAMPLE']
+            ?.propertyElement,
+          {
+            elementKind: 'booleanPrimitive',
+          },
+        );
+      });
+      await testContextCcc.step('string literal', () => {
+        Assert.assertEquals(
+          basicDataModelExample
+            .modelProperties['stringLiteralProperty__EXAMPLE']
+            ?.propertyElement,
+          {
+            elementKind: 'stringLiteral',
+            literalSymbol: '"foo"',
+          },
+        );
+      });
+      await testContextCcc.step('number literal', () => {
+        Assert.assertEquals(
+          basicDataModelExample
+            .modelProperties['numberLiteralProperty__EXAMPLE']
+            ?.propertyElement,
+          {
+            elementKind: 'numberLiteral',
+            literalSymbol: '7',
+          },
+        );
+      });
+      await testContextCcc.step('boolean literal', () => {
+        Assert.assertEquals(
+          basicDataModelExample
+            .modelProperties['booleanLiteralProperty__EXAMPLE']
+            ?.propertyElement,
+          {
+            elementKind: 'booleanLiteral',
+            literalSymbol: 'true',
+          },
+        );
+      });
+      await testContextCcc.step('data model', () => {
+        Assert.assertEquals(
+          basicDataModelExample.modelProperties['dataModelProperty__EXAMPLE']
+            ?.propertyElement,
+          {
+            elementKind: 'dataModel',
+            dataModelSymbolKey: 'CompositeDataModel__EXAMPLE',
+          },
+        );
+      });
+      await testContextCcc.step('basic parameter', () => {
+        Assert.assertEquals(
+          genericTemplateModelExample
+            .modelProperties['basicParameterProperty__EXAMPLE']
+            ?.propertyElement,
+          {
+            elementKind: 'basicParameter',
+            parameterSymbol: 'BasicParameter__EXAMPLE',
+          },
+        );
+      });
+      await testContextCcc.step('constrained parameter', () => {
+        Assert.assertEquals(
+          genericTemplateModelExample
+            .modelProperties['constrainedParameterProperty__EXAMPLE']
+            ?.propertyElement,
+          {
+            elementKind: 'constrainedParameter',
+            parameterSymbol: 'ConstrainedParameter__EXAMPLE',
+          },
+        );
+      });
+    });
   });
 });

@@ -13,7 +13,7 @@ Deno.test({ name: 'resolveInitialRecordSchema' }, async (testContext) => {
   const resolvedRecordModel = resolveRecordSchema.schemaMap['BasicDataModel']!;
   const inputSolidifiedModel = inputSolidifiedSchema
     .schemaMap['BasicDataModel']!;
-  await testContext.step('input model data applied', () => {
+  await testContext.step('input model data copied', () => {
     Assert.assertEquals(
       resolvedRecordModel.modelSymbolKey,
       inputSolidifiedModel.modelSymbolKey,
