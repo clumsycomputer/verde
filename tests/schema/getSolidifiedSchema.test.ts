@@ -1,8 +1,8 @@
-import { resolveSolidifiedSchema } from '../../source/library/module.ts';
+import { getSolidifiedSchema } from '../../source/library/module.ts';
 import { Assert } from '../imports/Assert.ts';
 
-Deno.test({ name: 'resolveSolidifiedSchema' }, async (testContext) => {
-  const resolvedSolidifiedSchema = resolveSolidifiedSchema({
+Deno.test({ name: 'getSolidifiedSchema' }, async (testContext) => {
+  const resolvedSolidifiedSchema = getSolidifiedSchema({
     intermediateSchema: {
       schemaSymbol: 'CompositeDataModelSchema__EXAMPLE',
       schemaMap: {

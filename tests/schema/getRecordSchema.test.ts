@@ -1,13 +1,13 @@
 import {
-  resolveInitialRecordSchema,
-  resolveNextRecordSchema,
+  getInitialRecordSchema,
+  getNextRecordSchema,
   SolidifiedSchema,
 } from '../../source/library/module.ts';
 import { Assert } from '../imports/Assert.ts';
 
-Deno.test({ name: 'resolveInitialRecordSchema' }, async (testContext) => {
+Deno.test({ name: 'getInitialRecordSchema' }, async (testContext) => {
   const inputSolidifiedSchema = getInitialSolidifiedSchema();
-  const resolveRecordSchema = resolveInitialRecordSchema({
+  const resolveRecordSchema = getInitialRecordSchema({
     solidifiedSchema: inputSolidifiedSchema,
   });
   const resolvedRecordModel = resolveRecordSchema.schemaMap['BasicDataModel']!;
@@ -26,16 +26,18 @@ Deno.test({ name: 'resolveInitialRecordSchema' }, async (testContext) => {
   await testContext.step('model encoding', async (subTestContext) => {
     await subTestContext.step('all properties sorted and entered', () => {
       Assert.assertEquals(
-        resolvedRecordModel.modelEncoding,
+        resolvedRecordModel.modelRecordEncoding,
         [
+          { encodingMetadataKey: '__id' },
+          { encodingMetadataKey: '__modelSymbolKey' },
           {
-            entryPropertyKey: 'aaaProperty_EXAMPLE',
+            encodingPropertyKey: 'aaaProperty_EXAMPLE',
           },
           {
-            entryPropertyKey: 'bbbProperty_EXAMPLE',
+            encodingPropertyKey: 'bbbProperty_EXAMPLE',
           },
           {
-            entryPropertyKey: 'cccProperty_EXAMPLE',
+            encodingPropertyKey: 'cccProperty_EXAMPLE',
           },
         ],
       );
@@ -43,9 +45,9 @@ Deno.test({ name: 'resolveInitialRecordSchema' }, async (testContext) => {
   });
 });
 
-Deno.test({ name: 'resolveNextRecordSchema' }, async (testContext) => {
-  const updatedRecordSchema = resolveNextRecordSchema({
-    staleRecordSchema: resolveInitialRecordSchema({
+Deno.test({ name: 'getNextRecordSchema' }, async (testContext) => {
+  const updatedRecordSchema = getNextRecordSchema({
+    staleRecordSchema: getInitialRecordSchema({
       solidifiedSchema: getInitialSolidifiedSchema(),
     }),
     solidifiedSchema: getUpdatedSolidifiedSchema(),
@@ -55,27 +57,35 @@ Deno.test({ name: 'resolveNextRecordSchema' }, async (testContext) => {
     await subTestContext.step(
       'remaining pre-existing properties prepended',
       () => {
-        Assert.assertEquals(updatedRecordModel.modelEncoding.slice(0, 2), [
-          {
-            entryPropertyKey: 'bbbProperty_EXAMPLE',
-          },
-          {
-            entryPropertyKey: 'cccProperty_EXAMPLE',
-          },
-        ]);
+        Assert.assertEquals(
+          updatedRecordModel.modelRecordEncoding.slice(0, 4),
+          [
+            { encodingMetadataKey: '__id' },
+            { encodingMetadataKey: '__modelSymbolKey' },
+            {
+              encodingPropertyKey: 'bbbProperty_EXAMPLE',
+            },
+            {
+              encodingPropertyKey: 'cccProperty_EXAMPLE',
+            },
+          ],
+        );
       },
     );
     await subTestContext.step(
       'new properties sorted and appended',
       () => {
-        Assert.assertEquals(updatedRecordModel.modelEncoding.slice(2, 4), [
-          {
-            entryPropertyKey: 'aaaUpdatedProperty_EXAMPLE',
-          },
-          {
-            entryPropertyKey: 'dddProperty_EXAMPLE',
-          },
-        ]);
+        Assert.assertEquals(
+          updatedRecordModel.modelRecordEncoding.slice(4, 6),
+          [
+            {
+              encodingPropertyKey: 'aaaUpdatedProperty_EXAMPLE',
+            },
+            {
+              encodingPropertyKey: 'dddProperty_EXAMPLE',
+            },
+          ],
+        );
       },
     );
   });

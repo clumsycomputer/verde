@@ -11,12 +11,12 @@ import {
   SolidifiedSchema,
 } from '../types/SolidfiedSchema.ts';
 
-export interface ResolveSolidifiedSchemaApi {
+export interface GetSolidifiedSchemaApi {
   intermediateSchema: IntermediateSchema;
 }
 
-export function resolveSolidifiedSchema(
-  api: ResolveSolidifiedSchemaApi,
+export function getSolidifiedSchema(
+  api: GetSolidifiedSchemaApi,
 ): SolidifiedSchema {
   const { intermediateSchema } = api;
   return {
@@ -38,7 +38,7 @@ export function resolveSolidifiedSchema(
 }
 
 interface ResolveModelPropertiesApi
-  extends Pick<ResolveSolidifiedSchemaApi, 'intermediateSchema'> {
+  extends Pick<GetSolidifiedSchemaApi, 'intermediateSchema'> {
   someIntermediateModel: GetThisIntermediateModel<
     keyof IntermediateSchema['schemaMap']
   >;

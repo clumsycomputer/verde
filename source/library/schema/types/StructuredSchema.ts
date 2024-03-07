@@ -70,3 +70,13 @@ interface PrimitiveModelElementBase<ThisElementKind>
 export interface ModelElementBase<ElementKind> {
   elementKind: ElementKind;
 }
+
+export type SchemaRecord<ThisRecordProperties extends Record<string, any>> =
+  & {
+    __id: number;
+    __modelSymbolKey: string;
+  }
+  & {
+    [SomePropertyKey in keyof ThisRecordProperties]:
+      ThisRecordProperties[SomePropertyKey];
+  };
