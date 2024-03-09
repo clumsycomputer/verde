@@ -1,77 +1,106 @@
-import {
-  throwInvalidPathError,
-  throwUserError,
-} from '../../helpers/throwError.ts';
-import {
-  IdentifierEncoding,
-  PropertyEncoding,
-  RecordModel,
-  RecordSchema,
-} from '../schema/types/RecordSchema.ts';
-import { SchemaRecord } from '../schema/types/StructuredSchema.ts';
+import { throwInvalidPathError } from '../../helpers/throwError.ts';
+import { RecordSchema } from '../schema/types/RecordSchema.ts';
 
-export interface GetEncodedRecordApi {
-  recordModel: RecordModel;
-  recordData: SchemaRecord<Record<string, unknown>>;
+interface EncodedRecord {
+  [propertyKey: string]: Uint8Array | EncodedRecord;
 }
 
-export function getEncodedRecord(api: GetEncodedRecordApi) {
-  const { recordModel, recordData } = api;
-  const [identifierEncoding, modelSymbolKeyEncoding, ...propertiesEncoding] =
-    recordModel.modelRecordEncoding;
-  return propertiesEncoding.reduce<Array<number>>(
-    (encodedRecordResult, somePropertyEncoding) => [
-      ...encodedRecordResult,
-      ...getEncodedProperty({
-        recordModel,
+export interface GetEncodedRecordApi {
+  recordSchema: RecordSchema;
+  recordData: Record<string, unknown>;
+}
+
+export function getEncodedRecord(
+  api: GetEncodedRecordApi,
+): EncodedRecord {
+  const { recordData, recordSchema } = api;
+  const recordModel =
+    recordSchema.schemaMap[recordData['__modelSymbolKey'] as any as string] ??
+      throwInvalidPathError('recordModel');
+  return Object.values(recordModel.modelProperties).reduce<EncodedRecord>(
+    (encodedRecordResult, someModelProperty) => {
+      encodedRecordResult[someModelProperty.propertyKey] = getEncodedProperty({
         recordData,
-        somePropertyEncoding,
+        recordSchema,
+        modelProperty: someModelProperty,
+      });
+      return encodedRecordResult;
+    },
+    {
+      __modelSymbolKey: new Uint8Array(0),
+      __id: getEncodedNumber({
+        numberData: recordData['__id'] as any as number,
       }),
-    ],
-    [
-      ...getEncodedIdentifier({
-        recordData,
-        identifierEncoding,
-      }),
-    ],
+    },
   );
 }
 
 interface GetEncodedPropertyApi
-  extends Pick<GetEncodedRecordApi, 'recordModel' | 'recordData'> {
-  somePropertyEncoding: PropertyEncoding;
+  extends Pick<GetEncodedRecordApi, 'recordData' | 'recordSchema'> {
+  modelProperty:
+    this['recordSchema']['schemaMap'][string]['modelProperties'][string];
 }
 
-function getEncodedProperty(api: GetEncodedPropertyApi): Array<number> {
-  const { recordModel, somePropertyEncoding, recordData } = api;
-  const modelProperty =
-    recordModel.modelProperties[somePropertyEncoding.encodingPropertyKey] ??
-      throwInvalidPathError('modelProperty');
-  const recordProperty = recordData[somePropertyEncoding.encodingPropertyKey];
-  if (undefined === recordProperty) {
-    throwUserError(
-      `invalid record data: recordData["${somePropertyEncoding.encodingPropertyKey}"] is undefined`,
-    );
+function getEncodedProperty(
+  api: GetEncodedPropertyApi,
+): EncodedRecord[string] {
+  const { modelProperty, recordData, recordSchema } = api;
+  const propertyData = recordData[modelProperty.propertyKey];
+  if (
+    modelProperty.propertyElement.elementKind === 'booleanLiteral' ||
+    modelProperty.propertyElement.elementKind === 'numberLiteral' ||
+    modelProperty.propertyElement.elementKind === 'stringLiteral'
+  ) {
+    return new Uint8Array(0);
+  } else if (modelProperty.propertyElement.elementKind === 'booleanPrimitive') {
+    return getEncodedBoolean({
+      booleanData: propertyData as any as boolean,
+    });
+  } else if (modelProperty.propertyElement.elementKind === 'numberPrimitive') {
+    return getEncodedNumber({
+      numberData: propertyData as any as number,
+    });
+  } else if (modelProperty.propertyElement.elementKind === 'stringPrimitive') {
+    return getEncodedString({
+      stringData: propertyData as any as string,
+    });
+  } else if (modelProperty.propertyElement.elementKind === 'dataModel') {
+    return getEncodedRecord({
+      recordSchema,
+      recordData: propertyData as any as Record<string, unknown>,
+    });
+  } else {
+    throwInvalidPathError('modelProperty.elementKind');
   }
-  return [todo];
 }
 
-interface GetEncodedIdentifierApi extends Pick<GetEncodedRecordApi, 'recordData'> {
-  identifierEncoding: IdentifierEncoding;
+interface GetEncodedBooleanApi {
+  booleanData: boolean;
 }
 
-function getEncodedIdentifier(api: GetEncodedIdentifierApi) {
-  const { recordData, identifierEncoding } = api;
-  const encodedIdentifierResult = new Uint8Array(8);
-  new DataView(encodedIdentifierResult.buffer).setFloat64(
-    0,
-    recordData[identifierEncoding.encodingMetadataKey],
-  );
-  return encodedIdentifierResult;
+function getEncodedBoolean(api: GetEncodedBooleanApi) {
+  const { booleanData } = api;
+  const encodedBooleanResult = new Uint8Array(1);
+  encodedBooleanResult[0] = booleanData === true ? 0x01 : 0x00;
+  return encodedBooleanResult;
 }
 
-// interface CreateRecordIdApi {}
+interface GetEncodedNumberApi {
+  numberData: number;
+}
 
-// function createRecordId(api: CreateRecordIdApi) {
-//   return crypto.getRandomValues(new Uint8Array(8));
-// }
+function getEncodedNumber(api: GetEncodedNumberApi) {
+  const { numberData } = api;
+  const encodedNumberResult = new Uint8Array(8);
+  new DataView(encodedNumberResult.buffer).setFloat64(0, numberData);
+  return encodedNumberResult;
+}
+
+interface GetEncodedStringApi {
+  stringData: string;
+}
+
+function getEncodedString(api: GetEncodedStringApi) {
+  const { stringData } = api;
+  return new TextEncoder().encode(stringData);
+}

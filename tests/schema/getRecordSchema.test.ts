@@ -6,38 +6,38 @@ import {
 import { Assert } from '../imports/Assert.ts';
 
 Deno.test({ name: 'getInitialRecordSchema' }, async (testContext) => {
-  const inputSolidifiedSchema = getInitialSolidifiedSchema();
-  const resolveRecordSchema = getInitialRecordSchema({
-    solidifiedSchema: inputSolidifiedSchema,
+  const solidifiedSchemaAaa = getSolidifiedSchemaAaa();
+  const recordSchemaAaa = getInitialRecordSchema({
+    solidifiedSchema: solidifiedSchemaAaa,
   });
-  const resolvedRecordModel = resolveRecordSchema.schemaMap['BasicDataModel']!;
-  const inputSolidifiedModel = inputSolidifiedSchema
+  const recordModelAaa = recordSchemaAaa.schemaMap['BasicDataModel']!;
+  const solidifiedModelAaa = solidifiedSchemaAaa
     .schemaMap['BasicDataModel']!;
   await testContext.step('input model data copied', () => {
     Assert.assertEquals(
-      resolvedRecordModel.modelSymbolKey,
-      inputSolidifiedModel.modelSymbolKey,
+      solidifiedModelAaa.modelSymbolKey,
+      recordModelAaa.modelSymbolKey,
     );
     Assert.assertEquals(
-      resolvedRecordModel.modelProperties,
-      inputSolidifiedModel.modelProperties,
+      solidifiedModelAaa.modelProperties,
+      recordModelAaa.modelProperties,
     );
   });
   await testContext.step('model encoding', async (subTestContext) => {
-    await subTestContext.step('all properties sorted and entered', () => {
+    await subTestContext.step('metadata prepended and all model properties included in sorted order', () => {
       Assert.assertEquals(
-        resolvedRecordModel.modelRecordEncoding,
+        recordModelAaa.modelRecordEncoding,
         [
           { encodingMetadataKey: '__id' },
           { encodingMetadataKey: '__modelSymbolKey' },
           {
-            encodingPropertyKey: 'aaaProperty_EXAMPLE',
+            encodingPropertyKey: 'aaaProperty__EXAMPLE',
           },
           {
-            encodingPropertyKey: 'bbbProperty_EXAMPLE',
+            encodingPropertyKey: 'bbbProperty__EXAMPLE',
           },
           {
-            encodingPropertyKey: 'cccProperty_EXAMPLE',
+            encodingPropertyKey: 'cccProperty__EXAMPLE',
           },
         ],
       );
@@ -46,72 +46,100 @@ Deno.test({ name: 'getInitialRecordSchema' }, async (testContext) => {
 });
 
 Deno.test({ name: 'getNextRecordSchema' }, async (testContext) => {
-  const updatedRecordSchema = getNextRecordSchema({
+  const recordSchemaBbb = getNextRecordSchema({
     staleRecordSchema: getInitialRecordSchema({
-      solidifiedSchema: getInitialSolidifiedSchema(),
+      solidifiedSchema: getSolidifiedSchemaAaa(),
     }),
-    solidifiedSchema: getUpdatedSolidifiedSchema(),
+    solidifiedSchema: getSolidifiedSchemaBbb(),
   });
-  const updatedRecordModel = updatedRecordSchema.schemaMap['BasicDataModel']!;
-  await testContext.step('model encoding', async (subTestContext) => {
+  const recordModelBbb = recordSchemaBbb.schemaMap['BasicDataModel']!;
+  await testContext.step('updated model properties', async (subTestContext) => {
     await subTestContext.step(
-      'remaining pre-existing properties prepended',
+      'remaining unchanged encodings prepended in same order',
       () => {
         Assert.assertEquals(
-          updatedRecordModel.modelRecordEncoding.slice(0, 4),
+          recordModelBbb.modelRecordEncoding.slice(0, 3),
           [
             { encodingMetadataKey: '__id' },
             { encodingMetadataKey: '__modelSymbolKey' },
             {
-              encodingPropertyKey: 'bbbProperty_EXAMPLE',
-            },
-            {
-              encodingPropertyKey: 'cccProperty_EXAMPLE',
+              encodingPropertyKey: 'cccProperty__EXAMPLE',
             },
           ],
         );
       },
     );
     await subTestContext.step(
-      'new properties sorted and appended',
+      'renamed / retyped / new properties sorted and appended',
       () => {
         Assert.assertEquals(
-          updatedRecordModel.modelRecordEncoding.slice(4, 6),
+          recordModelBbb.modelRecordEncoding.slice(3, 6),
           [
             {
-              encodingPropertyKey: 'aaaUpdatedProperty_EXAMPLE',
+              encodingPropertyKey: 'aaaUpdatedProperty__EXAMPLE',
             },
             {
-              encodingPropertyKey: 'dddProperty_EXAMPLE',
+              encodingPropertyKey: 'bbbProperty__EXAMPLE'
+            },
+            {
+              encodingPropertyKey: 'dddProperty__EXAMPLE',
             },
           ],
         );
       },
     );
   });
+  await testContext.step('renamed model (deleted model + new model)', async (subTestContext) => {
+    const recordSchemaCcc = getNextRecordSchema({
+      staleRecordSchema: recordSchemaBbb,
+      solidifiedSchema: getSolidifiedSchemaCcc(),
+    });
+    const recordModelCcc = recordSchemaCcc.schemaMap['RenamedBasicDataModel']!;
+    await subTestContext.step("metadata prepended and all model properties included in sorted order", () => {
+      Assert.assertEquals(
+        recordModelCcc.modelRecordEncoding,
+        [
+          { encodingMetadataKey: '__id' },
+          { encodingMetadataKey: '__modelSymbolKey' },
+          {
+            encodingPropertyKey: 'aaaUpdatedProperty__EXAMPLE',
+          },
+          {
+            encodingPropertyKey: 'bbbProperty__EXAMPLE',
+          },
+          {
+            encodingPropertyKey: 'cccProperty__EXAMPLE',
+          },
+          {
+            encodingPropertyKey: 'dddProperty__EXAMPLE'
+          }
+        ],
+      );
+    })
+  })
 });
 
-function getInitialSolidifiedSchema(): SolidifiedSchema {
+function getSolidifiedSchemaAaa(): SolidifiedSchema {
   return {
     schemaSymbol: 'BasicSchema__EXAMPLE',
     schemaMap: {
       BasicDataModel: {
         modelSymbolKey: 'BasicDataModel',
         modelProperties: {
-          aaaProperty_EXAMPLE: {
-            propertyKey: 'aaaProperty_EXAMPLE',
+          aaaProperty__EXAMPLE: {
+            propertyKey: 'aaaProperty__EXAMPLE',
             propertyElement: {
               elementKind: 'booleanPrimitive',
             },
           },
-          bbbProperty_EXAMPLE: {
-            propertyKey: 'bbbProperty_EXAMPLE',
+          bbbProperty__EXAMPLE: {
+            propertyKey: 'bbbProperty__EXAMPLE',
             propertyElement: {
               elementKind: 'booleanPrimitive',
             },
           },
-          cccProperty_EXAMPLE: {
-            propertyKey: 'cccProperty_EXAMPLE',
+          cccProperty__EXAMPLE: {
+            propertyKey: 'cccProperty__EXAMPLE',
             propertyElement: {
               elementKind: 'booleanPrimitive',
             },
@@ -122,33 +150,70 @@ function getInitialSolidifiedSchema(): SolidifiedSchema {
   };
 }
 
-function getUpdatedSolidifiedSchema(): SolidifiedSchema {
+function getSolidifiedSchemaBbb(): SolidifiedSchema {
   return {
     schemaSymbol: 'BasicSchema__EXAMPLE',
     schemaMap: {
       BasicDataModel: {
         modelSymbolKey: 'BasicDataModel',
         modelProperties: {
-          bbbProperty_EXAMPLE: {
-            propertyKey: 'bbbProperty_EXAMPLE',
+          bbbProperty__EXAMPLE: {
+            propertyKey: 'bbbProperty__EXAMPLE',
+            propertyElement: {
+              elementKind: 'stringPrimitive',
+            },
+          },
+          cccProperty__EXAMPLE: {
+            propertyKey: 'cccProperty__EXAMPLE',
             propertyElement: {
               elementKind: 'booleanPrimitive',
             },
           },
-          cccProperty_EXAMPLE: {
-            propertyKey: 'cccProperty_EXAMPLE',
+          aaaUpdatedProperty__EXAMPLE: {
+            propertyKey: 'aaaUpdatedProperty__EXAMPLE',
             propertyElement: {
               elementKind: 'booleanPrimitive',
             },
           },
-          aaaUpdatedProperty_EXAMPLE: {
-            propertyKey: 'aaaUpdatedProperty_EXAMPLE',
+          dddProperty__EXAMPLE: {
+            propertyKey: 'dddProperty__EXAMPLE',
             propertyElement: {
               elementKind: 'booleanPrimitive',
             },
           },
-          dddProperty_EXAMPLE: {
-            propertyKey: 'dddProperty_EXAMPLE',
+        },
+      },
+    },
+  };
+}
+
+function getSolidifiedSchemaCcc(): SolidifiedSchema {
+  return {
+    schemaSymbol: 'BasicSchema__EXAMPLE',
+    schemaMap: {
+      RenamedBasicDataModel: {
+        modelSymbolKey: 'RenamedBasicDataModel',
+        modelProperties: {
+          bbbProperty__EXAMPLE: {
+            propertyKey: 'bbbProperty__EXAMPLE',
+            propertyElement: {
+              elementKind: 'booleanPrimitive',
+            },
+          },
+          cccProperty__EXAMPLE: {
+            propertyKey: 'cccProperty__EXAMPLE',
+            propertyElement: {
+              elementKind: 'booleanPrimitive',
+            },
+          },
+          aaaUpdatedProperty__EXAMPLE: {
+            propertyKey: 'aaaUpdatedProperty__EXAMPLE',
+            propertyElement: {
+              elementKind: 'booleanPrimitive',
+            },
+          },
+          dddProperty__EXAMPLE: {
+            propertyKey: 'dddProperty__EXAMPLE',
             propertyElement: {
               elementKind: 'booleanPrimitive',
             },

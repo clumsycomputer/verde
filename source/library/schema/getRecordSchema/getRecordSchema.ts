@@ -1,3 +1,4 @@
+import { throwInvalidPathError } from '../../../helpers/throwError.ts';
 import { RecordModel, RecordSchema } from '../types/RecordSchema.ts';
 import { SolidifiedSchema } from '../types/SolidfiedSchema.ts';
 
@@ -85,22 +86,45 @@ function getNextModelRecordEncoding(
     modelSymbolKeyEncoding,
     ...stalePropertiesEncoding
   ] = staleRecordModel.modelRecordEncoding;
+  const propertyStatusMap = Object.values(
+    someSolidifiedModel.modelProperties,
+  ).reduce<
+    Record<string, 'newOrRenamed' | 'retyped' | 'unchanged'>
+  >((
+    statusMapResult,
+    someNextProperty,
+  ) => {
+    const staleModelProperty =
+      staleRecordModel.modelProperties[someNextProperty.propertyKey];
+    if (staleModelProperty === undefined) {
+      statusMapResult[someNextProperty.propertyKey] = 'newOrRenamed';
+    } else if (
+      staleModelProperty.propertyElement.elementKind !==
+        someNextProperty.propertyElement.elementKind
+    ) {
+      statusMapResult[someNextProperty.propertyKey] = 'retyped';
+    } else if (
+      staleModelProperty.propertyElement.elementKind ===
+        someNextProperty.propertyElement.elementKind
+    ) {
+      statusMapResult[someNextProperty.propertyKey] = 'unchanged';
+    } else {
+      throwInvalidPathError('newOrUpdatedPropertyKeys');
+    }
+    return statusMapResult;
+  }, {});
   return [
     identifierEncoding,
     modelSymbolKeyEncoding,
     ...stalePropertiesEncoding.filter((someStalePropertyEncoding) =>
-      someSolidifiedModel
-        .modelProperties[someStalePropertyEncoding.encodingPropertyKey] !==
-        undefined
+      propertyStatusMap[someStalePropertyEncoding.encodingPropertyKey] ===
+        'unchanged'
     ),
-    ...Object.keys(someSolidifiedModel.modelProperties).filter((
-      someNextPropertyKey,
-    ) =>
-      undefined ===
-        staleRecordModel.modelProperties[someNextPropertyKey]
-    )
-      .sort().map((someNewPropertyKey) => ({
-        encodingPropertyKey: someNewPropertyKey,
+    ...Object.entries(propertyStatusMap).filter((
+      [somePropertyKey, propertyStatus],
+    ) => propertyStatus === 'newOrRenamed' || propertyStatus === 'retyped')
+      .sort().map(([somePropertyKey]) => ({
+        encodingPropertyKey: somePropertyKey,
       })),
   ];
 }
