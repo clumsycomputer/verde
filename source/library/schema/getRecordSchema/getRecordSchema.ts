@@ -55,8 +55,7 @@ function getModelEncoding__resolveNextRecordSchema(
     });
 }
 
-interface GetInitialModelEncodingApi
-  extends __GetModelEncodingApi {}
+interface GetInitialModelEncodingApi extends __GetModelEncodingApi {}
 
 function getInitialModelEncoding(
   api: GetInitialModelEncodingApi,
@@ -64,11 +63,21 @@ function getInitialModelEncoding(
   const { someSolidifiedModel } = api;
   return [
     { encodingMetadataKey: '__uuid' },
-    ...Object.keys(someSolidifiedModel.modelProperties)
-      .sort()
-      .map((somePropertyKey) => ({
-        encodingPropertyKey: somePropertyKey,
-      })),
+    ...Object.values(someSolidifiedModel.modelProperties).filter((
+      someModelProperty,
+    ) =>
+      (someModelProperty.propertyElement.elementKind === 'booleanLiteral' ||
+        someModelProperty.propertyElement.elementKind === 'numberLiteral' ||
+        someModelProperty.propertyElement.elementKind === 'stringLiteral') ===
+        false
+    )
+      .map((someModelProperty) => ({
+        encodingPropertyKey: someModelProperty.propertyKey,
+      })).sort((propertyEncodingAaa, encodingPropertyBbb) =>
+        propertyEncodingAaa.encodingPropertyKey.localeCompare(
+          encodingPropertyBbb.encodingPropertyKey,
+        )
+      ),
   ];
 }
 
@@ -86,6 +95,11 @@ function getNextModelEncoding(
   ] = staleRecordModel.modelEncoding;
   const propertyStatusMap = Object.values(
     someSolidifiedModel.modelProperties,
+  ).filter((someModelProperty) =>
+    (someModelProperty.propertyElement.elementKind === 'booleanLiteral' ||
+      someModelProperty.propertyElement.elementKind === 'numberLiteral' ||
+      someModelProperty.propertyElement.elementKind === 'stringLiteral') ===
+      false
   ).reduce<
     Record<string, 'newOrRenamed' | 'retyped' | 'unchanged'>
   >((
@@ -120,9 +134,15 @@ function getNextModelEncoding(
     ...Object.entries(propertyStatusMap).filter((
       [somePropertyKey, propertyStatus],
     ) => propertyStatus === 'newOrRenamed' || propertyStatus === 'retyped')
-      .sort().map(([somePropertyKey]) => ({
-        encodingPropertyKey: somePropertyKey,
-      })),
+      .map(
+        ([somePropertyKey]) => ({
+          encodingPropertyKey: somePropertyKey,
+        }),
+      ).sort((propertyEncodingAaa, encodingPropertyBbb) =>
+        propertyEncodingAaa.encodingPropertyKey.localeCompare(
+          encodingPropertyBbb.encodingPropertyKey,
+        )
+      ),
   ];
 }
 

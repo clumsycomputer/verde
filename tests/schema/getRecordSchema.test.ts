@@ -24,14 +24,18 @@ Deno.test({ name: 'getInitialRecordSchema' }, async (testContext) => {
     );
   });
   await testContext.step('model encoding', async (subTestContext) => {
-    await subTestContext.step('metadata prepended and all model properties included in sorted order', () => {
+    await subTestContext.step('metadata prepended', () => {
       Assert.assertEquals(
-        recordModelAaa.modelEncoding,
+        recordModelAaa.modelEncoding.slice(0,1),
         [
           { encodingMetadataKey: '__uuid' },
-          {
-            encodingPropertyKey: 'aaaProperty__EXAMPLE',
-          },
+        ],
+      );
+    });
+    await subTestContext.step('non-literal properties appended in sorted order', () => {
+      Assert.assertEquals(
+        recordModelAaa.modelEncoding.slice(1,3),
+        [
           {
             encodingPropertyKey: 'bbbProperty__EXAMPLE',
           },
@@ -68,7 +72,7 @@ Deno.test({ name: 'getNextRecordSchema' }, async (testContext) => {
       },
     );
     await subTestContext.step(
-      'renamed / retyped / new properties sorted and appended',
+      'renamed / retyped / new non-literal properties appended in sorted order',
       () => {
         Assert.assertEquals(
           recordModelBbb.modelEncoding.slice(2, 5),
@@ -93,14 +97,11 @@ Deno.test({ name: 'getNextRecordSchema' }, async (testContext) => {
       solidifiedSchema: getSolidifiedSchemaCcc(),
     });
     const recordModelCcc = recordSchemaCcc.schemaMap['RenamedBasicDataModel']!;
-    await subTestContext.step("metadata prepended and all model properties included in sorted order", () => {
+    await subTestContext.step("metadata prepended and non-literal properties appended in sorted order", () => {
       Assert.assertEquals(
         recordModelCcc.modelEncoding,
         [
           { encodingMetadataKey: '__uuid' },
-          {
-            encodingPropertyKey: 'aaaUpdatedProperty__EXAMPLE',
-          },
           {
             encodingPropertyKey: 'bbbProperty__EXAMPLE',
           },
@@ -126,7 +127,8 @@ function getSolidifiedSchemaAaa(): SolidifiedSchema {
           aaaProperty__EXAMPLE: {
             propertyKey: 'aaaProperty__EXAMPLE',
             propertyElement: {
-              elementKind: 'booleanPrimitive',
+              elementKind: 'booleanLiteral',
+              literalSymbol: 'true'
             },
           },
           bbbProperty__EXAMPLE: {
@@ -206,7 +208,8 @@ function getSolidifiedSchemaCcc(): SolidifiedSchema {
           aaaUpdatedProperty__EXAMPLE: {
             propertyKey: 'aaaUpdatedProperty__EXAMPLE',
             propertyElement: {
-              elementKind: 'booleanPrimitive',
+              elementKind: 'booleanLiteral',
+              literalSymbol: 'true'
             },
           },
           dddProperty__EXAMPLE: {
