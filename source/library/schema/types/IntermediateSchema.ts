@@ -20,13 +20,13 @@ export interface IntermediateSchema
 }
 
 interface IntermediateSchemaMap {
-  data: Record<DataIntermediateModel['modelSymbolKey'], DataIntermediateModel>;
+  data: Record<DataIntermediateModel['modelSymbol'], DataIntermediateModel>;
   concreteTemplate: Record<
-    ConcreteTemplateIntermediateModel['modelSymbolKey'],
+    ConcreteTemplateIntermediateModel['modelSymbol'],
     ConcreteTemplateIntermediateModel
   >;
   genericTemplate: Record<
-    GenericTemplateIntermediateModel['modelSymbolKey'],
+    GenericTemplateIntermediateModel['modelSymbol'],
     GenericTemplateIntermediateModel
   >;
 }
@@ -94,7 +94,7 @@ interface ModelTemplateBase<
   ThisTemplateKind extends TemplateIntermediateModel['modelKind'],
 > {
   templateKind: ThisTemplateKind;
-  templateModelSymbolKey: TemplateIntermediateModel['modelSymbolKey'];
+  templateModelSymbolKey: TemplateIntermediateModel['modelSymbol'];
 }
 
 export type GenericTemplateIntermediateElement =

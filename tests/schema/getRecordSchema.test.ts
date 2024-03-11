@@ -15,8 +15,8 @@ Deno.test({ name: 'getInitialRecordSchema' }, async (testContext) => {
     .schemaMap['BasicDataModel']!;
   await testContext.step('input model data copied', () => {
     Assert.assertEquals(
-      solidifiedModelAaa.modelSymbolKey,
-      recordModelAaa.modelSymbolKey,
+      solidifiedModelAaa.modelSymbol,
+      recordModelAaa.modelSymbol,
     );
     Assert.assertEquals(
       solidifiedModelAaa.modelProperties,
@@ -26,10 +26,9 @@ Deno.test({ name: 'getInitialRecordSchema' }, async (testContext) => {
   await testContext.step('model encoding', async (subTestContext) => {
     await subTestContext.step('metadata prepended and all model properties included in sorted order', () => {
       Assert.assertEquals(
-        recordModelAaa.modelRecordEncoding,
+        recordModelAaa.modelEncoding,
         [
-          { encodingMetadataKey: '__id' },
-          { encodingMetadataKey: '__modelSymbolKey' },
+          { encodingMetadataKey: '__uuid' },
           {
             encodingPropertyKey: 'aaaProperty__EXAMPLE',
           },
@@ -58,10 +57,9 @@ Deno.test({ name: 'getNextRecordSchema' }, async (testContext) => {
       'remaining unchanged encodings prepended in same order',
       () => {
         Assert.assertEquals(
-          recordModelBbb.modelRecordEncoding.slice(0, 3),
+          recordModelBbb.modelEncoding.slice(0, 2),
           [
-            { encodingMetadataKey: '__id' },
-            { encodingMetadataKey: '__modelSymbolKey' },
+            { encodingMetadataKey: '__uuid' },
             {
               encodingPropertyKey: 'cccProperty__EXAMPLE',
             },
@@ -73,7 +71,7 @@ Deno.test({ name: 'getNextRecordSchema' }, async (testContext) => {
       'renamed / retyped / new properties sorted and appended',
       () => {
         Assert.assertEquals(
-          recordModelBbb.modelRecordEncoding.slice(3, 6),
+          recordModelBbb.modelEncoding.slice(2, 5),
           [
             {
               encodingPropertyKey: 'aaaUpdatedProperty__EXAMPLE',
@@ -97,10 +95,9 @@ Deno.test({ name: 'getNextRecordSchema' }, async (testContext) => {
     const recordModelCcc = recordSchemaCcc.schemaMap['RenamedBasicDataModel']!;
     await subTestContext.step("metadata prepended and all model properties included in sorted order", () => {
       Assert.assertEquals(
-        recordModelCcc.modelRecordEncoding,
+        recordModelCcc.modelEncoding,
         [
-          { encodingMetadataKey: '__id' },
-          { encodingMetadataKey: '__modelSymbolKey' },
+          { encodingMetadataKey: '__uuid' },
           {
             encodingPropertyKey: 'aaaUpdatedProperty__EXAMPLE',
           },
@@ -124,7 +121,7 @@ function getSolidifiedSchemaAaa(): SolidifiedSchema {
     schemaSymbol: 'BasicSchema__EXAMPLE',
     schemaMap: {
       BasicDataModel: {
-        modelSymbolKey: 'BasicDataModel',
+        modelSymbol: 'BasicDataModel',
         modelProperties: {
           aaaProperty__EXAMPLE: {
             propertyKey: 'aaaProperty__EXAMPLE',
@@ -155,7 +152,7 @@ function getSolidifiedSchemaBbb(): SolidifiedSchema {
     schemaSymbol: 'BasicSchema__EXAMPLE',
     schemaMap: {
       BasicDataModel: {
-        modelSymbolKey: 'BasicDataModel',
+        modelSymbol: 'BasicDataModel',
         modelProperties: {
           bbbProperty__EXAMPLE: {
             propertyKey: 'bbbProperty__EXAMPLE',
@@ -192,7 +189,7 @@ function getSolidifiedSchemaCcc(): SolidifiedSchema {
     schemaSymbol: 'BasicSchema__EXAMPLE',
     schemaMap: {
       RenamedBasicDataModel: {
-        modelSymbolKey: 'RenamedBasicDataModel',
+        modelSymbol: 'RenamedBasicDataModel',
         modelProperties: {
           bbbProperty__EXAMPLE: {
             propertyKey: 'bbbProperty__EXAMPLE',

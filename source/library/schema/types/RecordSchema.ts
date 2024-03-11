@@ -4,17 +4,16 @@ import { BasicStructuredSchema } from './StructuredSchema.ts';
 export interface RecordSchema extends BasicStructuredSchema<RecordModel> {}
 
 export interface RecordModel extends SolidifiedModel {
-  modelRecordEncoding: [
+  modelEncoding: [
     IdentifierEncoding,
-    ModelSymbolKeyEncoding,
     ...Array<PropertyEncoding>,
   ];
 }
 
-export interface IdentifierEncoding extends __MetadataEncoding<'__id'> {}
+export interface IdentifierEncoding extends __MetadataEncoding<'__uuid'> {}
 
 export interface ModelSymbolKeyEncoding
-  extends __MetadataEncoding<'__modelSymbolKey'> {}
+  extends __MetadataEncoding<'__modelSymbol'> {}
 
 interface __MetadataEncoding<MetadataKey> {
   encodingMetadataKey: MetadataKey;

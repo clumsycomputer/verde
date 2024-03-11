@@ -1,7 +1,10 @@
-import { throwInvalidPathError } from '../../helpers/throwError.ts';
+import {
+  throwInvalidPathError,
+  throwUserError,
+} from '../../helpers/throwError.ts';
 import { RecordSchema } from '../schema/types/RecordSchema.ts';
 
-interface EncodedRecord {
+export interface EncodedRecord {
   [propertyKey: string]: Uint8Array | EncodedRecord;
 }
 
@@ -14,9 +17,13 @@ export function getEncodedRecord(
   api: GetEncodedRecordApi,
 ): EncodedRecord {
   const { recordData, recordSchema } = api;
+  const [recordUuidFirst, recordUuidSecond] =
+    recordData['__uuid'] instanceof Float64Array
+      ? recordData['__uuid']
+      : throwUserError('getEncodedRecord.recordUuid');
   const recordModel =
-    recordSchema.schemaMap[recordData['__modelSymbolKey'] as any as string] ??
-      throwInvalidPathError('recordModel');
+    recordSchema.schemaMap[recordData['__modelSymbol'] as any as string] ??
+      throwUserError('getEncodedRecord.recordModel');
   return Object.values(recordModel.modelProperties).reduce<EncodedRecord>(
     (encodedRecordResult, someModelProperty) => {
       encodedRecordResult[someModelProperty.propertyKey] = getEncodedProperty({
@@ -27,10 +34,15 @@ export function getEncodedRecord(
       return encodedRecordResult;
     },
     {
-      __modelSymbolKey: new Uint8Array(0),
-      __id: getEncodedNumber({
-        numberData: recordData['__id'] as any as number,
-      }),
+      __modelSymbol: new Uint8Array(0),
+      __uuid: new Uint8Array([
+        ...getEncodedNumber({
+          numberData: recordUuidFirst as any as number,
+        }),
+        ...getEncodedNumber({
+          numberData: recordUuidSecond as any as number,
+        }),
+      ]),
     },
   );
 }
@@ -52,19 +64,31 @@ function getEncodedProperty(
     modelProperty.propertyElement.elementKind === 'stringLiteral'
   ) {
     return new Uint8Array(0);
-  } else if (modelProperty.propertyElement.elementKind === 'booleanPrimitive') {
+  } else if (
+    modelProperty.propertyElement.elementKind === 'booleanPrimitive' &&
+    typeof propertyData === 'boolean'
+  ) {
     return getEncodedBoolean({
-      booleanData: propertyData as any as boolean,
+      booleanData: propertyData,
     });
-  } else if (modelProperty.propertyElement.elementKind === 'numberPrimitive') {
+  } else if (
+    modelProperty.propertyElement.elementKind === 'numberPrimitive' &&
+    typeof propertyData === 'number'
+  ) {
     return getEncodedNumber({
-      numberData: propertyData as any as number,
+      numberData: propertyData,
     });
-  } else if (modelProperty.propertyElement.elementKind === 'stringPrimitive') {
+  } else if (
+    modelProperty.propertyElement.elementKind === 'stringPrimitive' &&
+    typeof propertyData === 'string'
+  ) {
     return getEncodedString({
-      stringData: propertyData as any as string,
+      stringData: propertyData,
     });
-  } else if (modelProperty.propertyElement.elementKind === 'dataModel') {
+  } else if (
+    modelProperty.propertyElement.elementKind === 'dataModel' &&
+    typeof propertyData === 'object'
+  ) {
     return getEncodedRecord({
       recordSchema,
       recordData: propertyData as any as Record<string, unknown>,

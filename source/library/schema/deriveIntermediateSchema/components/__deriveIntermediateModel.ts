@@ -53,11 +53,11 @@ function deriveTargetModel__deriveDataModel(
     Typescript.InterfaceType
   >,
 ) {
-  const { targetModelKind, modelSymbolKey, modelTemplates, modelProperties } =
+  const { targetModelKind, modelSymbol, modelTemplates, modelProperties } =
     api;
   return {
     modelKind: targetModelKind,
-    modelSymbolKey,
+    modelSymbol,
     modelTemplates,
     modelProperties,
   };
@@ -93,11 +93,11 @@ function deriveResultModel__deriveConcreteTemplateModel(
     Typescript.InterfaceType
   >,
 ) {
-  const { targetModelKind, modelSymbolKey, modelTemplates, modelProperties } =
+  const { targetModelKind, modelSymbol, modelTemplates, modelProperties } =
     api;
   return {
     modelKind: targetModelKind,
-    modelSymbolKey,
+    modelSymbol,
     modelTemplates,
     modelProperties,
   };
@@ -205,7 +205,7 @@ function deriveTargetModel__deriveGenericTemplateModel(
 ) {
   const {
     targetModelKind,
-    modelSymbolKey,
+    modelSymbol,
     modelTemplates,
     modelProperties,
     someModelType,
@@ -214,7 +214,7 @@ function deriveTargetModel__deriveGenericTemplateModel(
     throwInvalidPathError('genericTypeParameters');
   return {
     modelKind: targetModelKind,
-    modelSymbolKey,
+    modelSymbol,
     modelTemplates,
     modelProperties,
     genericParameters: genericTypeParameters.map((
@@ -272,7 +272,7 @@ interface DeriveTargetModelApi<
   >,
   Pick<
     GetThisIntermediateModel<ThisTargetModelKind>,
-    'modelSymbolKey' | 'modelTemplates' | 'modelProperties'
+    'modelSymbol' | 'modelTemplates' | 'modelProperties'
   > {}
 
 function __deriveIntermediateModel<
@@ -299,9 +299,9 @@ function __deriveIntermediateModel<
   //
   //    2. if declaration symbol not unique or exists as other modelKind, throw user error
   //
-  const modelSymbolKey = someModelType.symbol.name;
+  const modelSymbol = someModelType.symbol.name;
   const maybeCachedTargetModel = schemaResult
-    .schemaMap[targetModelKind][modelSymbolKey];
+    .schemaMap[targetModelKind][modelSymbol];
   if (isCachedTargetKind(targetModelKind, maybeCachedTargetModel)) {
     return maybeCachedTargetModel;
   }
@@ -310,7 +310,7 @@ function __deriveIntermediateModel<
     schemaResult,
     targetModelKind,
     schemaTypeChecker,
-    modelSymbolKey,
+    modelSymbol,
     modelTemplates: deriveModelTemplates({
       someModelType,
       schemaResult,
@@ -326,7 +326,7 @@ function __deriveIntermediateModel<
       elementTypeCases,
     }),
   });
-  schemaResult.schemaMap[targetModelKind][newTargetModel.modelSymbolKey] =
+  schemaResult.schemaMap[targetModelKind][newTargetModel.modelSymbol] =
     newTargetModel;
   return newTargetModel;
 }

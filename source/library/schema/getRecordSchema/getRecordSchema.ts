@@ -12,8 +12,8 @@ export function getInitialRecordSchema(
   const { solidifiedSchema } = api;
   return __getRecordSchema({
     solidifiedSchema,
-    getModelRecordEncoding: getInitialModelRecordEncoding,
-    additionalModelRecordEncodingApi: {},
+    getModelEncoding: getInitialModelEncoding,
+    additionalModelEncodingApi: {},
   });
 }
 
@@ -25,46 +25,45 @@ export interface GetNextRecordSchemaApi
 export function getNextRecordSchema(api: GetNextRecordSchemaApi) {
   const { solidifiedSchema, staleRecordSchema } = api;
   return __getRecordSchema({
-    getModelRecordEncoding: getModelRecordEncoding__resolveNextRecordSchema,
-    additionalModelRecordEncodingApi: {
+    getModelEncoding: getModelEncoding__resolveNextRecordSchema,
+    additionalModelEncodingApi: {
       staleRecordSchema,
     },
     solidifiedSchema,
   });
 }
 
-interface GetModelRecordEncodingApi__resolveNextRecordSchema
+interface GetModelEncodingApi__resolveNextRecordSchema
   extends
-    __GetModelRecordEncodingApi,
+    __GetModelEncodingApi,
     Pick<GetNextRecordSchemaApi, 'staleRecordSchema'> {
 }
 
-function getModelRecordEncoding__resolveNextRecordSchema(
-  api: GetModelRecordEncodingApi__resolveNextRecordSchema,
+function getModelEncoding__resolveNextRecordSchema(
+  api: GetModelEncodingApi__resolveNextRecordSchema,
 ) {
   const { staleRecordSchema, someSolidifiedModel } = api;
   const staleRecordModel =
-    staleRecordSchema.schemaMap[someSolidifiedModel.modelSymbolKey];
+    staleRecordSchema.schemaMap[someSolidifiedModel.modelSymbol];
   return staleRecordModel
-    ? getNextModelRecordEncoding({
+    ? getNextModelEncoding({
       staleRecordModel,
       someSolidifiedModel,
     })
-    : getInitialModelRecordEncoding({
+    : getInitialModelEncoding({
       someSolidifiedModel,
     });
 }
 
-interface GetInitialModelRecordEncodingApi
-  extends __GetModelRecordEncodingApi {}
+interface GetInitialModelEncodingApi
+  extends __GetModelEncodingApi {}
 
-function getInitialModelRecordEncoding(
-  api: GetInitialModelRecordEncodingApi,
-): RecordModel['modelRecordEncoding'] {
+function getInitialModelEncoding(
+  api: GetInitialModelEncodingApi,
+): RecordModel['modelEncoding'] {
   const { someSolidifiedModel } = api;
   return [
-    { encodingMetadataKey: '__id' },
-    { encodingMetadataKey: '__modelSymbolKey' },
+    { encodingMetadataKey: '__uuid' },
     ...Object.keys(someSolidifiedModel.modelProperties)
       .sort()
       .map((somePropertyKey) => ({
@@ -73,19 +72,18 @@ function getInitialModelRecordEncoding(
   ];
 }
 
-interface GetNextModelRecordEncodingApi extends __GetModelRecordEncodingApi {
+interface GetNextModelEncodingApi extends __GetModelEncodingApi {
   staleRecordModel: RecordModel;
 }
 
-function getNextModelRecordEncoding(
-  api: GetNextModelRecordEncodingApi,
-): RecordModel['modelRecordEncoding'] {
+function getNextModelEncoding(
+  api: GetNextModelEncodingApi,
+): RecordModel['modelEncoding'] {
   const { staleRecordModel, someSolidifiedModel } = api;
   const [
     identifierEncoding,
-    modelSymbolKeyEncoding,
     ...stalePropertiesEncoding
-  ] = staleRecordModel.modelRecordEncoding;
+  ] = staleRecordModel.modelEncoding;
   const propertyStatusMap = Object.values(
     someSolidifiedModel.modelProperties,
   ).reduce<
@@ -115,7 +113,6 @@ function getNextModelRecordEncoding(
   }, {});
   return [
     identifierEncoding,
-    modelSymbolKeyEncoding,
     ...stalePropertiesEncoding.filter((someStalePropertyEncoding) =>
       propertyStatusMap[someStalePropertyEncoding.encodingPropertyKey] ===
         'unchanged'
@@ -129,42 +126,42 @@ function getNextModelRecordEncoding(
   ];
 }
 
-interface __ResolveRecordSchemaApi<ThisAdditionalModelRecordEncodingApi> {
+interface __ResolveRecordSchemaApi<ThisAdditionalModelEncodingApi> {
   solidifiedSchema: SolidifiedSchema;
-  additionalModelRecordEncodingApi: ThisAdditionalModelRecordEncodingApi;
-  getModelRecordEncoding: (
-    api: GetModelRecordEncodingApi<this['additionalModelRecordEncodingApi']>,
-  ) => RecordModel['modelRecordEncoding'];
+  additionalModelEncodingApi: ThisAdditionalModelEncodingApi;
+  getModelEncoding: (
+    api: GetModelEncodingApi<this['additionalModelEncodingApi']>,
+  ) => RecordModel['modelEncoding'];
 }
 
-type GetModelRecordEncodingApi<ThisAdditionalModelRecordEncodingApi> =
-  & __GetModelRecordEncodingApi
-  & ThisAdditionalModelRecordEncodingApi;
+type GetModelEncodingApi<ThisAdditionalModelEncodingApi> =
+  & __GetModelEncodingApi
+  & ThisAdditionalModelEncodingApi;
 
-interface __GetModelRecordEncodingApi {
+interface __GetModelEncodingApi {
   someSolidifiedModel: __ResolveRecordSchemaApi<
     unknown
   >['solidifiedSchema']['schemaMap'][string];
 }
 
-function __getRecordSchema<ThisAdditionalModelRecordEncodingApi>(
-  api: __ResolveRecordSchemaApi<ThisAdditionalModelRecordEncodingApi>,
+function __getRecordSchema<ThisAdditionalModelEncodingApi>(
+  api: __ResolveRecordSchemaApi<ThisAdditionalModelEncodingApi>,
 ) {
   const {
     solidifiedSchema,
-    getModelRecordEncoding,
-    additionalModelRecordEncodingApi,
+    getModelEncoding,
+    additionalModelEncodingApi,
   } = api;
   return {
     ...solidifiedSchema,
     schemaMap: Object.values(solidifiedSchema.schemaMap).reduce<
       RecordSchema['schemaMap']
     >((schemaMapResult, someSolidifiedModel) => {
-      schemaMapResult[someSolidifiedModel.modelSymbolKey] = {
+      schemaMapResult[someSolidifiedModel.modelSymbol] = {
         ...someSolidifiedModel,
-        modelRecordEncoding: getModelRecordEncoding({
+        modelEncoding: getModelEncoding({
           someSolidifiedModel,
-          ...additionalModelRecordEncodingApi,
+          ...additionalModelEncodingApi,
         }),
       };
       return schemaMapResult;

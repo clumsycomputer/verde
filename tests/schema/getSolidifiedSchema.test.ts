@@ -9,7 +9,7 @@ Deno.test({ name: 'getSolidifiedSchema' }, async (testContext) => {
         data: {
           CompositeDataModel__EXAMPLE: {
             modelKind: 'data',
-            modelSymbolKey: 'CompositeDataModel__EXAMPLE',
+            modelSymbol: 'CompositeDataModel__EXAMPLE',
             modelTemplates: [
               {
                 templateKind: 'concreteTemplate',
@@ -43,7 +43,7 @@ Deno.test({ name: 'getSolidifiedSchema' }, async (testContext) => {
         concreteTemplate: {
           ConcreteTemplateModel__EXAMPLE: {
             modelKind: 'concreteTemplate',
-            modelSymbolKey: 'ConcreteTemplateModel__EXAMPLE',
+            modelSymbol: 'ConcreteTemplateModel__EXAMPLE',
             modelTemplates: [],
             modelProperties: {
               concreteTemplateModelProperty__EXAMPLE: {
@@ -58,7 +58,7 @@ Deno.test({ name: 'getSolidifiedSchema' }, async (testContext) => {
         genericTemplate: {
           TerminalGenericTemplateModel__EXAMPLE: {
             modelKind: 'genericTemplate',
-            modelSymbolKey: 'TerminalGenericTemplateModel__EXAMPLE',
+            modelSymbol: 'TerminalGenericTemplateModel__EXAMPLE',
             genericParameters: [
               {
                 parameterSymbol: 'BasicParameter__EXAMPLE',
@@ -93,7 +93,7 @@ Deno.test({ name: 'getSolidifiedSchema' }, async (testContext) => {
           },
           CompositeGenericTemplateModel__EXAMPLE: {
             modelKind: 'genericTemplate',
-            modelSymbolKey: 'CompositeGenericTemplateModel__EXAMPLE',
+            modelSymbol: 'CompositeGenericTemplateModel__EXAMPLE',
             genericParameters: [
               {
                 parameterSymbol: 'IndirectParameter__EXAMPLE',

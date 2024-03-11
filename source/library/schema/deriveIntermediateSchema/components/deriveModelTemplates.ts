@@ -74,7 +74,7 @@ export function deriveModelTemplates<
         });
         return {
           templateKind: 'concreteTemplate',
-          templateModelSymbolKey: concreteTemplateModel.modelSymbolKey,
+          templateModelSymbolKey: concreteTemplateModel.modelSymbol,
         };
       } else if (
         isTypeReference(someModelTemplateType) &&
@@ -95,7 +95,7 @@ export function deriveModelTemplates<
         });        
         return {
           templateKind: 'genericTemplate',
-          templateModelSymbolKey: genericTemplateModel.modelSymbolKey,
+          templateModelSymbolKey: genericTemplateModel.modelSymbol,
           genericArguments: deriveGenericArguments({
             schemaTypeChecker,
             schemaResult,

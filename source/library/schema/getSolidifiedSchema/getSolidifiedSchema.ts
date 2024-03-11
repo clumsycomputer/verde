@@ -24,8 +24,8 @@ export function getSolidifiedSchema(
     schemaMap: Object.values(intermediateSchema.schemaMap.data).reduce<
       SolidifiedSchema['schemaMap']
     >((modelsResult, someDataIntermediateModel) => {
-      modelsResult[someDataIntermediateModel.modelSymbolKey] = {
-        modelSymbolKey: someDataIntermediateModel.modelSymbolKey,
+      modelsResult[someDataIntermediateModel.modelSymbol] = {
+        modelSymbol: someDataIntermediateModel.modelSymbol,
         modelProperties: resolveModelProperties({
           argumentElements: {},
           intermediateSchema,

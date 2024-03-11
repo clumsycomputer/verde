@@ -7,7 +7,7 @@ export interface StructuredSchema<ThisSchemaMap> {
 }
 
 export interface __SchemaModel<ThisModelElement> {
-  modelSymbolKey: string;
+  modelSymbol: string;
   modelProperties: Record<
     ModelProperty<ThisModelElement>['propertyKey'],
     ModelProperty<ThisModelElement>
@@ -27,7 +27,7 @@ export type ModelElement<ThisDataModel extends __SchemaModel<unknown>> =
 export interface DataModelElement<
   ThisDataModel extends __SchemaModel<unknown>,
 > extends ModelElementBase<'dataModel'> {
-  dataModelSymbolKey: ThisDataModel['modelSymbolKey'];
+  dataModelSymbolKey: ThisDataModel['modelSymbol'];
 }
 
 export type LiteralModelElement =
@@ -74,7 +74,7 @@ export interface ModelElementBase<ElementKind> {
 export type SchemaRecord<ThisRecordProperties extends Record<string, any>> =
   & {
     __id: number;
-    __modelSymbolKey: string;
+    __modelSymbol: string;
   }
   & {
     [SomePropertyKey in keyof ThisRecordProperties]:

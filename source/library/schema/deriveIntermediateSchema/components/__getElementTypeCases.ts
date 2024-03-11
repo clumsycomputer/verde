@@ -130,7 +130,7 @@ function __getElementTypeCases<
         });
         return {
           elementKind: 'dataModel',
-          dataModelSymbolKey: elementDataModel.modelSymbolKey,
+          dataModelSymbolKey: elementDataModel.modelSymbol,
         };
       },
     }),
