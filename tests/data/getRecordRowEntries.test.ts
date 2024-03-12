@@ -69,16 +69,8 @@ Deno.test('getRecordRowEntries', async (testContext) => {
     recordSchema: exampleSchema,
     recordData: exampleTopLevelRecord,
   });
-  console.log(exampleRowEntries)
-  const topLevelEntry = exampleRowEntries[exampleTopLevelRecord['__uuid'][0]]![
-    exampleTopLevelRecord['__uuid'][1]
-  ]!;
-  const dataModelPropertyEntry =
-    exampleRowEntries[
-      exampleTopLevelRecord['dataModelProperty__EXAMPLE']['__uuid'][0]
-    ]![
-      exampleTopLevelRecord['dataModelProperty__EXAMPLE']['__uuid'][1]
-    ]!;
+  const topLevelEntry = exampleRowEntries[1]!
+  const dataModelPropertyEntry = exampleRowEntries[0]!
   await testContext.step('each unique data model record has an entry', () => {
     Assert.assertExists(topLevelEntry);
     Assert.assertExists(dataModelPropertyEntry);

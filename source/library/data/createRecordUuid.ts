@@ -1,6 +1,8 @@
 import { throwInvalidPathError } from '../../helpers/throwError.ts';
 
-export function createRecordUuid(): [number, number] {
+export type RecordUuid = [firstChunk: number, secondChunk: number]
+
+export function createRecordUuid(): RecordUuid {
   const newUuidString = crypto.randomUUID();
   const hyphenlessUuidString = newUuidString.replaceAll('-', '');
   const uuidBytes = new Uint8Array(16);

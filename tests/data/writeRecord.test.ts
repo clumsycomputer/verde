@@ -1,16 +1,15 @@
+import { FileSystem } from '../../source/imports/FileSystem.ts';
 import { applyMiddleware, createStore } from '../../source/imports/Redux.ts';
-import {
-  createSagaMiddleware,
-  getStoreEffects,
-} from '../../source/imports/ReduxSaga.ts';
+import { createSagaMiddleware } from '../../source/imports/ReduxSaga.ts';
 import { createRecordUuid } from '../../source/library/data/createRecordUuid.ts';
-import { getRecordRowEntries } from '../../source/library/data/getRecordRowEntries.ts';
-import { RecordSchema } from '../../source/library/module.ts';
+import { RecordSchema, writeRecord } from '../../source/library/module.ts';
+import { Path } from '../imports/Path.ts';
 
-const { storeEffects } = getStoreEffects();
-const call = storeEffects.call;
-
-Deno.test('createRecord', async (testContext) => {
+Deno.test('writeRecord', async (testContext) => {
+  const testDatabaseDirectoryPath = Path.join(
+    Path.fromFileUrl(import.meta.url),
+    '../__database',
+  );
   const populationSchema: RecordSchema = {
     schemaSymbol: 'PopulationSchema',
     schemaMap: {
@@ -68,9 +67,14 @@ Deno.test('createRecord', async (testContext) => {
       },
     },
   };
+  await setupTestDatabase({
+    testDatabaseDirectoryPath,
+    recordSchema: populationSchema,
+  });
   const sagaMiddleware = createSagaMiddleware();
   const sagaStore = createStore(() => null, applyMiddleware(sagaMiddleware));
-  sagaMiddleware.run(writeRecord, {
+  const writeRecordTask = sagaMiddleware.run(writeRecord, {
+    databaseDirectoryPath: testDatabaseDirectoryPath,
     recordSchema: populationSchema,
     recordData: {
       __uuid: createRecordUuid(),
@@ -87,23 +91,25 @@ Deno.test('createRecord', async (testContext) => {
       },
     },
   });
+  await writeRecordTask.toPromise()
 });
 
-interface WriteRecordApi {
+interface SetupTestDatabaseApi {
+  testDatabaseDirectoryPath: string;
   recordSchema: RecordSchema;
-  recordData: Record<string, unknown>;
 }
 
-function* writeRecord(api: WriteRecordApi) {
-  const { recordSchema, recordData } = api;
-  const recordRowEntries = getRecordRowEntries({
-    recordSchema,
-    recordData,
-  });
-  // yield* call(writeRecordRow, {
-  //   recordEntries,
-  // });  
-  console.log(recordData);
-  console.log(recordRowEntries);
-  yield
+async function setupTestDatabase(api: SetupTestDatabaseApi) {
+  const { testDatabaseDirectoryPath, recordSchema } = api;
+  await FileSystem.emptyDir(testDatabaseDirectoryPath);
+  await Promise.all(
+    Object.values(recordSchema.schemaMap).map((someSchemaModel) =>
+      FileSystem.emptyDir(
+        Path.join(
+          testDatabaseDirectoryPath,
+          `./${someSchemaModel.modelSymbol}`,
+        ),
+      )
+    ),
+  );
 }

@@ -1,3 +1,4 @@
+export * from './data/writeRecord.ts'
 export * from './schema/deriveIntermediateSchema/deriveIntermediateSchema.ts';
 export * from './schema/getRecordSchema/getRecordSchema.ts';
 export * from './schema/getSolidifiedSchema/getSolidifiedSchema.ts';

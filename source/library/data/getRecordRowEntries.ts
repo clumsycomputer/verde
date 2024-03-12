@@ -3,6 +3,7 @@ import {
   throwUserError,
 } from '../../helpers/throwError.ts';
 import { RecordModel, RecordSchema } from '../schema/types/RecordSchema.ts';
+import { RecordUuid } from './createRecordUuid.ts';
 
 export interface GetRecordRowEntriesApi
   extends Pick<__GetRecordRowEntriesApi, 'recordSchema' | 'recordData'> {}
@@ -12,20 +13,14 @@ export function getRecordRowEntries(api: GetRecordRowEntriesApi) {
   return __getRecordRowEntries({
     recordSchema,
     recordData,
-    entriesResult: {},
+    entriesResult: [],
   })[0];
 }
 
 interface __GetRecordRowEntriesApi {
   recordSchema: RecordSchema;
   recordData: Record<string, unknown>;
-  entriesResult: Record<number, Record<number, RecordRowEntry>>;
-}
-
-interface RecordRowEntry {
-  entryPageIndex: number | null;
-  entryModelSymbol: RecordModel['modelSymbol'];
-  entryEncodedProperties: EncodedRowProperties;
+  entriesResult: __GetRecordedRowEntriesResult[0];
 }
 
 interface EncodedRowProperties {
@@ -34,14 +29,21 @@ interface EncodedRowProperties {
 }
 
 type __GetRecordedRowEntriesResult = [
-  recordRowEntries: Record<number, Record<number, RecordRowEntry>>,
+  recordRowEntries: Array<RecordRowEntry>,
   thisRowEntry: RecordRowEntry,
 ];
+
+export interface RecordRowEntry {
+  entryRecordUuid: RecordUuid;
+  entryPageIndex: number | null;
+  entryModelSymbol: RecordModel['modelSymbol'];
+  entryEncodedProperties: EncodedRowProperties;
+}
 
 function __getRecordRowEntries(
   api: __GetRecordRowEntriesApi,
 ): __GetRecordedRowEntriesResult {
-  const { recordSchema, recordData, entriesResult = {} } = api;
+  const { recordSchema, recordData, entriesResult = [] } = api;
   const recordModelSymbol = typeof recordData['__modelSymbol'] === 'string'
     ? recordData['__modelSymbol']
     : throwUserError('recordModelSymbol');
@@ -59,6 +61,7 @@ function __getRecordRowEntries(
     ? recordUuid[1]
     : throwUserError('recordUuidSecond');
   const recordEntry: RecordRowEntry = {
+    entryRecordUuid: [recordUuidFirst, recordUuidSecond],
     entryModelSymbol: recordModel.modelSymbol,
     entryPageIndex: typeof recordData['__pageIndex'] === 'number' ||
         recordData['__pageIndex'] === null
@@ -138,9 +141,14 @@ function __getRecordRowEntries(
       ),
     },
   };
-  const firstEntriesResult = entriesResult[recordUuidFirst] ?? {};
-  entriesResult[recordUuidFirst] = firstEntriesResult;
-  firstEntriesResult[recordUuidSecond] = recordEntry;
+  const recordNotEntered =
+    entriesResult.findIndex((someRowEntry) =>
+      someRowEntry.entryRecordUuid[0] === recordEntry.entryRecordUuid[0] &&
+      someRowEntry.entryRecordUuid[1] === recordEntry.entryRecordUuid[1]
+    ) === -1;
+  if (recordNotEntered) {
+    entriesResult.push(recordEntry);
+  }
   return [entriesResult, recordEntry];
 }
 
