@@ -67,31 +67,43 @@ Deno.test('writeRecord', async (testContext) => {
       },
     },
   };
+  const recordDataAaa = {
+    __uuid: createRecordUuid(),
+    __modelSymbol: 'Person',
+    __pageIndex: null,
+    personName: 'barry bonds barry bonds',
+    personBirthYear: 1964,
+    personAddress: {
+      __uuid: createRecordUuid(),
+      __modelSymbol: 'PersonAddress',
+      __pageIndex: null,
+      addressCountry: 'United States of America',
+      addressCity: 'Riverside',
+    },
+  }
+  const recordDataBbb = {
+    ...recordDataAaa.personAddress,
+    __pageIndex: 0,
+    addressCity: 'San Francisco'
+  }
   await setupTestDatabase({
     testDatabaseDirectoryPath,
     recordSchema: populationSchema,
   });
   const sagaMiddleware = createSagaMiddleware();
   const sagaStore = createStore(() => null, applyMiddleware(sagaMiddleware));
-  const writeRecordTask = sagaMiddleware.run(writeRecord, {
+  const writeRecordTaskAaa = sagaMiddleware.run(writeRecord, {
     databaseDirectoryPath: testDatabaseDirectoryPath,
     recordSchema: populationSchema,
-    recordData: {
-      __uuid: createRecordUuid(),
-      __modelSymbol: 'Person',
-      __pageIndex: null,
-      personName: 'barry bonds barry bonds',
-      personBirthYear: 1964,
-      personAddress: {
-        __uuid: createRecordUuid(),
-        __modelSymbol: 'PersonAddress',
-        __pageIndex: null,
-        addressCountry: 'United States of America',
-        addressCity: 'Riverside',
-      },
-    },
+    recordData: recordDataAaa,
   });
-  await writeRecordTask.toPromise()
+  await writeRecordTaskAaa.toPromise()
+  const writeRecordTaskBbb = sagaMiddleware.run(writeRecord, {
+    databaseDirectoryPath: testDatabaseDirectoryPath,
+    recordSchema: populationSchema,
+    recordData: recordDataBbb
+  });
+  await writeRecordTaskBbb.toPromise()
 });
 
 interface SetupTestDatabaseApi {

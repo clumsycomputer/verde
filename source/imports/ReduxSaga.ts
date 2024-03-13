@@ -7,7 +7,7 @@ import type {
 import type { EventChannel, MulticastChannel, SagaMiddleware, SagaMiddlewareOptions } from 'npm:redux-saga';
 import __createSagaMiddleware from "npm:redux-saga";
 import {
-Tail,
+  Tail,
   actionChannel as __actionChannel,
   call as __call,
   fork as __fork,
