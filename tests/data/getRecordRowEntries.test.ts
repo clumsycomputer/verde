@@ -1,9 +1,9 @@
-import { getRecordRowEntries } from '../../source/library/data/getRecordRowEntries.ts';
-import { RecordSchema } from '../../source/library/module.ts';
+import { getRecordRowEntries } from '../../source/library/data/getDataRowOperations.ts';
+import { DataSchema } from '../../source/library/module.ts';
 import { Assert } from '../imports/Assert.ts';
 
 Deno.test('getRecordRowEntries', async (testContext) => {
-  const exampleSchema: RecordSchema = {
+  const exampleSchema: DataSchema = {
     schemaSymbol: 'ExampleSchema',
     schemaMap: {
       TopLevelModel__EXAMPLE: {

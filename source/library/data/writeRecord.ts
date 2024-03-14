@@ -1,157 +1,133 @@
 import { throwInvalidPathError } from '../../helpers/throwError.ts';
 import { Path } from '../../imports/Path.ts';
 import { getStoreEffects } from '../../imports/ReduxSaga.ts';
-import { RecordSchema } from '../schema/types/RecordSchema.ts';
-import { getRecordRowEntries, RecordRowEntry } from './getRecordRowEntries.ts';
+import { DataSchema } from '../schema/types/DataSchema.ts';
+import {
+  CreateDataRowOperation,
+  getDataRowOperations,
+  UpdateDataRowOperation,
+  WriteDataRowOperation,
+} from './getDataRowOperations.ts';
 
 const { storeEffects } = getStoreEffects();
 const call = storeEffects.call;
 
 export interface WriteRecordApi {
-  databaseDirectoryPath: string;
-  recordSchema: RecordSchema;
+  dataDirectoryPath: string;
+  dataSchema: DataSchema;
   recordData: Record<string, unknown>;
 }
 
 export function* writeRecord(api: WriteRecordApi) {
-  const { recordSchema, recordData, databaseDirectoryPath } = api;
-  const recordRowEntries = getRecordRowEntries({
-    recordSchema,
+  const { dataSchema, recordData, dataDirectoryPath } = api;
+  const { dataRowOperations } = getDataRowOperations({
+    dataSchema,
     recordData,
   });
-  for (const someRowEntry of recordRowEntries) {
-    const modelDataDirectoryPath = Path.join(
-      databaseDirectoryPath,
-      `./${someRowEntry.entryModelSymbol}`,
-    );
-    const rowEntryBytes = getRowEntryBytes({
-      someRowEntry,
-      recordSchema,
+  for (const someDataRowOperation of dataRowOperations) {
+    yield* call(writeDataRow, {
+      dataDirectoryPath,
+      dataRowOperation: someDataRowOperation,
     });
-    someRowEntry.entryPageIndex === null
-      ? yield* call(writeNewRowEntry, {
-        modelDataDirectoryPath,
-        rowEntryBytes,
-      })
-      : yield* call(writeUpdatedRowEntry, {
-        someRowEntry,
-        modelDataDirectoryPath,
-        rowEntryBytes,
-      });
   }
 }
 
-interface GetRowEntryBytesApi extends Pick<WriteRecordApi, 'recordSchema'> {
-  someRowEntry: RecordRowEntry;
+interface WriteDataRowApi
+  extends Pick<WriteRecordApi, 'dataDirectoryPath'> {
+  dataRowOperation: WriteDataRowOperation;
 }
 
-function getRowEntryBytes(api: GetRowEntryBytesApi) {
-  const { someRowEntry, recordSchema } = api;
-  const [identifierEncoding, ...propertiesEncoding] =
-    recordSchema.schemaMap[someRowEntry.entryModelSymbol]?.modelEncoding ??
-      throwInvalidPathError('rowEntryModel');
-  const rowEntryByteSize = Object.values(someRowEntry.entryEncodedProperties)
-    .reduce(
-      (byteSizeResult, someEncodedProperty) =>
-        byteSizeResult + someEncodedProperty.length,
-      4 + 1,
-    );
-  const encodedRowEntryByteSizeResult = new Uint8Array(4);
-  new DataView(encodedRowEntryByteSizeResult.buffer).setUint32(
-    0,
-    rowEntryByteSize,
+function* writeDataRow(api: WriteDataRowApi) {
+  const { dataDirectoryPath, dataRowOperation } = api;
+  const modelDataDirectoryPath = Path.join(
+    dataDirectoryPath,
+    `./${dataRowOperation.operationModelSymbol}`,
   );
-  const rowEntryBytesResult = new Uint8Array(rowEntryByteSize);
-  let rowEntryByteOffsetIndex = 0;
-  rowEntryBytesResult.set(
-    encodedRowEntryByteSizeResult,
-    rowEntryByteOffsetIndex,
-  );
-  rowEntryByteOffsetIndex += encodedRowEntryByteSizeResult.length;
-  rowEntryBytesResult.set(
-    someRowEntry.entryEncodedProperties.__uuid,
-    rowEntryByteOffsetIndex,
-  );
-  rowEntryByteOffsetIndex += someRowEntry.entryEncodedProperties.__uuid.length;
-  propertiesEncoding.forEach((somePropertyEncoding) => {
-    const encodedProperty = someRowEntry
-      .entryEncodedProperties[somePropertyEncoding.encodingPropertyKey] ??
-      throwInvalidPathError('encodedProperty');
-    rowEntryBytesResult.set(
-      encodedProperty,
-      rowEntryByteOffsetIndex,
-    );
-    rowEntryByteOffsetIndex += encodedProperty.length;
-  });
-  rowEntryBytesResult.set(
-    new TextEncoder().encode('\n'),
-    rowEntryByteOffsetIndex,
-  );
-  return rowEntryBytesResult;
+  dataRowOperation.operationKind === 'create'
+    ? yield* call(createDataRow, {
+      dataRowOperation,
+      modelDataDirectoryPath,
+    })
+    : yield* call(updateDataRow, {
+      dataRowOperation,
+      modelDataDirectoryPath,
+    });
 }
 
-interface WriteNewRowEntryApi {
+interface CreateDataRowApi {
   modelDataDirectoryPath: string;
-  rowEntryBytes: Uint8Array;
+  dataRowOperation: CreateDataRowOperation;
 }
 
-function* writeNewRowEntry(api: WriteNewRowEntryApi) {
-  const { modelDataDirectoryPath, rowEntryBytes } = api;
-  const appendWriteHeadPageFile = yield* call(openAppendWriteHeadPageFile, {
+function* createDataRow(api: CreateDataRowApi) {
+  const { modelDataDirectoryPath, dataRowOperation } = api;
+  const { modelHeadPageFile } = yield* call(openModelHeadPageFile, {
     modelDataDirectoryPath,
   });
-  yield* call(() => appendWriteHeadPageFile.write(rowEntryBytes));
-  appendWriteHeadPageFile.close();
+  yield* call(appendDataRowToHeadPage, {
+    modelHeadPageFile,
+    dataRowOperation,
+  });
+  modelHeadPageFile.close();
 }
 
-interface OpenAppendWriteHeadPageFileApi
-  extends Pick<WriteNewRowEntryApi, 'modelDataDirectoryPath'> {}
+interface OpenModelHeadPageFileApi
+  extends Pick<CreateDataRowApi, 'modelDataDirectoryPath'> {}
 
-async function openAppendWriteHeadPageFile(
-  api: OpenAppendWriteHeadPageFileApi,
-): Promise<Deno.FsFile> {
+interface OpenModelHeadPageFileResult {
+  modelHeadPageFile: Deno.FsFile;
+}
+
+async function openModelHeadPageFile(
+  api: OpenModelHeadPageFileApi,
+): Promise<OpenModelHeadPageFileResult> {
   const { modelDataDirectoryPath } = api;
   const modelDataPageEntries = Array.from(
     Deno.readDirSync(modelDataDirectoryPath),
   );
   if (modelDataPageEntries.length === 0) {
-    return openAppendWriteNextHeadPageFile({
-      modelDataDirectoryPath,
-      nextHeadPageIndex: 0,
-    });
+    return {
+      modelHeadPageFile: await openNewHeadPageFile({
+        modelDataDirectoryPath,
+        nextHeadPageIndex: 0,
+      }),
+    };
   }
   const lastHeadModelPageEntry =
     modelDataPageEntries.sort()[modelDataPageEntries.length - 1] ??
-      throwInvalidPathError('headModelPageEntry');
+      throwInvalidPathError('lastHeadModelPageEntry');
   const lastHeadModelPagePath = Path.join(
     modelDataDirectoryPath,
     lastHeadModelPageEntry.name,
   );
   const lastHeadModelPageFile = await Deno.open(lastHeadModelPagePath, {
-    read: true,
     write: true,
     append: true,
   });
   const lastHeadModelPageStats = await lastHeadModelPageFile.stat();
-  const MODEL_PAGE_FINISHLINE_BYTE_SIZE = 8000;
-  if (lastHeadModelPageStats.size < MODEL_PAGE_FINISHLINE_BYTE_SIZE) {
-    return lastHeadModelPageFile;
+  const MODEL_PAGE_BYTE_FINISHLINE_SIZE = 8192;
+  if (lastHeadModelPageStats.size < MODEL_PAGE_BYTE_FINISHLINE_SIZE) {
+    return {
+      modelHeadPageFile: lastHeadModelPageFile,
+    };
   } else {
     lastHeadModelPageFile.close();
-    return openAppendWriteNextHeadPageFile({
-      modelDataDirectoryPath,
-      nextHeadPageIndex: modelDataPageEntries.length,
-    });
+    return {
+      modelHeadPageFile: await openNewHeadPageFile({
+        modelDataDirectoryPath,
+        nextHeadPageIndex: modelDataPageEntries.length,
+      }),
+    };
   }
 }
 
-interface OpenAppendWriteNextHeadPageFileApi {
+interface OpenNewHeadPageFileApi {
   modelDataDirectoryPath: string;
   nextHeadPageIndex: number;
 }
 
-function openAppendWriteNextHeadPageFile(
-  api: OpenAppendWriteNextHeadPageFileApi,
+function openNewHeadPageFile(
+  api: OpenNewHeadPageFileApi,
 ) {
   const { modelDataDirectoryPath, nextHeadPageIndex } = api;
   const nextHeadPageFilePath = Path.join(
@@ -159,89 +135,79 @@ function openAppendWriteNextHeadPageFile(
     `${nextHeadPageIndex}.data`,
   );
   return Deno.open(nextHeadPageFilePath, {
-    read: true,
-    write: true,
     createNew: true,
+    write: true,
     append: true,
   });
 }
 
-interface WriteUpdatedRowEntryApi {
-  modelDataDirectoryPath: string;
-  someRowEntry: RecordRowEntry;
-  rowEntryBytes: Uint8Array;
+interface AppendDataRowToHeadPageApi
+  extends
+    Pick<CreateDataRowApi, 'dataRowOperation'>,
+    Pick<OpenModelHeadPageFileResult, 'modelHeadPageFile'> {
 }
 
-function* writeUpdatedRowEntry(api: WriteUpdatedRowEntryApi) {
+function appendDataRowToHeadPage(
+  api: AppendDataRowToHeadPageApi,
+) {
+  const { modelHeadPageFile, dataRowOperation } = api;
+  return modelHeadPageFile.write(dataRowOperation.operationRowBytes);
+}
+
+interface UpdateDataRowApi {
+  modelDataDirectoryPath: string;
+  dataRowOperation: UpdateDataRowOperation;
+}
+
+function* updateDataRow(api: UpdateDataRowApi) {
   const {
     modelDataDirectoryPath,
-    someRowEntry,
-    rowEntryBytes,
-  } = api;  
+    dataRowOperation,
+  } = api;
   const {
     staleTargetPageFile,
     nextTargetPageFile,
-    nextTargetPagePath,
+    temporaryTargetPagePath,
     targetPagePath,
   } = yield* call(openTargetPageFile, {
     modelDataDirectoryPath,
-    someRowEntry,
+    dataRowOperation,
   });
-  yield* call(async () => {
-    let targetPageHasBytesRemaining = true;
-    const currentRowByteSizeBytes = new Uint8Array(4);
-    const currentRowByteSizeView = new DataView(
-      currentRowByteSizeBytes.buffer,
-    );
-    while (targetPageHasBytesRemaining) {
-      const countBytesReadCount = await staleTargetPageFile.read(
-        currentRowByteSizeBytes,
-      );
-      if (countBytesReadCount === null) {
-        targetPageHasBytesRemaining = false;
-        continue;
-      } else if (countBytesReadCount !== 4) {
-        // documentation says possible, probably won't handle in the future
-        throwInvalidPathError('rowBytesCountRead');
-      }
-      const currentRowByteCount = currentRowByteSizeView.getUint32(0);
-      const currentRowBytes = new Uint8Array(currentRowByteCount - 4);
-      const currentRowView = new DataView(currentRowBytes.buffer);
-      const rowBytesReadCount = await staleTargetPageFile.read(currentRowBytes);
-      if (rowBytesReadCount !== currentRowBytes.length) {
-        // documentation says possible, and should handle in the future
-        throwInvalidPathError('rowBytesReadCount');
-      }
-      const currentRowUuidFirst = currentRowView.getFloat64(0);
-      const currentRowUuidSecond = currentRowView.getFloat64(8);
-      currentRowUuidFirst === someRowEntry.entryRecordUuid[0] &&
-        currentRowUuidSecond === someRowEntry.entryRecordUuid[1]
-        ? await nextTargetPageFile.write(rowEntryBytes)
-        : await nextTargetPageFile.write(
-          new Uint8Array([
-            ...currentRowByteSizeBytes,
-            ...currentRowBytes,
-          ]),
-        );
-    }
-    staleTargetPageFile.close();
-    nextTargetPageFile.close();
-    await Deno.rename(nextTargetPagePath, targetPagePath);
+  yield* call(writeNextTargetPage, {
+    dataRowOperation,
+    staleTargetPageFile,
+    nextTargetPageFile,
+  });
+  staleTargetPageFile.close();
+  nextTargetPageFile.close();
+  yield* call(replaceTargetPageWithNextVersion, {
+    temporaryTargetPagePath,
+    targetPagePath,
   });
 }
 
 interface OpenTargetPageFileApi
   extends
-    Pick<WriteUpdatedRowEntryApi, 'modelDataDirectoryPath' | 'someRowEntry'> {}
+    Pick<UpdateDataRowApi, 'modelDataDirectoryPath' | 'dataRowOperation'> {
+}
 
-async function openTargetPageFile(api: OpenTargetPageFileApi) {
+interface OpenTargetPageFileResult {
+  targetPagePath: string;
+  temporaryTargetPagePath: string;
+  staleTargetPageFile: Deno.FsFile;
+  nextTargetPageFile: Deno.FsFile;
+}
+
+async function openTargetPageFile(
+  api: OpenTargetPageFileApi,
+): Promise<OpenTargetPageFileResult> {
   const {
     modelDataDirectoryPath,
-    someRowEntry,
+    dataRowOperation,
   } = api;
   const targetPagePath = Path.join(
     modelDataDirectoryPath,
-    `${someRowEntry.entryPageIndex}.data`,
+    `${dataRowOperation.operationPageIndex}.data`,
   );
   const staleTargetPageFilePromise = Deno.open(
     targetPagePath,
@@ -249,12 +215,12 @@ async function openTargetPageFile(api: OpenTargetPageFileApi) {
       read: true,
     },
   );
-  const nextTargetPagePath = Path.join(
+  const temporaryTargetPagePath = Path.join(
     modelDataDirectoryPath,
-    `${someRowEntry.entryPageIndex}.data__NEXT`,
+    `${dataRowOperation.operationPageIndex}.data__NEXT`,
   );
   const nextTargetPageFilePromise = Deno.open(
-    nextTargetPagePath,
+    temporaryTargetPagePath,
     {
       createNew: true,
       write: true,
@@ -263,8 +229,74 @@ async function openTargetPageFile(api: OpenTargetPageFileApi) {
   );
   return {
     targetPagePath,
+    temporaryTargetPagePath,
     staleTargetPageFile: await staleTargetPageFilePromise,
-    nextTargetPagePath,
     nextTargetPageFile: await nextTargetPageFilePromise,
   };
+}
+
+interface WriteNextTargetPageApi
+  extends
+    Pick<UpdateDataRowApi, 'dataRowOperation'>,
+    Pick<
+      OpenTargetPageFileResult,
+      'staleTargetPageFile' | 'nextTargetPageFile'
+    > {}
+
+async function writeNextTargetPage(api: WriteNextTargetPageApi) {
+  const {
+    staleTargetPageFile,
+    nextTargetPageFile,
+    dataRowOperation,
+  } = api;
+  let targetPageHasBytesRemaining = true;
+  const currentRowByteSizeBytes = new Uint8Array(4);
+  const currentRowByteSizeView = new DataView(
+    currentRowByteSizeBytes.buffer,
+  );
+  while (targetPageHasBytesRemaining) {
+    const countBytesReadCount = await staleTargetPageFile.read(
+      currentRowByteSizeBytes,
+    );
+    if (countBytesReadCount === null) {
+      targetPageHasBytesRemaining = false;
+      continue;
+    } else if (4 !== countBytesReadCount) {
+      // documentation says possible, probably won't handle
+      throwInvalidPathError('rowBytesCountRead');
+    }
+    const currentRowByteCount = currentRowByteSizeView.getUint32(0);
+    const currentRowBytes = new Uint8Array(currentRowByteCount);
+    const currentRowView = new DataView(currentRowBytes.buffer);
+    const rowBytesReadCount = await staleTargetPageFile.read(currentRowBytes);
+    if (currentRowBytes.length !== rowBytesReadCount) {
+      // documentation says possible, and should handle
+      throwInvalidPathError('rowBytesReadCount');
+    }
+    const currentRowUuidFirst = currentRowView.getFloat64(0);
+    const currentRowUuidSecond = currentRowView.getFloat64(8);
+    currentRowUuidFirst === dataRowOperation.operationRecordUuid[0] &&
+      currentRowUuidSecond === dataRowOperation.operationRecordUuid[1]
+      ? await nextTargetPageFile.write(dataRowOperation.operationRowBytes)
+      : await nextTargetPageFile.write(
+        new Uint8Array([
+          ...currentRowByteSizeBytes,
+          ...currentRowBytes,
+        ]),
+      );
+  }
+}
+
+interface ReplaceTargetPageWithNextVersionApi extends
+  Pick<
+    OpenTargetPageFileResult,
+    'temporaryTargetPagePath' | 'targetPagePath'
+  > {
+}
+
+function replaceTargetPageWithNextVersion(
+  api: ReplaceTargetPageWithNextVersionApi,
+) {
+  const { temporaryTargetPagePath, targetPagePath } = api;
+  return Deno.rename(temporaryTargetPagePath, targetPagePath);
 }

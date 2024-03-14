@@ -1,53 +1,53 @@
 import { throwInvalidPathError } from '../../../helpers/throwError.ts';
-import { RecordModel, RecordSchema } from '../types/RecordSchema.ts';
+import { DataModel, DataSchema } from '../types/DataSchema.ts';
 import { SolidifiedSchema } from '../types/SolidfiedSchema.ts';
 
-export interface GetInitialRecordSchemaApi
-  extends Pick<__ResolveRecordSchemaApi<unknown>, 'solidifiedSchema'> {
+export interface GetInitialDataSchemaApi
+  extends Pick<__ResolveDataSchemaApi<unknown>, 'solidifiedSchema'> {
 }
 
-export function getInitialRecordSchema(
-  api: GetInitialRecordSchemaApi,
-): RecordSchema {
+export function getInitialDataSchema(
+  api: GetInitialDataSchemaApi,
+): DataSchema {
   const { solidifiedSchema } = api;
-  return __getRecordSchema({
+  return __getDataSchema({
     solidifiedSchema,
     getModelEncoding: getInitialModelEncoding,
     additionalModelEncodingApi: {},
   });
 }
 
-export interface GetNextRecordSchemaApi
-  extends Pick<__ResolveRecordSchemaApi<unknown>, 'solidifiedSchema'> {
-  staleRecordSchema: RecordSchema;
+export interface GetNextDataSchemaApi
+  extends Pick<__ResolveDataSchemaApi<unknown>, 'solidifiedSchema'> {
+  staleDataSchema: DataSchema;
 }
 
-export function getNextRecordSchema(api: GetNextRecordSchemaApi) {
-  const { solidifiedSchema, staleRecordSchema } = api;
-  return __getRecordSchema({
-    getModelEncoding: getModelEncoding__resolveNextRecordSchema,
+export function getNextDataSchema(api: GetNextDataSchemaApi) {
+  const { solidifiedSchema, staleDataSchema } = api;
+  return __getDataSchema({
+    getModelEncoding: getModelEncoding__resolveNextDataSchema,
     additionalModelEncodingApi: {
-      staleRecordSchema,
+      staleDataSchema,
     },
     solidifiedSchema,
   });
 }
 
-interface GetModelEncodingApi__resolveNextRecordSchema
+interface GetModelEncodingApi__resolveNextDataSchema
   extends
     __GetModelEncodingApi,
-    Pick<GetNextRecordSchemaApi, 'staleRecordSchema'> {
+    Pick<GetNextDataSchemaApi, 'staleDataSchema'> {
 }
 
-function getModelEncoding__resolveNextRecordSchema(
-  api: GetModelEncodingApi__resolveNextRecordSchema,
+function getModelEncoding__resolveNextDataSchema(
+  api: GetModelEncodingApi__resolveNextDataSchema,
 ) {
-  const { staleRecordSchema, someSolidifiedModel } = api;
-  const staleRecordModel =
-    staleRecordSchema.schemaMap[someSolidifiedModel.modelSymbol];
-  return staleRecordModel
+  const { staleDataSchema, someSolidifiedModel } = api;
+  const staleDataModel =
+    staleDataSchema.schemaMap[someSolidifiedModel.modelSymbol];
+  return staleDataModel
     ? getNextModelEncoding({
-      staleRecordModel,
+      staleDataModel,
       someSolidifiedModel,
     })
     : getInitialModelEncoding({
@@ -59,7 +59,7 @@ interface GetInitialModelEncodingApi extends __GetModelEncodingApi {}
 
 function getInitialModelEncoding(
   api: GetInitialModelEncodingApi,
-): RecordModel['modelEncoding'] {
+): DataModel['modelEncoding'] {
   const { someSolidifiedModel } = api;
   return [
     { encodingMetadataKey: '__uuid' },
@@ -82,17 +82,17 @@ function getInitialModelEncoding(
 }
 
 interface GetNextModelEncodingApi extends __GetModelEncodingApi {
-  staleRecordModel: RecordModel;
+  staleDataModel: DataModel;
 }
 
 function getNextModelEncoding(
   api: GetNextModelEncodingApi,
-): RecordModel['modelEncoding'] {
-  const { staleRecordModel, someSolidifiedModel } = api;
+): DataModel['modelEncoding'] {
+  const { staleDataModel, someSolidifiedModel } = api;
   const [
     identifierEncoding,
     ...stalePropertiesEncoding
-  ] = staleRecordModel.modelEncoding;
+  ] = staleDataModel.modelEncoding;
   const propertyStatusMap = Object.values(
     someSolidifiedModel.modelProperties,
   ).filter((someModelProperty) =>
@@ -107,7 +107,7 @@ function getNextModelEncoding(
     someNextProperty,
   ) => {
     const staleModelProperty =
-      staleRecordModel.modelProperties[someNextProperty.propertyKey];
+      staleDataModel.modelProperties[someNextProperty.propertyKey];
     if (staleModelProperty === undefined) {
       statusMapResult[someNextProperty.propertyKey] = 'newOrRenamed';
     } else if (
@@ -146,12 +146,12 @@ function getNextModelEncoding(
   ];
 }
 
-interface __ResolveRecordSchemaApi<ThisAdditionalModelEncodingApi> {
+interface __ResolveDataSchemaApi<ThisAdditionalModelEncodingApi> {
   solidifiedSchema: SolidifiedSchema;
   additionalModelEncodingApi: ThisAdditionalModelEncodingApi;
   getModelEncoding: (
     api: GetModelEncodingApi<this['additionalModelEncodingApi']>,
-  ) => RecordModel['modelEncoding'];
+  ) => DataModel['modelEncoding'];
 }
 
 type GetModelEncodingApi<ThisAdditionalModelEncodingApi> =
@@ -159,13 +159,13 @@ type GetModelEncodingApi<ThisAdditionalModelEncodingApi> =
   & ThisAdditionalModelEncodingApi;
 
 interface __GetModelEncodingApi {
-  someSolidifiedModel: __ResolveRecordSchemaApi<
+  someSolidifiedModel: __ResolveDataSchemaApi<
     unknown
   >['solidifiedSchema']['schemaMap'][string];
 }
 
-function __getRecordSchema<ThisAdditionalModelEncodingApi>(
-  api: __ResolveRecordSchemaApi<ThisAdditionalModelEncodingApi>,
+function __getDataSchema<ThisAdditionalModelEncodingApi>(
+  api: __ResolveDataSchemaApi<ThisAdditionalModelEncodingApi>,
 ) {
   const {
     solidifiedSchema,
@@ -175,7 +175,7 @@ function __getRecordSchema<ThisAdditionalModelEncodingApi>(
   return {
     ...solidifiedSchema,
     schemaMap: Object.values(solidifiedSchema.schemaMap).reduce<
-      RecordSchema['schemaMap']
+      DataSchema['schemaMap']
     >((schemaMapResult, someSolidifiedModel) => {
       schemaMapResult[someSolidifiedModel.modelSymbol] = {
         ...someSolidifiedModel,

@@ -2,15 +2,15 @@ import { FileSystem } from '../../source/imports/FileSystem.ts';
 import { applyMiddleware, createStore } from '../../source/imports/Redux.ts';
 import { createSagaMiddleware } from '../../source/imports/ReduxSaga.ts';
 import { createRecordUuid } from '../../source/library/data/createRecordUuid.ts';
-import { RecordSchema, writeRecord } from '../../source/library/module.ts';
+import { DataSchema, writeRecord } from '../../source/library/module.ts';
 import { Path } from '../imports/Path.ts';
 
 Deno.test('writeRecord', async (testContext) => {
   const testDatabaseDirectoryPath = Path.join(
     Path.fromFileUrl(import.meta.url),
-    '../__database',
+    '../__data',
   );
-  const populationSchema: RecordSchema = {
+  const populationSchema: DataSchema = {
     schemaSymbol: 'PopulationSchema',
     schemaMap: {
       Person: {
@@ -93,14 +93,14 @@ Deno.test('writeRecord', async (testContext) => {
   const sagaMiddleware = createSagaMiddleware();
   const sagaStore = createStore(() => null, applyMiddleware(sagaMiddleware));
   const writeRecordTaskAaa = sagaMiddleware.run(writeRecord, {
-    databaseDirectoryPath: testDatabaseDirectoryPath,
-    recordSchema: populationSchema,
+    dataDirectoryPath: testDatabaseDirectoryPath,
+    dataSchema: populationSchema,
     recordData: recordDataAaa,
   });
   await writeRecordTaskAaa.toPromise()
   const writeRecordTaskBbb = sagaMiddleware.run(writeRecord, {
-    databaseDirectoryPath: testDatabaseDirectoryPath,
-    recordSchema: populationSchema,
+    dataDirectoryPath: testDatabaseDirectoryPath,
+    dataSchema: populationSchema,
     recordData: recordDataBbb
   });
   await writeRecordTaskBbb.toPromise()
@@ -108,7 +108,7 @@ Deno.test('writeRecord', async (testContext) => {
 
 interface SetupTestDatabaseApi {
   testDatabaseDirectoryPath: string;
-  recordSchema: RecordSchema;
+  recordSchema: DataSchema;
 }
 
 async function setupTestDatabase(api: SetupTestDatabaseApi) {

@@ -1,9 +1,9 @@
 import { SolidifiedModel } from './SolidfiedSchema.ts';
 import { BasicStructuredSchema } from './StructuredSchema.ts';
 
-export interface RecordSchema extends BasicStructuredSchema<RecordModel> {}
+export interface DataSchema extends BasicStructuredSchema<DataModel> {}
 
-export interface RecordModel extends SolidifiedModel {
+export interface DataModel extends SolidifiedModel {
   modelEncoding: [
     IdentifierEncoding,
     ...Array<PropertyEncoding>,

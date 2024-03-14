@@ -1,13 +1,13 @@
 import {
-  getInitialRecordSchema,
-  getNextRecordSchema,
+  getInitialDataSchema,
+  getNextDataSchema,
   SolidifiedSchema,
 } from '../../source/library/module.ts';
 import { Assert } from '../imports/Assert.ts';
 
-Deno.test({ name: 'getInitialRecordSchema' }, async (testContext) => {
+Deno.test({ name: 'getInitialDataSchema' }, async (testContext) => {
   const solidifiedSchemaAaa = getSolidifiedSchemaAaa();
-  const recordSchemaAaa = getInitialRecordSchema({
+  const recordSchemaAaa = getInitialDataSchema({
     solidifiedSchema: solidifiedSchemaAaa,
   });
   const recordModelAaa = recordSchemaAaa.schemaMap['BasicDataModel']!;
@@ -48,9 +48,9 @@ Deno.test({ name: 'getInitialRecordSchema' }, async (testContext) => {
   });
 });
 
-Deno.test({ name: 'getNextRecordSchema' }, async (testContext) => {
-  const recordSchemaBbb = getNextRecordSchema({
-    staleRecordSchema: getInitialRecordSchema({
+Deno.test({ name: 'getNextDataSchema' }, async (testContext) => {
+  const recordSchemaBbb = getNextDataSchema({
+    staleDataSchema: getInitialDataSchema({
       solidifiedSchema: getSolidifiedSchemaAaa(),
     }),
     solidifiedSchema: getSolidifiedSchemaBbb(),
@@ -92,8 +92,8 @@ Deno.test({ name: 'getNextRecordSchema' }, async (testContext) => {
     );
   });
   await testContext.step('renamed model (deleted model + new model)', async (subTestContext) => {
-    const recordSchemaCcc = getNextRecordSchema({
-      staleRecordSchema: recordSchemaBbb,
+    const recordSchemaCcc = getNextDataSchema({
+      staleDataSchema: recordSchemaBbb,
       solidifiedSchema: getSolidifiedSchemaCcc(),
     });
     const recordModelCcc = recordSchemaCcc.schemaMap['RenamedBasicDataModel']!;
