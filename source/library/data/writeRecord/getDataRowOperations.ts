@@ -1,34 +1,18 @@
 import {
   throwInvalidPathError,
   throwUserError,
-} from '../../helpers/throwError.ts';
-import { DataModel, DataSchema, PropertyEncoding } from '../schema/types/DataSchema.ts';
-import { RecordUuid } from './createRecordUuid.ts';
+} from '../../../helpers/throwError.ts';
+import {
+  DataModel,
+  DataRecord,
+  PropertyEncoding,
+  RecordUuid,
+} from '../../schema/types/DataSchema.ts';
+import { WriteRecordApi } from './writeRecord.ts';
 
 export interface GetDataRowOperationsApi
-  extends Pick<__GetDataRowOperationsApi, 'dataSchema' | 'recordData'> {}
-
-export function getDataRowOperations(api: GetDataRowOperationsApi) {
-  const { dataSchema, recordData } = api;
-  return {
-    dataRowOperations: __getDataRowOperations({
-      dataSchema,
-      recordData,
-      operationsResult: [],
-    })[0],
-  };
+  extends Pick<WriteRecordApi, 'dataSchema' | 'dataRecord'> {
 }
-
-interface __GetDataRowOperationsApi {
-  dataSchema: DataSchema;
-  recordData: Record<string, unknown>;
-  operationsResult: __GetDataRowOperationsResult[0];
-}
-
-type __GetDataRowOperationsResult = [
-  dataRowOperations: Array<WriteDataRowOperation>,
-  thisDataRowOperation: WriteDataRowOperation,
-];
 
 export type WriteDataRowOperation =
   | CreateDataRowOperation
@@ -42,9 +26,30 @@ export interface UpdateDataRowOperation
   operationPageIndex: number;
 }
 
+export function getDataRowOperations(api: GetDataRowOperationsApi) {
+  const { dataSchema, dataRecord } = api;
+  return {
+    dataRowOperations: __getDataRowOperations({
+      dataSchema,
+      dataRecord,
+      operationsResult: [],
+    })[0],
+  };
+}
+
+interface __GetDataRowOperationsApi
+  extends Pick<GetDataRowOperationsApi, 'dataSchema' | 'dataRecord'> {
+  operationsResult: __GetDataRowOperationsResult[0];
+}
+
+type __GetDataRowOperationsResult = [
+  dataRowOperations: Array<WriteDataRowOperation>,
+  thisDataRowOperation: WriteDataRowOperation,
+];
+
 interface __WriteDataRowOperation<OperationKind> {
   operationKind: OperationKind;
-  operationRecordUuid: RecordUuid;
+  operationRecordUuid: DataRecord['__uuid'];
   operationModelSymbol: DataModel['modelSymbol'];
   operationRowBytes: Uint8Array;
 }
@@ -52,43 +57,25 @@ interface __WriteDataRowOperation<OperationKind> {
 function __getDataRowOperations(
   api: __GetDataRowOperationsApi,
 ): __GetDataRowOperationsResult {
-  const { dataSchema, recordData, operationsResult = [] } = api;
-  const recordModelSymbol = typeof recordData['__modelSymbol'] === 'string'
-    ? recordData['__modelSymbol']
-    : throwUserError('recordModelSymbol');
-  const recordModel = dataSchema.schemaMap[recordModelSymbol] ??
-    throwUserError('recordModel');
-  const recordUuid = recordData['__uuid'] instanceof Array
-    ? recordData['__uuid']
-    : throwUserError('recordUuid');
-  const recordUuidFirst = typeof recordUuid[0] === 'number'
-    ? recordUuid[0]
-    : throwUserError('recordUuidFirst');
-  const recordUuidSecond = typeof recordUuid[1] === 'number'
-    ? recordUuid[1]
-    : throwUserError('recordUuidSecond');
-  const recordPageIndex = typeof recordData['__pageIndex'] === 'number' ||
-      recordData['__pageIndex'] === null
-    ? recordData['__pageIndex']
-    : throwInvalidPathError('recordPageIndex');
+  const { dataSchema, dataRecord, operationsResult = [] } = api;
+  if (false === isShallowWellFormedRecord(dataRecord)) {
+    throwUserError('isShallowWellFormedRecord');
+  }
   const recordDataRowOperation: WriteDataRowOperation = {
-    operationRecordUuid: [recordUuidFirst, recordUuidSecond],
-    operationModelSymbol: recordModel.modelSymbol,
+    operationRecordUuid: dataRecord.__uuid,
+    operationModelSymbol: dataRecord.__modelSymbol,
     operationRowBytes: getOperationRowBytes({
       dataSchema,
-      recordData,
+      dataRecord,
       operationsResult,
-      recordModel,
-      recordUuidFirst,
-      recordUuidSecond
     }),
-    ...(recordPageIndex === null
+    ...(dataRecord.__status === 'new'
       ? {
         operationKind: 'create',
       }
       : {
         operationKind: 'update',
-        operationPageIndex: recordPageIndex,
+        operationPageIndex: dataRecord.__pageIndex,
       }),
   };
   const recordNotEntered =
@@ -104,19 +91,53 @@ function __getDataRowOperations(
   return [operationsResult, recordDataRowOperation];
 }
 
-interface GetOperationRowBytesApi
-  extends
-    Pick<
-      __GetDataRowOperationsApi,
-      'dataSchema' | 'recordData' | 'operationsResult'
-    > {
-  recordModel: DataModel;
-  recordUuidFirst: number;
-  recordUuidSecond: number;
+function isShallowWellFormedRecord(
+  dataRecord: __GetDataRowOperationsApi['dataRecord'],
+): dataRecord is ShallowWellFormedRecord {
+  return typeof dataRecord['__modelSymbol'] === 'string' &&
+    dataRecord['__uuid'] instanceof Array &&
+    typeof dataRecord['__uuid'][0] === 'number' &&
+    typeof dataRecord['__uuid'][1] === 'number' &&
+    (dataRecord['__status'] === 'new' ||
+      (dataRecord['__status'] === 'paged' &&
+        typeof dataRecord['__pageIndex'] === 'number'));
+}
+
+type ShallowWellFormedRecord =
+  | New__ShallowWellFormedRecord
+  | Paged__ShallowWellFormedRecord;
+
+interface New__ShallowWellFormedRecord
+  extends __ShallowWellFormedRecord<'new'> {}
+
+interface Paged__ShallowWellFormedRecord
+  extends __ShallowWellFormedRecord<'paged'> {
+  __pageIndex: number;
+}
+
+interface __ShallowWellFormedRecord<RecordStatus> {
+  __status: RecordStatus;
+  __uuid: RecordUuid;
+  __modelSymbol: DataModel['modelSymbol'];
+  [propertyKey: string]: unknown;
+}
+
+interface GetOperationRowBytesApi extends
+  Pick<
+    __GetDataRowOperationsApi,
+    'dataSchema' | 'operationsResult'
+  > {
+  dataRecord: ShallowWellFormedRecord;
 }
 
 function getOperationRowBytes(api: GetOperationRowBytesApi): Uint8Array {
-  const { recordModel, recordData, dataSchema, operationsResult, recordUuidFirst, recordUuidSecond } = api;
+  const {
+    dataRecord,
+    dataSchema,
+    operationsResult,
+  } = api;
+  const recordModel = dataSchema.schemaMap[dataRecord.__modelSymbol] ??
+    throwInvalidPathError('recordModel');
   const [metadataIdentifierEncoding, ...propertiesEncoding] =
     recordModel.modelEncoding;
   const [rowBytesSize, encodedRowProperties] = propertiesEncoding.reduce<
@@ -124,10 +145,10 @@ function getOperationRowBytes(api: GetOperationRowBytesApi): Uint8Array {
   >(
     ([rowBytesSizeResult, recordRowBytesResult], somePropertyEncoding) => {
       const rowPropertyBytes = getRowPropertyBytes({
-        recordModel,
-        recordData,
+        dataRecord,
         dataSchema,
         operationsResult,
+        recordModel,
         propertyEncoding: somePropertyEncoding,
       });
       recordRowBytesResult.push(rowPropertyBytes);
@@ -138,10 +159,10 @@ function getOperationRowBytes(api: GetOperationRowBytesApi): Uint8Array {
     },
     [16, [
       getEncodedNumber({
-        someNumber: recordUuidFirst,
+        someNumber: dataRecord.__uuid[0],
       }),
       getEncodedNumber({
-        someNumber: recordUuidSecond,
+        someNumber: dataRecord.__uuid[1],
       }),
     ]],
   );
@@ -163,19 +184,19 @@ function getOperationRowBytes(api: GetOperationRowBytesApi): Uint8Array {
   }
   rowBytesResult.set(
     new TextEncoder().encode('\n'),
-    rowByteOffset
-  )
+    rowByteOffset,
+  );
   return rowBytesResult;
 }
 
 interface GetRowPropertyBytesApi extends
   Pick<
     GetOperationRowBytesApi,
-    | 'recordModel'
-    | 'recordData'
     | 'dataSchema'
+    | 'dataRecord'
     | 'operationsResult'
   > {
+  recordModel: DataModel;
   propertyEncoding: PropertyEncoding;
 }
 
@@ -183,14 +204,14 @@ function getRowPropertyBytes(api: GetRowPropertyBytesApi) {
   const {
     recordModel,
     propertyEncoding,
-    recordData,
+    dataRecord,
     dataSchema,
     operationsResult,
   } = api;
-  const modelProperty = recordModel
-    .modelProperties[propertyEncoding.encodingPropertyKey] ??
-    throwInvalidPathError('modelProperty');
-  const recordProperty = recordData[propertyEncoding.encodingPropertyKey] ??
+  const modelProperty =
+    recordModel.modelProperties[propertyEncoding.encodingPropertyKey] ??
+      throwUserError('modelProperty');
+  const recordProperty = dataRecord[propertyEncoding.encodingPropertyKey] ??
     throwUserError('recordProperty');
   if (
     modelProperty.propertyElement.elementKind === 'booleanPrimitive' &&
@@ -221,15 +242,11 @@ function getRowPropertyBytes(api: GetRowPropertyBytesApi) {
     modelProperty.propertyElement.elementKind === 'dataModel' &&
     typeof recordProperty === 'object'
   ) {
-    const castedRecordProperty = recordProperty as Record<
-      string,
-      unknown
-    >;
     const [propertyRecordEntries, propertyRecordEntry] = __getDataRowOperations(
       {
         dataSchema,
         operationsResult,
-        recordData: castedRecordProperty,
+        dataRecord: recordProperty as any as Record<string, unknown>,
       },
     );
     return propertyRecordEntry.operationRowBytes.slice(4, 20);
@@ -238,52 +255,50 @@ function getRowPropertyBytes(api: GetRowPropertyBytesApi) {
     modelProperty.propertyElement.elementKind === 'numberLiteral' ||
     modelProperty.propertyElement.elementKind === 'stringLiteral'
   ) {
-    throwInvalidPathError(
-      'modelProperty.propertyElement.elementKind',
-    );
+    throwInvalidPathError('modelProperty.propertyElement.elementKind');
   } else {
     throwUserError('typeof recordProperty');
   }
 }
 
-interface GetEncodedBooleanApi {
+export interface GetEncodedBooleanApi {
   someBoolean: boolean;
 }
 
-function getEncodedBoolean(api: GetEncodedBooleanApi) {
+export function getEncodedBoolean(api: GetEncodedBooleanApi) {
   const { someBoolean } = api;
   const encodedBooleanResult = new Uint8Array(1);
   encodedBooleanResult[0] = someBoolean === true ? 0x01 : 0x00;
   return encodedBooleanResult;
 }
 
-interface GetEncodedNumberApi {
+export interface GetEncodedNumberApi {
   someNumber: number;
 }
 
-function getEncodedNumber(api: GetEncodedNumberApi) {
+export function getEncodedNumber(api: GetEncodedNumberApi) {
   const { someNumber } = api;
   const encodedNumberResult = new Uint8Array(8);
   new DataView(encodedNumberResult.buffer).setFloat64(0, someNumber);
   return encodedNumberResult;
 }
 
-interface GetEncodedUint32Api {
+export interface GetEncodedUint32Api {
   someNumber: number;
 }
 
-function getEncodedUint32(api: GetEncodedUint32Api) {
+export function getEncodedUint32(api: GetEncodedUint32Api) {
   const { someNumber } = api;
   const encodedNumberResult = new Uint8Array(4);
   new DataView(encodedNumberResult.buffer).setUint32(0, someNumber);
   return encodedNumberResult;
 }
 
-interface GetEncodedStringApi {
+export interface GetEncodedStringApi {
   someString: string;
 }
 
-function getEncodedString(api: GetEncodedStringApi) {
+export function getEncodedString(api: GetEncodedStringApi) {
   const { someString } = api;
   return new TextEncoder().encode(someString);
 }

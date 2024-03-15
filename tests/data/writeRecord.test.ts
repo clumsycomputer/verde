@@ -1,124 +1,51 @@
 import { FileSystem } from '../../source/imports/FileSystem.ts';
 import { applyMiddleware, createStore } from '../../source/imports/Redux.ts';
 import { createSagaMiddleware } from '../../source/imports/ReduxSaga.ts';
-import { createRecordUuid } from '../../source/library/data/createRecordUuid.ts';
 import { DataSchema, writeRecord } from '../../source/library/module.ts';
 import { Path } from '../imports/Path.ts';
+import { exampleRecordAaa, exampleRecordBbb, exampleSchema } from './mocks.ts';
 
 Deno.test('writeRecord', async (testContext) => {
-  const testDatabaseDirectoryPath = Path.join(
+  const sagaMiddleware = createSagaMiddleware();
+  const sagaStore = createStore(() => null, applyMiddleware(sagaMiddleware));
+    const testDataDirectoryPath = Path.join(
     Path.fromFileUrl(import.meta.url),
     '../__data',
   );
-  const populationSchema: DataSchema = {
-    schemaSymbol: 'PopulationSchema',
-    schemaMap: {
-      Person: {
-        modelSymbol: 'Person',
-        modelProperties: {
-          personName: {
-            propertyKey: 'personName',
-            propertyElement: {
-              elementKind: 'stringPrimitive',
-            },
-          },
-          personBirthYear: {
-            propertyKey: 'personBirthYear',
-            propertyElement: {
-              elementKind: 'numberPrimitive',
-            },
-          },
-          personAddress: {
-            propertyKey: 'personAddress',
-            propertyElement: {
-              elementKind: 'dataModel',
-              dataModelSymbolKey: 'PersonAddress',
-            },
-          },
-        },
-        modelEncoding: [
-          { encodingMetadataKey: '__uuid' },
-          { encodingPropertyKey: 'personAddress' },
-          { encodingPropertyKey: 'personBirthYear' },
-          { encodingPropertyKey: 'personName' },
-        ],
-      },
-      PersonAddress: {
-        modelSymbol: 'PersonAddress',
-        modelProperties: {
-          addressCountry: {
-            propertyKey: 'addressCountry',
-            propertyElement: {
-              elementKind: 'stringPrimitive',
-            },
-          },
-          addressCity: {
-            propertyKey: 'addressCity',
-            propertyElement: {
-              elementKind: 'stringPrimitive',
-            },
-          },
-        },
-        modelEncoding: [
-          { encodingMetadataKey: '__uuid' },
-          { encodingPropertyKey: 'addressCity' },
-          { encodingPropertyKey: 'addressCountry' },
-        ],
-      },
-    },
-  };
-  const recordDataAaa = {
-    __uuid: createRecordUuid(),
-    __modelSymbol: 'Person',
-    __pageIndex: null,
-    personName: 'barry bonds barry bonds',
-    personBirthYear: 1964,
-    personAddress: {
-      __uuid: createRecordUuid(),
-      __modelSymbol: 'PersonAddress',
-      __pageIndex: null,
-      addressCountry: 'United States of America',
-      addressCity: 'Riverside',
-    },
-  }
-  const recordDataBbb = {
-    ...recordDataAaa.personAddress,
-    __pageIndex: 0,
-    addressCity: 'San Francisco'
-  }
+  ;
   await setupTestDatabase({
-    testDatabaseDirectoryPath,
-    recordSchema: populationSchema,
+    testDataDirectoryPath,
+    recordSchema: exampleSchema,
   });
-  const sagaMiddleware = createSagaMiddleware();
-  const sagaStore = createStore(() => null, applyMiddleware(sagaMiddleware));
-  const writeRecordTaskAaa = sagaMiddleware.run(writeRecord, {
-    dataDirectoryPath: testDatabaseDirectoryPath,
-    dataSchema: populationSchema,
-    recordData: recordDataAaa,
-  });
-  await writeRecordTaskAaa.toPromise()
-  const writeRecordTaskBbb = sagaMiddleware.run(writeRecord, {
-    dataDirectoryPath: testDatabaseDirectoryPath,
-    dataSchema: populationSchema,
-    recordData: recordDataBbb
-  });
-  await writeRecordTaskBbb.toPromise()
+  const createRecordTask = await sagaMiddleware.run(writeRecord, {
+    dataDirectoryPath: testDataDirectoryPath,
+    dataSchema: exampleSchema,
+    dataRecord: exampleRecordAaa,    
+  })
+  await createRecordTask.toPromise()
+  await testContext.step('create record', async () => {});
+  const updateRecordTask = await sagaMiddleware.run(writeRecord, {
+    dataDirectoryPath: testDataDirectoryPath,
+    dataSchema: exampleSchema,
+    dataRecord: exampleRecordBbb,    
+  })
+  await updateRecordTask.toPromise()
+  await testContext.step('update record', async () => {});
 });
 
 interface SetupTestDatabaseApi {
-  testDatabaseDirectoryPath: string;
+  testDataDirectoryPath: string;
   recordSchema: DataSchema;
 }
 
 async function setupTestDatabase(api: SetupTestDatabaseApi) {
-  const { testDatabaseDirectoryPath, recordSchema } = api;
-  await FileSystem.emptyDir(testDatabaseDirectoryPath);
+  const { testDataDirectoryPath, recordSchema } = api;
+  await FileSystem.emptyDir(testDataDirectoryPath);
   await Promise.all(
     Object.values(recordSchema.schemaMap).map((someSchemaModel) =>
       FileSystem.emptyDir(
         Path.join(
-          testDatabaseDirectoryPath,
+          testDataDirectoryPath,
           `./${someSchemaModel.modelSymbol}`,
         ),
       )

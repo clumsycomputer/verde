@@ -1,12 +1,12 @@
-import { throwInvalidPathError } from '../../helpers/throwError.ts';
-import { Path } from '../../imports/Path.ts';
-import { getStoreEffects } from '../../imports/ReduxSaga.ts';
-import { DataSchema } from '../schema/types/DataSchema.ts';
+import { throwInvalidPathError } from '../../../helpers/throwError.ts';
+import { Path } from '../../../imports/Path.ts';
+import { getStoreEffects } from '../../../imports/ReduxSaga.ts';
+import { DataSchema } from '../../schema/types/DataSchema.ts';
 import {
   CreateDataRowOperation,
-  getDataRowOperations,
   UpdateDataRowOperation,
   WriteDataRowOperation,
+  getDataRowOperations,
 } from './getDataRowOperations.ts';
 
 const { storeEffects } = getStoreEffects();
@@ -15,14 +15,14 @@ const call = storeEffects.call;
 export interface WriteRecordApi {
   dataDirectoryPath: string;
   dataSchema: DataSchema;
-  recordData: Record<string, unknown>;
+  dataRecord: Record<string, unknown>;
 }
 
 export function* writeRecord(api: WriteRecordApi) {
-  const { dataSchema, recordData, dataDirectoryPath } = api;
+  const { dataSchema, dataRecord, dataDirectoryPath } = api;
   const { dataRowOperations } = getDataRowOperations({
     dataSchema,
-    recordData,
+    dataRecord,
   });
   for (const someDataRowOperation of dataRowOperations) {
     yield* call(writeDataRow, {
@@ -31,6 +31,7 @@ export function* writeRecord(api: WriteRecordApi) {
     });
   }
 }
+
 
 interface WriteDataRowApi
   extends Pick<WriteRecordApi, 'dataDirectoryPath'> {
@@ -255,18 +256,18 @@ async function writeNextTargetPage(api: WriteNextTargetPageApi) {
     currentRowByteSizeBytes.buffer,
   );
   while (targetPageHasBytesRemaining) {
-    const countBytesReadCount = await staleTargetPageFile.read(
+    const currentRowByteSizeBytesReadCount = await staleTargetPageFile.read(
       currentRowByteSizeBytes,
     );
-    if (countBytesReadCount === null) {
+    if (currentRowByteSizeBytesReadCount === null) {
       targetPageHasBytesRemaining = false;
       continue;
-    } else if (4 !== countBytesReadCount) {
+    } else if (4 !== currentRowByteSizeBytesReadCount) {
       // documentation says possible, probably won't handle
       throwInvalidPathError('rowBytesCountRead');
     }
-    const currentRowByteCount = currentRowByteSizeView.getUint32(0);
-    const currentRowBytes = new Uint8Array(currentRowByteCount);
+    const currentRowByteSize = currentRowByteSizeView.getUint32(0);
+    const currentRowBytes = new Uint8Array(currentRowByteSize);
     const currentRowView = new DataView(currentRowBytes.buffer);
     const rowBytesReadCount = await staleTargetPageFile.read(currentRowBytes);
     if (currentRowBytes.length !== rowBytesReadCount) {
