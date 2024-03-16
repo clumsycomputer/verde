@@ -63,9 +63,3 @@ export const exampleRecordAaa = {
     __uuid: [3, 4],
   },
 };
-
-export const exampleRecordBbb = {
-  ...exampleRecordAaa.dataModelProperty__EXAMPLE,
-  __status: 'paged',
-  __pageIndex: 0,
-};

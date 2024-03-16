@@ -4,10 +4,13 @@ import {
 } from '../../../helpers/throwError.ts';
 import {
   DataModel,
-  DataRecord,
   PropertyEncoding,
   RecordUuid,
 } from '../../schema/types/DataSchema.ts';
+import {
+  isShallowWellFormedRecord,
+  ShallowWellFormedRecord,
+} from './isShallowWellFormedRecord.ts';
 import { WriteRecordApi } from './writeRecord.ts';
 
 export interface GetDataRowOperationsApi
@@ -24,6 +27,13 @@ export interface CreateDataRowOperation
 export interface UpdateDataRowOperation
   extends __WriteDataRowOperation<'update'> {
   operationPageIndex: number;
+}
+
+interface __WriteDataRowOperation<OperationKind> {
+  operationKind: OperationKind;
+  operationRecordUuid: RecordUuid;
+  operationModelSymbol: DataModel['modelSymbol'];
+  operationRowBytes: Uint8Array;
 }
 
 export function getDataRowOperations(api: GetDataRowOperationsApi) {
@@ -47,19 +57,12 @@ type __GetDataRowOperationsResult = [
   thisDataRowOperation: WriteDataRowOperation,
 ];
 
-interface __WriteDataRowOperation<OperationKind> {
-  operationKind: OperationKind;
-  operationRecordUuid: DataRecord['__uuid'];
-  operationModelSymbol: DataModel['modelSymbol'];
-  operationRowBytes: Uint8Array;
-}
-
 function __getDataRowOperations(
   api: __GetDataRowOperationsApi,
 ): __GetDataRowOperationsResult {
-  const { dataSchema, dataRecord, operationsResult = [] } = api;
+  const { dataSchema, dataRecord, operationsResult } = api;
   if (false === isShallowWellFormedRecord(dataRecord)) {
-    throwUserError('isShallowWellFormedRecord');
+    throwUserError('__getDataRowOperations["dataRecord"]');
   }
   const recordDataRowOperation: WriteDataRowOperation = {
     operationRecordUuid: dataRecord.__uuid,
@@ -89,37 +92,6 @@ function __getDataRowOperations(
     operationsResult.push(recordDataRowOperation);
   }
   return [operationsResult, recordDataRowOperation];
-}
-
-function isShallowWellFormedRecord(
-  dataRecord: __GetDataRowOperationsApi['dataRecord'],
-): dataRecord is ShallowWellFormedRecord {
-  return typeof dataRecord['__modelSymbol'] === 'string' &&
-    dataRecord['__uuid'] instanceof Array &&
-    typeof dataRecord['__uuid'][0] === 'number' &&
-    typeof dataRecord['__uuid'][1] === 'number' &&
-    (dataRecord['__status'] === 'new' ||
-      (dataRecord['__status'] === 'paged' &&
-        typeof dataRecord['__pageIndex'] === 'number'));
-}
-
-type ShallowWellFormedRecord =
-  | New__ShallowWellFormedRecord
-  | Paged__ShallowWellFormedRecord;
-
-interface New__ShallowWellFormedRecord
-  extends __ShallowWellFormedRecord<'new'> {}
-
-interface Paged__ShallowWellFormedRecord
-  extends __ShallowWellFormedRecord<'paged'> {
-  __pageIndex: number;
-}
-
-interface __ShallowWellFormedRecord<RecordStatus> {
-  __status: RecordStatus;
-  __uuid: RecordUuid;
-  __modelSymbol: DataModel['modelSymbol'];
-  [propertyKey: string]: unknown;
 }
 
 interface GetOperationRowBytesApi extends

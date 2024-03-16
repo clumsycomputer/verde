@@ -1,51 +1,74 @@
-import { throwInvalidPathError } from '../../../helpers/throwError.ts';
+import {
+  throwInvalidPathError,
+  throwUserError,
+} from '../../../helpers/throwError.ts';
 import { Path } from '../../../imports/Path.ts';
 import { getStoreEffects } from '../../../imports/ReduxSaga.ts';
-import { DataSchema } from '../../schema/types/DataSchema.ts';
+import { DataSchema, RecordUuid } from '../../schema/types/DataSchema.ts';
 import {
   CreateDataRowOperation,
+  getDataRowOperations,
   UpdateDataRowOperation,
   WriteDataRowOperation,
-  getDataRowOperations,
 } from './getDataRowOperations.ts';
+import {
+  isShallowWellFormedRecord,
+  PagedShallowWellFormedRecord,
+} from './isShallowWellFormedRecord.ts';
 
 const { storeEffects } = getStoreEffects();
 const call = storeEffects.call;
 
 export interface WriteRecordApi {
+  dataPageFinishlineSize: number;
   dataDirectoryPath: string;
   dataSchema: DataSchema;
   dataRecord: Record<string, unknown>;
 }
 
 export function* writeRecord(api: WriteRecordApi) {
-  const { dataSchema, dataRecord, dataDirectoryPath } = api;
+  const { dataSchema, dataRecord, dataDirectoryPath, dataPageFinishlineSize } =
+    api;
   const { dataRowOperations } = getDataRowOperations({
     dataSchema,
     dataRecord,
   });
+  const recordPageIndexMapResult: Record<number, Record<number, number>> = {};
   for (const someDataRowOperation of dataRowOperations) {
-    yield* call(writeDataRow, {
+    const operationPageIndex = yield* call(writeDataRow, {
       dataDirectoryPath,
+      dataPageFinishlineSize,
       dataRowOperation: someDataRowOperation,
     });
+    const subRecordPageIndexMap =
+      recordPageIndexMapResult[someDataRowOperation.operationRecordUuid[0]] ??
+        {};
+    subRecordPageIndexMap[someDataRowOperation.operationRecordUuid[1]] =
+      operationPageIndex;
+    recordPageIndexMapResult[someDataRowOperation.operationRecordUuid[0]] =
+      subRecordPageIndexMap;
   }
+  return getUpdatedPagedRecord({
+    dataSchema,
+    dataRecord,
+    recordPageIndexMap: recordPageIndexMapResult,
+  });
 }
 
-
 interface WriteDataRowApi
-  extends Pick<WriteRecordApi, 'dataDirectoryPath'> {
+  extends Pick<WriteRecordApi, 'dataDirectoryPath' | 'dataPageFinishlineSize'> {
   dataRowOperation: WriteDataRowOperation;
 }
 
 function* writeDataRow(api: WriteDataRowApi) {
-  const { dataDirectoryPath, dataRowOperation } = api;
+  const { dataPageFinishlineSize, dataDirectoryPath, dataRowOperation } = api;
   const modelDataDirectoryPath = Path.join(
     dataDirectoryPath,
     `./${dataRowOperation.operationModelSymbol}`,
   );
-  dataRowOperation.operationKind === 'create'
+  return dataRowOperation.operationKind === 'create'
     ? yield* call(createDataRow, {
+      dataPageFinishlineSize,
       dataRowOperation,
       modelDataDirectoryPath,
     })
@@ -55,71 +78,71 @@ function* writeDataRow(api: WriteDataRowApi) {
     });
 }
 
-interface CreateDataRowApi {
+interface CreateDataRowApi
+  extends Pick<WriteRecordApi, 'dataPageFinishlineSize'> {
   modelDataDirectoryPath: string;
   dataRowOperation: CreateDataRowOperation;
 }
 
 function* createDataRow(api: CreateDataRowApi) {
-  const { modelDataDirectoryPath, dataRowOperation } = api;
-  const { modelHeadPageFile } = yield* call(openModelHeadPageFile, {
-    modelDataDirectoryPath,
-  });
+  const { dataPageFinishlineSize, modelDataDirectoryPath, dataRowOperation } =
+    api;
+  const { modelHeadPageFile, modelHeadPageIndex } = yield* call(
+    openModelHeadPageFile,
+    {
+      dataPageFinishlineSize,
+      modelDataDirectoryPath,
+    },
+  );
   yield* call(appendDataRowToHeadPage, {
     modelHeadPageFile,
     dataRowOperation,
   });
   modelHeadPageFile.close();
+  return modelHeadPageIndex;
 }
 
-interface OpenModelHeadPageFileApi
-  extends Pick<CreateDataRowApi, 'modelDataDirectoryPath'> {}
+interface OpenModelHeadPageFileApi extends
+  Pick<
+    CreateDataRowApi,
+    'dataPageFinishlineSize' | 'modelDataDirectoryPath'
+  > {}
 
 interface OpenModelHeadPageFileResult {
+  modelHeadPageIndex: number;
   modelHeadPageFile: Deno.FsFile;
 }
 
 async function openModelHeadPageFile(
   api: OpenModelHeadPageFileApi,
 ): Promise<OpenModelHeadPageFileResult> {
-  const { modelDataDirectoryPath } = api;
+  const { modelDataDirectoryPath, dataPageFinishlineSize } = api;
   const modelDataPageEntries = Array.from(
     Deno.readDirSync(modelDataDirectoryPath),
   );
-  if (modelDataPageEntries.length === 0) {
-    return {
-      modelHeadPageFile: await openNewHeadPageFile({
-        modelDataDirectoryPath,
-        nextHeadPageIndex: 0,
-      }),
-    };
-  }
-  const lastHeadModelPageEntry =
+  const mostRecentHeadModelPageEntry =
     modelDataPageEntries.sort()[modelDataPageEntries.length - 1] ??
       throwInvalidPathError('lastHeadModelPageEntry');
-  const lastHeadModelPagePath = Path.join(
+  const mostRecentHeadModelPagePath = Path.join(
     modelDataDirectoryPath,
-    lastHeadModelPageEntry.name,
+    mostRecentHeadModelPageEntry.name,
   );
-  const lastHeadModelPageFile = await Deno.open(lastHeadModelPagePath, {
-    write: true,
-    append: true,
-  });
-  const lastHeadModelPageStats = await lastHeadModelPageFile.stat();
-  const MODEL_PAGE_BYTE_FINISHLINE_SIZE = 8192;
-  if (lastHeadModelPageStats.size < MODEL_PAGE_BYTE_FINISHLINE_SIZE) {
-    return {
-      modelHeadPageFile: lastHeadModelPageFile,
-    };
-  } else {
-    lastHeadModelPageFile.close();
-    return {
+  const lastHeadModelPageStats = await Deno.stat(mostRecentHeadModelPagePath);
+  return lastHeadModelPageStats.size < dataPageFinishlineSize
+    ? {
+      modelHeadPageIndex: modelDataPageEntries.length - 1,
+      modelHeadPageFile: await Deno.open(mostRecentHeadModelPagePath, {
+        write: true,
+        append: true,
+      }),
+    }
+    : {
+      modelHeadPageIndex: modelDataPageEntries.length,
       modelHeadPageFile: await openNewHeadPageFile({
         modelDataDirectoryPath,
         nextHeadPageIndex: modelDataPageEntries.length,
       }),
     };
-  }
 }
 
 interface OpenNewHeadPageFileApi {
@@ -185,6 +208,7 @@ function* updateDataRow(api: UpdateDataRowApi) {
     temporaryTargetPagePath,
     targetPagePath,
   });
+  return dataRowOperation.operationPageIndex;
 }
 
 interface OpenTargetPageFileApi
@@ -300,4 +324,45 @@ function replaceTargetPageWithNextVersion(
 ) {
   const { temporaryTargetPagePath, targetPagePath } = api;
   return Deno.rename(temporaryTargetPagePath, targetPagePath);
+}
+
+interface GetUpdatedPagedRecordApi
+  extends Pick<WriteRecordApi, 'dataSchema' | 'dataRecord'> {
+  recordPageIndexMap: Record<
+    RecordUuid[0],
+    Record<RecordUuid[1], PagedShallowWellFormedRecord['__pageIndex']>
+  >;
+}
+
+function getUpdatedPagedRecord(api: GetUpdatedPagedRecordApi) {
+  const { dataSchema, dataRecord, recordPageIndexMap } = api;
+  if (false === isShallowWellFormedRecord(dataRecord)) {
+    throwUserError('__getDataRowOperations["dataRecord"]');
+  }
+  const recordModel = dataSchema.schemaMap[dataRecord.__modelSymbol] ??
+    throwInvalidPathError('recordModel');
+  return Object.values(recordModel.modelProperties).reduce<
+    PagedShallowWellFormedRecord
+  >(
+    (recordResult, someModelProperty) => {
+      const recordProperty = dataRecord[someModelProperty.propertyKey];
+      recordResult[someModelProperty.propertyKey] =
+        someModelProperty.propertyElement.elementKind === 'dataModel'
+          ? getUpdatedPagedRecord({
+            dataSchema,
+            recordPageIndexMap,
+            dataRecord: recordProperty as any as Record<string, unknown>,
+          })
+          : recordProperty;
+      return recordResult;
+    },
+    {
+      __status: 'paged',
+      __uuid: dataRecord.__uuid,
+      __modelSymbol: dataRecord.__modelSymbol,
+      __pageIndex:
+        recordPageIndexMap[dataRecord.__uuid[0]]![dataRecord.__uuid[1]] ??
+          throwInvalidPathError('__pageIndex'),
+    } satisfies PagedShallowWellFormedRecord,
+  );
 }
