@@ -41,11 +41,10 @@ export function* writeRecord(api: WriteRecordApi) {
       dataRowOperation: someDataRowOperation,
     });
     const subRecordPageIndexMap =
-      recordPageIndexMapResult[someDataRowOperation.operationRecordUuid[0]] ??
-        {};
+      recordPageIndexMapResult[someDataRowOperation.operationRecordUuid[0]] ?? {};
     subRecordPageIndexMap[someDataRowOperation.operationRecordUuid[1]] =
       operationPageIndex;
-    recordPageIndexMapResult[someDataRowOperation.operationRecordUuid[0]] =
+    recordPageIndexMapResult[someDataRowOperation.operationRecordUuid[0]] = 
       subRecordPageIndexMap;
   }
   return getUpdatedPagedRecord({

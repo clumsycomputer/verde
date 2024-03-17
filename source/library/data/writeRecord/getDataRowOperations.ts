@@ -205,11 +205,20 @@ function getRowPropertyBytes(api: GetRowPropertyBytesApi) {
     modelProperty.propertyElement.elementKind === 'stringPrimitive' &&
     typeof recordProperty === 'string'
   ) {
-    return getEncodedString(
+    const stringBytes = getEncodedString(
       {
         someString: recordProperty,
       },
     );
+    const stringPropertyBytesResult = new Uint8Array(4 + stringBytes.length);
+    stringPropertyBytesResult.set(
+      getEncodedUint32({
+        someNumber: stringBytes.length,
+      }),
+      0,
+    );
+    stringPropertyBytesResult.set(stringBytes, 4);
+    return stringPropertyBytesResult;
   } else if (
     modelProperty.propertyElement.elementKind === 'dataModel' &&
     typeof recordProperty === 'object'

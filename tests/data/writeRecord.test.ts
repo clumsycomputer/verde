@@ -1,15 +1,15 @@
-import { FileSystem } from '../../source/imports/FileSystem.ts';
 import { applyMiddleware, createStore } from '../../source/imports/Redux.ts';
 import { createSagaMiddleware } from '../../source/imports/ReduxSaga.ts';
 import { getDataRowOperations } from '../../source/library/data/writeRecord/getDataRowOperations.ts';
-import { DataSchema, writeRecord } from '../../source/library/module.ts';
+import { writeRecord } from '../../source/library/module.ts';
 import { Assert } from '../imports/Assert.ts';
 import { Path } from '../imports/Path.ts';
+import { setupTestDatabase } from './helpers/setupTestDatabase.ts';
 import {
   createDataModelPropertyRecord,
   createTopLevelRecord,
   testSchema,
-} from './testSchema.ts';
+} from './helpers/testSchema.ts';
 
 Deno.test('writeRecord', async (testContext) => {
   const sagaMiddleware = createSagaMiddleware();
@@ -17,7 +17,7 @@ Deno.test('writeRecord', async (testContext) => {
   const testDataPageFinishlineSize = 128;
   const testDataDirectoryPath = Path.join(
     Path.fromFileUrl(import.meta.url),
-    '../__data',
+    '../__writeRecordData',
   );
   await setupTestDatabase({
     testDataDirectoryPath,
@@ -169,25 +169,3 @@ Deno.test('writeRecord', async (testContext) => {
   });
 });
 
-interface SetupTestDatabaseApi {
-  testDataDirectoryPath: string;
-  recordSchema: DataSchema;
-}
-
-async function setupTestDatabase(api: SetupTestDatabaseApi) {
-  const { testDataDirectoryPath, recordSchema } = api;
-  await FileSystem.emptyDir(testDataDirectoryPath);
-  await Promise.all(
-    Object.values(recordSchema.schemaMap).map(async (someSchemaModel) => {
-      const modelDataDirectoryPath = Path.join(
-        testDataDirectoryPath,
-        `./${someSchemaModel.modelSymbol}`,
-      );
-      await FileSystem.emptyDir(modelDataDirectoryPath);
-      const initialModelHeadPageFile = await Deno.create(
-        Path.join(modelDataDirectoryPath, `./0.data`),
-      );
-      initialModelHeadPageFile.close();
-    }),
-  );
-}

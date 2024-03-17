@@ -1,5 +1,5 @@
-import { createRecordUuid } from '../../source/library/data/createRecordUuid.ts';
-import { DataSchema, RecordUuid } from '../../source/library/module.ts';
+import { createRecordUuid } from '../../../source/library/data/createRecordUuid.ts';
+import { DataSchema, RecordUuid } from '../../../source/library/module.ts';
 
 export const testSchema: DataSchema = {
   schemaSymbol: 'DataSchema__EXAMPLE',

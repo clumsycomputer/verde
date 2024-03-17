@@ -1,3 +1,4 @@
+export * from './data/queryData/queryData.ts'
 export * from './data/writeRecord/writeRecord.ts'
 export * from './schema/deriveIntermediateSchema/deriveIntermediateSchema.ts';
 export * from './schema/getDataSchema/getDataSchema.ts';
