@@ -6,22 +6,10 @@ import {
   getEncodedUint32,
 } from '../../source/library/data/writeRecord/getDataRowOperations.ts';
 import { Assert } from '../imports/Assert.ts';
-import { testSchema} from './testSchema.ts';
+import { createTopLevelRecord, testSchema } from './testSchema.ts';
 
 Deno.test('getDataRowOperations', async (testContext) => {
-  const testRecord = {
-    __status: 'new',
-    __modelSymbol: 'TopLevelModel__EXAMPLE',
-    __uuid: [1, 2],
-    booleanProperty__EXAMPLE: true,
-    numberProperty__EXAMPLE: 1,
-    stringProperty__EXAMPLE: 'hello record',
-    dataModelProperty__EXAMPLE: {
-      __status: 'new',
-      __modelSymbol: 'DataModelPropertyModel__EXAMPLE',
-      __uuid: [3, 4],
-    },
-  };
+  const testRecord = createTopLevelRecord({});
   const { dataRowOperations } = getDataRowOperations({
     dataSchema: testSchema,
     dataRecord: testRecord,
@@ -40,15 +28,15 @@ Deno.test('getDataRowOperations', async (testContext) => {
       Assert.assertEquals(
         createTopLevelOperation.operationRowBytes.slice(0, 4),
         getEncodedUint32({
-          someNumber: 54
+          someNumber: 47,
         }),
       );
     });
     await subTestContext.step('endOfRow', () => {
       Assert.assertEquals(
-        createTopLevelOperation.operationRowBytes.slice(57, 58),
+        createTopLevelOperation.operationRowBytes.slice(createTopLevelOperation.operationRowBytes.length - 1),
         getEncodedString({
-          someString: '\n'
+          someString: '\n',
         }),
       );
     });
@@ -58,8 +46,8 @@ Deno.test('getDataRowOperations', async (testContext) => {
       Assert.assertEquals(
         createTopLevelOperation.operationRowBytes.slice(4, 20),
         new Uint8Array([
-          ...getEncodedNumber({ someNumber: 1 }),
-          ...getEncodedNumber({ someNumber: 2 })
+          ...getEncodedNumber({ someNumber: testRecord.__uuid[0] }),
+          ...getEncodedNumber({ someNumber: testRecord.__uuid[1] }),
         ]),
       );
     });
@@ -69,7 +57,7 @@ Deno.test('getDataRowOperations', async (testContext) => {
       Assert.assertEquals(
         createTopLevelOperation.operationRowBytes.slice(20, 21),
         getEncodedBoolean({
-          someBoolean: true
+          someBoolean: testRecord.booleanProperty__EXAMPLE,
         }),
       );
     });
@@ -77,24 +65,28 @@ Deno.test('getDataRowOperations', async (testContext) => {
       Assert.assertEquals(
         createTopLevelOperation.operationRowBytes.slice(21, 29),
         getEncodedNumber({
-          someNumber: 1
+          someNumber: testRecord.numberProperty__EXAMPLE,
         }),
       );
     });
     await subTestContext.step('string', () => {
       Assert.assertEquals(
-        createTopLevelOperation.operationRowBytes.slice(29, 41),
+        createTopLevelOperation.operationRowBytes.slice(29, 34),
         getEncodedString({
-          someString: 'hello record'
+          someString: testRecord.stringProperty__EXAMPLE,
         }),
       );
     });
     await subTestContext.step('data model', () => {
       Assert.assertEquals(
-        createTopLevelOperation.operationRowBytes.slice(41, 57),
+        createTopLevelOperation.operationRowBytes.slice(34, 50),
         new Uint8Array([
-          ...getEncodedNumber({ someNumber: 3 }),
-          ...getEncodedNumber({ someNumber: 4 }),
+          ...getEncodedNumber({
+            someNumber: testRecord.dataModelProperty__EXAMPLE.__uuid[0],
+          }),
+          ...getEncodedNumber({
+            someNumber: testRecord.dataModelProperty__EXAMPLE.__uuid[1],
+          }),
         ]),
       );
     });
