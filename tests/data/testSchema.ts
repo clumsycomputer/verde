@@ -1,6 +1,7 @@
-import { DataSchema } from '../../source/library/module.ts';
+import { createRecordUuid } from '../../source/library/data/createRecordUuid.ts';
+import { DataSchema, RecordUuid } from '../../source/library/module.ts';
 
-export const exampleSchema: DataSchema = {
+export const testSchema: DataSchema = {
   schemaSymbol: 'DataSchema__EXAMPLE',
   schemaMap: {
     TopLevelModel__EXAMPLE: {
@@ -50,16 +51,43 @@ export const exampleSchema: DataSchema = {
   },
 };
 
-export const exampleRecordAaa = {
-  __status: 'new',
-  __modelSymbol: 'TopLevelModel__EXAMPLE',
-  __uuid: [1, 2],
-  booleanProperty__EXAMPLE: true,
-  numberProperty__EXAMPLE: 1,
-  stringProperty__EXAMPLE: 'hello record',
-  dataModelProperty__EXAMPLE: {
+export interface CreateTopLevelRecordApi {
+  __status?: string;
+  __uuid?: RecordUuid;
+  booleanProperty__EXAMPLE?: boolean;
+  numberProperty__EXAMPLE?: number;
+  stringProperty__EXAMPLE?: string;
+  dataModelProperty__EXAMPLE?: ReturnType<typeof createDataModelPropertyRecord>;
+}
+
+export function createTopLevelRecord(api: CreateTopLevelRecordApi) {
+  const {
+    booleanProperty__EXAMPLE = true,
+    numberProperty__EXAMPLE = 1,
+    stringProperty__EXAMPLE = 'howdy',
+    dataModelProperty__EXAMPLE = createDataModelPropertyRecord({}),
+  } = api;
+  return {
+    __status: 'new',
+    __modelSymbol: 'TopLevelModel__EXAMPLE',
+    __uuid: createRecordUuid(),
+    booleanProperty__EXAMPLE,
+    numberProperty__EXAMPLE,
+    stringProperty__EXAMPLE,
+    dataModelProperty__EXAMPLE,
+  };
+}
+
+interface CreateDataModelPropertyRecordApi {
+}
+
+export function createDataModelPropertyRecord(
+  api: CreateDataModelPropertyRecordApi,
+) {
+  const {} = api;
+  return {
     __status: 'new',
     __modelSymbol: 'DataModelPropertyModel__EXAMPLE',
-    __uuid: [3, 4],
-  },
-};
+    __uuid: createRecordUuid(),
+  };
+}

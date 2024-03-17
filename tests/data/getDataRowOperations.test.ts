@@ -6,12 +6,25 @@ import {
   getEncodedUint32,
 } from '../../source/library/data/writeRecord/getDataRowOperations.ts';
 import { Assert } from '../imports/Assert.ts';
-import { exampleRecordAaa, exampleSchema } from './mocks.ts';
+import { testSchema} from './testSchema.ts';
 
 Deno.test('getDataRowOperations', async (testContext) => {
+  const testRecord = {
+    __status: 'new',
+    __modelSymbol: 'TopLevelModel__EXAMPLE',
+    __uuid: [1, 2],
+    booleanProperty__EXAMPLE: true,
+    numberProperty__EXAMPLE: 1,
+    stringProperty__EXAMPLE: 'hello record',
+    dataModelProperty__EXAMPLE: {
+      __status: 'new',
+      __modelSymbol: 'DataModelPropertyModel__EXAMPLE',
+      __uuid: [3, 4],
+    },
+  };
   const { dataRowOperations } = getDataRowOperations({
-    dataSchema: exampleSchema,
-    dataRecord: exampleRecordAaa,
+    dataSchema: testSchema,
+    dataRecord: testRecord,
   });
   const createTopLevelOperation = dataRowOperations[1]!;
   const createDataModelPropertyOperation = dataRowOperations[0]!;

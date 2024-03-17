@@ -5,53 +5,78 @@ import { getDataRowOperations } from '../../source/library/data/writeRecord/getD
 import { DataSchema, writeRecord } from '../../source/library/module.ts';
 import { Assert } from '../imports/Assert.ts';
 import { Path } from '../imports/Path.ts';
-import { exampleRecordAaa,  exampleSchema } from './mocks.ts';
+import {
+  createDataModelPropertyRecord,
+  createTopLevelRecord,
+  testSchema,
+} from './testSchema.ts';
 
 Deno.test('writeRecord', async (testContext) => {
   const sagaMiddleware = createSagaMiddleware();
   const sagaStore = createStore(() => null, applyMiddleware(sagaMiddleware));
-  const testDataPageFinishlineSize = 256;
+  const testDataPageFinishlineSize = 128;
   const testDataDirectoryPath = Path.join(
     Path.fromFileUrl(import.meta.url),
     '../__data',
   );
   await setupTestDatabase({
     testDataDirectoryPath,
-    recordSchema: exampleSchema,
+    recordSchema: testSchema,
   });
-  await testContext.step('assumptions', async (testContext111) => {
+  const newRecords = [
+    createTopLevelRecord({
+      stringProperty__EXAMPLE: 'hooty hoo and the blowfish 🥸',
+    }),
+    createTopLevelRecord({
+      stringProperty__EXAMPLE: 'one of these days',
+    }),
+    createTopLevelRecord({
+      stringProperty__EXAMPLE: 'tupac amaru',
+    }),
+    createDataModelPropertyRecord({}),
+  ];
+  const pagedRecords: Array<Record<string, unknown>> = [];
+  for (const someNewRecord of newRecords) {
+    const writeNewRecordTask = await sagaMiddleware.run(writeRecord, {
+      dataPageFinishlineSize: testDataPageFinishlineSize,
+      dataDirectoryPath: testDataDirectoryPath,
+      dataSchema: testSchema,
+      dataRecord: someNewRecord,
+    });
+    const pagedRecord = await writeNewRecordTask.toPromise();
+    pagedRecords.push(pagedRecord);
+  }
+  await testContext.step('client assumptions', async (testContext111) => {
     await testContext111.step(
-      'client doesnt double enter record uuid',
+      'record uuid are not double entered',
       () => {},
     );
     await testContext111.step(
-      'client provides correct page index for paged record',
+      'paged records have correct page index',
       () => {},
     );
   });
   await testContext.step('head page management', async (testContext111) => {
     await testContext111.step(
       'filled until over finishline size',
-      () => {},
+      () => {
+        Assert.assertEquals(pagedRecords[0]!.__pageIndex, 0)
+        Assert.assertEquals(pagedRecords[1]!.__pageIndex, 0)
+      },
     );
     await testContext111.step(
       'created if most recent head page is over finishline size',
-      () => {},
+      () => {
+        Assert.assertEquals(pagedRecords[2]!.__pageIndex, 1)
+      },
     );
   });
-  const createRecordTask = await sagaMiddleware.run(writeRecord, {
-    dataPageFinishlineSize: testDataPageFinishlineSize,
-    dataDirectoryPath: testDataDirectoryPath,
-    dataSchema: exampleSchema,
-    dataRecord: exampleRecordAaa,
-  });
-  const pagedRecordAaa = await createRecordTask.toPromise();
   await testContext.step('create record', async (testContext111) => {
     const { dataRowOperations } = getDataRowOperations({
-      dataSchema: exampleSchema,
-      dataRecord: exampleRecordAaa,
+      dataSchema: testSchema,
+      dataRecord: newRecords[0]!,
     });
-    const topLevelModelHeadPage = await Deno.readFile(
+    const topLevelModelPage000 = await Deno.readFile(
       Path.join(testDataDirectoryPath, './TopLevelModel__EXAMPLE/0.data'),
     );
     const dataModelPropertyModelHeadPage = await Deno.readFile(
@@ -63,35 +88,41 @@ Deno.test('writeRecord', async (testContext) => {
     await testContext111.step('bytes persisted', async (testContext222) => {
       await testContext222.step('top level row', () => {
         Assert.assertEquals(
-          topLevelModelHeadPage,
+          topLevelModelPage000.slice(
+            0,
+            dataRowOperations[1]!.operationRowBytes.length,
+          ),
           dataRowOperations[1]!.operationRowBytes,
         );
       });
       await testContext222.step('data model property row', () => {
         Assert.assertEquals(
-          dataModelPropertyModelHeadPage,
+          dataModelPropertyModelHeadPage.slice(
+            0,
+            dataRowOperations[0]!.operationRowBytes.length,
+          ),
           dataRowOperations[0]!.operationRowBytes,
         );
       });
     });
   });
+  const updatedPagedRecord = {
+    ...pagedRecords[0]!['dataModelProperty__EXAMPLE'] as any as Record<string, unknown>,
+  };
+  const writePagedRecordTask = await sagaMiddleware.run(writeRecord, {
+    dataPageFinishlineSize: testDataPageFinishlineSize,
+    dataDirectoryPath: testDataDirectoryPath,
+    dataSchema: testSchema,
+    dataRecord: updatedPagedRecord,
+  });
+  await writePagedRecordTask.toPromise();
   await testContext.step('update record', async (testContext111) => {
-    const updateRecordTask = await sagaMiddleware.run(writeRecord, {
-      dataPageFinishlineSize: testDataPageFinishlineSize,
-      dataDirectoryPath: testDataDirectoryPath,
-      dataSchema: exampleSchema,
-      dataRecord: {
-        ...pagedRecordAaa['dataModelProperty__EXAMPLE'],
-        
-      },
-    });
-    await updateRecordTask.toPromise();
     await testContext111.step(
       'data model property row bytes persisted',
       async () => {
         const { dataRowOperations } = getDataRowOperations({
-          dataSchema: exampleSchema,
-          dataRecord: exampleRecordAaa,
+          dataSchema: testSchema,
+          dataRecord: updatedPagedRecord,
         });
         const dataModelPropertyModelHeadPage = await Deno.readFile(
           Path.join(
@@ -100,7 +131,10 @@ Deno.test('writeRecord', async (testContext) => {
           ),
         );
         Assert.assertEquals(
-          dataModelPropertyModelHeadPage,
+          dataModelPropertyModelHeadPage.slice(
+            0,
+            dataRowOperations[0]!.operationRowBytes.length,
+          ),
           dataRowOperations[0]!.operationRowBytes,
         );
       },
@@ -123,8 +157,10 @@ async function setupTestDatabase(api: SetupTestDatabaseApi) {
         `./${someSchemaModel.modelSymbol}`,
       );
       await FileSystem.emptyDir(modelDataDirectoryPath);
-      const initialModelHeadPageFile = await Deno.create(Path.join(modelDataDirectoryPath, `./0.data`));
-      initialModelHeadPageFile.close()
+      const initialModelHeadPageFile = await Deno.create(
+        Path.join(modelDataDirectoryPath, `./0.data`),
+      );
+      initialModelHeadPageFile.close();
     }),
   );
 }
