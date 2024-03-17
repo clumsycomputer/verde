@@ -43,9 +43,17 @@ export const testSchema: DataSchema = {
     },
     DataModelPropertyModel__EXAMPLE: {
       modelSymbol: 'DataModelPropertyModel__EXAMPLE',
-      modelProperties: {},
+      modelProperties: {
+        otherStringProperty__EXAMPLE: {
+          propertyKey: 'otherStringProperty__EXAMPLE',
+          propertyElement: {
+            elementKind: 'stringPrimitive'
+          }
+        }
+      },
       modelEncoding: [
         { encodingMetadataKey: '__uuid' },
+        { encodingPropertyKey: 'otherStringProperty__EXAMPLE' }
       ],
     },
   },
@@ -79,15 +87,17 @@ export function createTopLevelRecord(api: CreateTopLevelRecordApi) {
 }
 
 interface CreateDataModelPropertyRecordApi {
+  otherStringProperty__EXAMPLE?: string
 }
 
 export function createDataModelPropertyRecord(
   api: CreateDataModelPropertyRecordApi,
 ) {
-  const {} = api;
+  const { otherStringProperty__EXAMPLE = 'hello' } = api;
   return {
     __status: 'new',
     __modelSymbol: 'DataModelPropertyModel__EXAMPLE',
     __uuid: createRecordUuid(),
+    otherStringProperty__EXAMPLE
   };
 }

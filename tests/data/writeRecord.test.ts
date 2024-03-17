@@ -29,11 +29,19 @@ Deno.test('writeRecord', async (testContext) => {
     }),
     createTopLevelRecord({
       stringProperty__EXAMPLE: 'one of these days',
+      dataModelProperty__EXAMPLE: createDataModelPropertyRecord({
+        otherStringProperty__EXAMPLE: 'yippity'
+      }),
     }),
     createTopLevelRecord({
       stringProperty__EXAMPLE: 'tupac amaru',
+      dataModelProperty__EXAMPLE: createDataModelPropertyRecord({
+        otherStringProperty__EXAMPLE: 'doo dah'
+      }),
     }),
-    createDataModelPropertyRecord({}),
+    createDataModelPropertyRecord({
+      otherStringProperty__EXAMPLE: 'the notorius f.i.g'
+    }),
   ];
   const pagedRecords: Array<Record<string, unknown>> = [];
   for (const someNewRecord of newRecords) {
@@ -55,19 +63,34 @@ Deno.test('writeRecord', async (testContext) => {
       'paged records have correct page index',
       () => {},
     );
+    await testContext111.step(
+      'extra properties are not provided',
+      () => {},
+    );
   });
   await testContext.step('head page management', async (testContext111) => {
     await testContext111.step(
       'filled until over finishline size',
       () => {
-        Assert.assertEquals(pagedRecords[0]!.__pageIndex, 0)
-        Assert.assertEquals(pagedRecords[1]!.__pageIndex, 0)
+        const topLevelModelPageStats000 = Deno.statSync(
+          Path.join(testDataDirectoryPath, './TopLevelModel__EXAMPLE/0.data'),
+        );
+        Assert.assertEquals(
+          topLevelModelPageStats000.size >= testDataPageFinishlineSize,
+          true,
+        );
+        Assert.assertEquals(pagedRecords[0]!.__pageIndex, 0);
+        Assert.assertEquals(pagedRecords[1]!.__pageIndex, 0);
       },
     );
     await testContext111.step(
       'created if most recent head page is over finishline size',
       () => {
-        Assert.assertEquals(pagedRecords[2]!.__pageIndex, 1)
+        const topLevelModelPageStats111 = Deno.statSync(
+          Path.join(testDataDirectoryPath, './TopLevelModel__EXAMPLE/1.data'),
+        );
+        Assert.assertEquals(topLevelModelPageStats111.isFile, true);
+        Assert.assertEquals(pagedRecords[2]!.__pageIndex, 1);
       },
     );
   });
@@ -79,7 +102,7 @@ Deno.test('writeRecord', async (testContext) => {
     const topLevelModelPage000 = await Deno.readFile(
       Path.join(testDataDirectoryPath, './TopLevelModel__EXAMPLE/0.data'),
     );
-    const dataModelPropertyModelHeadPage = await Deno.readFile(
+    const dataModelPropertyModelPage000 = await Deno.readFile(
       Path.join(
         testDataDirectoryPath,
         './DataModelPropertyModel__EXAMPLE/0.data',
@@ -97,7 +120,7 @@ Deno.test('writeRecord', async (testContext) => {
       });
       await testContext222.step('data model property row', () => {
         Assert.assertEquals(
-          dataModelPropertyModelHeadPage.slice(
+          dataModelPropertyModelPage000.slice(
             0,
             dataRowOperations[0]!.operationRowBytes.length,
           ),
@@ -107,7 +130,11 @@ Deno.test('writeRecord', async (testContext) => {
     });
   });
   const updatedPagedRecord = {
-    ...pagedRecords[0]!['dataModelProperty__EXAMPLE'] as any as Record<string, unknown>,
+    ...pagedRecords[0]!['dataModelProperty__EXAMPLE'] as any as Record<
+      string,
+      unknown
+    >,
+    otherStringProperty__EXAMPLE: 'hey hey hey'
   };
   const writePagedRecordTask = await sagaMiddleware.run(writeRecord, {
     dataPageFinishlineSize: testDataPageFinishlineSize,
