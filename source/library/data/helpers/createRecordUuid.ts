@@ -1,5 +1,6 @@
-import { throwInvalidPathError } from '../../helpers/throwError.ts';
-import { RecordUuid } from '../schema/types/DataSchema.ts';
+import { throwInvalidPathError } from '../../../helpers/throwError.ts';
+
+export type RecordUuid = [firstChunk: number, secondChunk: number]
 
 export function createRecordUuid(): RecordUuid {
   const newUuidString = crypto.randomUUID();

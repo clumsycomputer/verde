@@ -1,171 +1,114 @@
-import { applyMiddleware, createStore } from '../../source/imports/Redux.ts';
-import { createSagaMiddleware } from '../../source/imports/ReduxSaga.ts';
-import { getDataRowOperations } from '../../source/library/data/writeRecord/getDataRowOperations.ts';
-import { writeRecord } from '../../source/library/module.ts';
-import { Assert } from '../imports/Assert.ts';
-import { Path } from '../imports/Path.ts';
-import { setupTestDatabase } from './helpers/setupTestDatabase.ts';
-import {
-  createDataModelPropertyRecord,
-  createTopLevelRecord,
-  testSchema,
-} from './helpers/testSchema.ts';
-
-Deno.test('writeRecord', async (testContext) => {
-  const sagaMiddleware = createSagaMiddleware();
-  const sagaStore = createStore(() => null, applyMiddleware(sagaMiddleware));
-  const testDataPageFinishlineSize = 128;
-  const testDataDirectoryPath = Path.join(
-    Path.fromFileUrl(import.meta.url),
-    '../__writeRecordData',
-  );
-  await setupTestDatabase({
-    testDataDirectoryPath,
-    recordSchema: testSchema,
-  });
-  const newRecords = [
-    createTopLevelRecord({
-      stringProperty__EXAMPLE: 'hooty hoo and the blowfish 🥸',
-    }),
-    createTopLevelRecord({
-      stringProperty__EXAMPLE: 'one of these days',
-      dataModelProperty__EXAMPLE: createDataModelPropertyRecord({
-        otherStringProperty__EXAMPLE: 'yippity'
-      }),
-    }),
-    createTopLevelRecord({
-      stringProperty__EXAMPLE: 'tupac amaru',
-      dataModelProperty__EXAMPLE: createDataModelPropertyRecord({
-        otherStringProperty__EXAMPLE: 'doo dah'
-      }),
-    }),
-    createDataModelPropertyRecord({
-      otherStringProperty__EXAMPLE: 'the notorius f.i.g'
-    }),
-  ];
-  const pagedRecords: Array<Record<string, unknown>> = [];
-  for (const someNewRecord of newRecords) {
-    const writeNewRecordTask = await sagaMiddleware.run(writeRecord, {
-      dataPageFinishlineSize: testDataPageFinishlineSize,
-      dataDirectoryPath: testDataDirectoryPath,
-      dataSchema: testSchema,
-      dataRecord: someNewRecord,
-    });
-    const pagedRecord = await writeNewRecordTask.toPromise();
-    pagedRecords.push(pagedRecord);
-  }
-  await testContext.step('client assumptions', async (testContext111) => {
-    await testContext111.step(
-      'record uuid are not double entered',
-      () => {},
-    );
-    await testContext111.step(
-      'paged records have correct page index',
-      () => {},
-    );
-    await testContext111.step(
-      'extra properties are not provided',
-      () => {},
-    );
-  });
-  await testContext.step('head page management', async (testContext111) => {
-    await testContext111.step(
-      'filled until over finishline size',
-      () => {
-        const topLevelModelPageStats000 = Deno.statSync(
-          Path.join(testDataDirectoryPath, './TopLevelModel__EXAMPLE/0.data'),
-        );
-        Assert.assertEquals(
-          topLevelModelPageStats000.size >= testDataPageFinishlineSize,
-          true,
-        );
-        Assert.assertEquals(pagedRecords[0]!.__pageIndex, 0);
-        Assert.assertEquals(pagedRecords[1]!.__pageIndex, 0);
-      },
-    );
-    await testContext111.step(
-      'created if most recent head page is over finishline size',
-      () => {
-        const topLevelModelPageStats111 = Deno.statSync(
-          Path.join(testDataDirectoryPath, './TopLevelModel__EXAMPLE/1.data'),
-        );
-        Assert.assertEquals(topLevelModelPageStats111.isFile, true);
-        Assert.assertEquals(pagedRecords[2]!.__pageIndex, 1);
-      },
-    );
-  });
-  await testContext.step('create record', async (testContext111) => {
-    const { dataRowOperations } = getDataRowOperations({
-      dataSchema: testSchema,
-      dataRecord: newRecords[0]!,
-    });
-    const topLevelModelPage000 = await Deno.readFile(
-      Path.join(testDataDirectoryPath, './TopLevelModel__EXAMPLE/0.data'),
-    );
-    const dataModelPropertyModelPage000 = await Deno.readFile(
-      Path.join(
-        testDataDirectoryPath,
-        './DataModelPropertyModel__EXAMPLE/0.data',
-      ),
-    );
-    await testContext111.step('bytes persisted', async (testContext222) => {
-      await testContext222.step('top level row', () => {
-        Assert.assertEquals(
-          topLevelModelPage000.slice(
-            0,
-            dataRowOperations[1]!.operationRowBytes.length,
-          ),
-          dataRowOperations[1]!.operationRowBytes,
-        );
-      });
-      await testContext222.step('data model property row', () => {
-        Assert.assertEquals(
-          dataModelPropertyModelPage000.slice(
-            0,
-            dataRowOperations[0]!.operationRowBytes.length,
-          ),
-          dataRowOperations[0]!.operationRowBytes,
-        );
-      });
-    });
-  });
-  const updatedPagedRecord = {
-    ...pagedRecords[0]!['dataModelProperty__EXAMPLE'] as any as Record<
-      string,
-      unknown
-    >,
-    otherStringProperty__EXAMPLE: 'hey hey hey'
-  };
-  const writePagedRecordTask = await sagaMiddleware.run(writeRecord, {
-    dataPageFinishlineSize: testDataPageFinishlineSize,
-    dataDirectoryPath: testDataDirectoryPath,
-    dataSchema: testSchema,
-    dataRecord: updatedPagedRecord,
-  });
-  await writePagedRecordTask.toPromise();
-  await testContext.step('update record', async (testContext111) => {
-    await testContext111.step(
-      'data model property row bytes persisted',
-      async () => {
-        const { dataRowOperations } = getDataRowOperations({
-          dataSchema: testSchema,
-          dataRecord: updatedPagedRecord,
+Deno.test('writeRecord', async (aaa) => {
+  // await aaa.step('general', () => {})
+  // await aaa.step('input', async (bbb) => {
+  //   await bbb.step('basic new record', () => {})
+  //   await bbb.step('basic filed record', () => {})
+  //   await bbb.step('filed record', () => {})
+  // })
+  await aaa.step('output', async (bbb) => {
+    await bbb.step('data directory', async (ccc) => {
+      await ccc.step('model / table directory', async (ddd) => {
+        await ddd.step('table file', async (eee) => {
+          await eee.step('file encoding', async (fff) => {
+            await fff.step('table row', async (ggg) => {
+              await ggg.step('row byte size', () => {});
+              await ggg.step('record identifier', () => {});
+              await ggg.step('record properties', async (hhh) => {
+                await hhh.step('boolean primitive', () => {});
+                await hhh.step('number primitive', () => {});
+                await hhh.step('string primitive', async (iii) => {
+                  await iii.step('string byte size', () => {});
+                  await iii.step('string characters', () => {});
+                });
+                await hhh.step('data model', async (iii) => {
+                  await iii.step('page index', () => {});
+                  await iii.step('record identifier', () => {});
+                });
+              });
+              await ggg.step('end of row', () => {});
+            });
+          });
         });
-        const dataModelPropertyModelHeadPage = await Deno.readFile(
-          Path.join(
-            testDataDirectoryPath,
-            './DataModelPropertyModel__EXAMPLE/0.data',
-          ),
+      });
+    });
+  });
+  await aaa.step('writeRecord', async (bbb) => {
+    await bbb.step('assert shallowWellFormedRecord', () => {})
+    await bbb.step('initialize async iterable for data row operations', () => {})
+    await bbb.step('add initial data row operation', () => {})
+    await bbb.step('iterate over data row operation', () => {})
+    await bbb.step('return updated data record', () => {})
+  })
+  await aaa.step('writeTableRow', async (bbb) => {
+    await bbb.step('calculate table / model directory path', () => {})
+    await bbb.step('if new record then create table row', () => {})
+    await bbb.step('else if filed record then update table row', () => {})
+  })
+  await aaa.step('createTableRow', async (bbb) => {
+    await bbb.step('retrieve table head page index for row', async (ccc) => {
+      await ccc.step('retrieve current table head page index', async (ddd) => {
+        await ddd.step('check table head page index cache', () => {});
+        await ddd.step(
+          'if not cached then calculate from model / table directory',
+          () => {},
         );
-        Assert.assertEquals(
-          dataModelPropertyModelHeadPage.slice(
-            0,
-            dataRowOperations[0]!.operationRowBytes.length,
-          ),
-          dataRowOperations[0]!.operationRowBytes,
+      });
+      await ccc.step('calculate table head page index for current new table row', async (ddd) => {
+        await ddd.step('return current page index if space available', () => {});
+        await ddd.step('if current page full then return current table head page index plus one', () => {});
+      });
+      await ccc.step('update table head page index cache', () => {});
+    })
+    await bbb.step(
+      'backfill unresolved page index byte windows waiting for its page index resolution',
+      async (ccc) => {
+        await ccc.step(
+          'calculates page index byte window offset',
+          () => {
+            // unable to reliably use a cached version of pageIndexByteWindowOffset
+            // from time of registration because of possible updates to the table file that
+            // happened between time of registration and resolution, which were due to rows
+            // located in the same file and preempt the target row with the unresolved byte window
+          },
         );
       },
     );
+    await bbb.step('retrieve current / stale table head page bytes', async (ccc) => {
+      await ccc.step('if cached return', () => {})
+      await ccc.step('else if file exists then read and return', () => {})
+      await ccc.step('else return empty uint8array', () => {})
+    });
+    await bbb.step('make next version of table head page', async (ccc) => {
+      await ccc.step('initialize new table file buffer with size of tableFileResultBufferSize', () => {})
+      await ccc.step('prepend existing table file bytes',() => {})
+      await ccc.step('append new row bytes', () => {})
+    });
+    await bbb.step('update table file cache with next version', async (ccc) => {
+      await ccc.step('truncate empty bytes from next version with subarray', () => {})
+    });
+  });
+  await aaa.step('updateTableRow', async (bbb) => {
+    await bbb.step('retrieve current / stale table file bytes', async (ccc) => {
+      await ccc.step('if cached return', () => {})
+      await ccc.step('else read file and return', () => {})
+    });
+    await bbb.step('make next version of table head page', async (ccc) => {
+      await ccc.step('initialize new table file buffer with size of tableFileResultBufferSize', () => {})
+      await ccc.step('iterate over table rows in current / stable table file bytes', async (ddd) => {
+        await ddd.step('if target row apply updated bytes', () => {})
+        await ddd.step('else apply existing row bytes', () => {})
+      })
+    });
+    await bbb.step('update table file cache with next version', async (ccc) => {
+      await ccc.step('truncate empty bytes from next version with subarray', () => {})
+    });
+  });
+  await aaa.step('applyTableRowBytes', async (bbb) => {
+    await bbb.step('data model property', async (ccc) => {
+      await ccc.step('unresolved new record', async () => {});
+      await ccc.step('resolved new record', async () => {});
+      await ccc.step('unresolved filed record', async () => {});
+      await ccc.step('resolved filed record', async () => {});
+    });    
   });
 });
-

@@ -5,12 +5,12 @@ import {
 import {
   DataModel,
   PropertyEncoding,
-  RecordUuid,
 } from '../../schema/types/DataSchema.ts';
+import { RecordUuid } from '../createRecordUuid.ts';
 import {
   isShallowWellFormedRecord,
   ShallowWellFormedRecord,
-} from './isShallowWellFormedRecord.ts';
+} from '../helpers/isShallowWellFormedRecord.ts';
 import { WriteRecordApi } from './writeRecord.ts';
 
 export interface GetDataRowOperationsApi

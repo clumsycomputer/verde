@@ -1,4 +1,5 @@
-import { DataModel, RecordUuid } from '../../schema/types/DataSchema.ts';
+import { DataModel } from '../../schema/types/DataSchema.ts';
+import { RecordUuid } from './createRecordUuid.ts';
 
 export function isShallowWellFormedRecord(
   dataRecord: Record<string, unknown>,
@@ -8,19 +9,19 @@ export function isShallowWellFormedRecord(
     typeof dataRecord['__uuid'][0] === 'number' &&
     typeof dataRecord['__uuid'][1] === 'number' &&
     (dataRecord['__status'] === 'new' ||
-      (dataRecord['__status'] === 'paged' &&
+      (dataRecord['__status'] === 'filed' &&
         typeof dataRecord['__pageIndex'] === 'number'));
 }
 
 export type ShallowWellFormedRecord =
   | NewShallowWellFormedRecord
-  | PagedShallowWellFormedRecord;
+  | FiledShallowWellFormedRecord;
 
 export interface NewShallowWellFormedRecord
   extends __ShallowWellFormedRecord<'new'> {}
 
-export interface PagedShallowWellFormedRecord
-  extends __ShallowWellFormedRecord<'paged'> {
+export interface FiledShallowWellFormedRecord
+  extends __ShallowWellFormedRecord<'filed'> {
   __pageIndex: number;
 }
 

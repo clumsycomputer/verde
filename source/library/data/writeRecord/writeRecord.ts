@@ -3,365 +3,577 @@ import {
   throwUserError,
 } from '../../../helpers/throwError.ts';
 import { Path } from '../../../imports/Path.ts';
-import { getStoreEffects } from '../../../imports/ReduxSaga.ts';
-import { DataSchema, RecordUuid } from '../../schema/types/DataSchema.ts';
+import { DataModel, DataSchema } from '../../schema/types/DataSchema.ts';
+import { RecordUuid } from '../helpers/createRecordUuid.ts';
 import {
-  CreateDataRowOperation,
-  getDataRowOperations,
-  UpdateDataRowOperation,
-  WriteDataRowOperation,
-} from './getDataRowOperations.ts';
+  getEncodedBoolean,
+  getEncodedNumber,
+  getEncodedString,
+  getEncodedUint32,
+} from '../helpers/getEncodedData.ts';
 import {
+  FiledShallowWellFormedRecord,
   isShallowWellFormedRecord,
-  PagedShallowWellFormedRecord,
-} from './isShallowWellFormedRecord.ts';
-
-const { storeEffects } = getStoreEffects();
-const call = storeEffects.call;
+  NewShallowWellFormedRecord,
+  ShallowWellFormedRecord,
+} from '../helpers/isShallowWellFormedRecord.ts';
 
 export interface WriteRecordApi {
-  dataPageFinishlineSize: number;
+  tableFileFinishlineSize: number;
+  tableFileResultBufferSize: number;
   dataDirectoryPath: string;
   dataSchema: DataSchema;
   dataRecord: Record<string, unknown>;
 }
 
-export function* writeRecord(api: WriteRecordApi) {
-  const { dataSchema, dataRecord, dataDirectoryPath, dataPageFinishlineSize } =
-    api;
-  const { dataRowOperations } = getDataRowOperations({
-    dataSchema,
-    dataRecord,
-  });
-  const recordPageIndexMapResult: Record<number, Record<number, number>> = {};
-  for (const someDataRowOperation of dataRowOperations) {
-    const operationPageIndex = yield* call(writeDataRow, {
-      dataDirectoryPath,
-      dataPageFinishlineSize,
-      dataRowOperation: someDataRowOperation,
-    });
-    const subRecordPageIndexMap =
-      recordPageIndexMapResult[someDataRowOperation.operationRecordUuid[0]] ?? {};
-    subRecordPageIndexMap[someDataRowOperation.operationRecordUuid[1]] =
-      operationPageIndex;
-    recordPageIndexMapResult[someDataRowOperation.operationRecordUuid[0]] = 
-      subRecordPageIndexMap;
-  }
-  return getUpdatedPagedRecord({
-    dataSchema,
-    dataRecord,
-    recordPageIndexMap: recordPageIndexMapResult,
-  });
-}
-
-interface WriteDataRowApi
-  extends Pick<WriteRecordApi, 'dataDirectoryPath' | 'dataPageFinishlineSize'> {
-  dataRowOperation: WriteDataRowOperation;
-}
-
-function* writeDataRow(api: WriteDataRowApi) {
-  const { dataPageFinishlineSize, dataDirectoryPath, dataRowOperation } = api;
-  const modelDataDirectoryPath = Path.join(
+export async function writeRecord(api: WriteRecordApi) {
+  const {
     dataDirectoryPath,
-    `./${dataRowOperation.operationModelSymbol}`,
-  );
-  return dataRowOperation.operationKind === 'create'
-    ? yield* call(createDataRow, {
-      dataPageFinishlineSize,
-      dataRowOperation,
-      modelDataDirectoryPath,
-    })
-    : yield* call(updateDataRow, {
-      dataRowOperation,
-      modelDataDirectoryPath,
-    });
-}
-
-interface CreateDataRowApi
-  extends Pick<WriteRecordApi, 'dataPageFinishlineSize'> {
-  modelDataDirectoryPath: string;
-  dataRowOperation: CreateDataRowOperation;
-}
-
-function* createDataRow(api: CreateDataRowApi) {
-  const { dataPageFinishlineSize, modelDataDirectoryPath, dataRowOperation } =
-    api;
-  const { modelHeadPageFile, modelHeadPageIndex } = yield* call(
-    openModelHeadPageFile,
-    {
-      dataPageFinishlineSize,
-      modelDataDirectoryPath,
+    tableFileFinishlineSize,
+    tableFileResultBufferSize,
+    dataRecord,
+    dataSchema,
+  } = api;
+  if (false === isShallowWellFormedRecord(dataRecord)) {
+    throwUserError('writeRecord.dataRecord');
+  }
+  await writeTableRow({
+    dataDirectoryPath,
+    tableFileFinishlineSize,
+    tableFileResultBufferSize,
+    dataRecord,
+    dataSchema,
+    pendingOperationsQueue: [],
+    transactionState: {
+      tableFileCache: {},
+      tableHeadIndexCache: {},
+      unresolvedNewRecordPageIndexByteWindows: {},
+      resolvedRecords: {
+        new: {},
+        filed: {},
+      },
     },
-  );
-  yield* call(appendDataRowToHeadPage, {
-    modelHeadPageFile,
-    dataRowOperation,
   });
-  modelHeadPageFile.close();
-  return modelHeadPageIndex;
 }
 
-interface OpenModelHeadPageFileApi extends
+interface WriteTableRowApi extends
   Pick<
-    CreateDataRowApi,
-    'dataPageFinishlineSize' | 'modelDataDirectoryPath'
-  > {}
-
-interface OpenModelHeadPageFileResult {
-  modelHeadPageIndex: number;
-  modelHeadPageFile: Deno.FsFile;
-}
-
-async function openModelHeadPageFile(
-  api: OpenModelHeadPageFileApi,
-): Promise<OpenModelHeadPageFileResult> {
-  const { modelDataDirectoryPath, dataPageFinishlineSize } = api;
-  const modelDataPageEntries = Array.from(
-    Deno.readDirSync(modelDataDirectoryPath),
-  );
-  const mostRecentHeadModelPageEntry =
-    modelDataPageEntries.sort()[modelDataPageEntries.length - 1] ??
-      throwInvalidPathError('lastHeadModelPageEntry');
-  const mostRecentHeadModelPagePath = Path.join(
-    modelDataDirectoryPath,
-    mostRecentHeadModelPageEntry.name,
-  );
-  const lastHeadModelPageStats = await Deno.stat(mostRecentHeadModelPagePath);
-  return lastHeadModelPageStats.size < dataPageFinishlineSize
-    ? {
-      modelHeadPageIndex: modelDataPageEntries.length - 1,
-      modelHeadPageFile: await Deno.open(mostRecentHeadModelPagePath, {
-        write: true,
-        append: true,
-      }),
-    }
-    : {
-      modelHeadPageIndex: modelDataPageEntries.length,
-      modelHeadPageFile: await openNewHeadPageFile({
-        modelDataDirectoryPath,
-        nextHeadPageIndex: modelDataPageEntries.length,
-      }),
+    WriteRecordApi,
+    | 'dataSchema'
+    | 'dataDirectoryPath'
+    | 'tableFileFinishlineSize'
+    | 'tableFileResultBufferSize'
+  > {
+  dataRecord: ShallowWellFormedRecord;
+  pendingOperationsQueue: Array<ShallowWellFormedRecord>;
+  transactionState: {
+    unresolvedNewRecordPageIndexByteWindows: Record<
+      RecordUuid[0],
+      Record<RecordUuid[1], Array<unknown>>
+    >;
+    resolvedRecords: {
+      new: Record<
+        RecordUuid[0],
+        Record<RecordUuid[1], number>
+      >;
+      filed: Record<
+        RecordUuid[0],
+        Record<RecordUuid[1], true>
+      >;
     };
-}
-
-interface OpenNewHeadPageFileApi {
-  modelDataDirectoryPath: string;
-  nextHeadPageIndex: number;
-}
-
-function openNewHeadPageFile(
-  api: OpenNewHeadPageFileApi,
-) {
-  const { modelDataDirectoryPath, nextHeadPageIndex } = api;
-  const nextHeadPageFilePath = Path.join(
-    modelDataDirectoryPath,
-    `${nextHeadPageIndex}.data`,
-  );
-  return Deno.open(nextHeadPageFilePath, {
-    createNew: true,
-    write: true,
-    append: true,
-  });
-}
-
-interface AppendDataRowToHeadPageApi
-  extends
-    Pick<CreateDataRowApi, 'dataRowOperation'>,
-    Pick<OpenModelHeadPageFileResult, 'modelHeadPageFile'> {
-}
-
-function appendDataRowToHeadPage(
-  api: AppendDataRowToHeadPageApi,
-) {
-  const { modelHeadPageFile, dataRowOperation } = api;
-  return modelHeadPageFile.write(dataRowOperation.operationRowBytes);
-}
-
-interface UpdateDataRowApi {
-  modelDataDirectoryPath: string;
-  dataRowOperation: UpdateDataRowOperation;
-}
-
-function* updateDataRow(api: UpdateDataRowApi) {
-  const {
-    modelDataDirectoryPath,
-    dataRowOperation,
-  } = api;
-  const {
-    staleTargetPageFile,
-    nextTargetPageFile,
-    temporaryTargetPagePath,
-    targetPagePath,
-  } = yield* call(openTargetPageFile, {
-    modelDataDirectoryPath,
-    dataRowOperation,
-  });
-  yield* call(writeNextTargetPage, {
-    dataRowOperation,
-    staleTargetPageFile,
-    nextTargetPageFile,
-  });
-  staleTargetPageFile.close();
-  nextTargetPageFile.close();
-  yield* call(replaceTargetPageWithNextVersion, {
-    temporaryTargetPagePath,
-    targetPagePath,
-  });
-  return dataRowOperation.operationPageIndex;
-}
-
-interface OpenTargetPageFileApi
-  extends
-    Pick<UpdateDataRowApi, 'modelDataDirectoryPath' | 'dataRowOperation'> {
-}
-
-interface OpenTargetPageFileResult {
-  targetPagePath: string;
-  temporaryTargetPagePath: string;
-  staleTargetPageFile: Deno.FsFile;
-  nextTargetPageFile: Deno.FsFile;
-}
-
-async function openTargetPageFile(
-  api: OpenTargetPageFileApi,
-): Promise<OpenTargetPageFileResult> {
-  const {
-    modelDataDirectoryPath,
-    dataRowOperation,
-  } = api;
-  const targetPagePath = Path.join(
-    modelDataDirectoryPath,
-    `${dataRowOperation.operationPageIndex}.data`,
-  );
-  const staleTargetPageFilePromise = Deno.open(
-    targetPagePath,
-    {
-      read: true,
-    },
-  );
-  const temporaryTargetPagePath = Path.join(
-    modelDataDirectoryPath,
-    `${dataRowOperation.operationPageIndex}.data__NEXT`,
-  );
-  const nextTargetPageFilePromise = Deno.open(
-    temporaryTargetPagePath,
-    {
-      createNew: true,
-      write: true,
-      append: true,
-    },
-  );
-  return {
-    targetPagePath,
-    temporaryTargetPagePath,
-    staleTargetPageFile: await staleTargetPageFilePromise,
-    nextTargetPageFile: await nextTargetPageFilePromise,
+    tableFileCache: Record<
+      DataModel['modelSymbol'],
+      Record<number, Uint8Array>
+    >;
+    tableHeadIndexCache: Record<DataModel['modelSymbol'], number>
   };
 }
 
-interface WriteNextTargetPageApi
-  extends
-    Pick<UpdateDataRowApi, 'dataRowOperation'>,
-    Pick<
-      OpenTargetPageFileResult,
-      'staleTargetPageFile' | 'nextTargetPageFile'
-    > {}
-
-async function writeNextTargetPage(api: WriteNextTargetPageApi) {
+async function writeTableRow(api: WriteTableRowApi) {
   const {
-    staleTargetPageFile,
-    nextTargetPageFile,
-    dataRowOperation,
+    dataRecord,
+    dataSchema,
+    dataDirectoryPath,
+    tableFileFinishlineSize,
+    tableFileResultBufferSize,
+    pendingOperationsQueue,
+    transactionState,
   } = api;
-  let targetPageHasBytesRemaining = true;
-  const currentRowByteSizeBytes = new Uint8Array(4);
-  const currentRowByteSizeView = new DataView(
-    currentRowByteSizeBytes.buffer,
+  const tableDirectoryPath = Path.join(
+    dataDirectoryPath,
+    `./${dataRecord.__modelSymbol}`,
   );
-  while (targetPageHasBytesRemaining) {
-    const currentRowByteSizeBytesReadCount = await staleTargetPageFile.read(
-      currentRowByteSizeBytes,
-    );
-    if (currentRowByteSizeBytesReadCount === null) {
-      targetPageHasBytesRemaining = false;
-      continue;
-    } else if (4 !== currentRowByteSizeBytesReadCount) {
-      // documentation says possible, probably won't handle
-      throwInvalidPathError('rowBytesCountRead');
-    }
-    const currentRowByteSize = currentRowByteSizeView.getUint32(0);
-    const currentRowBytes = new Uint8Array(currentRowByteSize);
-    const currentRowView = new DataView(currentRowBytes.buffer);
-    const rowBytesReadCount = await staleTargetPageFile.read(currentRowBytes);
-    if (currentRowBytes.length !== rowBytesReadCount) {
-      // documentation says possible, and should handle
-      throwInvalidPathError('rowBytesReadCount');
-    }
-    const currentRowUuidFirst = currentRowView.getFloat64(0);
-    const currentRowUuidSecond = currentRowView.getFloat64(8);
-    currentRowUuidFirst === dataRowOperation.operationRecordUuid[0] &&
-      currentRowUuidSecond === dataRowOperation.operationRecordUuid[1]
-      ? await nextTargetPageFile.write(dataRowOperation.operationRowBytes)
-      : await nextTargetPageFile.write(
-        new Uint8Array([
-          ...currentRowByteSizeBytes,
-          ...currentRowBytes,
-        ]),
-      );
+  const recordModel = dataSchema.schemaMap[dataRecord.__modelSymbol] ??
+    throwUserError('recordModel');
+  dataRecord.__status === 'new'
+    ? await createTableRow({
+      dataRecord,
+      tableFileFinishlineSize,
+      tableFileResultBufferSize,
+      pendingOperationsQueue,
+      transactionState,
+      tableDirectoryPath,
+      recordModel,
+    })
+    : await updateTableRow({
+      dataRecord,
+      tableDirectoryPath,
+    });
+  cache table row result
+  const nextTableRowDataRecord = pendingOperationsQueue.shift();
+  if (nextTableRowDataRecord) {
+    await writeTableRow({
+      dataSchema,
+      dataDirectoryPath,
+      tableFileFinishlineSize,
+      tableFileResultBufferSize,
+      pendingOperationsQueue,
+      transactionState,
+      dataRecord: nextTableRowDataRecord,
+    });
   }
 }
 
-interface ReplaceTargetPageWithNextVersionApi extends
+interface CreateTableRowApi extends
   Pick<
-    OpenTargetPageFileResult,
-    'temporaryTargetPagePath' | 'targetPagePath'
+    WriteTableRowApi,
+    | 'tableFileFinishlineSize'
+    | 'tableFileResultBufferSize'
+    | 'transactionState'
+    | 'pendingOperationsQueue'
+  > {
+  dataRecord: NewShallowWellFormedRecord;
+  tableDirectoryPath: string;
+  recordModel: DataSchema['schemaMap'][string];
+}
+
+async function createTableRow(api: CreateTableRowApi) {
+  const {
+    tableDirectoryPath,
+    tableFileFinishlineSize,
+    tableFileResultBufferSize,
+    dataRecord,
+    recordModel,
+    transactionState,
+    pendingOperationsQueue,
+  } = api;
+  const { tableHeadIndex, staleTableHeadBytes } = await readTableHeadFile({
+    tableDirectoryPath,
+    tableFileFinishlineSize,
+  });
+  const unresolvedPageIndexByteWindows = transactionState.unresolvedNewRecordPageIndexByteWindows[dataRecord.__uuid[0]] && transactionState.unresolvedNewRecordPageIndexByteWindows[dataRecord.__uuid[0]]![dataRecord.__uuid[1]] 
+  if (unresolvedPageIndexByteWindows instanceof Array) {
+    for (const someUnresolvedPageIndexByteWindow of unresolvedPageIndexByteWindows) {
+      someUnresolvedPageIndexByteWindow
+    }
+  }
+  try {
+    const tableFileBytesResult = new Uint8Array(tableFileResultBufferSize);
+    let currentTableFileByteOffset = { value: 0 };
+    applyTableFileBytes({
+      tableFileBytesResult,
+      currentTableFileByteOffset,
+      bytePatch: staleTableHeadBytes,
+    });
+    applyTableRowBytes({
+      dataRecord,
+      recordModel,
+      transactionState,
+      pendingOperationsQueue,
+      tableFileBytesResult,
+      currentTableFileByteOffset,
+    });
+  } catch (setBytesError) {
+    throw setBytesError;
+    // case 1: new row overflows tableFileResultBufferSize
+  }
+}
+
+interface ReadTableHeadFileApi extends
+  Pick<
+    CreateTableRowApi,
+    'tableDirectoryPath' | 'tableFileFinishlineSize'
   > {
 }
 
-function replaceTargetPageWithNextVersion(
-  api: ReplaceTargetPageWithNextVersionApi,
-) {
-  const { temporaryTargetPagePath, targetPagePath } = api;
-  return Deno.rename(temporaryTargetPagePath, targetPagePath);
-}
-
-interface GetUpdatedPagedRecordApi
-  extends Pick<WriteRecordApi, 'dataSchema' | 'dataRecord'> {
-  recordPageIndexMap: Record<
-    RecordUuid[0],
-    Record<RecordUuid[1], PagedShallowWellFormedRecord['__pageIndex']>
-  >;
-}
-
-function getUpdatedPagedRecord(api: GetUpdatedPagedRecordApi) {
-  const { dataSchema, dataRecord, recordPageIndexMap } = api;
-  if (false === isShallowWellFormedRecord(dataRecord)) {
-    throwUserError('__getDataRowOperations["dataRecord"]');
-  }
-  const recordModel = dataSchema.schemaMap[dataRecord.__modelSymbol] ??
-    throwInvalidPathError('recordModel');
-  return Object.values(recordModel.modelProperties).reduce<
-    PagedShallowWellFormedRecord
-  >(
-    (recordResult, someModelProperty) => {
-      const recordProperty = dataRecord[someModelProperty.propertyKey];
-      recordResult[someModelProperty.propertyKey] =
-        someModelProperty.propertyElement.elementKind === 'dataModel'
-          ? getUpdatedPagedRecord({
-            dataSchema,
-            recordPageIndexMap,
-            dataRecord: recordProperty as any as Record<string, unknown>,
-          })
-          : recordProperty;
-      return recordResult;
-    },
-    {
-      __status: 'paged',
-      __uuid: dataRecord.__uuid,
-      __modelSymbol: dataRecord.__modelSymbol,
-      __pageIndex:
-        recordPageIndexMap[dataRecord.__uuid[0]]![dataRecord.__uuid[1]] ??
-          throwInvalidPathError('__pageIndex'),
-    } satisfies PagedShallowWellFormedRecord,
+async function readTableHeadFile(api: ReadTableHeadFileApi) {
+  const { tableDirectoryPath, tableFileFinishlineSize } = api;
+  rethink and consider how transactionTableFileCache changes thiis
+  const { tableFileCount } = await readTableFileCount({ tableDirectoryPath });
+  const lastTableHeadIndex = tableFileCount - 1;
+  const lastTableHeadPath = Path.join(
+    tableDirectoryPath,
+    `${lastTableHeadIndex}.data`,
   );
+  const lastModelHeadFileStats = await Deno.stat(lastTableHeadPath);
+  return lastModelHeadFileStats.size < tableFileFinishlineSize
+    ? {
+      tableHeadIndex: lastTableHeadIndex,
+      staleTableHeadBytes: await Deno.readFile(lastTableHeadPath),
+    }
+    : {
+      tableHeadIndex: tableFileCount,
+      staleTableHeadBytes: new Uint8Array(),
+    };
+}
+
+interface ReadTableFileCountApi
+  extends Pick<ReadTableHeadFileApi, 'tableDirectoryPath'> {}
+
+async function readTableFileCount(api: ReadTableFileCountApi) {
+  const { tableDirectoryPath } = api;
+  let tableFileCountResult = 0;
+  for await (const someTableEntry of Deno.readDir(tableDirectoryPath)) {
+    tableFileCountResult += 1;
+  }
+  return {
+    tableFileCount: tableFileCountResult,
+  };
+}
+
+interface UpdateTableRowApi {}
+
+async function updateTableRow(api: UpdateTableRowApi) {
+  todo
+}
+
+interface ApplyTableRowBytesApi
+  extends
+    Pick<WriteTableRowApi, 'transactionState' | 'pendingOperationsQueue'> {
+  currentTableFileByteOffset: { value: number };
+  tableFileBytesResult: Uint8Array;
+  dataRecord: ShallowWellFormedRecord;
+  recordModel: DataModel;
+}
+
+function applyTableRowBytes(api: ApplyTableRowBytesApi) {
+  const {
+    currentTableFileByteOffset,
+    dataRecord,
+    tableFileBytesResult,
+    recordModel,
+    transactionState,
+    pendingOperationsQueue,
+  } = api;
+  const rowByteSizeOffset = currentTableFileByteOffset.value;
+  currentTableFileByteOffset.value += 4;
+  let currentRowByteSize = { value: 0 };
+  applyRowPropertyBytes({
+    currentTableFileByteOffset,
+    tableFileBytesResult,
+    currentRowByteSize,
+    bytePatch: getEncodedNumber({
+      someNumber: dataRecord.__uuid[0],
+    }),
+  });
+  applyRowPropertyBytes({
+    currentTableFileByteOffset,
+    tableFileBytesResult,
+    currentRowByteSize,
+    bytePatch: getEncodedNumber({
+      someNumber: dataRecord.__uuid[1],
+    }),
+  });
+  const [identifierEncoding, ...propertyEncodings] = recordModel.modelEncoding;
+  for (const somePropertyEncoding of propertyEncodings) {
+    const modelProperty =
+      recordModel.modelProperties[somePropertyEncoding.encodingPropertyKey] ??
+        throwUserError('modelProperty');
+    const recordProperty =
+      dataRecord[somePropertyEncoding.encodingPropertyKey] ??
+        throwUserError('recordProperty');
+    if (
+      modelProperty.propertyElement.elementKind === 'booleanPrimitive' &&
+      typeof recordProperty === 'boolean'
+    ) {
+      applyRowPropertyBytes({
+        currentTableFileByteOffset,
+        tableFileBytesResult,
+        currentRowByteSize,
+        bytePatch: getEncodedBoolean({
+          someBoolean: recordProperty,
+        }),
+      });
+    } else if (
+      modelProperty.propertyElement.elementKind === 'numberPrimitive' &&
+      typeof recordProperty === 'number'
+    ) {
+      applyRowPropertyBytes({
+        currentTableFileByteOffset,
+        tableFileBytesResult,
+        currentRowByteSize,
+        bytePatch: getEncodedNumber({
+          someNumber: recordProperty,
+        }),
+      });
+    } else if (
+      modelProperty.propertyElement.elementKind === 'stringPrimitive' &&
+      typeof recordProperty === 'string'
+    ) {
+      const stringBytes = getEncodedString({
+        someString: recordProperty,
+      });
+      applyRowPropertyBytes({
+        currentTableFileByteOffset,
+        tableFileBytesResult,
+        currentRowByteSize,
+        bytePatch: getEncodedUint32({
+          someNumber: stringBytes.length,
+        }),
+      });
+      applyRowPropertyBytes({
+        currentTableFileByteOffset,
+        tableFileBytesResult,
+        currentRowByteSize,
+        bytePatch: stringBytes,
+      });
+    } else if (
+      modelProperty.propertyElement.elementKind === 'dataModel' &&
+      isStringKeyRecord(recordProperty) &&
+      isShallowWellFormedRecord(recordProperty) &&
+      recordProperty.__status === 'new' &&
+      isNewResolvedRecord(transactionState, recordProperty)
+    ) {
+      const newSubLeafResolvedRecords =
+        transactionState.resolvedRecords.new[recordProperty.__uuid[0]] ??
+          throwInvalidPathError('newSubLeafResolvedRecords');
+      const resolvedPropertyPageIndex =
+        newSubLeafResolvedRecords[recordProperty.__uuid[1]] ??
+          throwInvalidPathError('resolvedPropertyPageIndex');
+      applyPropertyDataModelBytes({
+        currentTableFileByteOffset,
+        tableFileBytesResult,
+        currentRowByteSize,
+        recordProperty,
+        dataModelPageIndex: resolvedPropertyPageIndex,
+      });
+    } else if (
+      modelProperty.propertyElement.elementKind === 'dataModel' &&
+      isStringKeyRecord(recordProperty) &&
+      isShallowWellFormedRecord(recordProperty) &&
+      recordProperty.__status === 'new'
+      // && false === isNewResolvedRecord(transactionState, recordProperty)
+    ) {
+      registerUnresolvedPageIndexByteWindow({
+        currentTableFileByteOffset,
+        transactionState,
+        currentRowByteSize,
+        recordProperty
+      })
+      applyDataModelIdentifierBytes({
+        currentTableFileByteOffset,
+        tableFileBytesResult,
+        currentRowByteSize,
+        recordProperty,
+      });
+      pendingOperationsQueue.push(recordProperty);
+    } else if (
+      modelProperty.propertyElement.elementKind === 'dataModel' &&
+      isStringKeyRecord(recordProperty) &&
+      isShallowWellFormedRecord(recordProperty) &&
+      recordProperty.__status === 'filed' &&
+      isFiledResolvedRecord(transactionState, recordProperty)
+    ) {
+      applyPropertyDataModelBytes({
+        currentTableFileByteOffset,
+        tableFileBytesResult,
+        currentRowByteSize,
+        recordProperty,
+        dataModelPageIndex: recordProperty.__pageIndex,
+      });
+      pendingOperationsQueue.push(recordProperty);
+    } else if (
+      modelProperty.propertyElement.elementKind === 'dataModel' &&
+      isStringKeyRecord(recordProperty) &&
+      isShallowWellFormedRecord(recordProperty) &&
+      recordProperty.__status === 'filed'
+      // && false === isFiledResolvedRecord(transactionState, recordProperty)
+    ) {
+      applyPropertyDataModelBytes({
+        currentTableFileByteOffset,
+        tableFileBytesResult,
+        currentRowByteSize,
+        recordProperty,
+        dataModelPageIndex: recordProperty.__pageIndex,
+      });
+    } else if (
+      modelProperty.propertyElement.elementKind === 'booleanLiteral' ||
+      modelProperty.propertyElement.elementKind === 'numberLiteral' ||
+      modelProperty.propertyElement.elementKind === 'stringLiteral'
+    ) {
+      throwInvalidPathError('modelProperty.propertyElement.elementKind');
+    } else {
+      throwUserError('typeof recordProperty');
+    }
+  }
+  applyRowPropertyBytes({
+    currentTableFileByteOffset,
+    tableFileBytesResult,
+    currentRowByteSize,
+    bytePatch: getEncodedString({
+      someString: '\n',
+    }),
+  });
+  tableFileBytesResult.set(
+    getEncodedUint32({
+      someNumber: currentRowByteSize.value,
+    }),
+    rowByteSizeOffset,
+  );
+}
+
+function isNewResolvedRecord(
+  transactionState: WriteTableRowApi['transactionState'],
+  recordProperty: NewShallowWellFormedRecord,
+): boolean {
+  return false;
+}
+
+function isFiledResolvedRecord(
+  transactionState: WriteTableRowApi['transactionState'],
+  recordProperty: FiledShallowWellFormedRecord,
+): boolean {
+  return false;
+}
+
+interface RegisterUnresolvedPageIndexByteWindowApi extends Pick<ApplyTableRowBytesApi, "transactionState" | "currentTableFileByteOffset"> {
+  recordProperty: NewShallowWellFormedRecord
+  currentRowByteSize: { value: number }
+}
+
+function registerUnresolvedPageIndexByteWindow(api: RegisterUnresolvedPageIndexByteWindowApi) {
+  const {  transactionState, recordProperty, currentTableFileByteOffset, currentRowByteSize} = api
+  const subLeafUnresolvedByteWindows =
+        transactionState
+          .unresolvedNewRecordPageIndexByteWindows[recordProperty.__uuid[0]] ??
+          {};
+      const recordUnresolvedByteWindows =
+        subLeafUnresolvedByteWindows[recordProperty.__uuid[1]] ?? [];
+      recordUnresolvedByteWindows.push({
+        pageIndexByteWindowOffset: currentTableFileByteOffset.value,
+      });
+      subLeafUnresolvedByteWindows[recordProperty.__uuid[1]] =
+        recordUnresolvedByteWindows;
+      transactionState
+        .unresolvedNewRecordPageIndexByteWindows[recordProperty.__uuid[0]] =
+          subLeafUnresolvedByteWindows;
+      currentTableFileByteOffset.value += 4;
+      currentRowByteSize.value += 4;
+}
+
+interface ApplyRowPropertyBytesApi extends
+  Pick<
+    ApplyTableFileBytesApi,
+    'bytePatch' | 'tableFileBytesResult' | 'currentTableFileByteOffset'
+  > {
+  currentRowByteSize: { value: number };
+}
+
+function applyRowPropertyBytes(
+  api: ApplyRowPropertyBytesApi,
+) {
+  const {
+    bytePatch,
+    tableFileBytesResult,
+    currentTableFileByteOffset,
+    currentRowByteSize,
+  } = api;
+  applyTableFileBytes({
+    bytePatch,
+    tableFileBytesResult,
+    currentTableFileByteOffset,
+  });
+  currentRowByteSize.value += bytePatch.length;
+}
+
+interface ApplyPropertyDataModelBytesApi extends
+  Pick<
+    ApplyDataModelIdentifierBytesApi,
+    | 'currentTableFileByteOffset'
+    | 'tableFileBytesResult'
+    | 'currentRowByteSize'
+    | 'recordProperty'
+  > {
+  dataModelPageIndex: number;
+}
+
+function applyPropertyDataModelBytes(api: ApplyPropertyDataModelBytesApi) {
+  const {
+    currentTableFileByteOffset,
+    tableFileBytesResult,
+    currentRowByteSize,
+    dataModelPageIndex,
+    recordProperty,
+  } = api;
+  applyRowPropertyBytes({
+    currentTableFileByteOffset,
+    tableFileBytesResult,
+    currentRowByteSize,
+    bytePatch: getEncodedUint32({
+      someNumber: dataModelPageIndex,
+    }),
+  });
+  applyDataModelIdentifierBytes({
+    currentTableFileByteOffset,
+    tableFileBytesResult,
+    currentRowByteSize,
+    recordProperty,
+  });
+}
+
+interface ApplyDataModelIdentifierBytesApi extends
+  Pick<
+    ApplyTableRowBytesApi,
+    | 'currentTableFileByteOffset'
+    | 'tableFileBytesResult'
+  > {
+  currentRowByteSize: { value: number };
+  recordProperty: ShallowWellFormedRecord;
+}
+
+function applyDataModelIdentifierBytes(
+  api: ApplyDataModelIdentifierBytesApi,
+) {
+  const {
+    currentTableFileByteOffset,
+    tableFileBytesResult,
+    currentRowByteSize,
+    recordProperty,
+  } = api;
+  applyRowPropertyBytes({
+    currentTableFileByteOffset,
+    tableFileBytesResult,
+    currentRowByteSize,
+    bytePatch: getEncodedNumber({
+      someNumber: recordProperty.__uuid[0],
+    }),
+  });
+  applyRowPropertyBytes({
+    currentTableFileByteOffset,
+    tableFileBytesResult,
+    currentRowByteSize,
+    bytePatch: getEncodedNumber({
+      someNumber: recordProperty.__uuid[1],
+    }),
+  });
+}
+
+interface ApplyTableFileBytesApi {
+  bytePatch: Uint8Array;
+  tableFileBytesResult: Uint8Array;
+  currentTableFileByteOffset: { value: number };
+}
+
+function applyTableFileBytes(
+  api: ApplyTableFileBytesApi,
+) {
+  const { tableFileBytesResult, bytePatch, currentTableFileByteOffset } = api;
+  tableFileBytesResult.set(bytePatch, currentTableFileByteOffset.value);
+  currentTableFileByteOffset.value += bytePatch.length;
+}
+
+function isStringKeyRecord(
+  someObject: object,
+): someObject is Record<string, unknown> {
+  return true;
 }

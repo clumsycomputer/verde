@@ -4,7 +4,7 @@ import {
   getEncodedNumber,
   getEncodedString,
   getEncodedUint32,
-} from '../../source/library/data/writeRecord/getDataRowOperations.ts';
+} from '../../source/library/data/writeRecord__LEGACY/getDataRowOperations.ts';
 import { Assert } from '../imports/Assert.ts';
 import { createTopLevelRecord, testSchema } from './helpers/testSchema.ts';
 

@@ -3,7 +3,7 @@ import { DataModel, DataSchema } from '../types/DataSchema.ts';
 import { SolidifiedSchema } from '../types/SolidfiedSchema.ts';
 
 export interface GetInitialDataSchemaApi
-  extends Pick<__ResolveDataSchemaApi<unknown>, 'solidifiedSchema'> {
+  extends Pick<__GetDataSchemaApi<unknown>, 'solidifiedSchema'> {
 }
 
 export function getInitialDataSchema(
@@ -18,7 +18,7 @@ export function getInitialDataSchema(
 }
 
 export interface GetNextDataSchemaApi
-  extends Pick<__ResolveDataSchemaApi<unknown>, 'solidifiedSchema'> {
+  extends Pick<__GetDataSchemaApi<unknown>, 'solidifiedSchema'> {
   staleDataSchema: DataSchema;
 }
 
@@ -146,7 +146,7 @@ function getNextModelEncoding(
   ];
 }
 
-interface __ResolveDataSchemaApi<ThisAdditionalModelEncodingApi> {
+interface __GetDataSchemaApi<ThisAdditionalModelEncodingApi> {
   solidifiedSchema: SolidifiedSchema;
   additionalModelEncodingApi: ThisAdditionalModelEncodingApi;
   getModelEncoding: (
@@ -159,13 +159,13 @@ type GetModelEncodingApi<ThisAdditionalModelEncodingApi> =
   & ThisAdditionalModelEncodingApi;
 
 interface __GetModelEncodingApi {
-  someSolidifiedModel: __ResolveDataSchemaApi<
+  someSolidifiedModel: __GetDataSchemaApi<
     unknown
   >['solidifiedSchema']['schemaMap'][string];
 }
 
 function __getDataSchema<ThisAdditionalModelEncodingApi>(
-  api: __ResolveDataSchemaApi<ThisAdditionalModelEncodingApi>,
+  api: __GetDataSchemaApi<ThisAdditionalModelEncodingApi>,
 ) {
   const {
     solidifiedSchema,
@@ -182,7 +182,7 @@ function __getDataSchema<ThisAdditionalModelEncodingApi>(
         modelEncoding: getModelEncoding({
           someSolidifiedModel,
           ...additionalModelEncodingApi,
-        }),
+        })
       };
       return schemaMapResult;
     }, {}),
