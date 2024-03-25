@@ -1,4 +1,19 @@
+import { writeRecord } from '../../source/library/module.ts';
+import { Path } from '../imports/Path.ts';
+
 Deno.test('writeRecord', async (aaa) => {
+  const testDataDirectoryPath = Path.join(
+    Path.fromFileUrl(import.meta.url),
+    '../__writeRecordData',
+  );
+  await writeRecord({
+    dataDirectoryPath: testDataDirectoryPath,
+    dataRecord: {
+      __status: 'new',
+      __modelSymbol: 'Foo',
+      __uuid: [0,1]  
+    }
+  })
   // await aaa.step('general', () => {})
   // await aaa.step('input', async (bbb) => {
   //   await bbb.step('basic new record', () => {})
@@ -33,11 +48,12 @@ Deno.test('writeRecord', async (aaa) => {
     });
   });
   await aaa.step('writeRecord', async (bbb) => {
-    await bbb.step('assert shallowWellFormedRecord', () => {})
-    await bbb.step('initialize async iterable for data row operations', () => {})
-    await bbb.step('add initial data row operation', () => {})
-    await bbb.step('iterate over data row operation', () => {})
-    await bbb.step('return updated data record', () => {})
+    // await bbb.step('assert shallowWellFormedRecord', () => {})
+    // await bbb.step('setup transaction cache directory', () => {})
+    // await bbb.step('initialize pending transaction records', () => {})
+    // await bbb.step('iterate over data row operation', () => {})
+    // await bbb.step('rename files in transaction cache to corresponding source files', () => {})
+    // await bbb.step('return updated data record', () => {})
   })
   await aaa.step('writeTableRow', async (bbb) => {
     await bbb.step('calculate table / model directory path', () => {})
@@ -74,8 +90,8 @@ Deno.test('writeRecord', async (aaa) => {
       },
     );
     await bbb.step('retrieve current / stale table head page bytes', async (ccc) => {
-      await ccc.step('if cached return', () => {})
-      await ccc.step('else if file exists then read and return', () => {})
+      await ccc.step('if cached read and return', () => {})
+      await ccc.step('else if preexisting file exists then read and return', () => {})
       await ccc.step('else return empty uint8array', () => {})
     });
     await bbb.step('make next version of table head page', async (ccc) => {
@@ -89,8 +105,8 @@ Deno.test('writeRecord', async (aaa) => {
   });
   await aaa.step('updateTableRow', async (bbb) => {
     await bbb.step('retrieve current / stale table file bytes', async (ccc) => {
-      await ccc.step('if cached return', () => {})
-      await ccc.step('else read file and return', () => {})
+      await ccc.step('if cached read and return', () => {})
+      await ccc.step('else read preexisting file and return', () => {})
     });
     await bbb.step('make next version of table head page', async (ccc) => {
       await ccc.step('initialize new table file buffer with size of tableFileResultBufferSize', () => {})

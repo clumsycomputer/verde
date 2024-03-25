@@ -10,7 +10,7 @@ export function isShallowWellFormedRecord(
     typeof dataRecord['__uuid'][1] === 'number' &&
     (dataRecord['__status'] === 'new' ||
       (dataRecord['__status'] === 'filed' &&
-        typeof dataRecord['__pageIndex'] === 'number'));
+        typeof dataRecord['__fileIndex'] === 'number'));
 }
 
 export type ShallowWellFormedRecord =
@@ -22,7 +22,7 @@ export interface NewShallowWellFormedRecord
 
 export interface FiledShallowWellFormedRecord
   extends __ShallowWellFormedRecord<'filed'> {
-  __pageIndex: number;
+  __fileIndex: number;
 }
 
 interface __ShallowWellFormedRecord<RecordStatus> {
