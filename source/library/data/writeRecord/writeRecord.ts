@@ -5,8 +5,14 @@ import {
 import { FileSystem } from '../../../imports/FileSystem.ts';
 import { Path } from '../../../imports/Path.ts';
 import { DataModel, DataSchema } from '../../schema/types/DataSchema.ts';
-import { getEncodedBoolean, getEncodedNumber, getEncodedString, getEncodedUint32 } from '../helpers/getEncodedData.ts';
 import {
+  getEncodedBoolean,
+  getEncodedNumber,
+  getEncodedString,
+  getEncodedUint32,
+} from '../helpers/getEncodedData.ts';
+import {
+FiledShallowWellFormedRecord,
   isShallowWellFormedRecord,
   NewShallowWellFormedRecord,
   ShallowWellFormedRecord,
@@ -80,7 +86,6 @@ interface WriteTableRowApi extends
   > {
   transactionDirectoryPath: string;
   transactionState: TransactionState;
-  dataRecord: ShallowWellFormedRecord;
 }
 
 interface TransactionState {
@@ -94,11 +99,10 @@ async function writeTableRow(api: WriteTableRowApi) {
     operationSourceRecord,
     dataDirectoryPath,
     tableFileResultBufferSize,
+    operationFiledRecordResult,
     tableFileFinishlineSize,
     transactionDirectoryPath,
     transactionState,
-    dataRecord,
-    operationFiledRecordResult,
   } = api;
   const recordModel =
     dataSchema.schemaMap[operationSourceRecord.__modelSymbol] ??
@@ -111,10 +115,11 @@ async function writeTableRow(api: WriteTableRowApi) {
   const currentTableFileByteOffset = { value: 0 };
   const { tableFileIndex } = operationSourceRecord.__status === 'new'
     ? await createTableRow({
+      operationSourceRecord,
+      operationFiledRecordResult,
       tableFileFinishlineSize,
       transactionDirectoryPath,
       transactionState,
-      dataRecord,
       recordModel,
       tableDirectoryPath,
       tableFileBytesResult,
@@ -142,8 +147,9 @@ interface CreateTableRowApi extends
     | 'transactionState'
     | 'transactionDirectoryPath'
     | 'tableFileFinishlineSize'
+    | 'operationFiledRecordResult'
   > {
-  dataRecord: NewShallowWellFormedRecord;
+  operationSourceRecord: NewShallowWellFormedRecord;
   recordModel: DataModel;
   tableDirectoryPath: string;
   tableFileBytesResult: Uint8Array;
@@ -157,7 +163,8 @@ async function createTableRow(api: CreateTableRowApi) {
     tableDirectoryPath,
     transactionState,
     recordModel,
-    dataRecord,
+    operationSourceRecord,
+    operationFiledRecordResult,
     tableFileBytesResult,
     currentTableFileByteOffset,
   } = api;
@@ -174,7 +181,8 @@ async function createTableRow(api: CreateTableRowApi) {
     sourceTableHeadBytes,
     transactionState,
     recordModel,
-    dataRecord,
+    operationSourceRecord,
+    operationFiledRecordResult,
     tableFileBytesResult,
     currentTableFileByteOffset,
   });
@@ -310,7 +318,8 @@ interface UpdateTableHeadBytesApi extends
     | 'currentTableFileByteOffset'
     | 'recordModel'
     | 'transactionState'
-    | 'dataRecord'
+    | 'operationSourceRecord'
+    | 'operationFiledRecordResult'
   >,
   Pick<RetrieveSourceTableHeadResult, 'sourceTableHeadBytes'> {}
 
@@ -321,7 +330,8 @@ function updateTableHeadBytes(api: UpdateTableHeadBytesApi) {
     sourceTableHeadBytes,
     transactionState,
     recordModel,
-    dataRecord,
+    operationSourceRecord,
+    operationFiledRecordResult,
   } = api;
   applyTableFileBytes({
     tableFileBytesResult,
@@ -333,14 +343,13 @@ function updateTableHeadBytes(api: UpdateTableHeadBytesApi) {
     currentTableFileByteOffset,
     transactionState,
     recordModel,
-    dataRecord,
+    operationSourceRecord,
+    operationFiledRecordResult,
   });
 }
 
 async function updateTableRow() {
-  return {
-    tableFileIndex: operationSourceRecord.__fileIndex,
-  };
+  return { tableFileIndex: -1 }
 }
 
 interface CommitRecordTransactionApi {}
@@ -367,17 +376,19 @@ interface ApplyTableRowBytesApi
   extends Pick<WriteTableRowApi, 'transactionState'> {
   currentTableFileByteOffset: { value: number };
   tableFileBytesResult: Uint8Array;
-  dataRecord: ShallowWellFormedRecord;
+  operationSourceRecord: ShallowWellFormedRecord;
+  operationFiledRecordResult: Record<string, unknown>;
   recordModel: DataModel;
 }
 
 function applyTableRowBytes(api: ApplyTableRowBytesApi) {
   const {
     currentTableFileByteOffset,
-    dataRecord,
+    operationSourceRecord,
     tableFileBytesResult,
     recordModel,
     transactionState,
+    operationFiledRecordResult,
   } = api;
   const rowByteSizeOffset = currentTableFileByteOffset.value;
   currentTableFileByteOffset.value += 4;
@@ -387,7 +398,7 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
     tableFileBytesResult,
     currentRowByteSize,
     bytePatch: getEncodedNumber({
-      someNumber: dataRecord.__uuid[0],
+      someNumber: operationSourceRecord.__uuid[0],
     }),
   });
   applyRowPropertyBytes({
@@ -395,7 +406,7 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
     tableFileBytesResult,
     currentRowByteSize,
     bytePatch: getEncodedNumber({
-      someNumber: dataRecord.__uuid[1],
+      someNumber: operationSourceRecord.__uuid[1],
     }),
   });
   const [identifierEncoding, ...propertyEncodings] = recordModel.modelEncoding;
@@ -404,7 +415,7 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
       recordModel.modelProperties[somePropertyEncoding.encodingPropertyKey] ??
         throwUserError('modelProperty');
     const recordProperty =
-      dataRecord[somePropertyEncoding.encodingPropertyKey] ??
+      operationSourceRecord[somePropertyEncoding.encodingPropertyKey] ??
         throwUserError('recordProperty');
     if (
       modelProperty.propertyElement.elementKind === 'booleanPrimitive' &&
@@ -458,19 +469,17 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
       recordProperty.__status === 'new' &&
       isNewResolvedRecord(transactionState, recordProperty)
     ) {
-      const newSubLeafResolvedRecords =
-        transactionState.resolvedRecords.new[recordProperty.__uuid[0]] ??
-          throwInvalidPathError('newSubLeafResolvedRecords');
-      const resolvedPropertyPageIndex: unknown =
-        newSubLeafResolvedRecords[recordProperty.__uuid[1]] ??
-          throwInvalidPathError('resolvedPropertyPageIndex');
       applyPropertyDataModelBytes({
         currentTableFileByteOffset,
         tableFileBytesResult,
         currentRowByteSize,
         recordProperty,
-        dataModelFileIndex: resolvedPropertyPageIndex,
+        dataModelFileIndex: get from resolved new records cache,
       });
+      linkPropertyFiledRecordResult({ 
+        operationFiledRecordResult,
+        modelProperty,
+      })
     } else if (
       modelProperty.propertyElement.elementKind === 'dataModel' &&
       isStringKeyRecord(recordProperty) &&
@@ -478,19 +487,19 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
       recordProperty.__status === 'new'
       // && false === isNewResolvedRecord(transactionState, recordProperty)
     ) {
-      registerUnresolvedPageIndexByteWindow({
-        currentTableFileByteOffset,
-        transactionState,
-        currentRowByteSize,
-        recordProperty,
-      });
+      registerUnresolvedPageIndexByteWindow({});
       applyDataModelIdentifierBytes({
         currentTableFileByteOffset,
         tableFileBytesResult,
         currentRowByteSize,
         recordProperty,
       });
-      pendingOperationsQueue.push(recordProperty);
+      registerTableRowOperation({
+        transactionState,
+        operationFiledRecordResult,
+        modelProperty,
+        recordProperty
+      })
     } else if (
       modelProperty.propertyElement.elementKind === 'dataModel' &&
       isStringKeyRecord(recordProperty) &&
@@ -505,7 +514,10 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
         recordProperty,
         dataModelFileIndex: recordProperty.__fileIndex,
       });
-      pendingOperationsQueue.push(recordProperty);
+      linkPropertyFiledRecordResult({ 
+        operationFiledRecordResult,
+        modelProperty,
+      })
     } else if (
       modelProperty.propertyElement.elementKind === 'dataModel' &&
       isStringKeyRecord(recordProperty) &&
@@ -520,6 +532,12 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
         recordProperty,
         dataModelFileIndex: recordProperty.__fileIndex,
       });
+      registerTableRowOperation({
+        transactionState,
+        operationFiledRecordResult,
+        modelProperty,
+        recordProperty
+      })
     } else if (
       modelProperty.propertyElement.elementKind === 'booleanLiteral' ||
       modelProperty.propertyElement.elementKind === 'numberLiteral' ||
@@ -643,10 +661,55 @@ function applyDataModelIdentifierBytes(
   });
 }
 
+interface RegisterUnresolvedPageIndexByteWindowApi {}
+
+function registerUnresolvedPageIndexByteWindow(api: RegisterUnresolvedPageIndexByteWindowApi) {
+  const {} = api
+  todo
+}
+
+interface RegisterTableRowOperationApi
+  extends
+    Pick<
+      ApplyTableRowBytesApi,
+      'transactionState' | 'operationFiledRecordResult'
+    > {
+  recordProperty: ShallowWellFormedRecord;
+  modelProperty: DataModel['modelProperties'][string];
+}
+
+function registerTableRowOperation(api: RegisterTableRowOperationApi) {
+  const {
+    recordProperty,
+    transactionState,
+    operationFiledRecordResult,
+    modelProperty,
+  } = api;
+  const subOperationFiledRecordResult = {
+    ...recordProperty,
+  };
+  transactionState.rowOperationsQueue.push({
+    operationSourceRecord: recordProperty,
+    operationFiledRecordResult: subOperationFiledRecordResult,
+  });
+  operationFiledRecordResult[modelProperty.propertyKey] =
+    subOperationFiledRecordResult;
+}
+
+interface LinkPropertyFiledRecordResultApi extends Pick<ApplyTableRowBytesApi, "operationFiledRecordResult"> {
+  modelProperty: DataModel['modelProperties'][string]
+}
+
+function linkPropertyFiledRecordResult(api: LinkPropertyFiledRecordResultApi) {
+  const {operationFiledRecordResult, modelProperty} = api
+  operationFiledRecordResult[modelProperty.propertyKey] = get from table row result cache
+}
+
 function isNewResolvedRecord(
   transactionState: WriteTableRowApi['transactionState'],
   recordProperty: NewShallowWellFormedRecord,
 ): boolean {
+  check cache four existence
   return false;
 }
 
@@ -654,6 +717,7 @@ function isFiledResolvedRecord(
   transactionState: WriteTableRowApi['transactionState'],
   recordProperty: FiledShallowWellFormedRecord,
 ): boolean {
+  check cache four existence
   return false;
 }
 
