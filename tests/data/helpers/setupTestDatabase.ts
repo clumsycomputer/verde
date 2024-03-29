@@ -4,17 +4,17 @@ import { Path } from '../../imports/Path.ts';
 
 export interface SetupTestDatabaseApi {
   testDataDirectoryPath: string;
-  recordSchema: DataSchema;
+  dataSchema: DataSchema;
 }
 
 export async function setupTestDatabase(api: SetupTestDatabaseApi) {
-  const { testDataDirectoryPath, recordSchema } = api;
+  const { testDataDirectoryPath, dataSchema } = api;
   await FileSystem.emptyDir(testDataDirectoryPath);
   await Promise.all(
-    Object.values(recordSchema.schemaMap).map(async (someSchemaModel) => {
+    Object.values(dataSchema.schemaMap).map(async (someDataModel) => {
       const modelDataDirectoryPath = Path.join(
         testDataDirectoryPath,
-        `./${someSchemaModel.modelSymbol}`,
+        `./${someDataModel.modelSymbol}`,
       );
       await FileSystem.emptyDir(modelDataDirectoryPath);
       const initialModelHeadPageFile = await Deno.create(
