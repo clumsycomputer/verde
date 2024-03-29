@@ -3,17 +3,17 @@ import { DataSchema } from '../../../source/library/module.ts';
 import { Path } from '../../imports/Path.ts';
 
 export interface SetupTestDatabaseApi {
-  testDataDirectoryPath: string;
+  dataDirectoryPath: string;
   dataSchema: DataSchema;
 }
 
 export async function setupTestDatabase(api: SetupTestDatabaseApi) {
-  const { testDataDirectoryPath, dataSchema } = api;
-  await FileSystem.emptyDir(testDataDirectoryPath);
+  const { dataDirectoryPath, dataSchema } = api;
+  await FileSystem.emptyDir(dataDirectoryPath);
   await Promise.all(
     Object.values(dataSchema.schemaMap).map(async (someDataModel) => {
       const modelDataDirectoryPath = Path.join(
-        testDataDirectoryPath,
+        dataDirectoryPath,
         `./${someDataModel.modelSymbol}`,
       );
       await FileSystem.emptyDir(modelDataDirectoryPath);
