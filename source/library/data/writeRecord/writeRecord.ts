@@ -2,6 +2,7 @@ import {
   throwInvalidPathError,
   throwUserError,
 } from '../../../helpers/throwError.ts';
+import { ValueRef } from '../../../helpers/types.ts';
 import { FileSystem } from '../../../imports/FileSystem.ts';
 import { Path } from '../../../imports/Path.ts';
 import { DataModel, DataSchema } from '../../schema/types/DataSchema.ts';
@@ -53,22 +54,22 @@ export async function writeRecord(
   const transactionState: TransactionState = {
     unresolvedNewRecordFileIndexByteWindows: {},
     tableHeadIndexCache: {},
+    tableFilePathMap: {},
     completedRowOperations: {},
     rowOperationsQueue: [{
       operationSourceRecord: dataRecord,
       operationFiledRecordResult: filedRecordResult,
     }],
-    tableFileEntriesMap: {},
   };
   for (const someTableRowOperation of transactionState.rowOperationsQueue) {
     const { operationSourceRecord, operationFiledRecordResult } =
       someTableRowOperation;
     await writeTableRow({
-      dataDirectoryPath,
       dataSchema,
-      tableFileResultBufferSize,
-      tableFileFinishlineSize,
+      dataDirectoryPath,
       transactionDirectoryPath,
+      tableFileFinishlineSize,
+      tableFileResultBufferSize,
       transactionState,
       operationSourceRecord,
       operationFiledRecordResult,
@@ -80,11 +81,11 @@ export async function writeRecord(
     transactionState.completedRowOperations[operationSourceRecord.__uuid[0]] =
       subLeafCompletedRowOperations;
   }
-  await commitRecordTransaction({
-    dataDirectoryPath,
-    transactionDirectoryPath,
-    transactionState,
-  });
+  await Promise.all(
+    Object.entries(transactionState.tableFilePathMap).map((
+      [transactionTableFilePath, dataTableFilePath],
+    ) => Deno.rename(transactionTableFilePath, dataTableFilePath)),
+  );
   return filedRecordResult;
 }
 
@@ -96,10 +97,10 @@ interface TableRowOperation {
 interface WriteTableRowApi extends
   Pick<
     WriteRecordApi,
-    | 'tableFileResultBufferSize'
-    | 'tableFileFinishlineSize'
     | 'dataSchema'
     | 'dataDirectoryPath'
+    | 'tableFileResultBufferSize'
+    | 'tableFileFinishlineSize'
   >,
   Pick<
     TableRowOperation,
@@ -110,25 +111,21 @@ interface WriteTableRowApi extends
 }
 
 interface TransactionState {
+  rowOperationsQueue: Array<TableRowOperation>;
+  completedRowOperations: Record<number, Record<number, TableRowOperation>>;
+  tableHeadIndexCache: Record<string, number>;
+  tableFilePathMap: Record<string, string>;
   unresolvedNewRecordFileIndexByteWindows: Record<
     number,
     Record<
       number,
       Array<{
-        windowModelSymbol: DataModel['modelSymbol'];
-        windowFileIndex: number;
+        windowTableFilePath: string;
         windowRecordUuid: RecordUuid;
         windowRowByteOffset: number;
       }>
     >
   >;
-  rowOperationsQueue: Array<TableRowOperation>;
-  tableHeadIndexCache: Record<string, number>;
-  completedRowOperations: Record<number, Record<number, TableRowOperation>>;
-  tableFileEntriesMap: Record<string, {
-    tableModelSymbol: string;
-    tableFileIndex: number;
-  }>;
 }
 
 async function writeTableRow(api: WriteTableRowApi) {
@@ -137,125 +134,122 @@ async function writeTableRow(api: WriteTableRowApi) {
     operationSourceRecord,
     dataDirectoryPath,
     tableFileResultBufferSize,
-    operationFiledRecordResult,
     tableFileFinishlineSize,
     transactionDirectoryPath,
     transactionState,
+    operationFiledRecordResult,
   } = api;
-  const recordModel =
+  const operationRecordModel =
     dataSchema.schemaMap[operationSourceRecord.__modelSymbol] ??
-      throwUserError('recordModel');
+      throwUserError('operationRecordModel');
   const tableDirectoryPath = Path.join(
     dataDirectoryPath,
-    `./${recordModel.modelSymbol}`,
+    `./${operationRecordModel.modelSymbol}`,
   );
   const tableFileBytesResult = new Uint8Array(tableFileResultBufferSize);
-  const currentTableFileByteOffset = { value: 0 };
-  const { tableFileIndex } = operationSourceRecord.__status === 'new'
-    ? await createTableRow({
-      operationSourceRecord,
-      operationFiledRecordResult,
-      tableFileFinishlineSize,
-      transactionDirectoryPath,
-      transactionState,
-      recordModel,
-      tableDirectoryPath,
-      tableFileBytesResult,
-      currentTableFileByteOffset,
-    })
-    : await updateTableRow({
-      operationSourceRecord,
-      operationFiledRecordResult,
-      transactionState,
-      transactionDirectoryPath,
-      dataDirectoryPath,
-      recordModel,
-      currentTableFileByteOffset,
-      tableFileBytesResult,
-    });
-  const transactionTableFilePath = Path.join(
-    transactionDirectoryPath,
-    `./${recordModel.modelSymbol}__${tableFileIndex}.data`,
-  );
+  const currentFileByteOffset: ValueRef<number> = { value: 0 };
+  const { transactionTableFilePath, tableFileIndex, dataTableFilePath } =
+    operationSourceRecord.__status === 'new'
+      ? await createTableRow({
+        tableFileFinishlineSize,
+        tableDirectoryPath,
+        transactionDirectoryPath,
+        transactionState,
+        operationRecordModel,
+        operationSourceRecord,
+        operationFiledRecordResult,
+        tableFileBytesResult,
+        currentFileByteOffset,
+      })
+      : await updateTableRow({
+        dataDirectoryPath,
+        transactionDirectoryPath,
+        transactionState,
+        operationRecordModel,
+        operationSourceRecord,
+        operationFiledRecordResult,
+        tableFileBytesResult,
+        currentFileByteOffset,
+      });
   await Deno.writeFile(
     transactionTableFilePath,
-    tableFileBytesResult.subarray(0, currentTableFileByteOffset.value),
+    tableFileBytesResult.subarray(0, currentFileByteOffset.value),
     { create: true },
   );
   operationFiledRecordResult.__fileIndex = tableFileIndex;
-  transactionState
-    .tableFileEntriesMap[`${recordModel.modelSymbol}__${tableFileIndex}`] = {
-      tableModelSymbol: recordModel.modelSymbol,
-      tableFileIndex: tableFileIndex,
-    };
+  transactionState.tableFilePathMap[transactionTableFilePath] =
+    dataTableFilePath;
 }
 
-interface CreateTableRowApi extends
-  Pick<
-    WriteTableRowApi,
-    | 'transactionState'
-    | 'transactionDirectoryPath'
-    | 'tableFileFinishlineSize'
-    | 'operationFiledRecordResult'
-  > {
-  operationSourceRecord: NewShallowWellFormedRecord;
-  recordModel: DataModel;
+interface CreateTableRowApi
+  extends
+    __ApplyTableRowApi<NewShallowWellFormedRecord>,
+    Pick<
+      WriteTableRowApi,
+      'tableFileFinishlineSize'
+    > {
   tableDirectoryPath: string;
-  tableFileBytesResult: Uint8Array;
-  currentTableFileByteOffset: { value: number };
 }
 
 async function createTableRow(api: CreateTableRowApi) {
   const {
     tableFileFinishlineSize,
-    transactionDirectoryPath,
     tableDirectoryPath,
+    transactionDirectoryPath,
     transactionState,
-    recordModel,
+    operationRecordModel,
     operationSourceRecord,
     operationFiledRecordResult,
     tableFileBytesResult,
-    currentTableFileByteOffset,
+    currentFileByteOffset,
   } = api;
   const { tableHeadIndex, sourceTableHeadBytes } =
     await retrieveSourceTableHead({
       tableFileFinishlineSize,
-      transactionDirectoryPath,
       tableDirectoryPath,
+      transactionDirectoryPath,
       transactionState,
-      recordModel,
+      operationRecordModel,
     });
   await backfillUnresolvedNewRecordFileIndexByteWindows({
     transactionState,
-    transactionDirectoryPath,
     operationSourceRecord,
     tableHeadIndex,
   });
+  const transactionTableFilePath = Path.join(
+    transactionDirectoryPath,
+    `./${operationRecordModel.modelSymbol}__${tableHeadIndex}.data`,
+  );
   updateTableHeadBytes({
-    tableHeadIndex,
-    sourceTableHeadBytes,
     transactionState,
-    recordModel,
     operationSourceRecord,
     operationFiledRecordResult,
+    operationRecordModel,
+    sourceTableHeadBytes,
     tableFileBytesResult,
-    currentTableFileByteOffset,
+    currentFileByteOffset,
+    transactionTableFilePath,
   });
-  transactionState.tableHeadIndexCache[recordModel.modelSymbol] =
+  transactionState.tableHeadIndexCache[operationRecordModel.modelSymbol] =
     tableHeadIndex;
   return {
+    transactionTableFilePath,
     tableFileIndex: tableHeadIndex,
+    dataTableFilePath: Path.join(
+      tableDirectoryPath,
+      `./${tableHeadIndex}.data`,
+    ),
   };
 }
 
 interface RetrieveSourceTableHeadApi extends
   Pick<
     CreateTableRowApi,
-    | 'transactionState'
-    | 'recordModel'
+    | 'tableFileFinishlineSize'
     | 'tableDirectoryPath'
     | 'transactionDirectoryPath'
-    | 'tableFileFinishlineSize'
+    | 'transactionState'
+    | 'operationRecordModel'
   > {}
 
 interface RetrieveSourceTableHeadResult {
@@ -268,18 +262,18 @@ async function retrieveSourceTableHead(
 ): Promise<RetrieveSourceTableHeadResult> {
   const {
     transactionState,
-    recordModel,
+    operationRecordModel,
     transactionDirectoryPath,
     tableDirectoryPath,
     tableFileFinishlineSize,
   } = api;
   const cachedTableHeadIndex =
-    transactionState.tableHeadIndexCache[recordModel.modelSymbol];
+    transactionState.tableHeadIndexCache[operationRecordModel.modelSymbol];
   const { lastTableHeadInfo, lastTableHeadIndex, lastTableHeadPath } =
     typeof cachedTableHeadIndex === 'number'
       ? await retrieveCachedLastTableHead({
-        recordModel,
         transactionDirectoryPath,
+        operationRecordModel,
         lastTableHeadIndex: cachedTableHeadIndex,
       })
       : await retrieveDataLastTableHead({
@@ -302,18 +296,19 @@ async function retrieveSourceTableHead(
 interface RetrieveCachedLastTableHeadApi extends
   Pick<
     RetrieveSourceTableHeadApi,
-    'transactionDirectoryPath' | 'recordModel'
+    'transactionDirectoryPath' | 'operationRecordModel'
   >,
   Pick<__RetrieveLastTableHeadApi, 'lastTableHeadIndex'> {
 }
 
 function retrieveCachedLastTableHead(api: RetrieveCachedLastTableHeadApi) {
-  const { lastTableHeadIndex, transactionDirectoryPath, recordModel } = api;
+  const { lastTableHeadIndex, transactionDirectoryPath, operationRecordModel } =
+    api;
   return __retrieveLastTableHead({
     lastTableHeadIndex,
     lastTableHeadPath: Path.join(
       transactionDirectoryPath,
-      `${recordModel.modelSymbol}__${lastTableHeadIndex}.data`,
+      `${operationRecordModel.modelSymbol}__${lastTableHeadIndex}.data`,
     ),
   });
 }
@@ -363,7 +358,7 @@ async function readTableFileCount(api: ReadTableFileCountApi) {
 interface BackfillUnresolvedNewRecordFileIndexByteWindowsApi extends
   Pick<
     CreateTableRowApi,
-    'transactionState' | 'operationSourceRecord' | 'transactionDirectoryPath'
+    'transactionState' | 'operationSourceRecord'
   >,
   Pick<RetrieveSourceTableHeadResult, 'tableHeadIndex'> {
 }
@@ -374,7 +369,6 @@ async function backfillUnresolvedNewRecordFileIndexByteWindows(
   const {
     transactionState,
     operationSourceRecord,
-    transactionDirectoryPath,
     tableHeadIndex,
   } = api;
   const subLeafUnresolvedByteWindows = transactionState
@@ -385,154 +379,156 @@ async function backfillUnresolvedNewRecordFileIndexByteWindows(
     subLeafUnresolvedByteWindows[operationSourceRecord.__uuid[1]] ?? [];
   for (
     const {
-      windowModelSymbol,
-      windowFileIndex,
+      windowTableFilePath,
       windowRecordUuid,
       windowRowByteOffset,
     } of recordUnresolvedByteWindows
   ) {
-    const unresolvedWindowFilePath = Path.join(
-      transactionDirectoryPath,
-      `./${windowModelSymbol}__${windowFileIndex}.data`,
+    const byteWindowFileBytes = await Deno.readFile(
+      windowTableFilePath,
     );
-    const unresolvedWindowFileBytes = await Deno.readFile(
-      unresolvedWindowFilePath,
-    );
-    let resolvingUnresolvedWindow = true;
-    let tableFileByteOffset = 0;
-    const tableFileView = new DataView(unresolvedWindowFileBytes.buffer);
-    while (resolvingUnresolvedWindow) {
-      const rowByteSize = tableFileView.getInt32(tableFileByteOffset);
-      tableFileByteOffset += 4;
-      const rowRecordUuidFirst = tableFileView.getFloat64(tableFileByteOffset);
-      tableFileByteOffset += 8;
-      const rowRecordUuidSecond = tableFileView.getFloat64(tableFileByteOffset);
-      tableFileByteOffset += 8;
+    const windowTableFileView = new DataView(byteWindowFileBytes.buffer);
+    let currentFileByteOffset = 0;
+    let backfillingUnresolvedByteWindow = true;
+    while (backfillingUnresolvedByteWindow) {
+      const rowByteSize = windowTableFileView.getInt32(currentFileByteOffset);
+      currentFileByteOffset += 4;
+      const rowRecordUuidZero = windowTableFileView.getFloat64(
+        currentFileByteOffset,
+      );
+      const rowRecordUuidEight = windowTableFileView.getFloat64(
+        currentFileByteOffset + 8,
+      );
       if (
-        rowRecordUuidFirst === windowRecordUuid[0] &&
-        rowRecordUuidSecond === windowRecordUuid[1]
+        rowRecordUuidZero === windowRecordUuid[0] &&
+        rowRecordUuidEight === windowRecordUuid[1]
       ) {
-        tableFileView.setUint32(
-          tableFileByteOffset - 16 + windowRowByteOffset,
+        windowTableFileView.setUint32(
+          currentFileByteOffset + windowRowByteOffset,
           tableHeadIndex,
         );
-        resolvingUnresolvedWindow = false;
+        backfillingUnresolvedByteWindow = false;
       }
-      tableFileByteOffset += rowByteSize - 16;
+      currentFileByteOffset += rowByteSize;
     }
-    Deno.writeFile(unresolvedWindowFilePath, unresolvedWindowFileBytes);
+    Deno.writeFile(windowTableFilePath, byteWindowFileBytes);
   }
 }
 
 interface UpdateTableHeadBytesApi extends
   Pick<
     CreateTableRowApi,
-    | 'tableFileBytesResult'
-    | 'currentTableFileByteOffset'
-    | 'recordModel'
     | 'transactionState'
     | 'operationSourceRecord'
     | 'operationFiledRecordResult'
+    | 'operationRecordModel'
+    | 'tableFileBytesResult'
+    | 'currentFileByteOffset'
   >,
   Pick<
     RetrieveSourceTableHeadResult,
-    'tableHeadIndex' | 'sourceTableHeadBytes'
-  > {}
+    'sourceTableHeadBytes'
+  > {
+  transactionTableFilePath: string;
+}
 
 function updateTableHeadBytes(api: UpdateTableHeadBytesApi) {
   const {
-    currentTableFileByteOffset,
     tableFileBytesResult,
+    currentFileByteOffset,
     sourceTableHeadBytes,
     transactionState,
-    recordModel,
+    operationRecordModel,
     operationSourceRecord,
     operationFiledRecordResult,
-    tableHeadIndex,
+    transactionTableFilePath,
   } = api;
   applyTableFileBytes({
     tableFileBytesResult,
-    currentTableFileByteOffset,
+    currentFileByteOffset,
     bytePatch: sourceTableHeadBytes,
   });
   applyTableRowBytes({
-    tableFileBytesResult,
-    currentTableFileByteOffset,
     transactionState,
-    recordModel,
     operationSourceRecord,
     operationFiledRecordResult,
-    tableFileIndex: tableHeadIndex,
+    operationRecordModel,
+    tableFileBytesResult,
+    currentFileByteOffset,
+    transactionTableFilePath,
   });
 }
 
-interface UpdateTableRowApi extends
-  Pick<
-    WriteTableRowApi,
-    | 'operationFiledRecordResult'
-    | 'dataDirectoryPath'
-    | 'transactionDirectoryPath'
-    | 'transactionState'
-  > {
-  operationSourceRecord: FiledShallowWellFormedRecord;
-  tableFileBytesResult: Uint8Array;
-  currentTableFileByteOffset: { value: number };
-  recordModel: DataModel;
+interface UpdateTableRowApi
+  extends
+    __ApplyTableRowApi<FiledShallowWellFormedRecord>,
+    Pick<
+      WriteTableRowApi,
+      'dataDirectoryPath'
+    > {
 }
 
 async function updateTableRow(api: UpdateTableRowApi) {
   const {
-    transactionState,
-    operationSourceRecord,
     dataDirectoryPath,
     transactionDirectoryPath,
-    tableFileBytesResult,
-    currentTableFileByteOffset,
-    recordModel,
+    transactionState,
+    operationSourceRecord,
     operationFiledRecordResult,
+    operationRecordModel,
+    tableFileBytesResult,
+    currentFileByteOffset,
   } = api;
-  const { sourceTableFileBytes } = await readSourceTableFile({
-    transactionState,
-    operationSourceRecord,
+  const {
+    sourceTableFileBytes,
+    transactionTableFilePath,
+    dataTableFilePath,
+  } = await readSourceTableFile({
     dataDirectoryPath,
     transactionDirectoryPath,
+    transactionState,
+    operationSourceRecord,
   });
   const sourceTableFileView = new DataView(sourceTableFileBytes.buffer);
-  const sourceTableByteOffset = { value: 0 };
-  while (sourceTableByteOffset.value < sourceTableFileBytes.length) {
+  let currentSourceTableByteOffset = 0;
+  while (currentSourceTableByteOffset < sourceTableFileBytes.length) {
     const rowByteSize = sourceTableFileView.getUint32(
-      sourceTableByteOffset.value,
+      currentSourceTableByteOffset,
     );
-    sourceTableByteOffset.value += 4;
-    const rowRecordUuidFirst = sourceTableFileView.getFloat64(
-      sourceTableByteOffset.value,
+    currentSourceTableByteOffset += 4;
+    const rowRecordUuidZero = sourceTableFileView.getFloat64(
+      currentSourceTableByteOffset,
     );
-    const rowRecordUuidSecond = sourceTableFileView.getFloat64(
-      sourceTableByteOffset.value + 8,
+    const rowRecordUuidEight = sourceTableFileView.getFloat64(
+      currentSourceTableByteOffset + 8,
     );
-    rowRecordUuidFirst === operationSourceRecord.__uuid[0] &&
-      rowRecordUuidSecond === operationSourceRecord.__uuid[1]
-      ? applyTableRowBytes({
-        tableFileBytesResult,
-        currentTableFileByteOffset,
+    if (
+      rowRecordUuidZero === operationSourceRecord.__uuid[0] &&
+      rowRecordUuidEight === operationSourceRecord.__uuid[1]
+    ) {
+      applyTableRowBytes({
         transactionState,
-        recordModel,
         operationSourceRecord,
         operationFiledRecordResult,
-        tableFileIndex: operationSourceRecord.__fileIndex,
-      })
-      : (() => {
-        tableFileBytesResult.set(
-          sourceTableFileBytes.subarray(
-            sourceTableByteOffset.value,
-            sourceTableByteOffset.value + rowByteSize,
-          ),
-        );
-        currentTableFileByteOffset.value += rowByteSize;
-      })();
-    sourceTableByteOffset.value += rowByteSize;
+        operationRecordModel,
+        tableFileBytesResult,
+        currentFileByteOffset,
+        transactionTableFilePath,
+      });
+    } else {
+      tableFileBytesResult.set(
+        sourceTableFileBytes.subarray(
+          currentSourceTableByteOffset,
+          currentSourceTableByteOffset + rowByteSize,
+        ),
+      );
+      currentFileByteOffset.value += rowByteSize;
+    }
+    currentSourceTableByteOffset += rowByteSize;
   }
   return {
+    transactionTableFilePath,
+    dataTableFilePath,
     tableFileIndex: operationSourceRecord.__fileIndex,
   };
 }
@@ -540,10 +536,10 @@ async function updateTableRow(api: UpdateTableRowApi) {
 interface ReadSourceTableFileApi extends
   Pick<
     UpdateTableRowApi,
-    | 'operationSourceRecord'
     | 'dataDirectoryPath'
     | 'transactionDirectoryPath'
     | 'transactionState'
+    | 'operationSourceRecord'
   > {}
 
 async function readSourceTableFile(api: ReadSourceTableFileApi) {
@@ -553,115 +549,96 @@ async function readSourceTableFile(api: ReadSourceTableFileApi) {
     transactionDirectoryPath,
     dataDirectoryPath,
   } = api;
-  const sourceTableFilePath = transactionState
-      .tableFileEntriesMap[
-        `${operationSourceRecord.__modelSymbol}__${operationSourceRecord.__fileIndex}`
-      ] !== undefined
-    ? Path.join(
-      transactionDirectoryPath,
-      `${operationSourceRecord.__modelSymbol}__${operationSourceRecord.__fileIndex}.data`,
-    )
-    : Path.join(
-      dataDirectoryPath,
-      `./${operationSourceRecord.__modelSymbol}/${operationSourceRecord.__fileIndex}.data`,
-    );
+  const transactionTableFilePath = Path.join(
+    transactionDirectoryPath,
+    `${operationSourceRecord.__modelSymbol}__${operationSourceRecord.__fileIndex}.data`,
+  );
+  const dataTableFilePath = Path.join(
+    dataDirectoryPath,
+    `./${operationSourceRecord.__modelSymbol}/${operationSourceRecord.__fileIndex}.data`,
+  );
+  const sourceTableFilePath =
+    transactionState.tableFilePathMap[transactionTableFilePath]
+      ? transactionTableFilePath
+      : dataTableFilePath;
   return {
+    transactionTableFilePath,
+    dataTableFilePath,
     sourceTableFileBytes: await Deno.readFile(sourceTableFilePath),
   };
 }
 
-interface CommitRecordTransactionApi
-  extends Pick<WriteRecordApi, 'dataDirectoryPath'> {
-  transactionDirectoryPath: string;
-  transactionState: TransactionState;
-}
-
-async function commitRecordTransaction(api: CommitRecordTransactionApi) {
-  const { transactionState, transactionDirectoryPath, dataDirectoryPath } = api;
-  const tableFileEntries = Object.values(transactionState.tableFileEntriesMap);
-  for (const someTableFileEntry of tableFileEntries) {
-    const transactionFilePath = Path.join(
-      transactionDirectoryPath,
-      `./${someTableFileEntry.tableModelSymbol}__${someTableFileEntry.tableFileIndex}.data`,
-    );
-    const tableFilePath = Path.join(
-      dataDirectoryPath,
-      `./${someTableFileEntry.tableModelSymbol}/${someTableFileEntry.tableFileIndex}.data`,
-    );
-    await Deno.rename(transactionFilePath, tableFilePath);
-  }
-}
-
-interface ApplyTableFileBytesApi {
-  bytePatch: Uint8Array;
+interface __ApplyTableRowApi<
+  ThisOperationSourceRecord = ShallowWellFormedRecord,
+> extends
+  Pick<
+    WriteTableRowApi,
+    | 'transactionState'
+    | 'transactionDirectoryPath'
+    | 'operationFiledRecordResult'
+  > {
+  operationSourceRecord: ThisOperationSourceRecord;
+  operationRecordModel: DataModel;
   tableFileBytesResult: Uint8Array;
-  currentTableFileByteOffset: { value: number };
-}
-
-function applyTableFileBytes(
-  api: ApplyTableFileBytesApi,
-) {
-  const { tableFileBytesResult, bytePatch, currentTableFileByteOffset } = api;
-  tableFileBytesResult.set(bytePatch, currentTableFileByteOffset.value);
-  currentTableFileByteOffset.value += bytePatch.length;
+  currentFileByteOffset: ValueRef<number>;
 }
 
 interface ApplyTableRowBytesApi extends
   Pick<
-    WriteTableRowApi,
+    __ApplyTableRowApi,
     | 'transactionState'
     | 'operationSourceRecord'
     | 'operationFiledRecordResult'
+    | 'operationRecordModel'
+    | 'tableFileBytesResult'
+    | 'currentFileByteOffset'
   > {
-  tableFileIndex: number;
-  recordModel: DataModel;
-  tableFileBytesResult: Uint8Array;
-  currentTableFileByteOffset: { value: number };
+  transactionTableFilePath: string;
 }
 
 function applyTableRowBytes(api: ApplyTableRowBytesApi) {
   const {
-    currentTableFileByteOffset,
-    operationSourceRecord,
+    currentFileByteOffset,
     tableFileBytesResult,
-    recordModel,
+    operationSourceRecord,
+    operationRecordModel,
     transactionState,
     operationFiledRecordResult,
-    tableFileIndex,
+    transactionTableFilePath,
   } = api;
-  const rowByteSizeOffset = currentTableFileByteOffset.value;
-  currentTableFileByteOffset.value += 4;
-  let currentRowByteSize = { value: 0 };
+  const rowByteSizeOffset = currentFileByteOffset.value;
+  currentFileByteOffset.value += 4;
+  const currentRowByteSize: ValueRef<number> = { value: 0 };
   applyRowPropertyBytes({
-    currentTableFileByteOffset,
     tableFileBytesResult,
+    currentFileByteOffset,
     currentRowByteSize,
     bytePatch: getEncodedNumber({
       someNumber: operationSourceRecord.__uuid[0],
     }),
   });
   applyRowPropertyBytes({
-    currentTableFileByteOffset,
     tableFileBytesResult,
+    currentFileByteOffset,
     currentRowByteSize,
     bytePatch: getEncodedNumber({
       someNumber: operationSourceRecord.__uuid[1],
     }),
   });
-  const [identifierEncoding, ...propertyEncodings] = recordModel.modelEncoding;
-  for (const somePropertyEncoding of propertyEncodings) {
-    const modelProperty =
-      recordModel.modelProperties[somePropertyEncoding.encodingPropertyKey] ??
-        throwUserError('modelProperty');
-    const recordProperty =
-      operationSourceRecord[somePropertyEncoding.encodingPropertyKey] ??
-        throwUserError('recordProperty');
+  const [identifierEncoding, ...propertyEncodings] =
+    operationRecordModel.modelEncoding;
+  for (const { encodingPropertyKey } of propertyEncodings) {
+    const modelProperty = operationRecordModel
+      .modelProperties[encodingPropertyKey] ??
+      throwUserError('modelProperty');
+    const recordProperty = operationSourceRecord[encodingPropertyKey] ??
+      throwUserError('recordProperty');
     if (
       modelProperty.propertyElement.elementKind === 'booleanPrimitive' &&
       typeof recordProperty === 'boolean'
     ) {
       applyRowPropertyBytes({
-        currentTableFileByteOffset,
+        currentFileByteOffset,
         tableFileBytesResult,
         currentRowByteSize,
         bytePatch: getEncodedBoolean({
@@ -673,7 +650,7 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
       typeof recordProperty === 'number'
     ) {
       applyRowPropertyBytes({
-        currentTableFileByteOffset,
+        currentFileByteOffset,
         tableFileBytesResult,
         currentRowByteSize,
         bytePatch: getEncodedNumber({
@@ -688,7 +665,7 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
         someString: recordProperty,
       });
       applyRowPropertyBytes({
-        currentTableFileByteOffset,
+        currentFileByteOffset,
         tableFileBytesResult,
         currentRowByteSize,
         bytePatch: getEncodedUint32({
@@ -696,7 +673,7 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
         }),
       });
       applyRowPropertyBytes({
-        currentTableFileByteOffset,
+        currentFileByteOffset,
         tableFileBytesResult,
         currentRowByteSize,
         bytePatch: stringBytes,
@@ -713,7 +690,7 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
         recordProperty,
       }) ?? throwInvalidPathError('linkedNewRowOperation');
       applyPropertyDataModelBytes({
-        currentTableFileByteOffset,
+        currentFileByteOffset,
         tableFileBytesResult,
         currentRowByteSize,
         recordProperty,
@@ -734,14 +711,14 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
     ) {
       registerUnresolvedPageIndexByteWindow({
         transactionState,
-        currentTableFileByteOffset,
+        currentFileByteOffset,
         currentRowByteSize,
         recordProperty,
-        tableFileIndex,
         operationSourceRecord,
+        transactionTableFilePath,
       });
       applyDataModelIdentifierBytes({
-        currentTableFileByteOffset,
+        currentFileByteOffset,
         tableFileBytesResult,
         currentRowByteSize,
         recordProperty,
@@ -760,7 +737,7 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
       isFiledResolvedRecord(transactionState, recordProperty)
     ) {
       applyPropertyDataModelBytes({
-        currentTableFileByteOffset,
+        currentFileByteOffset,
         tableFileBytesResult,
         currentRowByteSize,
         recordProperty,
@@ -782,7 +759,7 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
       // && false === isFiledResolvedRecord(transactionState, recordProperty)
     ) {
       applyPropertyDataModelBytes({
-        currentTableFileByteOffset,
+        currentFileByteOffset,
         tableFileBytesResult,
         currentRowByteSize,
         recordProperty,
@@ -805,7 +782,7 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
     }
   }
   applyRowPropertyBytes({
-    currentTableFileByteOffset,
+    currentFileByteOffset,
     tableFileBytesResult,
     currentRowByteSize,
     bytePatch: getEncodedString({
@@ -820,35 +797,10 @@ function applyTableRowBytes(api: ApplyTableRowBytesApi) {
   );
 }
 
-interface ApplyRowPropertyBytesApi extends
-  Pick<
-    ApplyTableFileBytesApi,
-    'bytePatch' | 'tableFileBytesResult' | 'currentTableFileByteOffset'
-  > {
-  currentRowByteSize: { value: number };
-}
-
-function applyRowPropertyBytes(
-  api: ApplyRowPropertyBytesApi,
-) {
-  const {
-    bytePatch,
-    tableFileBytesResult,
-    currentTableFileByteOffset,
-    currentRowByteSize,
-  } = api;
-  applyTableFileBytes({
-    bytePatch,
-    tableFileBytesResult,
-    currentTableFileByteOffset,
-  });
-  currentRowByteSize.value += bytePatch.length;
-}
-
 interface ApplyPropertyDataModelBytesApi extends
   Pick<
     ApplyDataModelIdentifierBytesApi,
-    | 'currentTableFileByteOffset'
+    | 'currentFileByteOffset'
     | 'tableFileBytesResult'
     | 'currentRowByteSize'
     | 'recordProperty'
@@ -858,14 +810,14 @@ interface ApplyPropertyDataModelBytesApi extends
 
 function applyPropertyDataModelBytes(api: ApplyPropertyDataModelBytesApi) {
   const {
-    currentTableFileByteOffset,
+    currentFileByteOffset,
     tableFileBytesResult,
     currentRowByteSize,
     dataModelFileIndex,
     recordProperty,
   } = api;
   applyRowPropertyBytes({
-    currentTableFileByteOffset,
+    currentFileByteOffset,
     tableFileBytesResult,
     currentRowByteSize,
     bytePatch: getEncodedUint32({
@@ -873,7 +825,7 @@ function applyPropertyDataModelBytes(api: ApplyPropertyDataModelBytesApi) {
     }),
   });
   applyDataModelIdentifierBytes({
-    currentTableFileByteOffset,
+    currentFileByteOffset,
     tableFileBytesResult,
     currentRowByteSize,
     recordProperty,
@@ -883,7 +835,7 @@ function applyPropertyDataModelBytes(api: ApplyPropertyDataModelBytesApi) {
 interface ApplyDataModelIdentifierBytesApi extends
   Pick<
     ApplyTableRowBytesApi,
-    | 'currentTableFileByteOffset'
+    | 'currentFileByteOffset'
     | 'tableFileBytesResult'
   > {
   currentRowByteSize: { value: number };
@@ -894,13 +846,13 @@ function applyDataModelIdentifierBytes(
   api: ApplyDataModelIdentifierBytesApi,
 ) {
   const {
-    currentTableFileByteOffset,
+    currentFileByteOffset,
     tableFileBytesResult,
     currentRowByteSize,
     recordProperty,
   } = api;
   applyRowPropertyBytes({
-    currentTableFileByteOffset,
+    currentFileByteOffset,
     tableFileBytesResult,
     currentRowByteSize,
     bytePatch: getEncodedNumber({
@@ -908,7 +860,7 @@ function applyDataModelIdentifierBytes(
     }),
   });
   applyRowPropertyBytes({
-    currentTableFileByteOffset,
+    currentFileByteOffset,
     tableFileBytesResult,
     currentRowByteSize,
     bytePatch: getEncodedNumber({
@@ -917,15 +869,55 @@ function applyDataModelIdentifierBytes(
   });
 }
 
+interface ApplyRowPropertyBytesApi extends
+  Pick<
+    ApplyTableFileBytesApi,
+    'tableFileBytesResult' | 'currentFileByteOffset' | 'bytePatch'
+  > {
+  currentRowByteSize: ValueRef<number>;
+}
+
+function applyRowPropertyBytes(
+  api: ApplyRowPropertyBytesApi,
+) {
+  const {
+    tableFileBytesResult,
+    currentFileByteOffset,
+    bytePatch,
+    currentRowByteSize,
+  } = api;
+  applyTableFileBytes({
+    tableFileBytesResult,
+    currentFileByteOffset,
+    bytePatch,
+  });
+  currentRowByteSize.value += bytePatch.length;
+}
+
+interface ApplyTableFileBytesApi
+  extends
+    Pick<__ApplyTableRowApi, 'tableFileBytesResult' | 'currentFileByteOffset'> {
+  bytePatch: Uint8Array;
+}
+
+function applyTableFileBytes(
+  api: ApplyTableFileBytesApi,
+) {
+  const { tableFileBytesResult, bytePatch, currentFileByteOffset } = api;
+  tableFileBytesResult.set(bytePatch, currentFileByteOffset.value);
+  currentFileByteOffset.value += bytePatch.length;
+}
+
+
 interface RegisterUnresolvedPageIndexByteWindowApi extends
   Pick<
     ApplyTableRowBytesApi,
     | 'transactionState'
-    | 'currentTableFileByteOffset'
-    | 'tableFileIndex'
+    | 'currentFileByteOffset'
     | 'operationSourceRecord'
+    | 'transactionTableFilePath'
   > {
-  currentRowByteSize: { value: number };
+  currentRowByteSize: ValueRef<number>;
   recordProperty: ShallowWellFormedRecord;
 }
 
@@ -936,9 +928,9 @@ function registerUnresolvedPageIndexByteWindow(
     transactionState,
     recordProperty,
     operationSourceRecord,
-    tableFileIndex,
     currentRowByteSize,
-    currentTableFileByteOffset,
+    currentFileByteOffset,
+    transactionTableFilePath,
   } = api;
   const subLeafUnresolvedByteWindows = transactionState
     .unresolvedNewRecordFileIndexByteWindows[recordProperty.__uuid[0]] ?? {};
@@ -950,13 +942,12 @@ function registerUnresolvedPageIndexByteWindow(
   subLeafUnresolvedByteWindows[recordProperty.__uuid[1]] =
     recordUnresolveByteWindows;
   recordUnresolveByteWindows.push({
-    windowModelSymbol: operationSourceRecord.__modelSymbol,
-    windowFileIndex: tableFileIndex,
+    windowTableFilePath: transactionTableFilePath,
     windowRecordUuid: operationSourceRecord.__uuid,
     windowRowByteOffset: currentRowByteSize.value,
   });
   currentRowByteSize.value += 4;
-  currentTableFileByteOffset.value += 4;
+  currentFileByteOffset.value += 4;
 }
 
 interface RegisterTableRowOperationApi extends
