@@ -17,10 +17,10 @@ export async function setupTestDatabase(api: SetupTestDatabaseApi) {
         `./${someDataModel.modelSymbol}`,
       );
       await FileSystem.emptyDir(modelDataDirectoryPath);
-      const initialModelHeadPageFile = await Deno.create(
+      await Deno.writeFile(
         Path.join(modelDataDirectoryPath, `./0.data`),
+        new Uint8Array()
       );
-      initialModelHeadPageFile.close();
     }),
   );
 }

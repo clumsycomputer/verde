@@ -1,3 +1,4 @@
+import { DataSchema } from '../../module.ts';
 import { DataModel } from '../../schema/types/DataSchema.ts';
 import { RecordUuid } from './createRecordUuid.ts';
 

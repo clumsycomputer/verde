@@ -209,7 +209,7 @@ Deno.test('writeRecord', async (writeRecordContext) => {
               outputRecord__BBB.__status,
               updatedInputRecord__AAA.__status,
             );
-            await filedContext.step('__fileIndex', () => {
+            await filedContext.step('__fileIndex', async () => {
               Assert.assertEquals(
                 typeof updatedInputRecord__AAA.__fileIndex,
                 'number',
@@ -218,8 +218,19 @@ Deno.test('writeRecord', async (writeRecordContext) => {
                 outputRecord__BBB.__fileIndex,
                 updatedInputRecord__AAA.__fileIndex,
               );
-              // todo: assert updateInputRecord exists in specified table file before writing update
-              // todo: assert outputRecord__BBB exists in specified table file after writing update
+              const filedInputRecordInSpecifiedFile = getFiledRecordInFileBytes(
+                {
+                  filedRecord: updatedInputRecord__AAA,
+                  fileBytes: topLevelTableFileBytes__AAA,
+                },
+              );
+              const filedOutputRecordInSpecifiedFile =
+                getFiledRecordInFileBytes({
+                  filedRecord: outputRecord__BBB,
+                  fileBytes: topLevelTableFileBytes__BBB,
+                });
+              Assert.assert(filedInputRecordInSpecifiedFile);
+              Assert.assert(filedOutputRecordInSpecifiedFile);
             });
           });
         },
@@ -383,8 +394,9 @@ Deno.test('writeRecord', async (writeRecordContext) => {
           await dataModelContext.step('new resolved record', () => {
             Assert.assert(
               inputRecord__AAA.__uuid[0] ===
-                inputRecord__AAA.dataModelProperty__EXAMPLE
-                  .parentModelProperty__EXAMPLE.__uuid[0] && inputRecord__AAA.__uuid[1] ===
+                  inputRecord__AAA.dataModelProperty__EXAMPLE
+                    .parentModelProperty__EXAMPLE.__uuid[0] &&
+                inputRecord__AAA.__uuid[1] ===
                   inputRecord__AAA.dataModelProperty__EXAMPLE
                     .parentModelProperty__EXAMPLE.__uuid[1],
             );
@@ -439,8 +451,9 @@ Deno.test('writeRecord', async (writeRecordContext) => {
           await dataModelContext.step('filed resolved record', () => {
             Assert.assert(
               updatedInputRecord__AAA.__uuid[0] ===
-                updatedInputRecord__AAA.dataModelProperty__EXAMPLE
-                  .parentModelProperty__EXAMPLE.__uuid[0] && updatedInputRecord__AAA.__uuid[1] ===
+                  updatedInputRecord__AAA.dataModelProperty__EXAMPLE
+                    .parentModelProperty__EXAMPLE.__uuid[0] &&
+                updatedInputRecord__AAA.__uuid[1] ===
                   updatedInputRecord__AAA.dataModelProperty__EXAMPLE
                     .parentModelProperty__EXAMPLE.__uuid[1],
             );
@@ -473,4 +486,143 @@ Deno.test('writeRecord', async (writeRecordContext) => {
       );
     },
   );
+  await writeRecordContext.step('data table', async (dataTableContext) => {
+    const writeRecordTableFileFinishlineSize__BBB = 128;
+    const writeRecordTableFileResultBufferSize__BBB = 4 *
+      writeRecordTableFileFinishlineSize;
+    const writeRecordDataDirectoryPath__BBB = Path.join(
+      Path.fromFileUrl(import.meta.url),
+      '../__data__writeRecord__BBB',
+    );
+    await setupTestDatabase({
+      dataDirectoryPath: writeRecordDataDirectoryPath__BBB,
+      dataSchema: dataSchema__EXAMPLE,
+    });
+    let newHeadIsCreatedWhenLastHeadIsFull = false;
+    while (true) {
+      const lastTableHeadBytes = await Deno.readFile(
+        Path.join(
+          writeRecordDataDirectoryPath__BBB,
+          './TopLevelModel__EXAMPLE/0.data',
+        ),
+      );
+      const inputRecord__CCC = createTopLevelRecord({
+        booleanProperty__EXAMPLE: true,
+        numberProperty__EXAMPLE: 1,
+        stringProperty__EXAMPLE: 'howdy',
+        dataModelProperty__EXAMPLE: createDataModelPropertyRecord({
+          parentModelProperty__EXAMPLE:
+            null as any as TopLevelPropertyModelRecord,
+        }),
+      });
+      inputRecord__CCC.dataModelProperty__EXAMPLE.parentModelProperty__EXAMPLE =
+        inputRecord__CCC;
+      await writeRecord({
+        dataSchema: dataSchema__EXAMPLE,
+        tableFileFinishlineSize: writeRecordTableFileFinishlineSize__BBB,
+        tableFileResultBufferSize: writeRecordTableFileResultBufferSize__BBB,
+        dataDirectoryPath: writeRecordDataDirectoryPath__BBB,
+        dataRecord: inputRecord__CCC,
+      });
+      if (
+        lastTableHeadBytes.length >= writeRecordTableFileFinishlineSize__BBB
+      ) {
+        await Deno.stat(Path.join(
+          writeRecordDataDirectoryPath__BBB,
+          './TopLevelModel__EXAMPLE/1.data',
+        ));
+        newHeadIsCreatedWhenLastHeadIsFull = true;
+        break;
+      }
+    }
+    await dataTableContext.step('initial table head already exists', () => {});
+    await dataTableContext.step(
+      'table head is filled until finishline byte size is met',
+      () => {
+        Assert.assert(newHeadIsCreatedWhenLastHeadIsFull);
+      },
+    );
+    await dataTableContext.step(
+      'new table head created when last table head is full',
+      () => {
+        Assert.assert(newHeadIsCreatedWhenLastHeadIsFull);
+      },
+    );
+    await dataTableContext.step(
+      'rows are persisted only if every operation in transaction succeeds',
+      async () => {
+        const updatedInputRecord__BBB = {
+          ...outputRecord__BBB,
+          numberProperty__EXAMPLE: null,
+        };
+        const sourceFilePath = Path.join(
+          writeRecordDataDirectoryPath,
+          `./${updatedInputRecord__BBB.__modelSymbol}/${updatedInputRecord__BBB.__fileIndex}.data`,
+        );
+        let writeRecordThrows = false
+        const inputFileBytes = await Deno.readFile(sourceFilePath);
+        try {
+          await writeRecord({
+            dataSchema: dataSchema__EXAMPLE,
+            tableFileFinishlineSize: writeRecordTableFileFinishlineSize,
+            tableFileResultBufferSize: writeRecordTableFileResultBufferSize,
+            dataDirectoryPath: writeRecordDataDirectoryPath,
+            dataRecord: updatedInputRecord__BBB,
+          });
+        } catch {
+          writeRecordThrows = true
+        } finally {
+          Assert.assert(writeRecordThrows)
+          const outputFileBytes = await Deno.readFile(sourceFilePath);          
+          Assert.assertEquals(inputFileBytes, outputFileBytes);
+        }
+      },
+    );
+  });
+  // await writeRecordContext.step('internals', async (internalsContext) => {
+  //   await internalsContext.step(
+  //     'source table file is read from transaction directory if updated earlier in transaction',
+  //     () => {},
+  //   );
+  // });
+  // await writeRecordContext.step('user errors', async (userErrorsContext) => {});
 });
+
+interface GetFiledRecordInFileBytesApi {
+  fileBytes: Uint8Array;
+  filedRecord: FiledShallowWellFormedRecord;
+}
+
+async function getFiledRecordInFileBytes(
+  api: GetFiledRecordInFileBytesApi,
+) {
+  const { fileBytes, filedRecord } = api;
+  let filedRecordInFileBytesResult = false;
+  const fileView = new DataView(
+    fileBytes.buffer,
+  );
+  let fileBytesOffset = 0;
+  while (
+    fileBytesOffset < fileBytes.length
+  ) {
+    const rowByteSize = fileView.getUint32(
+      fileBytesOffset,
+    );
+    fileBytesOffset += 4;
+    const rowUuidLow = fileView.getFloat64(
+      fileBytesOffset,
+    );
+    const rowUuidHigh = fileView.getFloat64(
+      fileBytesOffset + 8,
+    );
+    if (
+      filedRecord.__uuid[0] === rowUuidLow &&
+      filedRecord.__uuid[1] === rowUuidHigh
+    ) {
+      filedRecordInFileBytesResult = true;
+      break;
+    }
+    fileBytesOffset += rowByteSize;
+  }
+  return filedRecordInFileBytesResult;
+}
