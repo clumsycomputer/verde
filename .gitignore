@@ -1,3 +1,4 @@
 secrets.ts
 temp-dev
 .code-server
+__data__*

@@ -137,7 +137,7 @@ async function writeTableRow(api: WriteTableRowApi) {
   } = api;
   const operationRecordModel =
     dataSchema.schemaMap[operationSourceRecord.__modelSymbol] ??
-      throwUserError(`invalid model symbol: dataRecord[**].__modelSymbol = "${operationSourceRecord.__modelSymbol}"`);
+      throwUserError(`model symbol does not exist: dataRecord[**].__modelSymbol = "${operationSourceRecord.__modelSymbol}"`);
   const tableDirectoryPath = Path.join(
     dataDirectoryPath,
     `./${operationRecordModel.modelSymbol}`,
@@ -484,7 +484,7 @@ async function updateTableRow(api: UpdateTableRowApi) {
     transactionDirectoryPath,
     transactionState,
     operationSourceRecord,
-  });
+  });  
   const sourceTableFileView = new DataView(sourceTableFileBytes.buffer);
   let currentSourceTableByteOffset = 0;
   while (currentSourceTableByteOffset < sourceTableFileBytes.length) {
@@ -511,14 +511,15 @@ async function updateTableRow(api: UpdateTableRowApi) {
         currentFileByteOffset,
         transactionTableFilePath,
       });
-    } else {
+    } else {           
       tableFileBytesResult.set(
         sourceTableFileBytes.subarray(
-          currentSourceTableByteOffset,
+          currentSourceTableByteOffset - 4,
           currentSourceTableByteOffset + rowByteSize,
         ),
+        currentFileByteOffset.value
       );
-      currentFileByteOffset.value += rowByteSize;
+      currentFileByteOffset.value += 4 + rowByteSize;
     }
     currentSourceTableByteOffset += rowByteSize;
   }

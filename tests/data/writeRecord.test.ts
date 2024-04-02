@@ -559,7 +559,7 @@ Deno.test('writeRecord', async (writeRecordContext) => {
           writeRecordDataDirectoryPath,
           `./${updatedInputRecord__BBB.__modelSymbol}/${updatedInputRecord__BBB.__fileIndex}.data`,
         );
-        let writeRecordThrows = false
+        let writeRecordThrows = false;
         const inputFileBytes = await Deno.readFile(sourceFilePath);
         try {
           await writeRecord({
@@ -570,10 +570,10 @@ Deno.test('writeRecord', async (writeRecordContext) => {
             dataRecord: updatedInputRecord__BBB,
           });
         } catch {
-          writeRecordThrows = true
+          writeRecordThrows = true;
         } finally {
-          Assert.assert(writeRecordThrows)
-          const outputFileBytes = await Deno.readFile(sourceFilePath);          
+          const outputFileBytes = await Deno.readFile(sourceFilePath);
+          Assert.assert(writeRecordThrows);
           Assert.assertEquals(inputFileBytes, outputFileBytes);
         }
       },
@@ -584,8 +584,248 @@ Deno.test('writeRecord', async (writeRecordContext) => {
   //     'source table file is read from transaction directory if updated earlier in transaction',
   //     () => {},
   //   );
+  // assert non-target rows in updated files are properly copied for both new file flows and filed flows
   // });
-  // await writeRecordContext.step('user errors', async (userErrorsContext) => {});
+  await writeRecordContext.step('record errors', async (userErrorsContext) => {
+    await userErrorsContext.step('double entered uuid', async () => {
+      const inputRecord__DDD = createTopLevelRecord({
+        booleanProperty__EXAMPLE: true,
+        numberProperty__EXAMPLE: 1,
+        stringProperty__EXAMPLE: 'howdy',
+        dataModelProperty__EXAMPLE: createDataModelPropertyRecord({
+          parentModelProperty__EXAMPLE: null as any,
+        }),
+      });
+      inputRecord__DDD.dataModelProperty__EXAMPLE.parentModelProperty__EXAMPLE =
+        inputRecord__DDD;
+      let doubleEnteredRecordDoesNotThrow = true;
+      try {
+        await writeRecord({
+          dataSchema: dataSchema__EXAMPLE,
+          tableFileFinishlineSize: writeRecordTableFileFinishlineSize,
+          tableFileResultBufferSize: writeRecordTableFileResultBufferSize,
+          dataDirectoryPath: writeRecordDataDirectoryPath,
+          dataRecord: inputRecord__DDD,
+        });
+        await writeRecord({
+          dataSchema: dataSchema__EXAMPLE,
+          tableFileFinishlineSize: writeRecordTableFileFinishlineSize,
+          tableFileResultBufferSize: writeRecordTableFileResultBufferSize,
+          dataDirectoryPath: writeRecordDataDirectoryPath,
+          dataRecord: inputRecord__DDD,
+        });
+      } catch {
+        doubleEnteredRecordDoesNotThrow = false;
+      } finally {
+        Assert.assert(doubleEnteredRecordDoesNotThrow);
+      }
+    });
+    await userErrorsContext.step('file index does not exist', async () => {
+      const inputRecord__EEE = createTopLevelRecord({
+        booleanProperty__EXAMPLE: true,
+        numberProperty__EXAMPLE: 1,
+        stringProperty__EXAMPLE: 'howdy',
+        dataModelProperty__EXAMPLE: createDataModelPropertyRecord({
+          parentModelProperty__EXAMPLE: null as any,
+        }),
+      }) as any;
+      inputRecord__EEE.dataModelProperty__EXAMPLE.parentModelProperty__EXAMPLE =
+        inputRecord__EEE;
+      inputRecord__EEE.__status = 'filed';
+      inputRecord__EEE.__fileIndex = -1;
+      let nonExistentFileIndexThrows = false;
+      try {
+        await writeRecord({
+          dataSchema: dataSchema__EXAMPLE,
+          tableFileFinishlineSize: writeRecordTableFileFinishlineSize,
+          tableFileResultBufferSize: writeRecordTableFileResultBufferSize,
+          dataDirectoryPath: writeRecordDataDirectoryPath,
+          dataRecord: inputRecord__EEE,
+        });
+      } catch {
+        nonExistentFileIndexThrows = true;
+      } finally {
+        Assert.assert(nonExistentFileIndexThrows);
+      }
+    });
+    await userErrorsContext.step(
+      'uuid does not exist at file index',
+      async () => {
+        const inputRecord__FFF = createTopLevelRecord({
+          booleanProperty__EXAMPLE: true,
+          numberProperty__EXAMPLE: 1,
+          stringProperty__EXAMPLE: 'howdy',
+          dataModelProperty__EXAMPLE: createDataModelPropertyRecord({
+            parentModelProperty__EXAMPLE: null as any,
+          }),
+        }) as any;
+        inputRecord__FFF.dataModelProperty__EXAMPLE
+          .parentModelProperty__EXAMPLE = inputRecord__FFF;
+        inputRecord__FFF.__status = 'filed';
+        inputRecord__FFF.__fileIndex = 0;
+        inputRecord__FFF.__uuid = [Math.random(), Math.random()];
+        let uuidUnalignedWithFileIndexDoesNotThrow = true;
+        try {
+          await writeRecord({
+            dataSchema: dataSchema__EXAMPLE,
+            tableFileFinishlineSize: writeRecordTableFileFinishlineSize,
+            tableFileResultBufferSize: writeRecordTableFileResultBufferSize,
+            dataDirectoryPath: writeRecordDataDirectoryPath,
+            dataRecord: inputRecord__FFF,
+          });
+        } catch {
+          uuidUnalignedWithFileIndexDoesNotThrow = false;
+        } finally {
+          Assert.assert(uuidUnalignedWithFileIndexDoesNotThrow);
+        }
+      },
+    );
+    await userErrorsContext.step('model symbol does not exist', async () => {
+      const inputRecord__GGG = createTopLevelRecord({
+        booleanProperty__EXAMPLE: true,
+        numberProperty__EXAMPLE: 1,
+        stringProperty__EXAMPLE: 'howdy',
+        dataModelProperty__EXAMPLE: createDataModelPropertyRecord({
+          parentModelProperty__EXAMPLE: null as any,
+        }),
+      }) as any;
+      inputRecord__GGG.dataModelProperty__EXAMPLE.parentModelProperty__EXAMPLE =
+        inputRecord__GGG;
+      inputRecord__GGG.__modelSymbol = 'Foo';
+      let nonExistentModelSymbolThrows = false;
+      try {
+        await writeRecord({
+          dataSchema: dataSchema__EXAMPLE,
+          tableFileFinishlineSize: writeRecordTableFileFinishlineSize,
+          tableFileResultBufferSize: writeRecordTableFileResultBufferSize,
+          dataDirectoryPath: writeRecordDataDirectoryPath,
+          dataRecord: inputRecord__GGG,
+        });
+      } catch {
+        nonExistentModelSymbolThrows = true;
+      } finally {
+        Assert.assert(nonExistentModelSymbolThrows);
+      }
+    });
+    // await userErrorsContext.step('uuid bytes malformed', () => {});
+    await userErrorsContext.step(
+      'top-level metadata shape invalid',
+      async () => {
+        const inputRecord__HHH = createTopLevelRecord({
+          booleanProperty__EXAMPLE: true,
+          numberProperty__EXAMPLE: 1,
+          stringProperty__EXAMPLE: 'howdy',
+          dataModelProperty__EXAMPLE: createDataModelPropertyRecord({
+            parentModelProperty__EXAMPLE: null as any,
+          }),
+        }) as any;
+        inputRecord__HHH.dataModelProperty__EXAMPLE
+          .parentModelProperty__EXAMPLE = inputRecord__HHH;
+        delete inputRecord__HHH.__status;
+        // delete inputRecord__HHH.__uuid
+        // delete inputRecord__HHH.__modelSymbol
+        // delete inputRecord__HHH.__fileIndex
+        let malformedRecordMetadataThrows = false;
+        try {
+          await writeRecord({
+            dataSchema: dataSchema__EXAMPLE,
+            tableFileFinishlineSize: writeRecordTableFileFinishlineSize,
+            tableFileResultBufferSize: writeRecordTableFileResultBufferSize,
+            dataDirectoryPath: writeRecordDataDirectoryPath,
+            dataRecord: inputRecord__HHH,
+          });
+        } catch {
+          malformedRecordMetadataThrows = true;
+        } finally {
+          Assert.assert(malformedRecordMetadataThrows);
+        }
+      },
+    );
+    await userErrorsContext.step('undefined property', async () => {
+      const inputRecord__III = createTopLevelRecord({
+        booleanProperty__EXAMPLE: true,
+        numberProperty__EXAMPLE: 1,
+        stringProperty__EXAMPLE: 'howdy',
+        dataModelProperty__EXAMPLE: createDataModelPropertyRecord({
+          parentModelProperty__EXAMPLE: null as any,
+        }),
+      }) as any;
+      inputRecord__III.dataModelProperty__EXAMPLE
+        .parentModelProperty__EXAMPLE = inputRecord__III;
+      delete inputRecord__III.booleanProperty__EXAMPLE;
+      let undefinedExpectedPropertyThrows = false;
+      try {
+        await writeRecord({
+          dataSchema: dataSchema__EXAMPLE,
+          tableFileFinishlineSize: writeRecordTableFileFinishlineSize,
+          tableFileResultBufferSize: writeRecordTableFileResultBufferSize,
+          dataDirectoryPath: writeRecordDataDirectoryPath,
+          dataRecord: inputRecord__III,
+        });
+      } catch {
+        undefinedExpectedPropertyThrows = true;
+      } finally {
+        Assert.assert(undefinedExpectedPropertyThrows);
+      }
+    });
+    await userErrorsContext.step('misaligned property type', async () => {
+      const inputRecord__JJJ = createTopLevelRecord({
+        booleanProperty__EXAMPLE: true,
+        numberProperty__EXAMPLE: 1,
+        stringProperty__EXAMPLE: 'howdy',
+        dataModelProperty__EXAMPLE: createDataModelPropertyRecord({
+          parentModelProperty__EXAMPLE: null as any,
+        }),
+      }) as any;
+      inputRecord__JJJ.dataModelProperty__EXAMPLE
+        .parentModelProperty__EXAMPLE = inputRecord__JJJ;
+      inputRecord__JJJ.booleanProperty__EXAMPLE = 'not a boolean';
+      let misalignedPropertyTypeThrows = false;
+      try {
+        await writeRecord({
+          dataSchema: dataSchema__EXAMPLE,
+          tableFileFinishlineSize: writeRecordTableFileFinishlineSize,
+          tableFileResultBufferSize: writeRecordTableFileResultBufferSize,
+          dataDirectoryPath: writeRecordDataDirectoryPath,
+          dataRecord: inputRecord__JJJ,
+        });
+      } catch {
+        misalignedPropertyTypeThrows = true;
+      } finally {
+        Assert.assert(misalignedPropertyTypeThrows);
+      }
+    });
+    await userErrorsContext.step(
+      'data-model property metadata shape invalid',
+      async () => {
+        const inputRecord__LLL = createTopLevelRecord({
+          booleanProperty__EXAMPLE: true,
+          numberProperty__EXAMPLE: 1,
+          stringProperty__EXAMPLE: 'howdy',
+          dataModelProperty__EXAMPLE: createDataModelPropertyRecord({
+            parentModelProperty__EXAMPLE: null as any,
+          }),
+        }) as any;
+        inputRecord__LLL.dataModelProperty__EXAMPLE
+          .parentModelProperty__EXAMPLE = inputRecord__LLL;
+        delete inputRecord__LLL.dataModelProperty__EXAMPLE.__status;
+        let invalidDataModelPropertyMetadataThrows = false;
+        try {
+          await writeRecord({
+            dataSchema: dataSchema__EXAMPLE,
+            tableFileFinishlineSize: writeRecordTableFileFinishlineSize,
+            tableFileResultBufferSize: writeRecordTableFileResultBufferSize,
+            dataDirectoryPath: writeRecordDataDirectoryPath,
+            dataRecord: inputRecord__LLL,
+          });
+        } catch {
+          invalidDataModelPropertyMetadataThrows = true;
+        } finally {
+          Assert.assert(invalidDataModelPropertyMetadataThrows);
+        }
+      },
+    );
+  });
 });
 
 interface GetFiledRecordInFileBytesApi {
