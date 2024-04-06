@@ -833,7 +833,7 @@ interface GetFiledRecordInFileBytesApi {
   filedRecord: FiledShallowWellFormedRecord;
 }
 
-async function getFiledRecordInFileBytes(
+function getFiledRecordInFileBytes(
   api: GetFiledRecordInFileBytesApi,
 ) {
   const { fileBytes, filedRecord } = api;
