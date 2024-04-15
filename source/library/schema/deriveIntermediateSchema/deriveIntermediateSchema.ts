@@ -45,7 +45,7 @@ export interface __DeriveIntermediateSchemaApi extends
   > {}
 
 function __deriveIntermediateSchema(api: __DeriveIntermediateSchemaApi): IntermediateSchema {
-  const { schemaTypeChecker, rhsSchemaExportType, lhsSchemaExportSymbol } = api;
+  const { schemaTypeChecker, rhsSchemaExportType, lhsSchemaExportSymbol } = api;  
   if (true !== schemaTypeChecker.isTupleType(rhsSchemaExportType)) {
     throwInvalidSchemaExport__NotTuple({
       schemaTypeChecker,
@@ -64,6 +64,7 @@ function __deriveIntermediateSchema(api: __DeriveIntermediateSchemaApi): Interme
     schemaTypeChecker.getTypeArguments(rhsSchemaExportType)) ||
     throwInvalidPathError('topLevelDataModelTypes');
   topLevelDataModelTypes.forEach((someTopLevelDataModelType) => {
+    console.log(someTopLevelDataModelType.isUnion())
     if (true !== isInterfaceType(someTopLevelDataModelType)) {
       throwInvalidTopLevelModel({
         schemaTypeChecker,

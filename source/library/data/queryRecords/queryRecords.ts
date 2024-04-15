@@ -177,3 +177,16 @@ interface __QuerySort<SortKind> {
 // interface QueryPagination {
 //   paginationSize: number;
 // }
+
+function retrieveFilteredAndSortedRecordMetadataBytes() {}
+
+interface QueryPage {
+  pageSource: Uint8Array
+  pageByteOffset: unknown
+  pageSize: unknown
+  pageProjection: unknown
+}
+
+function retrieveProjectedPageRecordBytes() {}
+
+function decodePageRecords() {}
