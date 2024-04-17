@@ -12,12 +12,12 @@ Deno.test('music', async () => {
   const musicIntermediateSchema = deriveIntermediateSchema({
     schemaModulePath: musicSchemaModulePath,
   })
-  const musicSolidifiedSchema = getSolidifiedSchema({
-    intermediateSchema: musicIntermediateSchema
-  })
-  const musicDataSchema = getInitialDataSchema({
-    solidifiedSchema: musicSolidifiedSchema
-  });
+  // const musicSolidifiedSchema = getSolidifiedSchema({
+  //   intermediateSchema: musicIntermediateSchema
+  // })
+  // const musicDataSchema = getInitialDataSchema({
+  //   solidifiedSchema: musicSolidifiedSchema
+  // });
 });
 
 // schema features

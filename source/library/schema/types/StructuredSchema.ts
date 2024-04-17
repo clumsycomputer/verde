@@ -1,9 +1,10 @@
 export interface BasicStructuredSchema<SomeSchemaModel>
-  extends StructuredSchema<Record<string, SomeSchemaModel>> {}
+  extends StructuredSchema<Record<string, SomeSchemaModel>, unknown> {}
 
-export interface StructuredSchema<ThisSchemaMap> {
+export interface StructuredSchema<ThisSchemaModelMap, ThisSchemaTypeMap> {
   schemaSymbol: string;
-  schemaMap: ThisSchemaMap;
+  schemaModelMap: ThisSchemaModelMap;
+  schemaTypeMap: ThisSchemaTypeMap;
 }
 
 export interface __SchemaModel<ThisModelElement> {
@@ -14,41 +15,44 @@ export interface __SchemaModel<ThisModelElement> {
   >;
 }
 
-export interface ModelProperty<ThisPropertyElement> {
+export interface ModelProperty<ThisModelElement> {
   propertyKey: string;
-  propertyElement: ThisPropertyElement;
+  propertyElement: ThisModelElement;
 }
 
-export type ModelElement<ThisDataModel extends __SchemaModel<unknown>> =
-  | DataModelElement<ThisDataModel>
-  | LiteralModelElement
-  | PrimitiveModelElement;
+export type ModelElement =
+  | DataModelModelElement
+  | TypeModelElement
+  | PrimitiveModelElement
+  | LiteralModelElement;
 
-export interface DataModelElement<
-  ThisDataModel extends __SchemaModel<unknown>,
-> extends ModelElementBase<'dataModel'> {
-  dataModelSymbolKey: ThisDataModel['modelSymbol'];
+export interface DataModelModelElement extends __ModelElement<'dataModel'> {
+  dataModelSymbolKey: string;
 }
 
-export type LiteralModelElement =
-  | StringLiteralModelElement
-  | NumberLiteralModelElement
-  | BooleanLiteralModelElement;
+type TypeModelElement = DataModelUnionTypeModelElement | ModelElementUnionTypeModelElement | AliasTypeModelElement
 
-export interface StringLiteralModelElement
-  extends LiteralModelElementBase<'stringLiteral'> {}
+interface DataModelUnionTypeModelElement extends __TypeModelElement<'dataModelUnionType'> {}
 
-export interface NumberLiteralModelElement
-  extends LiteralModelElementBase<'numberLiteral'> {}
+interface ModelElementUnionTypeModelElement extends __TypeModelElement<'modelElementUnionType'> {}
 
-export interface BooleanLiteralModelElement
-  extends LiteralModelElementBase<'booleanLiteral'> {}
+interface AliasTypeModelElement extends __TypeModelElement<'aliasType'> {}
 
-interface LiteralModelElementBase<
-  ThisElementKind,
-> extends ModelElementBase<ThisElementKind> {
-  literalSymbol: string;
+interface __TypeModelElement<ThisElementKind> extends __ModelElement<ThisElementKind> {
+  typeSymbolKey: string;
 }
+
+type VerdeModelElement = VerdeTableModelElement | VerdeArrayModelElement
+
+interface VerdeArrayModelElement extends __VerdeModelElement<'verdeArray'> {
+  arrayElement: unknown | todo
+}
+
+interface VerdeTableModelElement extends __VerdeModelElement<'verdeTable'> {
+  tableElement: DataModelUnionTypeModelElement | DataModelModelElement
+}
+
+interface __VerdeModelElement<ThisElementKind> extends __ModelElement<ThisElementKind> {}
 
 export type PrimitiveModelElement =
   | StringModelElement
@@ -56,19 +60,52 @@ export type PrimitiveModelElement =
   | BooleanModelElement;
 
 export interface StringModelElement
-  extends PrimitiveModelElementBase<'stringPrimitive'> {}
+  extends __PrimitiveModelElement<'stringPrimitive'> {}
 
 export interface NumberModelElement
-  extends PrimitiveModelElementBase<'numberPrimitive'> {}
+  extends __PrimitiveModelElement<'numberPrimitive'> {}
 
 export interface BooleanModelElement
-  extends PrimitiveModelElementBase<'booleanPrimitive'> {}
+  extends __PrimitiveModelElement<'booleanPrimitive'> {}
 
-interface PrimitiveModelElementBase<ThisElementKind>
-  extends ModelElementBase<ThisElementKind> {}
+interface __PrimitiveModelElement<ThisElementKind>
+  extends __ModelElement<ThisElementKind> {}
 
-export interface ModelElementBase<ElementKind> {
+export type LiteralModelElement =
+  | StringLiteralModelElement
+  | NumberLiteralModelElement
+  | BooleanLiteralModelElement;
+
+export interface StringLiteralModelElement
+  extends __LiteralModelElement<'stringLiteral'> {}
+
+export interface NumberLiteralModelElement
+  extends __LiteralModelElement<'numberLiteral'> {}
+
+export interface BooleanLiteralModelElement
+  extends __LiteralModelElement<'booleanLiteral'> {}
+
+interface __LiteralModelElement<
+  ThisElementKind,
+> extends __ModelElement<ThisElementKind> {
+  literalSymbol: string;
+}
+
+export interface __ModelElement<ElementKind> {
   elementKind: ElementKind;
+}
+
+interface DataModelUnionType extends __UnionType<'dataModelUnion'> {}
+
+interface ModelElementUnionType extends __UnionType<'modelElementUnion'> {}
+
+interface __UnionType<ThisTypeKind> extends __SchemaType<ThisTypeKind> {}
+
+interface AliasType extends __SchemaType<'alias'> {}
+
+interface __SchemaType<ThisTypeKind> {
+  typeKind: ThisTypeKind;
+  typeSymbol: string;
 }
 
 export type SchemaRecord<ThisRecordProperties extends Record<string, any>> =

@@ -22,14 +22,13 @@ interface MusicMix extends Music__<'mix'> {}
 
 interface MusicTrack extends Music__<'track'> {
   trackMainProject: MusicProject
-  trackSecondaryProjects: VerdeSet<MusicProject>
-  // trackProjects: VerdeSet<MusicCollection>
+  // trackProjects: VerdeTable<MusicProject>
 }
 
 interface Music__<MusicKind> {
   musicKind: MusicKind;
   musicTitle: string;
-  musicArtist: VerdeSet<MusicArtist>;
+  musicArtist: VerdeTable<MusicArtist>;
   musicDate: CalendarDate;
 }
 
@@ -40,7 +39,7 @@ interface SoloMusicArtist extends __MusicArtist<'solo'> {
 }
 
 interface GroupMusicArtist extends __MusicArtist<'group'> {
-  groupMembers: VerdeSet<MusicPerson>;
+  groupMembers: VerdeTable<MusicPerson>;
 }
 
 interface __MusicArtist<ArtistKind> {
@@ -64,4 +63,4 @@ type MonthDate = [...YearDate, month: number];
 
 type YearDate = [year: number];
 
-type HierarchicalLocation = Array<string>
+type HierarchicalLocation = VerdeArray<string>
