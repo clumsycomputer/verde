@@ -16,7 +16,7 @@ import {
 import { deriveModelElement } from './deriveModelElement.ts';
 
 export interface DeriveModelTemplatesApi<
-  ThisTargetModelKind extends keyof IntermediateSchema['schemaMap'],
+  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
   ThisModelType extends Typescript.Type,
 > extends
   Pick<
@@ -32,14 +32,14 @@ export interface DeriveModelTemplatesApi<
   > {}
 
 export function deriveModelTemplates<
-  ThisTargetModelKind extends keyof IntermediateSchema['schemaMap'],
+  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
   ThisModelType extends Typescript.Type,
 >(
   api: DeriveModelTemplatesApi<
     ThisTargetModelKind,
     ThisModelType
   >,
-): IntermediateSchema['schemaMap'][ThisTargetModelKind][string][
+): IntermediateSchema['schemaModels'][ThisTargetModelKind][string][
   'modelTemplates'
 ] {
   const {
@@ -51,7 +51,7 @@ export function deriveModelTemplates<
   } = api;
   const modelTemplateTypes = someModelType.getBaseTypes() ?? [];
   return modelTemplateTypes.map<
-    IntermediateSchema['schemaMap'][ThisTargetModelKind][string][
+    IntermediateSchema['schemaModels'][ThisTargetModelKind][string][
       'modelTemplates'
     ][
       number
@@ -117,7 +117,7 @@ export function deriveModelTemplates<
 }
 
 interface DeriveGenericArgumentsApi<
-  ThisTargetModelKind extends keyof IntermediateSchema['schemaMap'],
+  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
   ThisModelType extends Typescript.Type,
 > extends
   Pick<
@@ -135,7 +135,7 @@ interface DeriveGenericArgumentsApi<
 }
 
 function deriveGenericArguments<
-  ThisTargetModelKind extends keyof IntermediateSchema['schemaMap'],
+  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
   ThisModelType extends Typescript.Type,
 >(
   api: DeriveGenericArgumentsApi<

@@ -1,25 +1,28 @@
+import { ConcreteSchemaElement, GenericSchemaElement, TerminalElement } from './SchemaElement.ts';
 import {
   __SchemaModel,
-  ModelElement,
-  ModelElementBase,
+
   StructuredSchema,
 } from './StructuredSchema.ts';
 
 export type GetThisIntermediateElement<
-  ThisModelKind extends keyof IntermediateSchema['schemaMap'],
+  ThisModelKind extends keyof IntermediateSchema['schemaModels'],
 > = GetThisIntermediateModel<
   ThisModelKind
 >['modelProperties'][string]['propertyElement'];
 
 export type GetThisIntermediateModel<
-  ThisModelKind extends keyof IntermediateSchema['schemaMap'],
-> = IntermediateSchema['schemaMap'][ThisModelKind][string];
+  ThisModelKind extends keyof IntermediateSchema['schemaModels'],
+> = IntermediateSchema['schemaModels'][ThisModelKind][string];
+
+type Foo = GetThisIntermediateElement<'genericTemplate'>
+
+type Baz = Foo['elementKind']
 
 export interface IntermediateSchema
-  extends StructuredSchema<IntermediateSchemaMap> {
-}
+  extends StructuredSchema<IntermediateSchemaModels> {}
 
-interface IntermediateSchemaMap {
+interface IntermediateSchemaModels {
   data: Record<DataIntermediateModel['modelSymbol'], DataIntermediateModel>;
   concreteTemplate: Record<
     ConcreteTemplateIntermediateModel['modelSymbol'],
@@ -32,7 +35,7 @@ interface IntermediateSchemaMap {
 }
 
 export interface DataIntermediateModel
-  extends __IntermediateModel<'data', CoreIntermediateElement> {}
+  extends __IntermediateModel<'data', ConcreteSchemaElement> {}
 
 type TemplateIntermediateModel =
   | ConcreteTemplateIntermediateModel
@@ -42,14 +45,14 @@ export interface ConcreteTemplateIntermediateModel
   extends
     __TemplateIntermediateModel<
       'concreteTemplate',
-      CoreIntermediateElement
+      ConcreteSchemaElement
     > {}
 
 export interface GenericTemplateIntermediateModel
   extends
     __TemplateIntermediateModel<
       'genericTemplate',
-      GenericTemplateIntermediateElement
+      GenericSchemaElement
     > {
   genericParameters: Array<GenericParameter>;
 }
@@ -96,26 +99,3 @@ interface ModelTemplateBase<
   templateKind: ThisTemplateKind;
   templateModelSymbolKey: TemplateIntermediateModel['modelSymbol'];
 }
-
-export type GenericTemplateIntermediateElement =
-  | ParameterElement
-  | CoreIntermediateElement;
-
-type ParameterElement =
-  | BasicParameterElement
-  | ConstrainedParameterElement;
-
-interface BasicParameterElement
-  extends ParameterElementBase<'basicParameter'> {}
-
-interface ConstrainedParameterElement
-  extends ParameterElementBase<'constrainedParameter'> {}
-
-interface ParameterElementBase<ThisElementKind>
-  extends ModelElementBase<ThisElementKind> {
-  parameterSymbol: string;
-}
-
-export type CoreIntermediateElement = ModelElement<
-  DataIntermediateModel
->;

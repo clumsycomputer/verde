@@ -54,11 +54,12 @@ function __deriveIntermediateSchema(api: __DeriveIntermediateSchemaApi): Interme
   }
   const schemaResult: IntermediateSchema = {
     schemaSymbol: lhsSchemaExportSymbol.name,
-    schemaMap: {
+    schemaModels: {
       data: {},
       concreteTemplate: {},
       genericTemplate: {}
     },
+    schemaTypes: {}
   };
   const topLevelDataModelTypes = (isTypeReference(rhsSchemaExportType) &&
     schemaTypeChecker.getTypeArguments(rhsSchemaExportType)) ||

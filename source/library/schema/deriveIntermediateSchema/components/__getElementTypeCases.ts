@@ -1,7 +1,7 @@
 import { genericAny, irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import { GetThisIntermediateElement, IntermediateSchema } from '../../types/IntermediateSchema.ts';
-import { ModelElementBase } from '../../types/StructuredSchema.ts';
+import { __SchemaElement } from '../../types/SchemaElement.ts';
 import {
   isBooleanLiteralType,
   isBooleanType,
@@ -44,7 +44,7 @@ export function getGenericElementTypeCases() {
 }
 
 interface __GetElementTypeCasesApi<
-  SomeUniqueModelElement extends ModelElementBase<string>,
+  SomeUniqueModelElement extends __SchemaElement<string>,
   SomeUniqueElementType extends Typescript.Type,
   ThisUniqueElementTypeCases extends [
     ElementTypeCase<SomeUniqueModelElement, SomeUniqueElementType>,
@@ -56,7 +56,7 @@ interface __GetElementTypeCasesApi<
 
 function __getElementTypeCases<
   SomeUniqueModelKind extends string,
-  SomeUniqueModelElement extends ModelElementBase<SomeUniqueModelKind>,
+  SomeUniqueModelElement extends __SchemaElement<SomeUniqueModelKind>,
   SomeUniqueElementType extends Typescript.Type,
   SomeElementTypeCase extends ElementTypeCase<
     SomeUniqueModelElement,
@@ -129,7 +129,7 @@ function __getElementTypeCases<
           someDataModelType: someElementType,
         });
         return {
-          elementKind: 'dataModel',
+          elementKind: 'dataModelReference',
           dataModelSymbolKey: elementDataModel.modelSymbol,
         };
       },
@@ -138,7 +138,7 @@ function __getElementTypeCases<
 }
 
 export interface ElementTypeCase<
-  ThisModelElement extends ModelElementBase<string>,
+  ThisModelElement extends __SchemaElement<string>,
   ThisElementType extends Typescript.Type,
 > {
   assertCase: (
@@ -169,7 +169,7 @@ function getExtendedTuple<
 
 function elementTypeCase<
   ThisModelElement extends GetThisIntermediateElement<
-    keyof IntermediateSchema['schemaMap']
+    keyof IntermediateSchema['schemaModels']
   >,
   ThisElementType extends Typescript.Type,
 >(thisElementTypeCase: ElementTypeCase<ThisModelElement, ThisElementType>) {

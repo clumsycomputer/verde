@@ -5,7 +5,7 @@ import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
 import { deriveModelElement } from './deriveModelElement.ts';
 
 export interface DeriveModelPropertiesApi<
-  ThisTargetModelKind extends keyof IntermediateSchema['schemaMap'],
+  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
   ThisModelType extends Typescript.Type,
 > extends
   Pick<
@@ -21,7 +21,7 @@ export interface DeriveModelPropertiesApi<
   > {}
 
 export function deriveModelProperties<
-  ThisTargetModelKind extends keyof IntermediateSchema['schemaMap'],
+  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
   ThisModelType extends Typescript.Type,
 >(
   api: DeriveModelPropertiesApi<
