@@ -1,5 +1,5 @@
 export type GenericSchemaElement = SchemaElement<
-TerminalElement<TemplateParameterElement>
+  TerminalElement<TemplateParameterElement>
 >;
 
 export type TemplateParameterElement =
@@ -18,7 +18,7 @@ interface __TemplateParameterElement<ThisElementKind>
 }
 
 export type ConcreteSchemaElement = SchemaElement<
-TerminalElement<never>
+  TerminalElement<never>
 >;
 
 type SchemaElement<ThisTerminalElement> =
@@ -87,9 +87,11 @@ export interface VerdeTableElement<ThisParameterElement>
     __CollectionElement<
       'verdeElement',
       | DataModelReferenceElement
-      | TypeReferenceElement
+      | DataModelTypeReferenceElement
       | ThisParameterElement
-      | UnionElement<DataModelReferenceElement | TypeReferenceElement | ThisParameterElement>
+      | UnionElement<
+        DataModelReferenceElement | DataModelTypeReferenceElement | ThisParameterElement
+      >
     > {}
 
 export interface VerdeArrayElement<ThisParameterElement>
@@ -109,11 +111,18 @@ interface __CollectionElement<
 interface __VerdeElement<ThisElementKind>
   extends __SchemaElement<ThisElementKind> {}
 
-export interface TypeReferenceElement extends __SchemaElement<'typeReference'> {
+type TypeReferenceElement = DataModelTypeReferenceElement | GeneralTypeReferenceElement
+
+export interface DataModelTypeReferenceElement extends __TypeReferenceElement<'dataModelTypeReference'> {}
+
+export interface GeneralTypeReferenceElement extends __TypeReferenceElement<'generalTypeReference'> {}
+
+interface __TypeReferenceElement<ThisElementKind> extends __SchemaElement<ThisElementKind> {
   typeSymbolKey: string;
 }
 
-export interface DataModelReferenceElement extends __SchemaElement<'dataModelReference'> {
+export interface DataModelReferenceElement
+  extends __SchemaElement<'dataModelReference'> {
   dataModelSymbolKey: string;
 }
 

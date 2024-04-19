@@ -59,7 +59,10 @@ function __deriveIntermediateSchema(api: __DeriveIntermediateSchemaApi): Interme
       concreteTemplate: {},
       genericTemplate: {}
     },
-    schemaTypes: {}
+    schemaTypes: {
+      dataModel: {},
+      general: {}
+    }
   };
   const topLevelDataModelTypes = (isTypeReference(rhsSchemaExportType) &&
     schemaTypeChecker.getTypeArguments(rhsSchemaExportType)) ||

@@ -1,7 +1,12 @@
-import { ConcreteSchemaElement, GenericSchemaElement, TerminalElement } from './SchemaElement.ts';
+import {
+  ConcreteSchemaElement,
+  DataModelTypeReferenceElement,
+  GeneralTypeReferenceElement,
+  GenericSchemaElement,
+} from './SchemaElement.ts';
 import {
   __SchemaModel,
-
+  __SchemaType,
   StructuredSchema,
 } from './StructuredSchema.ts';
 
@@ -15,12 +20,8 @@ export type GetThisIntermediateModel<
   ThisModelKind extends keyof IntermediateSchema['schemaModels'],
 > = IntermediateSchema['schemaModels'][ThisModelKind][string];
 
-type Foo = GetThisIntermediateElement<'genericTemplate'>
-
-type Baz = Foo['elementKind']
-
 export interface IntermediateSchema
-  extends StructuredSchema<IntermediateSchemaModels> {}
+  extends StructuredSchema<IntermediateSchemaModels, IntermediateSchemaTypes> {}
 
 interface IntermediateSchemaModels {
   data: Record<DataIntermediateModel['modelSymbol'], DataIntermediateModel>;
@@ -99,3 +100,19 @@ interface ModelTemplateBase<
   templateKind: ThisTemplateKind;
   templateModelSymbolKey: TemplateIntermediateModel['modelSymbol'];
 }
+
+interface IntermediateSchemaTypes {
+  dataModel: Record<
+    DataModelIntermediateType['typeSymbol'],
+    DataModelIntermediateType
+  >;
+  general: Record<
+    GeneralIntermediateType['typeSymbol'],
+    GeneralIntermediateType
+  >;
+}
+
+interface DataModelIntermediateType
+  extends __SchemaType<'dataModel', DataModelTypeReferenceElement> {}
+
+interface GeneralIntermediateType extends __SchemaType<'general', GeneralTypeReferenceElement> {}

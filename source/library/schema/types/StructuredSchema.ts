@@ -1,12 +1,12 @@
 import { ConcreteSchemaElement } from './SchemaElement.ts';
 
 export interface BasicStructuredSchema<SomeSchemaModel>
-  extends StructuredSchema<Record<string, SomeSchemaModel>> {}
+  extends StructuredSchema<Record<string, SomeSchemaModel>, unknown> {}
 
-export interface StructuredSchema<ThisSchemaModels> {
+export interface StructuredSchema<ThisSchemaModels, ThisSchemaTypes> {
   schemaSymbol: string;
   schemaModels: ThisSchemaModels;
-  schemaTypes: Record<string, SchemaType>;
+  schemaTypes: ThisSchemaTypes;
 }
 
 export interface __SchemaModel<ThisModelElement> {
@@ -22,9 +22,10 @@ export interface ModelProperty<ThisModelElement> {
   propertyElement: ThisModelElement;
 }
 
-interface SchemaType {
-  typeSymbol: string;
-  typeElement: ConcreteSchemaElement
+export interface __SchemaType<ThisTypeKind, ThisTypeElement> {
+  typeKind: ThisTypeKind;
+  typeElement: ThisTypeElement;
+  typeSymbol: string;  
 }
 
 export type SchemaRecord<ThisRecordProperties extends Record<string, any>> =

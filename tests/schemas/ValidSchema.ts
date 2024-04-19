@@ -1,3 +1,7 @@
-export type ValidSchema = [FooThing]
+export type ValidSchema = [BasicDataModel]; 
 
-interface FooThing {}
+interface BasicDataModel {
+  stringProperty: string;
+  numberProperty: number;
+  booleanProperty: boolean;
+}
