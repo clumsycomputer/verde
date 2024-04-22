@@ -2,7 +2,7 @@ import { throwInvalidPathError } from '../../../helpers/throwError.ts';
 import {
   IntermediateSchema
 } from '../types/IntermediateSchema.ts';
-import { deriveDataModel } from './components/__deriveIntermediateModel.ts';
+// import { deriveDataModel } from './components/__deriveIntermediateModel.ts';
 import {
   LoadSchemaModuleResult,
   loadSchemaModule,
@@ -65,19 +65,17 @@ function __deriveIntermediateSchema(api: __DeriveIntermediateSchemaApi): Interme
     schemaTypeChecker.getTypeArguments(rhsSchemaExportType)) ||
     throwInvalidPathError('topLevelDataModelTypes');
   topLevelDataModelTypes.forEach((someTopLevelDataModelType) => {
-    if (isInterfaceType(someTopLevelDataModelType)) {
-      deriveDataModel({
-        schemaTypeChecker,
-        schemaResult,
-        dataModelType: someTopLevelDataModelType
-      })
-    }
-    else {
+    if (true !== isInterfaceType(someTopLevelDataModelType)) {
       throwInvalidTopLevelModel({
         schemaTypeChecker,
-        topLevelDataModelType: someTopLevelDataModelType,
+        someTopLevelDataModelType,
       });
     }
+    // deriveDataModel({
+    //   schemaTypeChecker,
+    //   schemaResult,
+    //   someDataModelType: someTopLevelDataModelType,
+    // });
   });
   return schemaResult;
 }

@@ -17,19 +17,17 @@ interface __TemplateParameterElement<ThisElementKind>
   parameterSymbol: string;
 }
 
-export type DefinitiveSchemaElement = SchemaElement<
+export type ConcreteSchemaElement = SchemaElement<
   TerminalElement<never>
 >;
 
 type SchemaElement<ThisTerminalElement> =
   | ThisTerminalElement
   | StructureElement<ThisTerminalElement>
-  | UnionCompositionElement<
-    ThisTerminalElement | StructureElement<ThisTerminalElement>
-  >;
+  | UnionElement<ThisTerminalElement | StructureElement<ThisTerminalElement>>;
 
-export interface UnionCompositionElement<ThisMemberElement>
-  extends __SchemaElement<'unionComposition'> {
+export interface UnionElement<ThisMemberElement>
+  extends __SchemaElement<'union'> {
   unionMembers: Record<
     string,
     | ThisMemberElement
@@ -40,25 +38,19 @@ export interface UnionCompositionElement<ThisMemberElement>
 export interface NullElement extends __SchemaElement<'null'> {}
 
 export type StructureElement<ThisTerminalElement> =
-  | ObjectStructureElement<ThisTerminalElement>
-  | TupleStructureElement<ThisTerminalElement>;
+  | ObjectElement<ThisTerminalElement>
+  | TupleElement<ThisTerminalElement>;
 
-export interface ObjectStructureElement<ThisTerminalElement>
+export interface ObjectElement<ThisTerminalElement>
   extends
-    __StructureElement<
-      'objectStructure',
-      ObjectElementProperty<ThisTerminalElement>
-    > {}
+    __StructureElement<'object', ObjectElementProperty<ThisTerminalElement>> {}
 
 interface ObjectElementProperty<ThisTerminalElement>
   extends __ElementProperty<ThisTerminalElement> {}
 
-export interface TupleStructureElement<ThisTerminalElement>
+export interface TupleElement<ThisTerminalElement>
   extends
-    __StructureElement<
-      'tupleStructure',
-      TupleElementProperty<ThisTerminalElement>
-    > {}
+    __StructureElement<'tuple', TupleElementProperty<ThisTerminalElement>> {}
 
 interface TupleElementProperty<ThisTerminalElement>
   extends __ElementProperty<ThisTerminalElement> {
@@ -97,7 +89,7 @@ export interface VerdeTableElement<ThisParameterElement>
       | DataModelReferenceElement
       | AliasReferenceElement
       | ThisParameterElement
-      | UnionCompositionElement<
+      | UnionElement<
         DataModelReferenceElement | AliasReferenceElement | ThisParameterElement
       >
     > {}
@@ -119,9 +111,8 @@ interface __CollectionElement<
 interface __VerdeElement<ThisElementKind>
   extends __SchemaElement<ThisElementKind> {}
 
-export interface AliasReferenceElement
-  extends __SchemaElement<'aliasReference'> {
-  aliasSymbolKey: string;
+export interface AliasReferenceElement extends __SchemaElement<'aliasReference'> {
+  typeSymbolKey: string;
 }
 
 export interface DataModelReferenceElement
@@ -129,18 +120,13 @@ export interface DataModelReferenceElement
   dataModelSymbolKey: string;
 }
 
-export type PrimitiveElement =
-  | StringPrimitiveElement
-  | NumberPrimitiveElement
-  | BooleanPrimitiveElement;
+export type PrimitiveElement = StringElement | NumberElement | BooleanElement;
 
-export interface StringPrimitiveElement
-  extends __PrimitiveElement<'stringPrimitive'> {}
+export interface StringElement extends __PrimitiveElement<'stringPrimitive'> {}
 
-export interface NumberPrimitiveElement
-  extends __PrimitiveElement<'numberPrimitive'> {}
+export interface NumberElement extends __PrimitiveElement<'numberPrimitive'> {}
 
-export interface BooleanPrimitiveElement
+export interface BooleanElement
   extends __PrimitiveElement<'booleanPrimitive'> {}
 
 interface __PrimitiveElement<ThisElementKind>

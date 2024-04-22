@@ -1,15 +1,25 @@
 import {
-  DefinitiveSchemaElement,
+  ConcreteSchemaElement,
   GenericSchemaElement,
 } from './SchemaElement.ts';
 import {
   __SchemaModel,
   __SchemaAlias,
-  __StructuredSchema,
-} from './__StructuredSchema.ts';
+  StructuredSchema,
+} from './StructuredSchema.ts';
+
+export type GetThisIntermediateElement<
+  ThisModelKind extends keyof IntermediateSchema['schemaModels'],
+> = GetThisIntermediateModel<
+  ThisModelKind
+>['modelProperties'][string]['propertyElement'];
+
+export type GetThisIntermediateModel<
+  ThisModelKind extends keyof IntermediateSchema['schemaModels'],
+> = IntermediateSchema['schemaModels'][ThisModelKind][string];
 
 export interface IntermediateSchema
-  extends __StructuredSchema<IntermediateSchemaModels, IntermediateSchemaAlias> {}
+  extends StructuredSchema<IntermediateSchemaModels, IntermediateSchemaAlias> {}
 
 interface IntermediateSchemaModels {
   data: Record<DataIntermediateModel['modelSymbol'], DataIntermediateModel>;
@@ -24,7 +34,7 @@ interface IntermediateSchemaModels {
 }
 
 export interface DataIntermediateModel
-  extends __IntermediateModel<'data', DefinitiveSchemaElement> {}
+  extends __IntermediateModel<'data', ConcreteSchemaElement> {}
 
 type TemplateIntermediateModel =
   | ConcreteTemplateIntermediateModel
@@ -34,7 +44,7 @@ export interface ConcreteTemplateIntermediateModel
   extends
     __TemplateIntermediateModel<
       'concreteTemplate',
-      DefinitiveSchemaElement
+      ConcreteSchemaElement
     > {}
 
 export interface GenericTemplateIntermediateModel
@@ -91,17 +101,7 @@ interface __ModelTemplate<
 
 type IntermediateSchemaAlias = DataModelIntermediateAlias | GeneralIntermediateAlias
 
-export interface DataModelIntermediateAlias
+interface DataModelIntermediateAlias
   extends __SchemaAlias<'dataModel'> {}
 
-export interface GeneralIntermediateAlias extends __SchemaAlias<'general'> {}
-
-export type GetThisIntermediateElement<
-  ThisModelKind extends keyof IntermediateSchema['schemaModels'],
-> = GetThisIntermediateModel<
-  ThisModelKind
->['modelProperties'][string]['propertyElement'];
-
-export type GetThisIntermediateModel<
-  ThisModelKind extends keyof IntermediateSchema['schemaModels'],
-> = IntermediateSchema['schemaModels'][ThisModelKind][string];
+interface GeneralIntermediateAlias extends __SchemaAlias<'general'> {}

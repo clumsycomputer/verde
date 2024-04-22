@@ -1,132 +1,160 @@
 import { genericAny, irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
-import { GetThisIntermediateElement, IntermediateSchema } from '../../types/IntermediateSchema.ts';
+import { AliasReferenceElementNode, ElementNode, GeneralElementNode } from '../../types/ElementNode.ts';
+import {
+  GetThisIntermediateElement,
+  IntermediateSchema,
+} from '../../types/IntermediateSchema.ts';
 import { __SchemaElement } from '../../types/SchemaElement.ts';
 import {
   isBooleanLiteralType,
   isBooleanType,
-  isContrainedParameterType,
   isInterfaceType,
   isNumberLiteralType,
   isNumberType,
-  isParameterType,
   isStringLiteralType,
   isStringType,
 } from '../helpers/typeguards.ts';
 import { deriveDataModel } from './__deriveIntermediateModel.ts';
-import { DeriveModelElementApi } from './deriveModelElement.ts';
+import { DeriveSchemaElementApi } from './deriveSchemaElement.ts';
 
-export function getDefinitiveElementTypeCases() {
+export function getDefinitiveElementCases() {
   return __getElementTypeCases({
-    uniqueElementTypeCases: [],
+    uniqueElementCases: [],
   });
 }
 
-export function getGenericElementTypeCases() {
-  return __getElementTypeCases({
-    uniqueElementTypeCases: [
-      elementTypeCase({
-        assertCase: isContrainedParameterType,
-        handleCase: ({ someElementType }) => ({
-          elementKind: 'constrainedParameter',
-          parameterSymbol: someElementType.symbol.name,
-        }),
-      }),
-      elementTypeCase({
-        assertCase: isParameterType,
-        handleCase: ({ someElementType }) => ({
-          elementKind: 'basicParameter',
-          parameterSymbol: someElementType.symbol.name,
-        }),
-      }),
-    ],
-  });
-}
-
-interface __GetElementTypeCasesApi<
-  SomeUniqueModelElement extends __SchemaElement<string>,
-  SomeUniqueElementType extends Typescript.Type,
-  ThisUniqueElementTypeCases extends [
-    ElementTypeCase<SomeUniqueModelElement, SomeUniqueElementType>,
-    ...Array<ElementTypeCase<SomeUniqueModelElement, SomeUniqueElementType>>,
+interface __GetElementCasesApi<
+  SomeSchemaElement extends __SchemaElement<string>,
+  SomeElementNode extends ElementNode<any>,
+  ThisUniqueElementCases extends [
+    ElementCase<
+      SomeSchemaElement,
+      SomeElementNode
+    >,
+    ...Array<
+      ElementCase<
+        SomeSchemaElement,
+        SomeElementNode
+      >
+    >,
   ] | [],
 > {
-  uniqueElementTypeCases: ThisUniqueElementTypeCases;
+  uniqueElementCases: ThisUniqueElementCases;
 }
 
 function __getElementTypeCases<
-  SomeUniqueModelKind extends string,
-  SomeUniqueModelElement extends __SchemaElement<SomeUniqueModelKind>,
-  SomeUniqueElementType extends Typescript.Type,
-  SomeElementTypeCase extends ElementTypeCase<
-    SomeUniqueModelElement,
-    SomeUniqueElementType
+  SomeElementKind extends string,
+  SomeSchemaElement extends __SchemaElement<SomeElementKind>,
+  SomeElementNode extends ElementNode<any>,
+  SomeElementCase extends ElementCase<
+    SomeSchemaElement,
+    SomeElementNode
   >,
-  ThisUniqueElementTypeCases extends [
-    SomeElementTypeCase,
-    ...Array<SomeElementTypeCase>,
+  ThisUniqueElementCases extends [
+    SomeElementCase,
+    ...Array<SomeElementCase>,
   ] | [],
 >(
-  api: __GetElementTypeCasesApi<
-    SomeUniqueModelElement,
-    SomeUniqueElementType,
-    ThisUniqueElementTypeCases
+  api: __GetElementCasesApi<
+    SomeSchemaElement,
+    SomeElementNode,
+    ThisUniqueElementCases
   >,
 ) {
-  const { uniqueElementTypeCases } = api;
+  const { uniqueElementCases } = api;
   return getExtendedTuple([
     elementTypeCase({
-      assertCase: isStringLiteralType,
-      handleCase: ({ schemaTypeChecker, someElementType }) => ({
-        elementKind: 'stringLiteral',
-        literalSymbol: schemaTypeChecker.typeToString(someElementType),
-      }),
+      assertCase: (
+        someElementNode,
+      ): someElementNode is AliasReferenceElementNode<Typescript.Type> =>
+        someElementNode.nodeKind === 'aliasReference',
+      handleCase: ({ elementNode }) => {
+        return {
+          elementKind: 'aliasReference',
+          aliasSymbolKey: elementNode.nodeAliasSymbol.name,
+        };
+      },
     }),
     elementTypeCase({
-      assertCase: isNumberLiteralType,
-      handleCase: ({ schemaTypeChecker, someElementType }) => ({
-        elementKind: 'numberLiteral',
-        literalSymbol: schemaTypeChecker.typeToString(someElementType),
-      }),
-    }),
-    elementTypeCase({
-      assertCase: isBooleanLiteralType,
-      handleCase: ({ schemaTypeChecker, someElementType }) => ({
+      assertCase: (
+        someElementNode,
+      ): someElementNode is GeneralElementNode<Typescript.Type> =>
+        isBooleanLiteralType(someElementNode.nodeResolvedType),
+      handleCase: ({ schemaTypeChecker, elementNode }) => ({
         elementKind: 'booleanLiteral',
-        literalSymbol: schemaTypeChecker.typeToString(someElementType),
+        literalSymbol: schemaTypeChecker.typeToString(
+          elementNode.nodeResolvedType,
+        ),
       }),
     }),
     elementTypeCase({
-      assertCase: isStringType,
-      handleCase: () => ({
-        elementKind: 'stringPrimitive',
+      assertCase: (
+        someElementNode,
+      ): someElementNode is GeneralElementNode<Typescript.NumberLiteralType> =>
+        isNumberLiteralType(someElementNode.nodeResolvedType),
+      handleCase: ({ schemaTypeChecker, elementNode }) => ({
+        elementKind: 'numberLiteral',
+        literalSymbol: schemaTypeChecker.typeToString(
+          elementNode.nodeResolvedType,
+        ),
       }),
     }),
     elementTypeCase({
-      assertCase: isNumberType,
-      handleCase: () => ({
-        elementKind: 'numberPrimitive',
+      assertCase: (
+        someElementNode,
+      ): someElementNode is GeneralElementNode<Typescript.StringLiteralType> =>
+        isStringLiteralType(someElementNode.nodeResolvedType),
+      handleCase: ({ schemaTypeChecker, elementNode }) => ({
+        elementKind: 'stringLiteral',
+        literalSymbol: schemaTypeChecker.typeToString(
+          elementNode.nodeResolvedType,
+        ),
       }),
     }),
     elementTypeCase({
-      assertCase: isBooleanType,
+      assertCase: (
+        someElementNode,
+      ): someElementNode is GeneralElementNode<Typescript.Type> =>
+        isBooleanType(someElementNode.nodeResolvedType),
       handleCase: () => ({
         elementKind: 'booleanPrimitive',
       }),
     }),
     elementTypeCase({
-      assertCase: isInterfaceType,
+      assertCase: (
+        someElementNode,
+      ): someElementNode is GeneralElementNode<Typescript.Type> =>
+        isNumberType(someElementNode.nodeResolvedType),
+      handleCase: () => ({
+        elementKind: 'numberPrimitive',
+      }),
+    }),
+    elementTypeCase({
+      assertCase: (
+        someElementNode,
+      ): someElementNode is GeneralElementNode<Typescript.Type> =>
+        isStringType(someElementNode.nodeResolvedType),
+      handleCase: () => ({
+        elementKind: 'stringPrimitive',
+      }),
+    }),
+    elementTypeCase({
+      assertCase: (
+        someElementNode,
+      ): someElementNode is GeneralElementNode<Typescript.InterfaceType> =>
+        isInterfaceType(someElementNode.nodeResolvedType),
       handleCase: (
         {
           schemaTypeChecker,
           schemaResult,
-          someElementType,
+          elementNode,
         },
       ) => {
         const elementDataModel = deriveDataModel({
           schemaTypeChecker,
           schemaResult,
-          someDataModelType: someElementType,
+          dataModelType: elementNode.nodeResolvedType,
         });
         return {
           elementKind: 'dataModelReference',
@@ -134,27 +162,72 @@ function __getElementTypeCases<
         };
       },
     }),
-  ], uniqueElementTypeCases);
+    // elementTypeCase({
+    //   assertCase: (someType): someType is Typescript.Type => false,
+    //   handleCase: () => {
+    //     return {
+    //       elementKind: 'verdeTable',
+    //       collectionElement: todo
+    //     }
+    //   }
+    // }),
+    // elementTypeCase({
+    //   assertCase: (someType): someType is Typescript.Type => false,
+    //   handleCase: () => {
+    //     return {
+    //       elementKind: 'verdeArray',
+    //       collectionElement: todo
+    //     }
+    //   }
+    // }),
+    // elementTypeCase({
+    //   assertCase: (someType): someType is Typescript.Type => false,
+    //   handleCase: () => {
+    //     return {
+    //       elementKind: 'union',
+    //       unionMembers: {todo}
+    //     }
+    //   }
+    // }),
+    // elementTypeCase({
+    //   assertCase: (someType): someType is Typescript.Type => false,
+    //   handleCase: () => {
+    //     return {
+    //       elementKind: 'object',
+    //       structureProperties: {todo}
+    //     }
+    //   }
+    // }),
+    // elementTypeCase({
+    //   assertCase: (someType): someType is Typescript.Type => false,
+    //   handleCase: () => {
+    //     return {
+    //       elementKind: 'tuple',
+    //       structureProperties: {todo}
+    //     }
+    //   }
+    // })
+  ], uniqueElementCases);
 }
 
-export interface ElementTypeCase<
-  ThisModelElement extends __SchemaElement<string>,
-  ThisElementType extends Typescript.Type,
+export interface ElementCase<
+  ThisSchemaElement extends __SchemaElement<string>,
+  ThisElementNode extends ElementNode<any>,
 > {
   assertCase: (
-    someElementType: Typescript.Type,
-  ) => someElementType is ThisElementType;
+    elementNode: ElementNode<Typescript.Type>,
+  ) => elementNode is ThisElementNode;
   handleCase: (
-    api: ElementTypeCaseHandlerApi<ThisElementType>,
-  ) => ThisModelElement;
+    api: ElementCaseHandlerApi<ThisElementNode>,
+  ) => ThisSchemaElement;
 }
 
-interface ElementTypeCaseHandlerApi<ThisElementType> extends
+interface ElementCaseHandlerApi<ThisElementNode> extends
   Pick<
-    DeriveModelElementApi<irrelevantAny>,
+    DeriveSchemaElementApi<irrelevantAny>,
     'schemaTypeChecker' | 'schemaResult'
   > {
-  someElementType: ThisElementType;
+  elementNode: ThisElementNode;
 }
 
 function getExtendedTuple<
@@ -168,46 +241,66 @@ function getExtendedTuple<
 }
 
 function elementTypeCase<
-  ThisModelElement extends GetThisIntermediateElement<
+  ThisSchemaElement extends GetThisIntermediateElement<
     keyof IntermediateSchema['schemaModels']
   >,
-  ThisElementType extends Typescript.Type,
->(thisElementTypeCase: ElementTypeCase<ThisModelElement, ThisElementType>) {
-  return thisElementTypeCase;
+  ThisElementNode extends ElementNode<any>,
+>(
+  thisElementCase: ElementCase<
+    ThisSchemaElement,
+    ThisElementNode
+  >,
+) {
+  return thisElementCase;
 }
 
-export type VerifiedElementTypeCases<
-  TargetElementTypeCase extends ElementTypeCase<genericAny, genericAny>,
-  ThisElementTypeCases extends Array<ElementTypeCase<genericAny, genericAny>>,
-> = VerifyElementTypeCases<
-  TargetElementTypeCase,
-  ThisElementTypeCases,
+export type VerifiedElementCases<
+  TargetElementCase extends ElementCase<
+    genericAny,
+    genericAny
+  >,
+  ThisElementCases extends Array<
+    ElementCase<
+      genericAny,
+      genericAny
+    >
+  >,
+> = VerifyElementCases<
+  TargetElementCase,
+  ThisElementCases,
   []
 >;
 
-type VerifyElementTypeCases<
-  TargetElementTypeCase extends ElementTypeCase<genericAny, genericAny>,
-  CurrentElementTypeCases extends Array<genericAny>,
-  ResultElementTypeCases extends Array<
-    CurrentElementTypeCases[number]
+type VerifyElementCases<
+  TargetElementCase extends ElementCase<
+    genericAny,
+    genericAny
   >,
-> = TargetElementTypeCase extends
-  ElementTypeCase<infer TargetModelElement, infer TargetElementType>
-  ? CurrentElementTypeCases extends
-    [infer CurrentElementTypeCase, ...infer RemainingElementTypeCases]
-    ? CurrentElementTypeCase extends
-      ElementTypeCase<infer CurrentModelElement, infer CurrentElementType>
-      ? CurrentModelElement extends TargetModelElement
-        ? CurrentElementType extends TargetElementType ? VerifyElementTypeCases<
-            TargetElementTypeCase,
-            RemainingElementTypeCases,
+  CurrentElementCases extends Array<genericAny>,
+  ResultElementCases extends Array<
+    CurrentElementCases[number]
+  >,
+> = TargetElementCase extends ElementCase<
+  infer TargetSchemaElement,
+  infer TargetElementNode
+>
+  ? CurrentElementCases extends
+    [infer CurrentElementCase, ...infer RemainingElementCases]
+    ? CurrentElementCase extends ElementCase<
+      infer CurrentSchemaElement,
+      infer CurrentElementNode
+    >
+      ? CurrentSchemaElement extends TargetSchemaElement
+        ? CurrentElementNode extends TargetElementNode ? VerifyElementCases<
+            TargetElementCase,
+            RemainingElementCases,
             [
-              ...ResultElementTypeCases,
-              CurrentElementTypeCase,
+              ...ResultElementCases,
+              CurrentElementCase,
             ]
           >
         : never
       : never
     : never
-  : ResultElementTypeCases
+  : ResultElementCases
   : never;

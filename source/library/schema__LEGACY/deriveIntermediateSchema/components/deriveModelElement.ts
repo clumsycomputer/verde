@@ -14,7 +14,7 @@ export interface DeriveModelElementApi<
     | 'typeContext'
     | 'elementTypeCases'
   > {
-  someElementType: Typescript.Type;
+  elementType: Typescript.Type;
 }
 
 export function deriveModelElement<ThisTargetModelKind extends keyof IntermediateSchema['schemaModels']>(
@@ -22,17 +22,17 @@ export function deriveModelElement<ThisTargetModelKind extends keyof Intermediat
 ): GetThisIntermediateElement<ThisTargetModelKind> {
   const {
     elementTypeCases,
-    someElementType,
+    elementType,
     schemaTypeChecker,
     schemaResult,
     typeContext,
   } = api;
   const targetElementTypeCase = elementTypeCases.find((someElementTypeCase) =>
-    someElementTypeCase.assertCase(someElementType)
+    someElementTypeCase.assertCase(elementType)
   );
   return targetElementTypeCase
     ? targetElementTypeCase.handleCase({
-      someElementType,
+      elementType,
       schemaTypeChecker,
       schemaResult,
     })

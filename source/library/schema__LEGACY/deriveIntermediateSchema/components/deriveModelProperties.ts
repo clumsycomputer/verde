@@ -1,13 +1,12 @@
 import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
-import { ElementNode } from '../../types/ElementNode.ts';
 import {
   GetThisIntermediateModel,
   IntermediateSchema,
 } from '../../types/IntermediateSchema.ts';
 import { isPropertySymbol } from '../helpers/typeguards.ts';
 import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
-import { deriveSchemaElement } from './deriveSchemaElement.ts';
+import { deriveModelElement } from './deriveModelElement.ts';
 
 export interface DeriveModelPropertiesApi<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
@@ -18,11 +17,11 @@ export interface DeriveModelPropertiesApi<
       ThisTargetModelKind,
       ThisModelType
     >,
-    | 'elementCases'
     | 'schemaTypeChecker'
     | 'schemaResult'
-    | 'modelType'
-    | 'astContext'
+    | 'typeContext'
+    | 'elementTypeCases'
+    | 'someModelType'
   > {}
 
 export function deriveModelProperties<
@@ -35,14 +34,14 @@ export function deriveModelProperties<
   >,
 ): GetThisIntermediateModel<ThisTargetModelKind>['modelProperties'] {
   const {
-    modelType,
+    someModelType,
     schemaTypeChecker,
     schemaResult,
-    elementCases,
-    astContext,
+    typeContext,
+    elementTypeCases,
   } = api;
-  const typeProperties = (modelType.symbol.members &&
-    Array.from(modelType.symbol.members.values()).filter(
+  const typeProperties = (someModelType.symbol.members &&
+    Array.from(someModelType.symbol.members.values()).filter(
       isPropertySymbol,
     )) ??
     [];
@@ -54,43 +53,29 @@ export function deriveModelProperties<
       const propertyElementType = schemaTypeChecker.getTypeOfSymbol(
         someTypeProperty,
       );
-      const propertyElementSourceSymbol = someTypeProperty.valueDeclaration &&
-          Typescript.isPropertySignature(
-            someTypeProperty.valueDeclaration,
-          ) &&
+      (propertyElementType as any).typeReferenceSymbol =
+        someTypeProperty.valueDeclaration &&
+          Typescript.isPropertySignature(someTypeProperty.valueDeclaration) &&
           someTypeProperty.valueDeclaration.type &&
-          Typescript.isTypeReferenceNode(
-            someTypeProperty.valueDeclaration.type,
-          )
-        ? schemaTypeChecker.getSymbolAtLocation(
-          someTypeProperty.valueDeclaration.type.typeName,
-        ) ?? throwInvalidPathError('propertyElementSourceSymbol')
-        : null;
-      const propertyElementNode: ElementNode<Typescript.Type> =
-        propertyElementSourceSymbol &&
-          propertyElementSourceSymbol.name !== propertyElementType.symbol.name
-          ? {
-            nodeKind: 'aliasReference',
-            nodeResolvedType: propertyElementType,
-            nodeAliasSymbol: propertyElementSourceSymbol,
-          }
-          : {
-            nodeKind: 'general',
-            nodeResolvedType: propertyElementType,
-          };
+          Typescript.isTypeReferenceNode(someTypeProperty.valueDeclaration.type)
+          ? schemaTypeChecker.getSymbolAtLocation(
+            someTypeProperty.valueDeclaration.type.typeName,
+          ) ?? throwInvalidPathError('propertyElementType.symbol')
+          : propertyElementType.symbol;
       modelPropertiesResult[propertyKey] = {
         propertyKey,
-        propertyElement: deriveSchemaElement({
-          elementCases,
+        propertyElement: deriveModelElement({
           schemaTypeChecker,
           schemaResult,
-          elementNode: propertyElementNode,
-          astContext: [
-            ...astContext,
+          elementTypeCases,
+          elementType: propertyElementType,
+          typeContext: [
+            ...typeContext,
             {
-              astNodeKind: 'propertyElement',
-              astNodeType: propertyElementType,
+              infoKind: 'element',
+              elementKind: 'property',
               propertyKey,
+              infoType: propertyElementType,
             },
           ],
         }),
