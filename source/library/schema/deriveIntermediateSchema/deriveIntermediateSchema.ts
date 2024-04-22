@@ -1,20 +1,14 @@
-import { throwInvalidPathError } from '../../../helpers/throwError.ts';
 import {
-  IntermediateSchema
-} from '../types/IntermediateSchema.ts';
+  throwInvalidPathError,
+  throwUserError,
+} from '../../../helpers/throwError.ts';
+import { Typescript } from '../../../imports/Typescript.ts';
+import { IntermediateSchema } from '../types/IntermediateSchema.ts';
 import { deriveDataModel } from './components/__deriveIntermediateModel.ts';
 import {
-  LoadSchemaModuleResult,
   loadSchemaModule,
+  LoadSchemaModuleResult,
 } from './components/loadSchemaModule.ts';
-import {
-  throwInvalidTopLevelModel,
-  throwInvalidSchemaExport__NotTuple
-} from './helpers/errors.ts';
-import {
-  isInterfaceType,
-  isTypeReference
-} from './helpers/typeguards.ts';
 
 export interface DeriveIntermediateSchemaApi {
   schemaModulePath: string;
@@ -27,59 +21,58 @@ export function deriveIntermediateSchema(
   const {
     schemaTypeChecker,
     lhsSchemaExportSymbol,
-    rhsSchemaExportType,
+    rhsSchemaExportNode,
   } = loadSchemaModule({
     schemaModulePath,
   });
   return __deriveIntermediateSchema({
     schemaTypeChecker,
     lhsSchemaExportSymbol,
-    rhsSchemaExportType,
+    rhsSchemaExportNode,
   });
 }
 
 export interface __DeriveIntermediateSchemaApi extends
   Pick<
     LoadSchemaModuleResult,
-    'schemaTypeChecker' | 'lhsSchemaExportSymbol' | 'rhsSchemaExportType'
+    'schemaTypeChecker' | 'lhsSchemaExportSymbol' | 'rhsSchemaExportNode'
   > {}
 
-function __deriveIntermediateSchema(api: __DeriveIntermediateSchemaApi): IntermediateSchema {
-  const { schemaTypeChecker, rhsSchemaExportType, lhsSchemaExportSymbol } = api;  
-  if (true !== schemaTypeChecker.isTupleType(rhsSchemaExportType)) {
-    throwInvalidSchemaExport__NotTuple({
-      schemaTypeChecker,
-      rhsSchemaExportType,
-    });
-  }
+function __deriveIntermediateSchema(
+  api: __DeriveIntermediateSchemaApi,
+): IntermediateSchema {
+  const { schemaTypeChecker, lhsSchemaExportSymbol, rhsSchemaExportNode } = api;
   const schemaResult: IntermediateSchema = {
-    schemaSymbol: lhsSchemaExportSymbol.name,
+    schemaName: lhsSchemaExportSymbol.name,
     schemaModels: {
       data: {},
       concreteTemplate: {},
-      genericTemplate: {}
+      genericTemplate: {},
     },
-    schemaAliases: {}
+    schemaAliases: {},
   };
-  const topLevelDataModelTypes = (isTypeReference(rhsSchemaExportType) &&
-    schemaTypeChecker.getTypeArguments(rhsSchemaExportType)) ||
-    throwInvalidPathError('topLevelDataModelTypes');
-  topLevelDataModelTypes.forEach((someTopLevelDataModelType) => {
-    if (isInterfaceType(someTopLevelDataModelType)) {
+  rhsSchemaExportNode.elements.forEach((someSchemaExportItemNode) => {
+    const schemaExportItemSymbol =
+      Typescript.isTypeReferenceNode(someSchemaExportItemNode) &&
+        schemaTypeChecker.getSymbolAtLocation(
+          someSchemaExportItemNode.typeName,
+        ) ||
+      throwUserError('schemaExportItemSymbol: todo');
+    const schemaExportItemDeclaration = schemaExportItemSymbol.declarations &&
+        schemaExportItemSymbol.declarations.length === 1 &&
+        schemaExportItemSymbol.declarations[0] ||
+      throwUserError('schemaExportItemDeclaration: todo');
+    if (Typescript.isInterfaceDeclaration(schemaExportItemDeclaration)) {
       deriveDataModel({
         schemaTypeChecker,
         schemaResult,
-        dataModelType: someTopLevelDataModelType
-      })
-    }
-    else {
-      throwInvalidTopLevelModel({
-        schemaTypeChecker,
-        topLevelDataModelType: someTopLevelDataModelType,
+        modelSymbol: schemaExportItemSymbol,
       });
+    } else if (Typescript.isTypeAliasDeclaration(schemaExportItemDeclaration)) {
+      // console.log(schemaExportItemDeclaration.name);
+    } else {
+      throwUserError('invalid schema export item: todo');
     }
   });
   return schemaResult;
 }
-
-

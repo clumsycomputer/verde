@@ -9,6 +9,7 @@ import {
   throwInvalidSchemaModule__MultipleExports,
   throwInvalidSchemaModule__NoExports,
   throwInvalidSchemaModule__NonTypeAliasExport,
+  throwInvalidSchemaModule__NotTupleExport,
   throwInvalidSchemaModule_PathDoesNotExist,
 } from '../helpers/errors.ts';
 
@@ -19,7 +20,7 @@ export interface LoadSchemaModuleApi
 export interface LoadSchemaModuleResult {
   schemaTypeChecker: Typescript.TypeChecker;
   lhsSchemaExportSymbol: Typescript.Symbol;
-  rhsSchemaExportType: Typescript.Type;
+  rhsSchemaExportNode: Typescript.TupleTypeNode;
 }
 
 export function loadSchemaModule(
@@ -80,12 +81,14 @@ export function loadSchemaModule(
       schemaModulePath,
     });
   }
-  const rhsSchemaExportType = schemaTypeChecker.getTypeAtLocation(
-    schemaExportNode,
-  );
+  const rhsSchemaExportNode = Typescript.isTupleTypeNode(schemaExportNode.type)
+    ? schemaExportNode.type
+    : throwInvalidSchemaModule__NotTupleExport({
+      schemaModulePath,
+    });
   return {
     schemaTypeChecker,
     lhsSchemaExportSymbol,
-    rhsSchemaExportType,
+    rhsSchemaExportNode,
   };
 }

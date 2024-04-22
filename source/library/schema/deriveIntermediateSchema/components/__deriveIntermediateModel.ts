@@ -1,6 +1,5 @@
 import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
-import { ElementNode } from '../../types/ElementNode.ts';
 import {
   DataIntermediateModel,
   GetThisIntermediateElement,
@@ -11,17 +10,16 @@ import { DefinitiveSchemaElement } from '../../types/SchemaElement.ts';
 import { __DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
 import {
   ElementCase,
-  VerifiedElementCases,
   getDefinitiveElementCases,
+  VerifiedElementCases,
 } from './__getElementTypeCases.ts';
 import { deriveModelProperties } from './deriveModelProperties.ts';
 
 export interface DeriveDataModelApi extends
   Pick<
     Defined__DeriveIntermediateModelApi,
-    'schemaTypeChecker' | 'schemaResult'
+    'schemaTypeChecker' | 'schemaResult' | 'modelSymbol'
   > {
-  dataModelType: Typescript.InterfaceType;
 }
 
 export function deriveDataModel(
@@ -30,160 +28,131 @@ export function deriveDataModel(
   const {
     schemaTypeChecker,
     schemaResult,
-    dataModelType,
+    modelSymbol,
   } = api;
   return __deriveDefinitiveModel({
     targetModelKind: 'data',
-    createTargetModel: createTargetModel__deriveDataModel,
+    initializeTargetModel: initializeTargetModel__deriveDataModel,
     schemaTypeChecker,
     schemaResult,
-    modelType: dataModelType,
-    astContext: [{
-      astNodeKind: 'dataModel',
-      astNodeType: dataModelType,
-    }],
+    modelSymbol,
+    // astContext: [{
+    //   astNodeKind: 'dataModel',
+    //   astNodeTypeNode: dataModelType,
+    // }],
   });
 }
 
-function createTargetModel__deriveDataModel(
-  api: CreateTargetModelApi<
-    'data',
-    Typescript.InterfaceType
-  >,
+function initializeTargetModel__deriveDataModel(
+  api: InitializeTargetModelApi<'data'>,
 ): DataIntermediateModel {
-  const { targetModelKind, modelSymbol, modelTemplates, modelProperties } = api;
+  const { targetModelKind, modelSymbol } = api;
   return {
     modelKind: targetModelKind,
-    modelSymbol,
-    modelTemplates,
-    modelProperties,
+    modelName: modelSymbol.name,
+    modelTemplates: [],
+    modelProperties: {},
   };
 }
 
 interface __DeriveDefinitiveModel<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
-  ThisModelType extends Typescript.Type,
 > extends
   Pick<
-    __DeriveIntermediateModelApi<
-      ThisTargetModelKind,
-      ThisModelType
-    >,
+    __DeriveIntermediateModelApi<ThisTargetModelKind>,
     | 'targetModelKind'
-    | 'createTargetModel'
+    | 'initializeTargetModel'
     | 'schemaTypeChecker'
     | 'schemaResult'
-    | 'modelType'
-    | 'astContext'
-  > {}
+    | 'modelSymbol'
+  > // | 'astContext'
+{}
 
 function __deriveDefinitiveModel<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
-  ThisModelType extends Typescript.Type,
 >(
-  api: __DeriveDefinitiveModel<
-    ThisTargetModelKind,
-    ThisModelType
-  >,
+  api: __DeriveDefinitiveModel<ThisTargetModelKind>,
 ): GetThisIntermediateModel<ThisTargetModelKind> {
   const {
     targetModelKind,
-    createTargetModel,
+    initializeTargetModel,
     schemaTypeChecker,
     schemaResult,
-    astContext,
-    modelType,
+    modelSymbol,
+    // astContext,
   } = api;
   return __deriveIntermediateModel({
-    elementCases:
-      getDefinitiveElementCases() satisfies VerifiedElementCases<
-        ElementCase<
-          DefinitiveSchemaElement,
-          ElementNode<Typescript.Type>
-        >,
-        ReturnType<typeof getDefinitiveElementCases>
-      > as Array<
-        ElementCase<
-          DefinitiveSchemaElement,
-          ElementNode<Typescript.Type>
-        >
+    elementCases: getDefinitiveElementCases() satisfies VerifiedElementCases<
+      ElementCase<
+        DefinitiveSchemaElement,
+        Typescript.Node
       >,
+      ReturnType<typeof getDefinitiveElementCases>
+    > as Array<
+      ElementCase<
+        DefinitiveSchemaElement,
+        Typescript.Node
+      >
+    >,
     targetModelKind,
-    createTargetModel,
+    initializeTargetModel,
     schemaTypeChecker,
     schemaResult,
-    modelType,
-    astContext,
+    modelSymbol,
+    // astContext,
   });
 }
 
 export interface __DeriveIntermediateModelApi<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
-  ThisModelType extends Typescript.Type,
 > extends
   Defined__DeriveIntermediateModelApi,
-  Custom__DeriveIntermediateModelApi<
-    ThisTargetModelKind,
-    ThisModelType
-  > {
+  Custom__DeriveIntermediateModelApi<ThisTargetModelKind> {
 }
 
 interface Defined__DeriveIntermediateModelApi
   extends Pick<__DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {
   schemaResult: IntermediateSchema;
-  astContext: AstContext;
+  modelSymbol: Typescript.Symbol;
+  // astContext: AstContext;
 }
 
 interface Custom__DeriveIntermediateModelApi<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
-  ThisModelType extends Typescript.Type,
 > {
   targetModelKind: ThisTargetModelKind;
-  modelType: ThisModelType;
-  createTargetModel: (
-    api: CreateTargetModelApi<ThisTargetModelKind, ThisModelType>,
+  initializeTargetModel: (
+    api: InitializeTargetModelApi<ThisTargetModelKind>,
   ) => GetThisIntermediateModel<ThisTargetModelKind>;
   elementCases: Array<
     ElementCase<
       GetThisIntermediateElement<ThisTargetModelKind>,
-      ElementNode<Typescript.Type>
+      Typescript.Node
     >
   >;
 }
 
-interface CreateTargetModelApi<
+interface InitializeTargetModelApi<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
-  ThisModelType extends Typescript.Type,
 > extends
   Pick<
-    __DeriveIntermediateModelApi<
-      ThisTargetModelKind,
-      ThisModelType
-    >,
-    'targetModelKind' | 'schemaTypeChecker' | 'schemaResult' | 'modelType'
-  >,
-  Pick<
-    GetThisIntermediateModel<ThisTargetModelKind>,
-    'modelSymbol' | 'modelTemplates' | 'modelProperties'
+    __DeriveIntermediateModelApi<ThisTargetModelKind>,
+    'targetModelKind' | 'schemaTypeChecker' | 'schemaResult' | 'modelSymbol'
   > {}
 
 function __deriveIntermediateModel<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
-  ThisModelType extends Typescript.Type,
 >(
-  api: __DeriveIntermediateModelApi<
-    ThisTargetModelKind,
-    ThisModelType
-  >,
+  api: __DeriveIntermediateModelApi<ThisTargetModelKind>,
 ): GetThisIntermediateModel<ThisTargetModelKind> {
   const {
-    modelType,
+    modelSymbol,
     schemaResult,
     targetModelKind,
     schemaTypeChecker,
-    createTargetModel,
+    initializeTargetModel,
     elementCases,
-    astContext,
+    // astContext,
   } = api;
   // todo:
   //    1. check if declaration symbol for `someModelType` is unique, a.k.a,
@@ -191,23 +160,20 @@ function __deriveIntermediateModel<
   //
   //    2. if declaration symbol not unique or exists as other modelKind, throw user error
   //
-  const modelSymbol = modelType.symbol.name;
+  const modelName = modelSymbol.name;
   const maybeCachedTargetModel = schemaResult
-    .schemaModels[targetModelKind][modelSymbol];
+    .schemaModels[targetModelKind][modelName];
   if (isCachedTargetKind(targetModelKind, maybeCachedTargetModel)) {
     return maybeCachedTargetModel;
   }
-  const newTargetModel = createTargetModel({
+  const newTargetModel = initializeTargetModel({
     targetModelKind,
     schemaTypeChecker,
     schemaResult,
-    modelType,
     modelSymbol,
-    modelTemplates: [],
-    modelProperties: {},
   });
   // enable recursive model processing (direct & indirect)
-  schemaResult.schemaModels[targetModelKind][newTargetModel.modelSymbol] =
+  schemaResult.schemaModels[targetModelKind][newTargetModel.modelName] =
     newTargetModel;
   // newTargetModel.modelTemplates = deriveModelTemplates({
   //   someModelType,
@@ -220,8 +186,8 @@ function __deriveIntermediateModel<
     elementCases,
     schemaTypeChecker,
     schemaResult,
-    modelType,
-    astContext,
+    modelSymbol,
+    // astContext,
   });
   return newTargetModel;
 }
@@ -249,38 +215,42 @@ function isCachedTargetKind<
     : false;
 }
 
-type AstContext = [
-  DataModelAstNode,
-  ...Array<SecondaryModelAstNode>,
-];
+// type AstContext = [
+//   DataModelAstNode,
+//   ...Array<SecondaryModelAstNode>,
+// ];
 
-interface DataModelAstNode extends __AstNode<'dataModel'> {}
+// interface DataModelAstNode extends __AstNode<'dataModel'> {}
 
-type SecondaryModelAstNode = TemplateAstNode | ElementAstNode;
+// type SecondaryModelAstNode = TemplateAstNode | ElementAstNode;
 
-type TemplateAstNode = ConcreteTemplateAstNode | GenericTemplateAstNode;
+// type TemplateAstNode = ConcreteTemplateAstNode | GenericTemplateAstNode;
 
-interface ConcreteTemplateAstNode
-  extends __TemplateTypeInfo<'concreteTemplate'> {}
+// interface ConcreteTemplateAstNode
+//   extends __TemplateTypeInfo<'concreteTemplate'> {}
 
-interface GenericTemplateAstNode
-  extends __TemplateTypeInfo<'genericTemplate'> {}
+// interface GenericTemplateAstNode
+//   extends __TemplateTypeInfo<'genericTemplate'> {}
 
-interface __TemplateTypeInfo<ThisAstNodeKind>
-  extends __AstNode<ThisAstNodeKind> {}
+// interface __TemplateTypeInfo<ThisAstNodeKind>
+//   extends __AstNode<ThisAstNodeKind> {}
 
-type ElementAstNode = ArgumentElementTypeInfo | PropertyElementTypeInfo;
+// type ElementAstNode = ArgumentElementTypeInfo | PropertyElementTypeInfo | CollectionElementTypeInfo;
 
-interface ArgumentElementTypeInfo extends __ElementAstNode<'argumentElement'> {}
+// interface ArgumentElementTypeInfo extends __ElementAstNode<'argumentElement'> {}
 
-interface PropertyElementTypeInfo extends __ElementAstNode<'propertyElement'> {
-  propertyKey: string;
-}
+// interface PropertyElementTypeInfo extends __ElementAstNode<'propertyElement'> {
+//   propertyKey: string;
+// }
 
-interface __ElementAstNode<ThisAstNodeKind>
-  extends __AstNode<ThisAstNodeKind> {}
+// interface CollectionElementTypeInfo extends __ElementAstNode<'collectionElement'> {
+//   collectionAliasSymbol: Typescript.Symbol
+// }
 
-interface __AstNode<ThisAstNodeKind> {
-  astNodeKind: ThisAstNodeKind;
-  astNodeType: Typescript.Type;
-}
+// interface __ElementAstNode<ThisAstNodeKind>
+//   extends __AstNode<ThisAstNodeKind> {}
+
+// interface __AstNode<ThisAstNodeKind> {
+//   astNodeKind: ThisAstNodeKind;
+//   astNodeTypeNode: Typescript.TypeNode;
+// }

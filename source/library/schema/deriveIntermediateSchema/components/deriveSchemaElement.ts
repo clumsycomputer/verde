@@ -1,7 +1,9 @@
 import { irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
-import { ElementNode } from '../../types/ElementNode.ts';
-import { GetThisIntermediateElement, IntermediateSchema } from '../../types/IntermediateSchema.ts';
+import {
+  GetThisIntermediateElement,
+  IntermediateSchema,
+} from '../../types/IntermediateSchema.ts';
 import { throwInvalidSchemaElement } from '../helpers/errors.ts';
 import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
 
@@ -9,16 +11,18 @@ export interface DeriveSchemaElementApi<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
 > extends
   Pick<
-    __DeriveIntermediateModelApi<ThisTargetModelKind, irrelevantAny>,
+    __DeriveIntermediateModelApi<ThisTargetModelKind>,
     | 'elementCases'
     | 'schemaTypeChecker'
-    | 'schemaResult'    
-    | 'astContext'
+    | 'schemaResult'
+    // | 'astContext'
   > {
-  elementNode: ElementNode<Typescript.Type>;
+  elementNode: Typescript.Node;
 }
 
-export function deriveSchemaElement<ThisTargetModelKind extends keyof IntermediateSchema['schemaModels']>(
+export function deriveSchemaElement<
+  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
+>(
   api: DeriveSchemaElementApi<ThisTargetModelKind>,
 ): GetThisIntermediateElement<ThisTargetModelKind> {
   const {
@@ -26,19 +30,21 @@ export function deriveSchemaElement<ThisTargetModelKind extends keyof Intermedia
     elementNode,
     schemaTypeChecker,
     schemaResult,
-    astContext,
+    // astContext,
   } = api;
   const targetElementCase = elementCases.find((someElementCase) =>
-  someElementCase.assertCase(elementNode)
+    someElementCase.assertCase(elementNode)
   );
   return targetElementCase
     ? targetElementCase.handleCase({
+      elementCases,
       schemaTypeChecker,
       schemaResult,
       elementNode,
+      // astContext,
     })
     : throwInvalidSchemaElement({
       schemaTypeChecker,
-      astContext,
+      // astContext,
     });
 }

@@ -12,13 +12,13 @@ export interface IntermediateSchema
   extends __StructuredSchema<IntermediateSchemaModels, IntermediateSchemaAlias> {}
 
 interface IntermediateSchemaModels {
-  data: Record<DataIntermediateModel['modelSymbol'], DataIntermediateModel>;
+  data: Record<DataIntermediateModel['modelName'], DataIntermediateModel>;
   concreteTemplate: Record<
-    ConcreteTemplateIntermediateModel['modelSymbol'],
+    ConcreteTemplateIntermediateModel['modelName'],
     ConcreteTemplateIntermediateModel
   >;
   genericTemplate: Record<
-    GenericTemplateIntermediateModel['modelSymbol'],
+    GenericTemplateIntermediateModel['modelName'],
     GenericTemplateIntermediateModel
   >;
 }
@@ -47,7 +47,7 @@ export interface GenericTemplateIntermediateModel
 }
 
 export interface GenericParameter {
-  parameterSymbol: string;
+  parameterName: string;
 }
 
 interface __TemplateIntermediateModel<ThisModelKind, ThisModelElement>
@@ -71,13 +71,13 @@ interface ConcreteModelTemplate extends __ModelTemplate<'concreteTemplate'> {}
 export interface GenericModelTemplate<ThisArgumentElement>
   extends __ModelTemplate<'genericTemplate'> {
   genericArguments: Record<
-    GenericArgument<ThisArgumentElement>['argumentParameterSymbolKey'],
+    GenericArgument<ThisArgumentElement>['argumentParameterNameKey'],
     GenericArgument<ThisArgumentElement>
   >;
 }
 
 interface GenericArgument<ThisArgumentElement> {
-  argumentParameterSymbolKey: string;
+  argumentParameterNameKey: string;
   argumentIndex: number;
   argumentElement: ThisArgumentElement;
 }
@@ -86,7 +86,7 @@ interface __ModelTemplate<
   ThisTemplateKind extends TemplateIntermediateModel['modelKind'],
 > {
   templateKind: ThisTemplateKind;
-  templateModelSymbolKey: TemplateIntermediateModel['modelSymbol'];
+  templateModelNameKey: TemplateIntermediateModel['modelName'];
 }
 
 type IntermediateSchemaAlias = DataModelIntermediateAlias | GeneralIntermediateAlias

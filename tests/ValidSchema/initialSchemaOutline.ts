@@ -1,51 +1,58 @@
 import { InitialSchemaOutline } from './setupValidSchema.ts';
 
 export const initialSchemaOutline: InitialSchemaOutline = {
+  schemaImports: [
+    "import { VerdeTable } from '../../../source/library/module.ts';",
+  ],
   schemaSymbol: 'ValidSchema',
-  schemaExports: ['BasicDataModel'],
+  schemaExports: ['BasicDataModel', 'DataModelUnion'],
   schemaModels: {
     BasicDataModel: {
       modelSymbol: 'BasicDataModel',
       modelProperties: {
-        stringProperty: {
-          propertyKey: 'stringProperty',
-          propertyElementSymbol: 'string',
-        },
-        numberProperty: {
-          propertyKey: 'numberProperty',
-          propertyElementSymbol: 'number',
-        },
-        booleanProperty: {
-          propertyKey: 'booleanProperty',
-          propertyElementSymbol: 'boolean',
-        },
-        stringLiteralProperty: {
-          propertyKey: 'stringLiteralProperty',
-          propertyElementSymbol: '"hello"',
+        booleanLiteralProperty: {
+          propertyKey: 'booleanLiteralProperty',
+          propertyElementSymbol: 'true',
         },
         numberLiteralProperty: {
           propertyKey: 'numberLiteralProperty',
           propertyElementSymbol: '123',
         },
-        booleanLiteralProperty: {
-          propertyKey: 'booleanLiteralProperty',
-          propertyElementSymbol: 'true',
+        stringLiteralProperty: {
+          propertyKey: 'stringLiteralProperty',
+          propertyElementSymbol: '"hello"',
+        },       
+        booleanProperty: {
+          propertyKey: 'booleanProperty',
+          propertyElementSymbol: 'boolean',
         },
-        dataModelReferenceProperty: {
-          propertyKey: 'dataModelReferenceProperty',
-          propertyElementSymbol: 'BasicDataModel'
+        numberProperty: {
+          propertyKey: 'numberProperty',
+          propertyElementSymbol: 'number',
         },
-        aliasReferenceProperty: {
-          propertyKey: 'aliasReferenceProperty',
-          propertyElementSymbol: 'DataModelUnion'
-        }
+         stringProperty: {
+          propertyKey: 'stringProperty',
+          propertyElementSymbol: 'string',
+        },
+        // dataModelReferenceProperty: {
+        //   propertyKey: 'dataModelReferenceProperty',
+        //   propertyElementSymbol: 'BasicDataModel',
+        // },
+        // aliasReferenceProperty: {
+        //   propertyKey: 'aliasReferenceProperty',
+        //   propertyElementSymbol: 'DataModelUnion',
+        // },
+        // verdeTableProperty: {
+        //   propertyKey: 'verdeTableProperty',
+        //   propertyElementSymbol: 'VerdeTable<DataModelUnion>'
+        // }
       },
     },
   },
   schemaAliases: {
     DataModelUnion: {
       aliasSymbol: 'DataModelUnion',
-      aliasElementSymbol: 'BasicDataModel'
-    }
-  }
+      aliasElementSymbol: 'BasicDataModel',
+    },
+  },
 };

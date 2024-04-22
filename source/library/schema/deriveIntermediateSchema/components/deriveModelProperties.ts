@@ -1,6 +1,5 @@
 import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
-import { ElementNode } from '../../types/ElementNode.ts';
 import {
   GetThisIntermediateModel,
   IntermediateSchema,
@@ -11,38 +10,31 @@ import { deriveSchemaElement } from './deriveSchemaElement.ts';
 
 export interface DeriveModelPropertiesApi<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
-  ThisModelType extends Typescript.Type,
 > extends
   Pick<
-    __DeriveIntermediateModelApi<
-      ThisTargetModelKind,
-      ThisModelType
-    >,
+    __DeriveIntermediateModelApi<ThisTargetModelKind>,
     | 'elementCases'
     | 'schemaTypeChecker'
     | 'schemaResult'
-    | 'modelType'
-    | 'astContext'
-  > {}
+    | 'modelSymbol'
+  > // | 'astContext'
+{}
 
 export function deriveModelProperties<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
   ThisModelType extends Typescript.Type,
 >(
-  api: DeriveModelPropertiesApi<
-    ThisTargetModelKind,
-    ThisModelType
-  >,
+  api: DeriveModelPropertiesApi<ThisTargetModelKind>,
 ): GetThisIntermediateModel<ThisTargetModelKind>['modelProperties'] {
   const {
-    modelType,
+    modelSymbol,
     schemaTypeChecker,
     schemaResult,
     elementCases,
-    astContext,
+    // astContext,
   } = api;
-  const typeProperties = (modelType.symbol.members &&
-    Array.from(modelType.symbol.members.values()).filter(
+  const typeProperties = (modelSymbol.members &&
+    Array.from(modelSymbol.members.values()).filter(
       isPropertySymbol,
     )) ??
     [];
@@ -51,48 +43,102 @@ export function deriveModelProperties<
   >(
     (modelPropertiesResult, someTypeProperty) => {
       const propertyKey = someTypeProperty.name;
-      const propertyElementType = schemaTypeChecker.getTypeOfSymbol(
-        someTypeProperty,
-      );
-      const propertyElementSourceSymbol = someTypeProperty.valueDeclaration &&
-          Typescript.isPropertySignature(
-            someTypeProperty.valueDeclaration,
-          ) &&
-          someTypeProperty.valueDeclaration.type &&
-          Typescript.isTypeReferenceNode(
-            someTypeProperty.valueDeclaration.type,
-          )
-        ? schemaTypeChecker.getSymbolAtLocation(
-          someTypeProperty.valueDeclaration.type.typeName,
-        ) ?? throwInvalidPathError('propertyElementSourceSymbol')
-        : null;
-      const propertyElementNode: ElementNode<Typescript.Type> =
-        propertyElementSourceSymbol &&
-          propertyElementSourceSymbol.name !== propertyElementType.symbol.name
-          ? {
-            nodeKind: 'aliasReference',
-            nodeResolvedType: propertyElementType,
-            nodeAliasSymbol: propertyElementSourceSymbol,
-          }
-          : {
-            nodeKind: 'general',
-            nodeResolvedType: propertyElementType,
-          };
+      // const propertyElementType = schemaTypeChecker.getTypeOfSymbol(
+      //   someTypeProperty,
+      // );
+      // console.log(
+      //   Boolean(
+      //     someTypeProperty.valueDeclaration && Typescript.isPropertySignature(
+      //       someTypeProperty.valueDeclaration,
+      //     ) && someTypeProperty.valueDeclaration.type &&
+      //       schemaTypeChecker.getTypeAtLocation(
+      //         someTypeProperty.valueDeclaration.type,
+      //       ),
+      //   ),
+      // );
+      // console.log(schemaTypeChecker.typeToString(propertyElementType));
+      // console.log(
+      //   schemaTypeChecker.typeToString(
+      //     someTypeProperty.valueDeclaration && Typescript.isPropertySignature(
+      //           someTypeProperty.valueDeclaration,
+      //         ) &&
+      //         someTypeProperty.valueDeclaration.type &&
+      //         schemaTypeChecker.getTypeAtLocation(
+      //           someTypeProperty.valueDeclaration.type,
+      //         ) || throwInvalidPathError('asdff'),
+      //   ),
+      // );
+      // const propertyElementValueType = someTypeProperty.valueDeclaration &&
+      //     Typescript.isPropertySignature(
+      //       someTypeProperty.valueDeclaration,
+      //     ) && someTypeProperty.valueDeclaration.type &&
+      //     Typescript.isTypeReferenceNode(
+      //       someTypeProperty.valueDeclaration.type,
+      //     ) && someTypeProperty.valueDeclaration.type || null;
+      // const propertyElementSourceSymbol = propertyElementValueType
+      //   ? schemaTypeChecker.getSymbolAtLocation(
+      //     propertyElementValueType.typeName,
+      //   ) ?? throwInvalidPathError('propertyElementSourceSymbol')
+      //   : null;
+      // const propertyElementNode: ElementNode<Typescript.Type> =
+      //   propertyElementSourceSymbol &&
+      //     propertyElementSourceSymbol.name !==
+      //       propertyElementType.symbol.name &&
+      //     propertyElementValueType && propertyElementValueType.typeArguments
+      //     ? {
+      //       nodeKind: 'typeFunction',
+      //       nodeResolvedType: propertyElementType,
+      //       nodeSourceSymbol: propertyElementSourceSymbol,
+      //       nodeTypeArguments: propertyElementValueType.typeArguments.map(
+      //         (someArgumentNode): GeneralElementNode<Typescript.Type> => {
+      //           // const argumentValueType = Typescript.isTypeReferenceNode(someArgumentNode) && someArgumentNode || null
+
+      //           return {
+      //             nodeKind: 'general',
+      //             nodeResolvedType: schemaTypeChecker.getTypeAtLocation(
+      //               someArgumentNode,
+      //             ),
+      //           };
+      //         },
+      //       ),
+      //     }
+      //     : propertyElementSourceSymbol &&
+      //         propertyElementSourceSymbol.name !==
+      //           propertyElementType.symbol.name
+      //     ? {
+      //       nodeKind: 'aliasReference',
+      //       nodeResolvedType: propertyElementType,
+      //       nodeSourceSymbol: propertyElementSourceSymbol,
+      //     }
+      //     : {
+      //       nodeKind: 'general',
+      //       nodeResolvedType: propertyElementType,
+      //     };
+      //   const propertySourceTypeNode = someTypeProperty.valueDeclaration &&
+      //   Typescript.isPropertySignature(
+      //     someTypeProperty.valueDeclaration,
+      //   ) && someTypeProperty.valueDeclaration.type ||
+      // throwInvalidPathError('propertySourceTypeNode')
       modelPropertiesResult[propertyKey] = {
         propertyKey,
         propertyElement: deriveSchemaElement({
           elementCases,
           schemaTypeChecker,
           schemaResult,
-          elementNode: propertyElementNode,
-          astContext: [
-            ...astContext,
-            {
-              astNodeKind: 'propertyElement',
-              astNodeType: propertyElementType,
-              propertyKey,
-            },
-          ],
+          elementNode:
+            someTypeProperty.valueDeclaration &&
+              Typescript.isPropertySignature(
+                someTypeProperty.valueDeclaration,
+              ) && someTypeProperty.valueDeclaration.type ||
+            throwInvalidPathError('propertyElementNode'),
+          // astContext: [
+          //   ...astContext,
+          //   {
+          //     astNodeKind: 'propertyElement',
+          //     astNodeTypeNode: propertySourceTypeNode,
+          //     propertyKey,
+          //   },
+          // ],
         }),
       };
       return modelPropertiesResult;

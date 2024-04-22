@@ -1,14 +1,14 @@
-export type ValidSchema = [BasicDataModel]; 
+import { VerdeTable } from '../../../source/library/module.ts';
+
+export type ValidSchema = [BasicDataModel,DataModelUnion]; 
 
 interface BasicDataModel {
-  stringProperty: string;
-  numberProperty: number;
-  booleanProperty: boolean;
-  stringLiteralProperty: "hello";
-  numberLiteralProperty: 123;
   booleanLiteralProperty: true;
-  dataModelReferenceProperty: BasicDataModel;
-  aliasReferenceProperty: DataModelUnion;
+  numberLiteralProperty: 123;
+  stringLiteralProperty: "hello";
+  booleanProperty: boolean;
+  numberProperty: number;
+  stringProperty: string;
 }
 
 type DataModelUnion = BasicDataModel;

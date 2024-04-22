@@ -65,7 +65,7 @@ export async function setupValidSchema(
     ...initialSchemaOutline,
     schemaModels: sourceModelsOutlines,
     schemaAliases: sourceAliasesOutlines,
-    schemaSource: `export type ${initialSchemaOutline.schemaSymbol} = [${
+    schemaSource: `${initialSchemaOutline.schemaImports.join('\n')}\n\nexport type ${initialSchemaOutline.schemaSymbol} = [${
       initialSchemaOutline.schemaExports.join(',')
     }]; ${
       Object.values(sourceModelsOutlines).reduce(
@@ -125,6 +125,7 @@ interface SourceAliasOutline extends __AliasOutline {
 
 interface __SchemaOutline<ThisOutlineModel, ThisOutlineAlias> {
   schemaSymbol: string;
+  schemaImports: Array<string>;
   schemaExports: Array<string>;
   schemaModels: Record<string, ThisOutlineModel>;
   schemaAliases: Record<string, ThisOutlineAlias>;

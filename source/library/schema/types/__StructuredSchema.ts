@@ -1,13 +1,13 @@
 import { AliasReferenceElement } from './SchemaElement.ts';
 
 export interface __StructuredSchema<ThisSchemaModels, ThisSchemaAlias> {
-  schemaSymbol: string;
+  schemaName: string;
   schemaModels: ThisSchemaModels;
   schemaAliases: Record<string, ThisSchemaAlias>;
 }
 
 export interface __SchemaModel<ThisModelElement> {
-  modelSymbol: string;
+  modelName: string;
   modelProperties: Record<
     ModelProperty<ThisModelElement>['propertyKey'],
     ModelProperty<ThisModelElement>
@@ -21,16 +21,6 @@ export interface ModelProperty<ThisModelElement> {
 
 export interface __SchemaAlias<ThisAliasKind> {
   aliasKind: ThisAliasKind;
-  aliasSymbol: string;
+  aliasName: string;
   aliasElement: AliasReferenceElement;
 }
-
-export type SchemaRecord<ThisRecordProperties extends Record<string, any>> =
-  & {
-    __id: number;
-    __modelSymbol: string;
-  }
-  & {
-    [SomePropertyKey in keyof ThisRecordProperties]:
-      ThisRecordProperties[SomePropertyKey];
-  };

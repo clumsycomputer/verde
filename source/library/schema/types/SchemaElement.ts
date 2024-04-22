@@ -14,7 +14,7 @@ export interface BasicParameterElement
 
 interface __TemplateParameterElement<ThisElementKind>
   extends __SchemaElement<ThisElementKind> {
-  parameterSymbol: string;
+  parameterName: string;
 }
 
 export type DefinitiveSchemaElement = SchemaElement<
@@ -121,12 +121,12 @@ interface __VerdeElement<ThisElementKind>
 
 export interface AliasReferenceElement
   extends __SchemaElement<'aliasReference'> {
-  aliasSymbolKey: string;
+  aliasNameKey: string;
 }
 
 export interface DataModelReferenceElement
   extends __SchemaElement<'dataModelReference'> {
-  dataModelSymbolKey: string;
+  dataModelNameKey: string;
 }
 
 export type PrimitiveElement =

@@ -2,6 +2,7 @@ import { throwUserError } from '../../../../helpers/throwError.ts';
 import { irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import { DeriveSchemaElementApi } from '../components/deriveSchemaElement.ts';
+// import { DeriveSchemaElementApi } from '../components/deriveSchemaElement.ts';
 import { LoadSchemaModuleApi } from '../components/loadSchemaModule.ts';
 import { __DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
 
@@ -60,20 +61,12 @@ export function throwInvalidSchemaModule__GenericTypeAliasExport(
   );
 }
 
-export interface ThrowInvalidSchemaExportApi extends
-  Pick<
-    __DeriveIntermediateSchemaApi,
-    'schemaTypeChecker' | 'rhsSchemaExportType'
-  > {}
-
-export function throwInvalidSchemaExport__NotTuple(
-  api: ThrowInvalidSchemaExportApi,
+export function throwInvalidSchemaModule__NotTupleExport(
+  api: ThrowInvalidSchemaModuleApi,
 ): never {
-  const { schemaTypeChecker, rhsSchemaExportType } = api;
+  const { schemaModulePath } = api;
   throwUserError(
-    `invalid schema export: "${
-      schemaTypeChecker.typeToString(rhsSchemaExportType)
-    }" is not a tuple`,
+    `invalid schema module: non-tuple export at "${schemaModulePath}"`,
   );
 }
 
@@ -118,7 +111,8 @@ export function throwInvalidTopLevelModel(
 export interface ThrowInvalidSchemaElementApi extends
   Pick<
     DeriveSchemaElementApi<irrelevantAny>,
-    'schemaTypeChecker' | 'astContext'
+    'schemaTypeChecker' 
+    // | 'astContext'
   > {}
 
 export function throwInvalidSchemaElement(

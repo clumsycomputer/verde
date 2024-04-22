@@ -1,2 +1,2 @@
-import Typescript from "npm:typescript";
+import Typescript from 'npm:typescript';
 export { Typescript };
