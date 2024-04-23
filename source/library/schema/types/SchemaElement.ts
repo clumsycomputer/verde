@@ -30,11 +30,7 @@ type SchemaElement<ThisTerminalElement> =
 
 export interface UnionCompositionElement<ThisMemberElement>
   extends __SchemaElement<'unionComposition'> {
-  unionMembers: Record<
-    string,
-    | ThisMemberElement
-    | NullElement
-  >;
+  unionMembers: Array<ThisMemberElement | NullElement>;
 }
 
 export interface NullElement extends __SchemaElement<'null'> {}

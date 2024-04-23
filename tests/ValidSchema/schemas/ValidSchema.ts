@@ -13,6 +13,9 @@ interface BasicDataModel {
   aliasReferenceProperty: DataModelUnion;
   verdeTableProperty: VerdeTable<DataModelUnion>;
   verdeArrayProperty: VerdeArray<string>;
+  objectProperty: { objectStringProperty: string; };
+  tupleProperty: [tupleNumberProperty: number];
+  unionProperty: string | null;
 }
 
 type DataModelUnion = BasicDataModel;

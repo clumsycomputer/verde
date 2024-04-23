@@ -136,8 +136,8 @@ export function deriveIntermediateSchema__assertions(
           elementKind: 'verdeTable',
           collectionElement: {
             elementKind: 'aliasReference',
-            aliasNameKey: 'DataModelUnion'
-          }
+            aliasNameKey: 'DataModelUnion',
+          },
         },
       );
     }),
@@ -154,14 +154,73 @@ export function deriveIntermediateSchema__assertions(
           elementKind: 'verdeArray',
           collectionElement: {
             elementKind: 'stringPrimitive',
-          }
+          },
         },
       );
     }),
-    // testContext.step('VerdeArrayElement', () => {}),
-    // testContext.step('ObjectElement', () => {}),
-    // testContext.step('TupleElement', () => {}),
-    // testContext.step('UnionElement', () => {}),
+    testContext.step('ObjectStructureElement', () => {
+      Assert.assert(
+        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
+          .includes('objectProperty: { objectStringProperty: string; };'),
+      );
+      Assert.assertEquals(
+        validIntermediateSchema.schemaModels.data['BasicDataModel']
+          ?.modelProperties['objectProperty']
+          ?.propertyElement,
+        {
+          elementKind: 'objectStructure',
+          structureProperties: {
+            objectStringProperty: {
+              propertyKey: 'objectStringProperty',
+              propertyElement: {
+                elementKind: 'stringPrimitive',
+              },
+            },
+          },
+        },
+      );
+    }),
+    testContext.step('TupleStructureElement', () => {
+      Assert.assert(
+        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
+          .includes('tupleProperty: [tupleNumberProperty: number];'),
+      );
+      Assert.assertEquals(
+        validIntermediateSchema.schemaModels.data['BasicDataModel']
+          ?.modelProperties['tupleProperty']
+          ?.propertyElement,
+        {
+          elementKind: 'tupleStructure',
+          structureProperties: {
+            tupleNumberProperty: {
+              propertyIndex: 0,
+              propertyKey: 'tupleNumberProperty',
+              propertyElement: {
+                elementKind: 'numberPrimitive',
+              },
+            },
+          },
+        },
+      );
+    }),
+    testContext.step('UnionCompositionElement', () => {
+      Assert.assert(
+        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
+          .includes('unionProperty: string | null;'),
+      );
+      Assert.assertEquals(
+        validIntermediateSchema.schemaModels.data['BasicDataModel']
+          ?.modelProperties['unionProperty']
+          ?.propertyElement,
+        {
+          elementKind: 'unionComposition',
+          unionMembers: [
+            { elementKind: 'stringPrimitive' },
+            { elementKind: 'null' },
+          ],
+        },
+      );
+    }),
     // testContext.step('BasicParameterElement', () => {}),
     // testContext.step('GenericParameterElement', () => {}),
   ]);

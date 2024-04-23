@@ -49,6 +49,18 @@ export const initialSchemaOutline: InitialSchemaOutline = {
         verdeArrayProperty: {
           propertyKey: 'verdeArrayProperty',
           propertyElementSymbol: 'VerdeArray<string>'
+        },
+        objectProperty: {
+          propertyKey: 'objectProperty',
+          propertyElementSymbol: '{ objectStringProperty: string; }'
+        },
+        tupleProperty: {
+          propertyKey: 'tupleProperty',
+          propertyElementSymbol: '[tupleNumberProperty: number]'
+        },
+        unionProperty: {
+          propertyKey: 'unionProperty',
+          propertyElementSymbol: 'string | null'
         }
       },
     },
