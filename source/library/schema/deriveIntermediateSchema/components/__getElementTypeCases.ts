@@ -1,3 +1,4 @@
+import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
 import { genericAny, irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
@@ -5,7 +6,11 @@ import {
   IntermediateSchema,
 } from '../../types/IntermediateSchema.ts';
 import { __SchemaElement } from '../../types/SchemaElement.ts';
-import { DeriveSchemaElementApi } from './deriveSchemaElement.ts';
+import { deriveDataModel } from './__deriveIntermediateModel.ts';
+import {
+  deriveSchemaElement,
+  DeriveSchemaElementApi,
+} from './deriveSchemaElement.ts';
 
 export function getDefinitiveElementCases() {
   return __getElementCases({
@@ -53,59 +58,12 @@ function __getElementCases<
 ) {
   const { uniqueElementCases } = api;
   return getExtendedTuple([
-    // elementTypeCase({
-    //   assertCase: (
-    //     someElementNode,
-    //   ): someElementNode is TypeFunctionElementNode<Typescript.Type> =>
-    //     someElementNode.nodeKind === 'typeFunction' &&
-    //     someElementNode.nodeSourceSymbol.name === 'VerdeTable',
-    //   // && someElementNode.nodeTypeArguments.length === 1,
-    //   handleCase: (
-    //     {
-    //       elementCases,
-    //       schemaTypeChecker,
-    //       schemaResult,
-    //       astContext,
-    //       elementNode,
-    //     },
-    //   ) => {
-    //     return {
-    //       elementKind: 'verdeTable',
-    //       collectionElement: deriveSchemaElement<any>({
-    //         elementCases,
-    //         schemaTypeChecker,
-    //         schemaResult,
-    //         elementNode: elementNode.nodeTypeArguments[0]!,
-    //         astContext: [
-    //           ...astContext,
-    //           {
-    //             astNodeKind: 'collectionElement',
-    //             astNodeTypeNode: elementNode.nodeTypeArguments[0]!
-    //           }
-    //         ],
-    //       }),
-    //     };
-    //   },
-    // }),
-    // elementTypeCase({
-    //   assertCase: (
-    //     someElementNode,
-    //   ): someElementNode is AliasReferenceElementNode<Typescript.Type> =>
-    //     someElementNode.nodeKind === 'aliasReference',
-    //   handleCase: ({ elementNode }) => {
-    //     // todo deriveIntermediateAlias
-    //     return {
-    //       elementKind: 'aliasReference',
-    //       aliasSymbolKey: elementNode.nodeSourceSymbol.name,
-    //     };
-    //   },
-    // }),
     elementTypeCase({
       assertCase: (
-        someElementNode,
-      ): someElementNode is Typescript.Node =>
-        Typescript.isLiteralTypeNode(someElementNode) &&
-        someElementNode.literal.kind ===
+        elementNode,
+      ): elementNode is Typescript.Node =>
+        Typescript.isLiteralTypeNode(elementNode) &&
+        elementNode.literal.kind ===
           (Typescript.SyntaxKind.TrueKeyword ||
             Typescript.SyntaxKind.FalseKeyword),
       handleCase: ({ schemaTypeChecker, elementNode }) => ({
@@ -117,10 +75,10 @@ function __getElementCases<
     }),
     elementTypeCase({
       assertCase: (
-        someElementNode,
-      ): someElementNode is Typescript.NumericLiteral =>
-        Typescript.isLiteralTypeNode(someElementNode) &&
-        Typescript.isNumericLiteral(someElementNode.literal),
+        elementNode,
+      ): elementNode is Typescript.NumericLiteral =>
+        Typescript.isLiteralTypeNode(elementNode) &&
+        Typescript.isNumericLiteral(elementNode.literal),
       handleCase: ({ schemaTypeChecker, elementNode }) => ({
         elementKind: 'numberLiteral',
         literalSymbol: schemaTypeChecker.typeToString(
@@ -130,10 +88,10 @@ function __getElementCases<
     }),
     elementTypeCase({
       assertCase: (
-        someElementNode,
-      ): someElementNode is Typescript.StringLiteral =>
-        Typescript.isLiteralTypeNode(someElementNode) &&
-        Typescript.isStringLiteral(someElementNode.literal),
+        elementNode,
+      ): elementNode is Typescript.StringLiteral =>
+        Typescript.isLiteralTypeNode(elementNode) &&
+        Typescript.isStringLiteral(elementNode.literal),
       handleCase: ({ schemaTypeChecker, elementNode }) => ({
         elementKind: 'stringLiteral',
         literalSymbol: schemaTypeChecker.typeToString(
@@ -143,63 +101,119 @@ function __getElementCases<
     }),
     elementTypeCase({
       assertCase: (
-        someElementNode,
-      ): someElementNode is Typescript.KeywordTypeNode => 
-        someElementNode.kind === Typescript.SyntaxKind.BooleanKeyword,
+        elementNode,
+      ): elementNode is Typescript.KeywordTypeNode =>
+        elementNode.kind === Typescript.SyntaxKind.BooleanKeyword,
       handleCase: () => ({
         elementKind: 'booleanPrimitive',
       }),
     }),
     elementTypeCase({
       assertCase: (
-        someElementNode,
-      ): someElementNode is Typescript.KeywordTypeNode =>
-        someElementNode.kind === Typescript.SyntaxKind.NumberKeyword,
+        elementNode,
+      ): elementNode is Typescript.KeywordTypeNode =>
+        elementNode.kind === Typescript.SyntaxKind.NumberKeyword,
       handleCase: () => ({
         elementKind: 'numberPrimitive',
       }),
     }),
     elementTypeCase({
       assertCase: (
-        someElementNode,
-      ): someElementNode is Typescript.KeywordTypeNode =>
-        someElementNode.kind === Typescript.SyntaxKind.StringKeyword,
+        elementNode,
+      ): elementNode is Typescript.KeywordTypeNode =>
+        elementNode.kind === Typescript.SyntaxKind.StringKeyword,
       handleCase: () => ({
         elementKind: 'stringPrimitive',
       }),
     }),
-    // elementTypeCase({
-    //   assertCase: (
-    //     someElementNode,
-    //   ): someElementNode is GeneralElementNode<Typescript.InterfaceType> =>
-    //     isInterfaceType(someElementNode.nodeResolvedType),
-    //   handleCase: (
-    //     {
-    //       schemaTypeChecker,
-    //       schemaResult,
-    //       elementNode,
-    //     },
-    //   ) => {
-    //     const elementDataModel = deriveDataModel({
-    //       schemaTypeChecker,
-    //       schemaResult,
-    //       dataModelType: elementNode.nodeResolvedType,
-    //     });
-    //     return {
-    //       elementKind: 'dataModelReference',
-    //       dataModelSymbolKey: elementDataModel.modelSymbol,
-    //     };
-    //   },
-    // }),
-    // elementTypeCase({
-    //   assertCase: (someType): someType is Typescript.Type => false,
-    //   handleCase: () => {
-    //     return {
-    //       elementKind: 'verdeTable',
-    //       collectionElement: todo
-    //     }
-    //   }
-    // }),
+    elementTypeCase({
+      assertCase: (
+        elementNode,
+        elementSymbol,
+      ): elementNode is Typescript.TypeReferenceNode =>
+        Boolean(
+          // Typescript.isTypeReferenceNode(elementNode) &&
+          elementSymbol &&
+            elementSymbol.declarations &&
+            Typescript.isInterfaceDeclaration(
+              elementSymbol.declarations[0] ??
+                throwInvalidPathError('elementSymbolDeclaration'),
+            ),
+        ),
+      handleCase: (
+        {
+          schemaTypeChecker,
+          schemaResult,
+          elementSymbol,
+        },
+      ) => {
+        const elementDataModel = deriveDataModel({
+          schemaTypeChecker,
+          schemaResult,
+          modelSymbol: elementSymbol ??
+            throwInvalidPathError('elementDataModelSymbol'),
+        });
+        return {
+          elementKind: 'dataModelReference',
+          dataModelNameKey: elementDataModel.modelName,
+        };
+      },
+    }),
+    elementTypeCase({
+      assertCase: (
+        elementNode,
+        elementSymbol,
+      ): elementNode is Typescript.TypeReferenceNode =>
+        Boolean(
+          elementSymbol && elementSymbol.declarations &&
+            elementSymbol.declarations[0] &&
+            Typescript.isTypeAliasDeclaration(
+              elementSymbol.declarations[0],
+            ) &&
+            Typescript.isTypeReferenceNode(elementNode) &&
+            elementNode.typeArguments === undefined,
+        ),
+      handleCase: ({ elementSymbol }) => {
+        // todo deriveIntermediateAlias
+        return {
+          elementKind: 'aliasReference',
+          aliasNameKey: elementSymbol && elementSymbol.name ||
+            throwInvalidPathError('elementAliasSymbol'),
+        };
+      },
+    }),
+    elementTypeCase({
+      assertCase: (
+        elementNode,
+        elementSymbol,
+      ): elementNode is Typescript.TypeReferenceNode =>
+        Boolean(
+          elementSymbol && elementSymbol.name === 'VerdeTable' &&
+            elementSymbol.declarations &&
+            Typescript.isTypeAliasDeclaration(
+              elementSymbol.declarations[0] ??
+                throwInvalidPathError('elementSymbolDeclaration'),
+            ) &&
+            Typescript.isTypeReferenceNode(elementNode) &&
+            elementNode.typeArguments &&
+            elementNode.typeArguments.length === 1,
+        ),
+      handleCase: (
+        { elementCases, schemaTypeChecker, schemaResult, elementNode },
+      ) => {
+        return {
+          elementKind: 'verdeTable',
+          collectionElement: deriveSchemaElement<any>({
+            elementCases,
+            schemaTypeChecker,
+            schemaResult,
+            elementNode:
+              elementNode.typeArguments && elementNode.typeArguments[0] ||
+              throwInvalidPathError('verdeTableElementNode'),
+          }),
+        };
+      },
+    }),
     // elementTypeCase({
     //   assertCase: (someType): someType is Typescript.Type => false,
     //   handleCase: () => {
@@ -245,19 +259,21 @@ export interface ElementCase<
 > {
   assertCase: (
     elementNode: Typescript.Node,
+    elementSymbol: Typescript.Symbol | null,
   ) => elementNode is ThisElementNode;
   handleCase: (
     api: ElementCaseHandlerApi<ThisElementNode>,
   ) => ThisSchemaElement;
 }
 
-interface ElementCaseHandlerApi<ThisElementNode> extends
-  Pick<
-    DeriveSchemaElementApi<irrelevantAny>,
-    'elementCases' | 'schemaTypeChecker' | 'schemaResult'
-  > // | 'astContext'
+interface ElementCaseHandlerApi<ThisElementNode extends Typescript.Node>
+  extends
+    Pick<
+      DeriveSchemaElementApi<irrelevantAny, ThisElementNode>,
+      'elementCases' | 'schemaTypeChecker' | 'schemaResult' | 'elementNode'
+    > // | 'astContext'
 {
-  elementNode: ThisElementNode;
+  elementSymbol: Typescript.Symbol | null;
 }
 
 function getExtendedTuple<

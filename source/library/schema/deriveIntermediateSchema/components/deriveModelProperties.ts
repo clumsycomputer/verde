@@ -22,7 +22,6 @@ export interface DeriveModelPropertiesApi<
 
 export function deriveModelProperties<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
-  ThisModelType extends Typescript.Type,
 >(
   api: DeriveModelPropertiesApi<ThisTargetModelKind>,
 ): GetThisIntermediateModel<ThisTargetModelKind>['modelProperties'] {
@@ -125,8 +124,7 @@ export function deriveModelProperties<
           elementCases,
           schemaTypeChecker,
           schemaResult,
-          elementNode:
-            someTypeProperty.valueDeclaration &&
+          elementNode: someTypeProperty.valueDeclaration &&
               Typescript.isPropertySignature(
                 someTypeProperty.valueDeclaration,
               ) && someTypeProperty.valueDeclaration.type ||

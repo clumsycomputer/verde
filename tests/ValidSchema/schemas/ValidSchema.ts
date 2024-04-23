@@ -9,6 +9,9 @@ interface BasicDataModel {
   booleanProperty: boolean;
   numberProperty: number;
   stringProperty: string;
+  dataModelReferenceProperty: BasicDataModel;
+  aliasReferenceProperty: DataModelUnion;
+  verdeTableProperty: VerdeTable<DataModelUnion>;
 }
 
 type DataModelUnion = BasicDataModel;

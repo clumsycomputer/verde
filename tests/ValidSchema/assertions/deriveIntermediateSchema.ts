@@ -94,53 +94,53 @@ export function deriveIntermediateSchema__assertions(
         },
       );
     }),
-    // testContext.step('DataModelReferenceElement', () => {
-    //   Assert.assert(
-    //     sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-    //       .includes('dataModelReferenceProperty: BasicDataModel;'),
-    //   );
-    //   Assert.assertEquals(
-    //     validIntermediateSchema.schemaModels.data['BasicDataModel']
-    //       ?.modelProperties['dataModelReferenceProperty']?.propertyElement,
-    //     {
-    //       elementKind: 'dataModelReference',
-    //       dataModelSymbolKey: 'BasicDataModel',
-    //     },
-    //   );
-    // }),
-    // testContext.step('AliasReferenceElement', () => {
-    //   Assert.assert(
-    //     sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-    //       .includes('aliasReferenceProperty: DataModelUnion;'),
-    //   );
-    //   Assert.assertEquals(
-    //     validIntermediateSchema.schemaModels.data['BasicDataModel']
-    //       ?.modelProperties['aliasReferenceProperty']
-    //       ?.propertyElement,
-    //     {
-    //       elementKind: 'aliasReference',
-    //       aliasSymbolKey: 'DataModelUnion',
-    //     },
-    //   );
-    // }),
-    // testContext.step('VerdeTableElement', () => {
-    //   Assert.assert(
-    //     sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-    //       .includes('verdeTableProperty: VerdeTable<DataModelUnion>;'),
-    //   );
-    //   Assert.assertEquals(
-    //     validIntermediateSchema.schemaModels.data['BasicDataModel']
-    //       ?.modelProperties['verdeTableProperty']
-    //       ?.propertyElement,
-    //     {
-    //       elementKind: 'verdeTable',
-    //       collectionElement: {
-    //         elementKind: 'aliasReference',
-    //         aliasSymbolKey: 'DataModelUnion'
-    //       }
-    //     },
-    //   );
-    // }),
+    testContext.step('DataModelReferenceElement', () => {
+      Assert.assert(
+        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
+          .includes('dataModelReferenceProperty: BasicDataModel;'),
+      );
+      Assert.assertEquals(
+        validIntermediateSchema.schemaModels.data['BasicDataModel']
+          ?.modelProperties['dataModelReferenceProperty']?.propertyElement,
+        {
+          elementKind: 'dataModelReference',
+          dataModelNameKey: 'BasicDataModel',
+        },
+      );
+    }),
+    testContext.step('AliasReferenceElement', () => {
+      Assert.assert(
+        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
+          .includes('aliasReferenceProperty: DataModelUnion;'),
+      );
+      Assert.assertEquals(
+        validIntermediateSchema.schemaModels.data['BasicDataModel']
+          ?.modelProperties['aliasReferenceProperty']
+          ?.propertyElement,
+        {
+          elementKind: 'aliasReference',
+          aliasNameKey: 'DataModelUnion',
+        },
+      );
+    }),
+    testContext.step('VerdeTableElement', () => {
+      Assert.assert(
+        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
+          .includes('verdeTableProperty: VerdeTable<DataModelUnion>;'),
+      );
+      Assert.assertEquals(
+        validIntermediateSchema.schemaModels.data['BasicDataModel']
+          ?.modelProperties['verdeTableProperty']
+          ?.propertyElement,
+        {
+          elementKind: 'verdeTable',
+          collectionElement: {
+            elementKind: 'aliasReference',
+            aliasNameKey: 'DataModelUnion'
+          }
+        },
+      );
+    }),
     // testContext.step('VerdeArrayElement', () => {}),
     // testContext.step('ObjectElement', () => {}),
     // testContext.step('TupleElement', () => {}),

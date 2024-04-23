@@ -110,7 +110,7 @@ export function throwInvalidTopLevelModel(
 
 export interface ThrowInvalidSchemaElementApi extends
   Pick<
-    DeriveSchemaElementApi<irrelevantAny>,
+    DeriveSchemaElementApi<irrelevantAny, irrelevantAny>,
     'schemaTypeChecker' 
     // | 'astContext'
   > {}

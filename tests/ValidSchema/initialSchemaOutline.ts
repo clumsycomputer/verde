@@ -34,18 +34,18 @@ export const initialSchemaOutline: InitialSchemaOutline = {
           propertyKey: 'stringProperty',
           propertyElementSymbol: 'string',
         },
-        // dataModelReferenceProperty: {
-        //   propertyKey: 'dataModelReferenceProperty',
-        //   propertyElementSymbol: 'BasicDataModel',
-        // },
-        // aliasReferenceProperty: {
-        //   propertyKey: 'aliasReferenceProperty',
-        //   propertyElementSymbol: 'DataModelUnion',
-        // },
-        // verdeTableProperty: {
-        //   propertyKey: 'verdeTableProperty',
-        //   propertyElementSymbol: 'VerdeTable<DataModelUnion>'
-        // }
+        dataModelReferenceProperty: {
+          propertyKey: 'dataModelReferenceProperty',
+          propertyElementSymbol: 'BasicDataModel',
+        },
+        aliasReferenceProperty: {
+          propertyKey: 'aliasReferenceProperty',
+          propertyElementSymbol: 'DataModelUnion',
+        },
+        verdeTableProperty: {
+          propertyKey: 'verdeTableProperty',
+          propertyElementSymbol: 'VerdeTable<DataModelUnion>'
+        }
       },
     },
   },
