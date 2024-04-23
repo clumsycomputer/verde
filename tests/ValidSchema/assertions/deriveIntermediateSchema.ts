@@ -141,6 +141,23 @@ export function deriveIntermediateSchema__assertions(
         },
       );
     }),
+    testContext.step('VerdeArrayElement', () => {
+      Assert.assert(
+        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
+          .includes('verdeArrayProperty: VerdeArray<string>;'),
+      );
+      Assert.assertEquals(
+        validIntermediateSchema.schemaModels.data['BasicDataModel']
+          ?.modelProperties['verdeArrayProperty']
+          ?.propertyElement,
+        {
+          elementKind: 'verdeArray',
+          collectionElement: {
+            elementKind: 'stringPrimitive',
+          }
+        },
+      );
+    }),
     // testContext.step('VerdeArrayElement', () => {}),
     // testContext.step('ObjectElement', () => {}),
     // testContext.step('TupleElement', () => {}),

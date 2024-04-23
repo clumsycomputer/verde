@@ -12,7 +12,7 @@ import {
   ElementCase,
   getDefinitiveElementCases,
   VerifiedElementCases,
-} from './__getElementTypeCases.ts';
+} from './__getElementCases.ts';
 import { deriveModelProperties } from './deriveModelProperties.ts';
 
 export interface DeriveDataModelApi extends

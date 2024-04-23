@@ -214,15 +214,38 @@ function __getElementCases<
         };
       },
     }),
-    // elementTypeCase({
-    //   assertCase: (someType): someType is Typescript.Type => false,
-    //   handleCase: () => {
-    //     return {
-    //       elementKind: 'verdeArray',
-    //       collectionElement: todo
-    //     }
-    //   }
-    // }),
+    elementTypeCase({
+      assertCase: (
+        elementNode,
+        elementSymbol,
+      ): elementNode is Typescript.TypeReferenceNode =>
+        Boolean(
+          elementSymbol && elementSymbol.name === 'VerdeArray' &&
+            elementSymbol.declarations &&
+            Typescript.isTypeAliasDeclaration(
+              elementSymbol.declarations[0] ??
+                throwInvalidPathError('elementSymbolDeclaration'),
+            ) &&
+            Typescript.isTypeReferenceNode(elementNode) &&
+            elementNode.typeArguments &&
+            elementNode.typeArguments.length === 1,
+        ),
+      handleCase: (
+        { elementCases, schemaTypeChecker, schemaResult, elementNode },
+      ) => {
+        return {
+          elementKind: 'verdeArray',
+          collectionElement: deriveSchemaElement<any>({
+            elementCases,
+            schemaTypeChecker,
+            schemaResult,
+            elementNode:
+              elementNode.typeArguments && elementNode.typeArguments[0] ||
+              throwInvalidPathError('verdeArrayElementNode'),
+          }),
+        };
+      },
+    }),
     // elementTypeCase({
     //   assertCase: (someType): someType is Typescript.Type => false,
     //   handleCase: () => {

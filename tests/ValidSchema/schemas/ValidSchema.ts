@@ -1,4 +1,4 @@
-import { VerdeTable } from '../../../source/library/module.ts';
+import { VerdeTable, VerdeArray } from '../../../source/library/module.ts';
 
 export type ValidSchema = [BasicDataModel,DataModelUnion]; 
 
@@ -12,6 +12,7 @@ interface BasicDataModel {
   dataModelReferenceProperty: BasicDataModel;
   aliasReferenceProperty: DataModelUnion;
   verdeTableProperty: VerdeTable<DataModelUnion>;
+  verdeArrayProperty: VerdeArray<string>;
 }
 
 type DataModelUnion = BasicDataModel;

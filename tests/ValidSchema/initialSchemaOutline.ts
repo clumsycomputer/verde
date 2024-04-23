@@ -2,7 +2,7 @@ import { InitialSchemaOutline } from './setupValidSchema.ts';
 
 export const initialSchemaOutline: InitialSchemaOutline = {
   schemaImports: [
-    "import { VerdeTable } from '../../../source/library/module.ts';",
+    "import { VerdeTable, VerdeArray } from '../../../source/library/module.ts';",
   ],
   schemaSymbol: 'ValidSchema',
   schemaExports: ['BasicDataModel', 'DataModelUnion'],
@@ -45,6 +45,10 @@ export const initialSchemaOutline: InitialSchemaOutline = {
         verdeTableProperty: {
           propertyKey: 'verdeTableProperty',
           propertyElementSymbol: 'VerdeTable<DataModelUnion>'
+        },
+        verdeArrayProperty: {
+          propertyKey: 'verdeArrayProperty',
+          propertyElementSymbol: 'VerdeArray<string>'
         }
       },
     },
