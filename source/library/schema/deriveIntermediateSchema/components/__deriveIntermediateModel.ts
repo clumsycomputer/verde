@@ -6,12 +6,10 @@ import {
   GetThisIntermediateModel,
   IntermediateSchema,
 } from '../../types/IntermediateSchema.ts';
-import { DefinitiveSchemaElement } from '../../types/SchemaElement.ts';
 import { __DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
 import {
-  ElementCase,
+  ElementCaseHandler,
   getDefinitiveElementCases,
-  VerifiedElementCases,
 } from './__getElementCases.ts';
 import { deriveModelProperties } from './deriveModelProperties.ts';
 
@@ -82,18 +80,7 @@ function __deriveDefinitiveModel<
     // astContext,
   } = api;
   return __deriveIntermediateModel({
-    elementCases: getDefinitiveElementCases() satisfies VerifiedElementCases<
-      ElementCase<
-        DefinitiveSchemaElement,
-        Typescript.Node
-      >,
-      ReturnType<typeof getDefinitiveElementCases>
-    > as Array<
-      ElementCase<
-        DefinitiveSchemaElement,
-        Typescript.Node
-      >
-    >,
+    elementCases: getDefinitiveElementCases(),
     targetModelKind,
     initializeTargetModel,
     schemaTypeChecker,
@@ -125,9 +112,9 @@ interface Custom__DeriveIntermediateModelApi<
     api: InitializeTargetModelApi<ThisTargetModelKind>,
   ) => GetThisIntermediateModel<ThisTargetModelKind>;
   elementCases: Array<
-    ElementCase<
-      GetThisIntermediateElement<ThisTargetModelKind>,
-      Typescript.Node
+    ElementCaseHandler<
+      GetThisIntermediateElement<ThisTargetModelKind>['elementKind'],
+      GetThisIntermediateElement<ThisTargetModelKind>
     >
   >;
 }

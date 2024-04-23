@@ -1,5 +1,4 @@
 import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
-import { irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
   GetThisIntermediateElement,
@@ -48,20 +47,21 @@ export function deriveSchemaElement<
       Typescript.isImportSpecifier(localElementSymbolDeclaration)
       ? schemaTypeChecker.getAliasedSymbol(localElementSymbol)
       : localElementSymbol;
-  const targetElementCase = elementCases.find((someElementCase) =>
-    someElementCase.assertCase(elementNode, sourceElementSymbol)
-  );
-  return targetElementCase
-    ? targetElementCase.handleCase({
+  for (const handleSomeElementCase of elementCases) {
+    const maybeSchemaElement = handleSomeElementCase({
       elementCases,
       schemaTypeChecker,
       schemaResult,
       elementNode,
-      elementSymbol: sourceElementSymbol,
-      // astContext,
+      sourceElementSymbol,
+      // astContext
     })
-    : throwInvalidSchemaElement({
-      schemaTypeChecker,
-      // astContext,
-    });
+    if (maybeSchemaElement) {
+      return maybeSchemaElement
+    }
+  }
+  throwInvalidSchemaElement({
+    schemaTypeChecker,
+    // astContext,
+  });
 }
