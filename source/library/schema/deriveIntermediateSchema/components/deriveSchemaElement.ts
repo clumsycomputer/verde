@@ -18,7 +18,7 @@ export interface DeriveSchemaElementApi<
     | 'schemaResult'
   > // | 'astContext'
 {
-  elementNode: ThisElementNode;
+  elementLocalNode: ThisElementNode;
 }
 
 export function deriveSchemaElement<
@@ -28,36 +28,38 @@ export function deriveSchemaElement<
 ): GetThisIntermediateElement<ThisTargetModelKind> {
   const {
     elementCases,
-    elementNode,
+    elementLocalNode,
     schemaTypeChecker,
     schemaResult,
     // astContext,
   } = api;
-  const localElementSymbol = schemaTypeChecker.getSymbolAtLocation(
-    Typescript.isTypeReferenceNode(elementNode)
-      ? elementNode.typeName
-      : elementNode,
-  ) ?? null;
-  const localElementSymbolDeclaration = localElementSymbol
-    ? localElementSymbol.declarations && localElementSymbol.declarations[0] ||
-      throwInvalidPathError('localElementSymbolDeclaration')
+  const elementLocalSymbol = Typescript.isTypeReferenceNode(elementLocalNode)
+    ? schemaTypeChecker.getSymbolAtLocation(elementLocalNode.typeName) ??
+      throwInvalidPathError('elementLocalSymbol')
     : null;
-  const sourceElementSymbol =
-    localElementSymbol && localElementSymbolDeclaration &&
-      Typescript.isImportSpecifier(localElementSymbolDeclaration)
-      ? schemaTypeChecker.getAliasedSymbol(localElementSymbol)
-      : localElementSymbol;
+  const elementLocalDeclaration = elementLocalSymbol
+    ? elementLocalSymbol.declarations && elementLocalSymbol.declarations[0] ||
+      throwInvalidPathError('elementLocalDeclaration')
+    : null;
+  const elementSourceSymbol = elementLocalSymbol && elementLocalDeclaration &&
+      Typescript.isImportSpecifier(elementLocalDeclaration)
+    ? schemaTypeChecker.getAliasedSymbol(elementLocalSymbol)
+    : elementLocalSymbol;
+  const elementSourceDeclaration = elementSourceSymbol
+    ? elementSourceSymbol.declarations && elementSourceSymbol.declarations[0] ||
+      throwInvalidPathError('elementSourceDeclaration')
+    : null;
   for (const handleSomeElementCase of elementCases) {
     const maybeSchemaElement = handleSomeElementCase({
       elementCases,
       schemaTypeChecker,
       schemaResult,
-      elementNode,
-      sourceElementSymbol,
+      elementLocalNode,
+      elementSourceDeclaration,
       // astContext
-    })
+    });
     if (maybeSchemaElement) {
-      return maybeSchemaElement
+      return maybeSchemaElement;
     }
   }
   throwInvalidSchemaElement({

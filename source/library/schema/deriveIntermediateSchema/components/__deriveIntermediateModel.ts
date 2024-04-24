@@ -1,4 +1,5 @@
 import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
+import { irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
   DataIntermediateModel,
@@ -12,11 +13,12 @@ import {
   getDefinitiveElementCases,
 } from './__getElementCases.ts';
 import { deriveModelProperties } from './deriveModelProperties.ts';
+import { deriveModelTemplates } from './deriveModelTemplates.ts';
 
 export interface DeriveDataModelApi extends
   Pick<
     Defined__DeriveIntermediateModelApi,
-    'schemaTypeChecker' | 'schemaResult' | 'modelSymbol'
+    'schemaTypeChecker' | 'schemaResult' | 'modelDeclaration'
   > {
 }
 
@@ -26,14 +28,14 @@ export function deriveDataModel(
   const {
     schemaTypeChecker,
     schemaResult,
-    modelSymbol,
+    modelDeclaration,
   } = api;
   return __deriveDefinitiveModel({
     targetModelKind: 'data',
     initializeTargetModel: initializeTargetModel__deriveDataModel,
     schemaTypeChecker,
     schemaResult,
-    modelSymbol,
+    modelDeclaration,
     // astContext: [{
     //   astNodeKind: 'dataModel',
     //   astNodeTypeNode: dataModelType,
@@ -42,12 +44,12 @@ export function deriveDataModel(
 }
 
 function initializeTargetModel__deriveDataModel(
-  api: InitializeTargetModelApi<'data'>,
+  api: InitializeTargetModelApi,
 ): DataIntermediateModel {
-  const { targetModelKind, modelSymbol } = api;
+  const { modelName } = api;
   return {
-    modelKind: targetModelKind,
-    modelName: modelSymbol.name,
+    modelKind: 'data',
+    modelName,
     modelTemplates: [],
     modelProperties: {},
   };
@@ -62,7 +64,7 @@ interface __DeriveDefinitiveModel<
     | 'initializeTargetModel'
     | 'schemaTypeChecker'
     | 'schemaResult'
-    | 'modelSymbol'
+    | 'modelDeclaration'
   > // | 'astContext'
 {}
 
@@ -76,7 +78,7 @@ function __deriveDefinitiveModel<
     initializeTargetModel,
     schemaTypeChecker,
     schemaResult,
-    modelSymbol,
+    modelDeclaration,
     // astContext,
   } = api;
   return __deriveIntermediateModel({
@@ -85,7 +87,7 @@ function __deriveDefinitiveModel<
     initializeTargetModel,
     schemaTypeChecker,
     schemaResult,
-    modelSymbol,
+    modelDeclaration,
     // astContext,
   });
 }
@@ -94,13 +96,12 @@ export interface __DeriveIntermediateModelApi<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
 > extends
   Defined__DeriveIntermediateModelApi,
-  Custom__DeriveIntermediateModelApi<ThisTargetModelKind> {
-}
+  Custom__DeriveIntermediateModelApi<ThisTargetModelKind> {}
 
 interface Defined__DeriveIntermediateModelApi
   extends Pick<__DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {
   schemaResult: IntermediateSchema;
-  modelSymbol: Typescript.Symbol;
+  modelDeclaration: Typescript.InterfaceDeclaration;
   // astContext: AstContext;
 }
 
@@ -109,7 +110,7 @@ interface Custom__DeriveIntermediateModelApi<
 > {
   targetModelKind: ThisTargetModelKind;
   initializeTargetModel: (
-    api: InitializeTargetModelApi<ThisTargetModelKind>,
+    api: InitializeTargetModelApi,
   ) => GetThisIntermediateModel<ThisTargetModelKind>;
   elementCases: Array<
     ElementCaseHandler<
@@ -119,13 +120,13 @@ interface Custom__DeriveIntermediateModelApi<
   >;
 }
 
-interface InitializeTargetModelApi<
-  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
-> extends
+interface InitializeTargetModelApi extends
   Pick<
-    __DeriveIntermediateModelApi<ThisTargetModelKind>,
-    'targetModelKind' | 'schemaTypeChecker' | 'schemaResult' | 'modelSymbol'
-  > {}
+    __DeriveIntermediateModelApi<irrelevantAny>,
+    'schemaTypeChecker' | 'schemaResult'
+  > {
+  modelName: string;
+}
 
 function __deriveIntermediateModel<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
@@ -133,7 +134,7 @@ function __deriveIntermediateModel<
   api: __DeriveIntermediateModelApi<ThisTargetModelKind>,
 ): GetThisIntermediateModel<ThisTargetModelKind> {
   const {
-    modelSymbol,
+    modelDeclaration,
     schemaResult,
     targetModelKind,
     schemaTypeChecker,
@@ -147,33 +148,31 @@ function __deriveIntermediateModel<
   //
   //    2. if declaration symbol not unique or exists as other modelKind, throw user error
   //
-  const modelName = modelSymbol.name;
+  const modelName = modelDeclaration.name.text;
   const maybeCachedTargetModel = schemaResult
     .schemaModels[targetModelKind][modelName];
   if (isCachedTargetKind(targetModelKind, maybeCachedTargetModel)) {
     return maybeCachedTargetModel;
   }
   const newTargetModel = initializeTargetModel({
-    targetModelKind,
     schemaTypeChecker,
     schemaResult,
-    modelSymbol,
+    modelName,
   });
   // enable recursive model processing (direct & indirect)
   schemaResult.schemaModels[targetModelKind][newTargetModel.modelName] =
     newTargetModel;
-  // newTargetModel.modelTemplates = deriveModelTemplates({
-  //   someModelType,
-  //   schemaResult,
-  //   schemaTypeChecker,
-  //   typeContext,
-  //   elementTypeCases,
-  // });
+  newTargetModel.modelTemplates = deriveModelTemplates({
+    elementCases,
+    schemaTypeChecker,
+    schemaResult,
+    modelDeclaration,
+  });
   newTargetModel.modelProperties = deriveModelProperties({
     elementCases,
     schemaTypeChecker,
     schemaResult,
-    modelSymbol,
+    modelDeclaration,
     // astContext,
   });
   return newTargetModel;
@@ -186,9 +185,7 @@ function isCachedTargetKind<
   someIntermediateModel:
     | IntermediateSchema['schemaModels'][
       keyof IntermediateSchema['schemaModels']
-    ][
-      string
-    ]
+    ][string]
     | undefined,
 ): someIntermediateModel is IntermediateSchema['schemaModels'][
   ThisTargetModelKind

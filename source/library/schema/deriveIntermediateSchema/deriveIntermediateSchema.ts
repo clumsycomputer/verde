@@ -1,7 +1,4 @@
-import {
-  throwInvalidPathError,
-  throwUserError,
-} from '../../../helpers/throwError.ts';
+import { throwInvalidPathError, throwUserError } from '../../../helpers/throwError.ts';
 import { Typescript } from '../../../imports/Typescript.ts';
 import { IntermediateSchema } from '../types/IntermediateSchema.ts';
 import { deriveDataModel } from './components/__deriveIntermediateModel.ts';
@@ -51,26 +48,34 @@ function __deriveIntermediateSchema(
     },
     schemaAliases: {},
   };
-  rhsSchemaExportNode.elements.forEach((someSchemaExportItemNode) => {
-    const schemaExportItemSymbol =
-      Typescript.isTypeReferenceNode(someSchemaExportItemNode) &&
+  rhsSchemaExportNode.elements.forEach((someExportItemLocalNode) => {
+    const exportItemLocalSymbol =
+      Typescript.isTypeReferenceNode(someExportItemLocalNode) &&
         schemaTypeChecker.getSymbolAtLocation(
-          someSchemaExportItemNode.typeName,
+          someExportItemLocalNode.typeName,
         ) ||
-      throwUserError('schemaExportItemSymbol: todo');
-    const schemaExportItemDeclaration = schemaExportItemSymbol.declarations &&
-        schemaExportItemSymbol.declarations.length === 1 &&
-        schemaExportItemSymbol.declarations[0] ||
-      throwUserError('schemaExportItemDeclaration: todo');
-    if (Typescript.isInterfaceDeclaration(schemaExportItemDeclaration)) {
+      throwUserError('exportItemLocalSymbol: todo');
+    const exportItemLocalDeclaration = exportItemLocalSymbol.declarations &&
+        exportItemLocalSymbol.declarations.length === 1 &&
+        exportItemLocalSymbol.declarations[0] ||
+      throwUserError('exportItemLocalDeclaration: todo');
+    const exportItemSourceSymbol =
+      Typescript.isImportSpecifier(exportItemLocalDeclaration)
+        ? schemaTypeChecker.getAliasedSymbol(exportItemLocalSymbol)
+        : exportItemLocalSymbol;
+    const exportItemSourceDeclaration =
+      exportItemSourceSymbol.declarations &&
+        exportItemSourceSymbol.declarations[0] ||
+      throwInvalidPathError('exportItemSourceDeclaration');    
+    if (Typescript.isInterfaceDeclaration(exportItemSourceDeclaration)) {
       deriveDataModel({
         schemaTypeChecker,
         schemaResult,
-        modelSymbol: schemaExportItemSymbol,
+        modelDeclaration: exportItemSourceDeclaration,
       });
-    } else if (Typescript.isTypeAliasDeclaration(schemaExportItemDeclaration)) {
-      // console.log(schemaExportItemDeclaration.name);
+    } else if (Typescript.isTypeAliasDeclaration(exportItemSourceDeclaration)) {
     } else {
+      // when does this execute
       throwUserError('invalid schema export item: todo');
     }
   });

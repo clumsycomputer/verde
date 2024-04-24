@@ -46,92 +46,86 @@ function __getElementCases<
   const { uniqueElementCases } = api;
   return getExtendedTuple([
     elementCase(
-      ({ elementNode, schemaTypeChecker }) =>
-        Typescript.isLiteralTypeNode(elementNode) &&
-          elementNode.literal.kind ===
+      ({ elementLocalNode, schemaTypeChecker }) =>
+        Typescript.isLiteralTypeNode(elementLocalNode) &&
+          elementLocalNode.literal.kind ===
             (Typescript.SyntaxKind.TrueKeyword ||
               Typescript.SyntaxKind.FalseKeyword)
           ? ({
             elementKind: 'booleanLiteral',
             literalSymbol: schemaTypeChecker.typeToString(
-              schemaTypeChecker.getTypeAtLocation(elementNode),
+              schemaTypeChecker.getTypeAtLocation(elementLocalNode),
             ),
           })
           : null,
     ),
-    elementCase(({ elementNode, schemaTypeChecker }) =>
-      Typescript.isLiteralTypeNode(elementNode) &&
-        Typescript.isNumericLiteral(elementNode.literal)
+    elementCase(({ elementLocalNode, schemaTypeChecker }) =>
+      Typescript.isLiteralTypeNode(elementLocalNode) &&
+        Typescript.isNumericLiteral(elementLocalNode.literal)
         ? ({
           elementKind: 'numberLiteral',
           literalSymbol: schemaTypeChecker.typeToString(
-            schemaTypeChecker.getTypeAtLocation(elementNode),
+            schemaTypeChecker.getTypeAtLocation(elementLocalNode),
           ),
         })
         : null
     ),
-    elementCase(({ elementNode, schemaTypeChecker }) =>
-      Typescript.isLiteralTypeNode(elementNode) &&
-        Typescript.isStringLiteral(elementNode.literal)
+    elementCase(({ elementLocalNode, schemaTypeChecker }) =>
+      Typescript.isLiteralTypeNode(elementLocalNode) &&
+        Typescript.isStringLiteral(elementLocalNode.literal)
         ? ({
           elementKind: 'stringLiteral',
           literalSymbol: schemaTypeChecker.typeToString(
-            schemaTypeChecker.getTypeAtLocation(elementNode),
+            schemaTypeChecker.getTypeAtLocation(elementLocalNode),
           ),
         })
         : null
     ),
-    elementCase(({ elementNode }) =>
-      elementNode.kind === Typescript.SyntaxKind.BooleanKeyword
+    elementCase(({ elementLocalNode }) =>
+      elementLocalNode.kind === Typescript.SyntaxKind.BooleanKeyword
         ? { elementKind: 'booleanPrimitive' }
         : null
     ),
-    elementCase(({ elementNode }) =>
-      elementNode.kind === Typescript.SyntaxKind.NumberKeyword
+    elementCase(({ elementLocalNode }) =>
+      elementLocalNode.kind === Typescript.SyntaxKind.NumberKeyword
         ? { elementKind: 'numberPrimitive' }
         : null
     ),
-    elementCase(({ elementNode }) =>
-      elementNode.kind === Typescript.SyntaxKind.StringKeyword
+    elementCase(({ elementLocalNode }) =>
+      elementLocalNode.kind === Typescript.SyntaxKind.StringKeyword
         ? { elementKind: 'stringPrimitive' }
         : null
     ),
-    elementCase(({ sourceElementSymbol, schemaTypeChecker, schemaResult }) => {
+    elementCase(
+      ({ elementSourceDeclaration, schemaTypeChecker, schemaResult }) => {
+        if (
+          elementSourceDeclaration &&
+          Typescript.isInterfaceDeclaration(elementSourceDeclaration)
+        ) {
+          const elementDataModel = deriveDataModel({
+            schemaTypeChecker,
+            schemaResult,
+            modelDeclaration: elementSourceDeclaration,
+          });
+          return {
+            elementKind: 'dataModelReference',
+            dataModelNameKey: elementDataModel.modelName,
+          };
+        }
+        return null;
+      },
+    ),
+    elementCase(({ elementSourceDeclaration, elementLocalNode }) => {
       if (
-        sourceElementSymbol &&
-        sourceElementSymbol.declarations &&
-        sourceElementSymbol.declarations[0] &&
-        Typescript.isInterfaceDeclaration(
-          sourceElementSymbol.declarations[0],
-        )
-      ) {
-        const elementDataModel = deriveDataModel({
-          schemaTypeChecker,
-          schemaResult,
-          modelSymbol: sourceElementSymbol,
-        });
-        return {
-          elementKind: 'dataModelReference',
-          dataModelNameKey: elementDataModel.modelName,
-        };
-      }
-      return null;
-    }),
-    elementCase(({ sourceElementSymbol, elementNode }) => {
-      if (
-        sourceElementSymbol &&
-        sourceElementSymbol.declarations &&
-        sourceElementSymbol.declarations[0] &&
-        Typescript.isTypeAliasDeclaration(
-          sourceElementSymbol.declarations[0],
-        ) &&
-        Typescript.isTypeReferenceNode(elementNode) &&
-        elementNode.typeArguments === undefined
+        elementSourceDeclaration &&
+        Typescript.isTypeAliasDeclaration(elementSourceDeclaration) &&
+        Typescript.isTypeReferenceNode(elementLocalNode) &&
+        elementLocalNode.typeArguments === undefined
       ) {
         // todo deriveIntermediateAlias
         return {
           elementKind: 'aliasReference',
-          aliasNameKey: sourceElementSymbol.name,
+          aliasNameKey: elementSourceDeclaration.name.text,
         };
       }
       return null;
@@ -139,25 +133,21 @@ function __getElementCases<
     elementCase(
       (
         {
-          sourceElementSymbol,
-          elementNode,
+          elementSourceDeclaration,
+          elementLocalNode,
           elementCases,
           schemaTypeChecker,
           schemaResult,
         },
       ) => {
         if (
-          sourceElementSymbol &&
-          sourceElementSymbol.name === 'VerdeTable' &&
-          sourceElementSymbol.declarations &&
-          sourceElementSymbol.declarations[0] &&
-          Typescript.isTypeAliasDeclaration(
-            sourceElementSymbol.declarations[0],
-          ) &&
-          Typescript.isTypeReferenceNode(elementNode) &&
-          elementNode.typeArguments &&
-          elementNode.typeArguments[0] &&
-          elementNode.typeArguments.length === 1
+          elementSourceDeclaration &&
+          Typescript.isTypeAliasDeclaration(elementSourceDeclaration) &&
+          elementSourceDeclaration.name.text === 'VerdeTable' &&
+          Typescript.isTypeReferenceNode(elementLocalNode) &&
+          elementLocalNode.typeArguments &&
+          elementLocalNode.typeArguments[0] &&
+          elementLocalNode.typeArguments.length === 1
         ) {
           return {
             elementKind: 'verdeTable',
@@ -165,7 +155,7 @@ function __getElementCases<
               elementCases: elementCases,
               schemaTypeChecker,
               schemaResult,
-              elementNode: elementNode.typeArguments[0],
+              elementLocalNode: elementLocalNode.typeArguments[0],
             }),
           };
         }
@@ -175,25 +165,21 @@ function __getElementCases<
     elementCase(
       (
         {
-          sourceElementSymbol,
-          elementNode,
+          elementSourceDeclaration,
+          elementLocalNode,
           elementCases,
           schemaTypeChecker,
           schemaResult,
         },
       ) => {
         if (
-          sourceElementSymbol &&
-          sourceElementSymbol.name === 'VerdeArray' &&
-          sourceElementSymbol.declarations &&
-          sourceElementSymbol.declarations[0] &&
-          Typescript.isTypeAliasDeclaration(
-            sourceElementSymbol.declarations[0],
-          ) &&
-          Typescript.isTypeReferenceNode(elementNode) &&
-          elementNode.typeArguments &&
-          elementNode.typeArguments[0] &&
-          elementNode.typeArguments.length === 1
+          elementSourceDeclaration &&
+          Typescript.isTypeAliasDeclaration(elementSourceDeclaration) &&
+          elementSourceDeclaration.name.text === 'VerdeArray' &&
+          Typescript.isTypeReferenceNode(elementLocalNode) &&
+          elementLocalNode.typeArguments &&
+          elementLocalNode.typeArguments[0] &&
+          elementLocalNode.typeArguments.length === 1
         ) {
           return {
             elementKind: 'verdeArray',
@@ -201,7 +187,7 @@ function __getElementCases<
               elementCases,
               schemaTypeChecker,
               schemaResult,
-              elementNode: elementNode.typeArguments[0],
+              elementLocalNode: elementLocalNode.typeArguments[0],
             }),
           };
         }
@@ -209,11 +195,11 @@ function __getElementCases<
       },
     ),
     elementCase(
-      ({ elementNode, elementCases, schemaTypeChecker, schemaResult }) => {
-        if (Typescript.isTypeLiteralNode(elementNode)) {
+      ({ elementLocalNode, elementCases, schemaTypeChecker, schemaResult }) => {
+        if (Typescript.isTypeLiteralNode(elementLocalNode)) {
           return {
             elementKind: 'objectStructure',
-            structureProperties: elementNode.members.reduce<
+            structureProperties: elementLocalNode.members.reduce<
               ObjectStructureElement<
                 TerminalElement<any>
               >['structureProperties']
@@ -231,7 +217,7 @@ function __getElementCases<
                       elementCases,
                       schemaTypeChecker,
                       schemaResult,
-                      elementNode: someObjectPropertyNode.type,
+                      elementLocalNode: someObjectPropertyNode.type,
                     }),
                   };
                 }
@@ -245,11 +231,11 @@ function __getElementCases<
       },
     ),
     elementCase(
-      ({ elementNode, elementCases, schemaTypeChecker, schemaResult }) => {
-        if (Typescript.isTupleTypeNode(elementNode)) {
+      ({ elementLocalNode, elementCases, schemaTypeChecker, schemaResult }) => {
+        if (Typescript.isTupleTypeNode(elementLocalNode)) {
           return {
             elementKind: 'tupleStructure',
-            structureProperties: elementNode.elements.reduce<
+            structureProperties: elementLocalNode.elements.reduce<
               TupleStructureElement<
                 TerminalElement<any>
               >['structureProperties']
@@ -268,7 +254,7 @@ function __getElementCases<
                       elementCases,
                       schemaTypeChecker,
                       schemaResult,
-                      elementNode: someTuplePropertyNode.type,
+                      elementLocalNode: someTuplePropertyNode.type,
                     }),
                   };
                 }
@@ -282,16 +268,16 @@ function __getElementCases<
       },
     ),
     elementCase(
-      ({ elementNode, elementCases, schemaTypeChecker, schemaResult }) => {
-        if (Typescript.isUnionTypeNode(elementNode)) {
+      ({ elementLocalNode, elementCases, schemaTypeChecker, schemaResult }) => {
+        if (Typescript.isUnionTypeNode(elementLocalNode)) {
           return ({
             elementKind: 'unionComposition',
-            unionMembers: elementNode.types.map((someUnionMemberNode) =>
+            unionMembers: elementLocalNode.types.map((someUnionMemberNode) =>
               deriveSchemaElement<any>({
                 elementCases,
                 schemaTypeChecker,
                 schemaResult,
-                elementNode: someUnionMemberNode,
+                elementLocalNode: someUnionMemberNode,
               })
             ),
           });
@@ -299,9 +285,9 @@ function __getElementCases<
         return null;
       },
     ),
-    elementCase<string, any>(({ elementNode }) =>
-      Typescript.isLiteralTypeNode(elementNode) &&
-        elementNode.literal.kind === Typescript.SyntaxKind.NullKeyword
+    elementCase<string, any>(({ elementLocalNode }) =>
+      Typescript.isLiteralTypeNode(elementLocalNode) &&
+        elementLocalNode.literal.kind === Typescript.SyntaxKind.NullKeyword
         ? { elementKind: 'null' }
         : null
     ),
@@ -316,10 +302,10 @@ export type ElementCaseHandler<
 interface ElementCaseHandlerApi extends
   Pick<
     DeriveSchemaElementApi<irrelevantAny, Typescript.Node>,
-    'elementCases' | 'schemaTypeChecker' | 'schemaResult' | 'elementNode'
+    'elementCases' | 'schemaTypeChecker' | 'schemaResult' | 'elementLocalNode'
   > // | 'astContext'
 {
-  sourceElementSymbol: Typescript.Symbol | null;
+  elementSourceDeclaration: Typescript.Declaration | null;
 }
 
 function elementCase<

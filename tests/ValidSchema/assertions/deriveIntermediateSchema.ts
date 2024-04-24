@@ -1,22 +1,20 @@
-import { deriveIntermediateSchema } from '../../../source/library/module.ts';
+import { IntermediateSchema } from '../../../source/library/schema/types/IntermediateSchema.ts';
 import { Assert } from '../../imports/Assert.ts';
-import { SetupValidSchemaResult } from '../setupValidSchema.ts';
 
-export interface deriveIntermediateSchema__assertionsApi
-  extends Pick<SetupValidSchemaResult, 'sourceSchemaOutline'> {
+export interface deriveIntermediateSchema__assertionsApi {
   testContext: Deno.TestContext;
-  validIntermediateSchema: ReturnType<typeof deriveIntermediateSchema>;
+  basicDataModelSource: string;
+  validIntermediateSchema: IntermediateSchema;
 }
 
 export function deriveIntermediateSchema__assertions(
   api: deriveIntermediateSchema__assertionsApi,
 ) {
-  const { testContext, sourceSchemaOutline, validIntermediateSchema } = api;
+  const { testContext, basicDataModelSource, validIntermediateSchema } = api;
   return Promise.all([
     testContext.step('BooleanLiteralElement', () => {
       Assert.assert(
-        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-          .includes('booleanLiteralProperty: true;'),
+        basicDataModelSource.includes('booleanLiteralProperty: true;'),
       );
       Assert.assertEquals(
         validIntermediateSchema.schemaModels.data['BasicDataModel']
@@ -29,8 +27,7 @@ export function deriveIntermediateSchema__assertions(
     }),
     testContext.step('NumberLiteralElement', () => {
       Assert.assert(
-        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-          .includes('numberLiteralProperty: 123;'),
+        basicDataModelSource.includes('numberLiteralProperty: 123;'),
       );
       Assert.assertEquals(
         validIntermediateSchema.schemaModels.data['BasicDataModel']
@@ -43,8 +40,7 @@ export function deriveIntermediateSchema__assertions(
     }),
     testContext.step('StringLiteralElement', () => {
       Assert.assert(
-        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-          .includes('stringLiteralProperty: "hello";'),
+        basicDataModelSource.includes('stringLiteralProperty: "hello";'),
       );
       Assert.assertEquals(
         validIntermediateSchema.schemaModels.data['BasicDataModel']
@@ -57,8 +53,7 @@ export function deriveIntermediateSchema__assertions(
     }),
     testContext.step('BooleanElement', () => {
       Assert.assert(
-        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-          .includes('booleanProperty: boolean;'),
+        basicDataModelSource.includes('booleanProperty: boolean;'),
       );
       Assert.assertEquals(
         validIntermediateSchema.schemaModels.data['BasicDataModel']
@@ -70,8 +65,7 @@ export function deriveIntermediateSchema__assertions(
     }),
     testContext.step('NumberElement', () => {
       Assert.assert(
-        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-          .includes('numberProperty: number;'),
+        basicDataModelSource.includes('numberProperty: number;'),
       );
       Assert.assertEquals(
         validIntermediateSchema.schemaModels.data['BasicDataModel']
@@ -83,8 +77,7 @@ export function deriveIntermediateSchema__assertions(
     }),
     testContext.step('StringElement', () => {
       Assert.assert(
-        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-          .includes('stringProperty: string;'),
+        basicDataModelSource.includes('stringProperty: string;'),
       );
       Assert.assertEquals(
         validIntermediateSchema.schemaModels.data['BasicDataModel']
@@ -96,8 +89,9 @@ export function deriveIntermediateSchema__assertions(
     }),
     testContext.step('DataModelReferenceElement', () => {
       Assert.assert(
-        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-          .includes('dataModelReferenceProperty: BasicDataModel;'),
+        basicDataModelSource.includes(
+          'dataModelReferenceProperty: BasicDataModel;',
+        ),
       );
       Assert.assertEquals(
         validIntermediateSchema.schemaModels.data['BasicDataModel']
@@ -110,8 +104,9 @@ export function deriveIntermediateSchema__assertions(
     }),
     testContext.step('AliasReferenceElement', () => {
       Assert.assert(
-        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-          .includes('aliasReferenceProperty: DataModelUnion;'),
+        basicDataModelSource.includes(
+          'aliasReferenceProperty: DataModelUnion;',
+        ),
       );
       Assert.assertEquals(
         validIntermediateSchema.schemaModels.data['BasicDataModel']
@@ -125,8 +120,9 @@ export function deriveIntermediateSchema__assertions(
     }),
     testContext.step('VerdeTableElement', () => {
       Assert.assert(
-        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-          .includes('verdeTableProperty: VerdeTable<DataModelUnion>;'),
+        basicDataModelSource.includes(
+          'verdeTableProperty: VerdeTable<DataModelUnion>;',
+        ),
       );
       Assert.assertEquals(
         validIntermediateSchema.schemaModels.data['BasicDataModel']
@@ -143,8 +139,9 @@ export function deriveIntermediateSchema__assertions(
     }),
     testContext.step('VerdeArrayElement', () => {
       Assert.assert(
-        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-          .includes('verdeArrayProperty: VerdeArray<string>;'),
+        basicDataModelSource.includes(
+          'verdeArrayProperty: VerdeArray<string>;',
+        ),
       );
       Assert.assertEquals(
         validIntermediateSchema.schemaModels.data['BasicDataModel']
@@ -160,8 +157,9 @@ export function deriveIntermediateSchema__assertions(
     }),
     testContext.step('ObjectStructureElement', () => {
       Assert.assert(
-        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-          .includes('objectProperty: { objectStringProperty: string; };'),
+        basicDataModelSource.includes(
+          'objectProperty: { objectStringProperty: string; };',
+        ),
       );
       Assert.assertEquals(
         validIntermediateSchema.schemaModels.data['BasicDataModel']
@@ -182,8 +180,9 @@ export function deriveIntermediateSchema__assertions(
     }),
     testContext.step('TupleStructureElement', () => {
       Assert.assert(
-        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-          .includes('tupleProperty: [tupleNumberProperty: number];'),
+        basicDataModelSource.includes(
+          'tupleProperty: [tupleNumberProperty: number];',
+        ),
       );
       Assert.assertEquals(
         validIntermediateSchema.schemaModels.data['BasicDataModel']
@@ -205,8 +204,7 @@ export function deriveIntermediateSchema__assertions(
     }),
     testContext.step('UnionCompositionElement', () => {
       Assert.assert(
-        sourceSchemaOutline.schemaModels['BasicDataModel']?.modelSource
-          .includes('unionProperty: string | null;'),
+        basicDataModelSource.includes('unionProperty: string | null;'),
       );
       Assert.assertEquals(
         validIntermediateSchema.schemaModels.data['BasicDataModel']

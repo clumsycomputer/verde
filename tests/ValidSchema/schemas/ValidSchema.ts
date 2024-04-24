@@ -1,6 +1,7 @@
 import { VerdeTable, VerdeArray } from '../../../source/library/module.ts';
+import { RemoteDataModel } from './SecondarySchemaModule.ts';
 
-export type ValidSchema = [BasicDataModel,DataModelUnion]; 
+export type ValidSchema = [BasicDataModel, DataModelUnion, RemoteDataModel];
 
 interface BasicDataModel {
   booleanLiteralProperty: true;
