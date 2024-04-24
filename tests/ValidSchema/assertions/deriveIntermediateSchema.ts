@@ -4,13 +4,21 @@ import { Assert } from '../../imports/Assert.ts';
 export interface deriveIntermediateSchema__assertionsApi {
   testContext: Deno.TestContext;
   basicDataModelSource: string;
+  compositeDataModelSource: string;
+  genericTemplateModelSource: string;
   validIntermediateSchema: IntermediateSchema;
 }
 
 export function deriveIntermediateSchema__assertions(
   api: deriveIntermediateSchema__assertionsApi,
 ) {
-  const { testContext, basicDataModelSource, validIntermediateSchema } = api;
+  const {
+    testContext,
+    basicDataModelSource,
+    validIntermediateSchema,
+    genericTemplateModelSource,
+    compositeDataModelSource,
+  } = api;
   return Promise.all([
     testContext.step('BooleanLiteralElement', () => {
       Assert.assert(
@@ -219,7 +227,111 @@ export function deriveIntermediateSchema__assertions(
         },
       );
     }),
-    // testContext.step('BasicParameterElement', () => {}),
-    // testContext.step('GenericParameterElement', () => {}),
+    testContext.step('BasicParameterElement', () => {
+      Assert.assert(
+        genericTemplateModelSource.includes('BasicParameter,'),
+      );
+      Assert.assert(
+        genericTemplateModelSource.includes(
+          'basicParameterProperty: BasicParameter;',
+        ),
+      );
+      Assert.assertEquals(
+        validIntermediateSchema.schemaModels
+          .genericTemplate['GenericTemplateModel']
+          ?.modelProperties['basicParameterProperty']
+          ?.propertyElement,
+        {
+          elementKind: 'basicParameter',
+          parameterName: 'BasicParameter',
+        },
+      );
+    }),
+    testContext.step('ConstrainedParameterElement', () => {
+      Assert.assert(
+        genericTemplateModelSource.includes(
+          'ConstrainedParameter extends number,',
+        ),
+      );
+      Assert.assert(
+        genericTemplateModelSource.includes(
+          'constrainedParameterProperty: ConstrainedParameter;',
+        ),
+      );
+      Assert.assertEquals(
+        validIntermediateSchema.schemaModels
+          .genericTemplate['GenericTemplateModel']
+          ?.modelProperties['constrainedParameterProperty']
+          ?.propertyElement,
+        {
+          elementKind: 'constrainedParameter',
+          parameterName: 'ConstrainedParameter',
+        },
+      );
+    }),
+    testContext.step('GenericParameter', () => {
+      Assert.assert(
+        genericTemplateModelSource.includes(
+          'interface GenericTemplateModel<BasicParameter, ConstrainedParameter extends number, DefaultParameter = string>',
+        ),
+      );
+      Assert.assertEquals(
+        validIntermediateSchema.schemaModels
+          .genericTemplate['GenericTemplateModel']?.genericParameters,
+        [
+          { parameterName: 'BasicParameter' },
+          { parameterName: 'ConstrainedParameter' },
+          { parameterName: 'DefaultParameter' },
+        ],
+      );
+    }),
+    testContext.step('ConcreteModelTemplate', () => {
+      Assert.assert(
+        compositeDataModelSource.includes('extends ConcreteTemplateModel,'),
+      );
+      Assert.assertEquals(
+        validIntermediateSchema.schemaModels.data['CompositeDataModel']?.modelTemplates[0],
+        {
+          templateKind: 'concreteTemplate',
+          templateModelNameKey: 'ConcreteTemplateModel'
+        }
+      )
+    }),
+    testContext.step('GenericModelTemplate', () => {
+      Assert.assert(
+        compositeDataModelSource.includes(', GenericTemplateModel<boolean, number>'),
+      );
+      Assert.assertEquals(
+        validIntermediateSchema.schemaModels.data['CompositeDataModel']?.modelTemplates[1],
+        {
+          templateKind: 'genericTemplate',
+          templateModelNameKey: 'GenericTemplateModel',
+          genericArguments: {
+            BasicParameter: {
+              argumentIndex: 0,
+              argumentParameterNameKey: 'BasicParameter',
+              argumentElement: {
+                elementKind: 'booleanPrimitive'
+              }
+            },
+            ConstrainedParameter: {
+              argumentIndex: 1,
+              argumentParameterNameKey: 'ConstrainedParameter',
+              argumentElement: {
+                elementKind: 'numberPrimitive'
+              }
+            },
+            DefaultParameter: {
+              argumentIndex: 2,
+              argumentParameterNameKey: 'DefaultParameter',
+              argumentElement: {
+                elementKind: 'stringPrimitive'
+              }
+            }
+          }
+        }
+      )
+    }),
+    // testContext.step('GenericArgument', () => {}),
   ]);
 }

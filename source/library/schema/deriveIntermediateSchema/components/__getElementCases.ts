@@ -2,6 +2,7 @@ import { genericAny, irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
   __SchemaElement,
+  BasicParameterElement,
   ObjectStructureElement,
   TerminalElement,
   TupleStructureElement,
@@ -11,6 +12,39 @@ import {
   deriveSchemaElement,
   DeriveSchemaElementApi,
 } from './deriveSchemaElement.ts';
+
+export function getGenericElementCases() {
+  return __getElementCases({
+    uniqueElementCases: [
+      elementCase(({ elementSourceDeclaration }) => {
+        if (
+          elementSourceDeclaration &&
+          Typescript.isTypeParameterDeclaration(elementSourceDeclaration) &&
+          elementSourceDeclaration.constraint === undefined
+        ) {
+          return {
+            elementKind: 'basicParameter',
+            parameterName: elementSourceDeclaration.name.text,
+          };
+        }
+        return null;
+      }),
+      elementCase(({ elementSourceDeclaration }) => {
+        if (
+          elementSourceDeclaration &&
+          Typescript.isTypeParameterDeclaration(elementSourceDeclaration) &&
+          elementSourceDeclaration.constraint
+        ) {
+          return {
+            elementKind: 'constrainedParameter',
+            parameterName: elementSourceDeclaration.name.text,
+          };
+        }
+        return null;
+      }),
+    ],
+  });
+}
 
 export function getDefinitiveElementCases() {
   return __getElementCases({

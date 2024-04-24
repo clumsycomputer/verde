@@ -167,7 +167,7 @@ function deriveGenericArguments<
     // someArgumentElementType.symbol = argumentParameter.parameterSymbol
     argumentsResult[argumentParameterSymbolKey] = {
       argumentIndex,
-      argumentParameterSymbolKey,a
+      argumentParameterSymbolKey,
       argumentElement: deriveModelElement({
         schemaTypeChecker,
         schemaResult,

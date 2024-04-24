@@ -22,19 +22,42 @@ type DataModelUnion = BasicDataModel;
 
 export const validSchemaModuleSource = `
 import { VerdeTable, VerdeArray } from '../../../source/library/module.ts';
-import { RemoteDataModel } from './SecondarySchemaModule.ts';
+import { RemoteDataModel, CompositeDataModel } from './SecondarySchemaModule.ts';
 
-export type ValidSchema = [BasicDataModel, DataModelUnion, RemoteDataModel];
+export type ValidSchema = [BasicDataModel, DataModelUnion, RemoteDataModel, CompositeDataModel];
 
 ${basicDataModelSource}
 
 ${dataModelUnionSource}
 `.trim()
 
-const remoteDataModelSource = `
+export const compositeDataModelSource = `
+interface CompositeDataModel 
+  extends ConcreteTemplateModel, GenericTemplateModel<boolean, number> {}
+`.trim()
+
+export const concreteTemplateModelSource = `
+interface ConcreteTemplateModel {}
+`.trim()
+
+export const genericTemplateModelSource = `
+interface GenericTemplateModel<BasicParameter, ConstrainedParameter extends number, DefaultParameter = string> {
+  basicParameterProperty: BasicParameter;
+  constrainedParameterProperty: ConstrainedParameter;
+}
+`.trim()
+
+
+export const remoteDataModelSource = `
 interface RemoteDataModel {}
 `.trim()
 
 export const secondarySchemaModuleSource = `
+export ${compositeDataModelSource}
+
+export ${concreteTemplateModelSource}
+
+export ${genericTemplateModelSource}
+
 export ${remoteDataModelSource}
-`
+`.trim()

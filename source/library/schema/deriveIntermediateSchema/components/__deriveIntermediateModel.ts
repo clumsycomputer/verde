@@ -2,7 +2,9 @@ import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
 import { irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
+  ConcreteTemplateIntermediateModel,
   DataIntermediateModel,
+  GenericTemplateIntermediateModel,
   GetThisIntermediateElement,
   GetThisIntermediateModel,
   IntermediateSchema,
@@ -11,6 +13,7 @@ import { __DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
 import {
   ElementCaseHandler,
   getDefinitiveElementCases,
+  getGenericElementCases,
 } from './__getElementCases.ts';
 import { deriveModelProperties } from './deriveModelProperties.ts';
 import { deriveModelTemplates } from './deriveModelTemplates.ts';
@@ -55,6 +58,46 @@ function initializeTargetModel__deriveDataModel(
   };
 }
 
+export interface DeriveConcreteTemplateModelApi extends
+  Pick<
+    Defined__DeriveIntermediateModelApi,
+    'schemaTypeChecker' | 'schemaResult' | 'modelDeclaration'
+  > {
+}
+
+export function deriveConcreteTemplateModel(
+  api: DeriveDataModelApi,
+): ConcreteTemplateIntermediateModel {
+  const {
+    schemaTypeChecker,
+    schemaResult,
+    modelDeclaration,
+  } = api;
+  return __deriveDefinitiveModel({
+    targetModelKind: 'concreteTemplate',
+    initializeTargetModel: initializeTargetModel__deriveConcreteTemplateModel,
+    schemaTypeChecker,
+    schemaResult,
+    modelDeclaration,
+    // astContext: [{
+    //   astNodeKind: 'dataModel',
+    //   astNodeTypeNode: dataModelType,
+    // }],
+  });
+}
+
+function initializeTargetModel__deriveConcreteTemplateModel(
+  api: InitializeTargetModelApi,
+): ConcreteTemplateIntermediateModel {
+  const { modelName } = api;
+  return {
+    modelKind: 'concreteTemplate',
+    modelName,
+    modelTemplates: [],
+    modelProperties: {},
+  };
+}
+
 interface __DeriveDefinitiveModel<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
 > extends
@@ -92,6 +135,46 @@ function __deriveDefinitiveModel<
   });
 }
 
+export interface DeriveGenericTemplateModelApi extends
+  Pick<
+    __DeriveIntermediateModelApi<'genericTemplate'>,
+    | 'schemaTypeChecker'
+    | 'schemaResult'
+    | 'modelDeclaration'
+  > // | 'astContext'
+{}
+
+export function deriveGenericTemplateModel(api: DeriveGenericTemplateModelApi) {
+  const { schemaTypeChecker, schemaResult, modelDeclaration } = api;
+  return __deriveIntermediateModel({
+    targetModelKind: 'genericTemplate',
+    initializeTargetModel: initializeTargetModel__deriveGenericTemplateModel,
+    elementCases: getGenericElementCases(),
+    schemaTypeChecker,
+    schemaResult,
+    modelDeclaration,
+  });
+}
+
+function initializeTargetModel__deriveGenericTemplateModel(
+  api: InitializeTargetModelApi,
+): GenericTemplateIntermediateModel {
+  const { modelName, modelDeclaration } = api;
+  const modelTypeParameters = modelDeclaration.typeParameters ??
+    throwInvalidPathError('modelTypeParameters');
+  return {
+    modelKind: 'genericTemplate',
+    modelName,
+    modelTemplates: [],
+    modelProperties: {},
+    genericParameters: modelTypeParameters.map((
+      someTypeParameterDeclaration,
+    ) => ({
+      parameterName: someTypeParameterDeclaration.name.text,
+    })),
+  };
+}
+
 export interface __DeriveIntermediateModelApi<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
 > extends
@@ -123,7 +206,7 @@ interface Custom__DeriveIntermediateModelApi<
 interface InitializeTargetModelApi extends
   Pick<
     __DeriveIntermediateModelApi<irrelevantAny>,
-    'schemaTypeChecker' | 'schemaResult'
+    'schemaTypeChecker' | 'schemaResult' | 'modelDeclaration'
   > {
   modelName: string;
 }
@@ -157,6 +240,7 @@ function __deriveIntermediateModel<
   const newTargetModel = initializeTargetModel({
     schemaTypeChecker,
     schemaResult,
+    modelDeclaration,
     modelName,
   });
   // enable recursive model processing (direct & indirect)

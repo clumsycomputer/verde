@@ -76,10 +76,10 @@ export interface GenericModelTemplate<ThisArgumentElement>
   >;
 }
 
-interface GenericArgument<ThisArgumentElement> {
+interface GenericArgument<ThisModelElement> {
   argumentParameterNameKey: string;
   argumentIndex: number;
-  argumentElement: ThisArgumentElement;
+  argumentElement: ThisModelElement;
 }
 
 interface __ModelTemplate<

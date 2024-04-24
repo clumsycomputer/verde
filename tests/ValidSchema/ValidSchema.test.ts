@@ -3,6 +3,8 @@ import { deriveIntermediateSchema__assertions } from './assertions/deriveInterme
 import { setupValidSchema } from '../ValidSchema/setupValidSchema.ts';
 import {
   basicDataModelSource,
+  compositeDataModelSource,
+  genericTemplateModelSource,
   secondarySchemaModuleSource,
   validSchemaModuleSource,
 } from './validSchemaModuleSource.ts';
@@ -19,9 +21,11 @@ Deno.test(
       schemaModulePath: validSchemaModulePath,
     });
     await Promise.all([
-      deriveIntermediateSchema__assertions({
-        basicDataModelSource,
+      deriveIntermediateSchema__assertions({        
         testContext,
+        basicDataModelSource,
+        compositeDataModelSource,
+        genericTemplateModelSource,
         validIntermediateSchema,
       }),
     ]);
