@@ -3,13 +3,14 @@ import {
   GenericSchemaElement,
 } from './SchemaElement.ts';
 import {
-  __SchemaModel,
   __SchemaAlias,
+  __SchemaModel,
   __StructuredSchema,
 } from './__StructuredSchema.ts';
 
 export interface IntermediateSchema
-  extends __StructuredSchema<IntermediateSchemaModels, IntermediateSchemaAlias> {}
+  extends
+    __StructuredSchema<IntermediateSchemaModels, IntermediateSchemaAlias> {}
 
 interface IntermediateSchemaModels {
   data: Record<DataIntermediateModel['modelName'], DataIntermediateModel>;
@@ -89,7 +90,9 @@ interface __ModelTemplate<
   templateModelNameKey: TemplateIntermediateModel['modelName'];
 }
 
-type IntermediateSchemaAlias = DataModelIntermediateAlias | GeneralIntermediateAlias
+type IntermediateSchemaAlias =
+  | DataModelIntermediateAlias
+  | GeneralIntermediateAlias;
 
 export interface DataModelIntermediateAlias
   extends __SchemaAlias<'dataModel'> {}

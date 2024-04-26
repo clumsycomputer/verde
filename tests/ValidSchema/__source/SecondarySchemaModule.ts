@@ -1,4 +1,4 @@
-export interface CompositeDataModel 
+export interface CompositeDataModel
   extends ConcreteTemplateModel, GenericTemplateModel<boolean, number> {}
 
 export interface ConcreteTemplateModel {}

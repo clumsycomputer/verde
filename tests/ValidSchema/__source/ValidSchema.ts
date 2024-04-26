@@ -10,8 +10,8 @@ interface BasicDataModel {
   booleanProperty: boolean;
   numberProperty: number;
   stringProperty: string;
-  dataModelReferenceProperty: BasicDataModel;
-  aliasReferenceProperty: DataModelUnion;
+  dataModelProperty: BasicDataModel;
+  aliasProperty: DataModelUnion;
   verdeTableProperty: VerdeTable<DataModelUnion>;
   verdeArrayProperty: VerdeArray<string>;
   objectProperty: { objectStringProperty: string; };

@@ -74,6 +74,7 @@ function __deriveIntermediateSchema(
         modelDeclaration: exportItemSourceDeclaration,
       });
     } else if (Typescript.isTypeAliasDeclaration(exportItemSourceDeclaration)) {
+      // todo deriveSchemaAlias
     } else {
       // when does this execute
       throwUserError('invalid schema export item: todo');

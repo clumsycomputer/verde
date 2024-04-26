@@ -1,4 +1,6 @@
-export const basicDataModelSource = `
+export const schemaSourceInputs: Record<string, string> = {}
+
+schemaSourceInputs['BasicDataModel'] = `
 interface BasicDataModel {
   booleanLiteralProperty: true;
   numberLiteralProperty: 123;
@@ -6,8 +8,8 @@ interface BasicDataModel {
   booleanProperty: boolean;
   numberProperty: number;
   stringProperty: string;
-  dataModelReferenceProperty: BasicDataModel;
-  aliasReferenceProperty: DataModelUnion;
+  dataModelProperty: BasicDataModel;
+  aliasProperty: DataModelUnion;
   verdeTableProperty: VerdeTable<DataModelUnion>;
   verdeArrayProperty: VerdeArray<string>;
   objectProperty: { objectStringProperty: string; };
@@ -16,31 +18,31 @@ interface BasicDataModel {
 }
 `.trim()
 
-export const dataModelUnionSource = `
+schemaSourceInputs['DataModelUnion'] = `
 type DataModelUnion = BasicDataModel;
 `.trim()
 
-export const validSchemaModuleSource = `
+schemaSourceInputs['ValidSchemaModule'] = `
 import { VerdeTable, VerdeArray } from '../../../source/library/module.ts';
 import { RemoteDataModel, CompositeDataModel } from './SecondarySchemaModule.ts';
 
 export type ValidSchema = [BasicDataModel, DataModelUnion, RemoteDataModel, CompositeDataModel];
 
-${basicDataModelSource}
+${schemaSourceInputs['BasicDataModel']}
 
-${dataModelUnionSource}
+${schemaSourceInputs['DataModelUnion']}
 `.trim()
 
-export const compositeDataModelSource = `
-interface CompositeDataModel 
+schemaSourceInputs['CompositeDataModel'] = `
+interface CompositeDataModel
   extends ConcreteTemplateModel, GenericTemplateModel<boolean, number> {}
 `.trim()
 
-export const concreteTemplateModelSource = `
+schemaSourceInputs['ConcreteTemplateModel'] = `
 interface ConcreteTemplateModel {}
 `.trim()
 
-export const genericTemplateModelSource = `
+schemaSourceInputs['GenericTemplateModel'] = `
 interface GenericTemplateModel<BasicParameter, ConstrainedParameter extends number, DefaultParameter = string> {
   basicParameterProperty: BasicParameter;
   constrainedParameterProperty: ConstrainedParameter;
@@ -48,16 +50,16 @@ interface GenericTemplateModel<BasicParameter, ConstrainedParameter extends numb
 `.trim()
 
 
-export const remoteDataModelSource = `
+schemaSourceInputs['RemoteDataModel'] = `
 interface RemoteDataModel {}
 `.trim()
 
-export const secondarySchemaModuleSource = `
-export ${compositeDataModelSource}
+schemaSourceInputs['SecondarySchemaModule'] = `
+export ${schemaSourceInputs['CompositeDataModel']}
 
-export ${concreteTemplateModelSource}
+export ${schemaSourceInputs['ConcreteTemplateModel']}
 
-export ${genericTemplateModelSource}
+export ${schemaSourceInputs['GenericTemplateModel']}
 
-export ${remoteDataModelSource}
+export ${schemaSourceInputs['RemoteDataModel']}
 `.trim()

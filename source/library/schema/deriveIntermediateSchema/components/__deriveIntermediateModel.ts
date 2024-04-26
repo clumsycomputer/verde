@@ -251,6 +251,7 @@ function __deriveIntermediateModel<
     schemaTypeChecker,
     schemaResult,
     modelDeclaration,
+    // astContext,
   });
   newTargetModel.modelProperties = deriveModelProperties({
     elementCases,

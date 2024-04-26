@@ -1,337 +1,488 @@
+import { throwInvalidPathError } from '../../../source/helpers/throwError.ts';
 import { IntermediateSchema } from '../../../source/library/schema/types/IntermediateSchema.ts';
 import { Assert } from '../../imports/Assert.ts';
 
-export interface deriveIntermediateSchema__assertionsApi {
+export interface deriveIntermediateSchema__AssertionsApi {
   testContext: Deno.TestContext;
-  basicDataModelSource: string;
-  compositeDataModelSource: string;
-  genericTemplateModelSource: string;
-  validIntermediateSchema: IntermediateSchema;
+  schemaSourceInputs: Record<string, string>;
+  expectedIntermediateSchema: IntermediateSchema;
+  actualIntermediateSchema: IntermediateSchema;
 }
 
-export function deriveIntermediateSchema__assertions(
-  api: deriveIntermediateSchema__assertionsApi,
+export function deriveIntermediateSchema__Assertions(
+  api: deriveIntermediateSchema__AssertionsApi,
 ) {
   const {
     testContext,
-    basicDataModelSource,
-    validIntermediateSchema,
-    genericTemplateModelSource,
-    compositeDataModelSource,
+    schemaSourceInputs,
+    expectedIntermediateSchema,
+    actualIntermediateSchema,
   } = api;
   return Promise.all([
-    testContext.step('BooleanLiteralElement', () => {
-      Assert.assert(
-        basicDataModelSource.includes('booleanLiteralProperty: true;'),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels.data['BasicDataModel']
-          ?.modelProperties['booleanLiteralProperty']?.propertyElement,
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        '__IntermediateModel["modelTemplates"][number] => ConcreteModelTemplate',
+      caseOutputPath: [
+        'schemaModels',
+        'data',
+        'CompositeDataModel',
+        'modelTemplates',
+        0,
+      ],
+      caseHighlights: [{
+        highlightExpected: 'ConcreteTemplateModel',
+        highlightSource: schemaSourceInputs['CompositeDataModel']!,
+        highlightRange: [39, 60],
+      }],
+    }),
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        '__IntermediateModel["modelTemplates"][number] => GenericModelTemplate',
+      caseOutputPath: [
+        'schemaModels',
+        'data',
+        'CompositeDataModel',
+        'modelTemplates',
+        1,
+      ],
+      caseHighlights: [{
+        highlightExpected: 'GenericTemplateModel<boolean, number>',
+        highlightSource: schemaSourceInputs['CompositeDataModel']!,
+        highlightRange: [62, 99],
+      }],
+    }),
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        '__IntermediateModel["modelProperties"][string]["propertyElement"] => BooleanLiteralElement',
+      caseOutputPath: [
+        'schemaModels',
+        'data',
+        'BasicDataModel',
+        'modelProperties',
+        'booleanLiteralProperty',
+        'propertyElement',
+      ],
+      caseHighlights: [
         {
-          elementKind: 'booleanLiteral',
-          literalSymbol: 'true',
+          highlightExpected: 'booleanLiteralProperty: true;',
+          highlightSource: schemaSourceInputs['BasicDataModel']!,
+          highlightRange: [29, 58],
         },
-      );
+      ],
     }),
-    testContext.step('NumberLiteralElement', () => {
-      Assert.assert(
-        basicDataModelSource.includes('numberLiteralProperty: 123;'),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels.data['BasicDataModel']
-          ?.modelProperties['numberLiteralProperty']?.propertyElement,
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        '__IntermediateModel["modelProperties"][string]["propertyElement"] => NumberLiteralElement',
+      caseOutputPath: [
+        'schemaModels',
+        'data',
+        'BasicDataModel',
+        'modelProperties',
+        'numberLiteralProperty',
+        'propertyElement',
+      ],
+      caseHighlights: [
         {
-          elementKind: 'numberLiteral',
-          literalSymbol: '123',
+          highlightExpected: 'numberLiteralProperty: 123;',
+          highlightSource: schemaSourceInputs['BasicDataModel']!,
+          highlightRange: [61, 88],
         },
-      );
+      ],
     }),
-    testContext.step('StringLiteralElement', () => {
-      Assert.assert(
-        basicDataModelSource.includes('stringLiteralProperty: "hello";'),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels.data['BasicDataModel']
-          ?.modelProperties['stringLiteralProperty']?.propertyElement,
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        '__IntermediateModel["modelProperties"][string]["propertyElement"] => StringLiteralElement',
+      caseOutputPath: [
+        'schemaModels',
+        'data',
+        'BasicDataModel',
+        'modelProperties',
+        'stringLiteralProperty',
+        'propertyElement',
+      ],
+      caseHighlights: [
         {
-          elementKind: 'stringLiteral',
-          literalSymbol: '"hello"',
+          highlightExpected: 'stringLiteralProperty: "hello";',
+          highlightSource: schemaSourceInputs['BasicDataModel']!,
+          highlightRange: [91, 122],
         },
-      );
+      ],
     }),
-    testContext.step('BooleanElement', () => {
-      Assert.assert(
-        basicDataModelSource.includes('booleanProperty: boolean;'),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels.data['BasicDataModel']
-          ?.modelProperties['booleanProperty']?.propertyElement,
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        '__IntermediateModel["modelProperties"][string]["propertyElement"] => BooleanElement',
+      caseOutputPath: [
+        'schemaModels',
+        'data',
+        'BasicDataModel',
+        'modelProperties',
+        'booleanProperty',
+        'propertyElement',
+      ],
+      caseHighlights: [
         {
-          elementKind: 'booleanPrimitive',
+          highlightExpected: 'booleanProperty: boolean;',
+          highlightSource: schemaSourceInputs['BasicDataModel']!,
+          highlightRange: [125, 150],
         },
-      );
+      ],
     }),
-    testContext.step('NumberElement', () => {
-      Assert.assert(
-        basicDataModelSource.includes('numberProperty: number;'),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels.data['BasicDataModel']
-          ?.modelProperties['numberProperty']?.propertyElement,
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        '__IntermediateModel["modelProperties"][string]["propertyElement"] => NumberElement',
+      caseOutputPath: [
+        'schemaModels',
+        'data',
+        'BasicDataModel',
+        'modelProperties',
+        'numberProperty',
+        'propertyElement',
+      ],
+      caseHighlights: [
         {
-          elementKind: 'numberPrimitive',
+          highlightExpected: 'numberProperty: number;',
+          highlightSource: schemaSourceInputs['BasicDataModel']!,
+          highlightRange: [153, 176],
         },
-      );
+      ],
     }),
-    testContext.step('StringElement', () => {
-      Assert.assert(
-        basicDataModelSource.includes('stringProperty: string;'),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels.data['BasicDataModel']
-          ?.modelProperties['stringProperty']?.propertyElement,
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        '__IntermediateModel["modelProperties"][string]["propertyElement"] => StringElement',
+      caseOutputPath: [
+        'schemaModels',
+        'data',
+        'BasicDataModel',
+        'modelProperties',
+        'stringProperty',
+        'propertyElement',
+      ],
+      caseHighlights: [
         {
-          elementKind: 'stringPrimitive',
+          highlightExpected: 'stringProperty: string;',
+          highlightSource: schemaSourceInputs['BasicDataModel']!,
+          highlightRange: [179, 202],
         },
-      );
+      ],
     }),
-    testContext.step('DataModelReferenceElement', () => {
-      Assert.assert(
-        basicDataModelSource.includes(
-          'dataModelReferenceProperty: BasicDataModel;',
-        ),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels.data['BasicDataModel']
-          ?.modelProperties['dataModelReferenceProperty']?.propertyElement,
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        '__IntermediateModel["modelProperties"][string]["propertyElement"] => DataModelReferenceElement',
+      caseOutputPath: [
+        'schemaModels',
+        'data',
+        'BasicDataModel',
+        'modelProperties',
+        'dataModelProperty',
+        'propertyElement',
+      ],
+      caseHighlights: [
         {
-          elementKind: 'dataModelReference',
-          dataModelNameKey: 'BasicDataModel',
+          highlightExpected: 'dataModelProperty: BasicDataModel;',
+          highlightSource: schemaSourceInputs['BasicDataModel']!,
+          highlightRange: [205, 239],
         },
-      );
+      ],
     }),
-    testContext.step('AliasReferenceElement', () => {
-      Assert.assert(
-        basicDataModelSource.includes(
-          'aliasReferenceProperty: DataModelUnion;',
-        ),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels.data['BasicDataModel']
-          ?.modelProperties['aliasReferenceProperty']
-          ?.propertyElement,
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        '__IntermediateModel["modelProperties"][string]["propertyElement"] => AliasReferenceElement',
+      caseOutputPath: [
+        'schemaModels',
+        'data',
+        'BasicDataModel',
+        'modelProperties',
+        'aliasProperty',
+        'propertyElement',
+      ],
+      caseHighlights: [
         {
-          elementKind: 'aliasReference',
-          aliasNameKey: 'DataModelUnion',
+          highlightExpected: 'aliasProperty: DataModelUnion;',
+          highlightSource: schemaSourceInputs['BasicDataModel']!,
+          highlightRange: [242, 272],
         },
-      );
+      ],
     }),
-    testContext.step('VerdeTableElement', () => {
-      Assert.assert(
-        basicDataModelSource.includes(
-          'verdeTableProperty: VerdeTable<DataModelUnion>;',
-        ),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels.data['BasicDataModel']
-          ?.modelProperties['verdeTableProperty']
-          ?.propertyElement,
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        '__IntermediateModel["modelProperties"][string]["propertyElement"] => VerdeTableElement',
+      caseOutputPath: [
+        'schemaModels',
+        'data',
+        'BasicDataModel',
+        'modelProperties',
+        'verdeTableProperty',
+        'propertyElement',
+      ],
+      caseHighlights: [
         {
-          elementKind: 'verdeTable',
-          collectionElement: {
-            elementKind: 'aliasReference',
-            aliasNameKey: 'DataModelUnion',
-          },
+          highlightExpected: 'verdeTableProperty: VerdeTable<DataModelUnion>;',
+          highlightSource: schemaSourceInputs['BasicDataModel']!,
+          highlightRange: [275, 322],
         },
-      );
+      ],
     }),
-    testContext.step('VerdeArrayElement', () => {
-      Assert.assert(
-        basicDataModelSource.includes(
-          'verdeArrayProperty: VerdeArray<string>;',
-        ),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels.data['BasicDataModel']
-          ?.modelProperties['verdeArrayProperty']
-          ?.propertyElement,
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        '__IntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement',
+      caseOutputPath: [
+        'schemaModels',
+        'data',
+        'BasicDataModel',
+        'modelProperties',
+        'verdeArrayProperty',
+        'propertyElement',
+      ],
+      caseHighlights: [
         {
-          elementKind: 'verdeArray',
-          collectionElement: {
-            elementKind: 'stringPrimitive',
-          },
+          highlightExpected: 'verdeArrayProperty: VerdeArray<string>;',
+          highlightSource: schemaSourceInputs['BasicDataModel']!,
+          highlightRange: [325, 364],
         },
-      );
+      ],
     }),
-    testContext.step('ObjectStructureElement', () => {
-      Assert.assert(
-        basicDataModelSource.includes(
-          'objectProperty: { objectStringProperty: string; };',
-        ),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels.data['BasicDataModel']
-          ?.modelProperties['objectProperty']
-          ?.propertyElement,
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        '__IntermediateModel["modelProperties"][string]["propertyElement"] => ObjectStructureElement',
+      caseOutputPath: [
+        'schemaModels',
+        'data',
+        'BasicDataModel',
+        'modelProperties',
+        'objectProperty',
+        'propertyElement',
+      ],
+      caseHighlights: [
         {
-          elementKind: 'objectStructure',
-          structureProperties: {
-            objectStringProperty: {
-              propertyKey: 'objectStringProperty',
-              propertyElement: {
-                elementKind: 'stringPrimitive',
-              },
-            },
-          },
+          highlightExpected: 'objectProperty: { objectStringProperty: string; };',
+          highlightSource: schemaSourceInputs['BasicDataModel']!,
+          highlightRange: [367, 417],
         },
-      );
+      ],
     }),
-    testContext.step('TupleStructureElement', () => {
-      Assert.assert(
-        basicDataModelSource.includes(
-          'tupleProperty: [tupleNumberProperty: number];',
-        ),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels.data['BasicDataModel']
-          ?.modelProperties['tupleProperty']
-          ?.propertyElement,
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        '__IntermediateModel["modelProperties"][string]["propertyElement"] => TupleStructureElement',
+      caseOutputPath: [
+        'schemaModels',
+        'data',
+        'BasicDataModel',
+        'modelProperties',
+        'tupleProperty',
+        'propertyElement',
+      ],
+      caseHighlights: [
         {
-          elementKind: 'tupleStructure',
-          structureProperties: {
-            tupleNumberProperty: {
-              propertyIndex: 0,
-              propertyKey: 'tupleNumberProperty',
-              propertyElement: {
-                elementKind: 'numberPrimitive',
-              },
-            },
-          },
+          highlightExpected: 'tupleProperty: [tupleNumberProperty: number];',
+          highlightSource: schemaSourceInputs['BasicDataModel']!,
+          highlightRange: [420, 465],
         },
-      );
+      ],
     }),
-    testContext.step('UnionCompositionElement', () => {
-      Assert.assert(
-        basicDataModelSource.includes('unionProperty: string | null;'),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels.data['BasicDataModel']
-          ?.modelProperties['unionProperty']
-          ?.propertyElement,
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        '__IntermediateModel["modelProperties"][string]["propertyElement"] => UnionCompositionElement',
+      caseOutputPath: [
+        'schemaModels',
+        'data',
+        'BasicDataModel',
+        'modelProperties',
+        'unionProperty',
+        'propertyElement',
+      ],
+      caseHighlights: [
         {
-          elementKind: 'unionComposition',
-          unionMembers: [
-            { elementKind: 'stringPrimitive' },
-            { elementKind: 'null' },
-          ],
+          highlightExpected: 'unionProperty: string | null;',
+          highlightSource: schemaSourceInputs['BasicDataModel']!,
+          highlightRange: [468, 497],
         },
-      );
+      ],
     }),
-    testContext.step('BasicParameterElement', () => {
-      Assert.assert(
-        genericTemplateModelSource.includes('BasicParameter,'),
-      );
-      Assert.assert(
-        genericTemplateModelSource.includes(
-          'basicParameterProperty: BasicParameter;',
-        ),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels
-          .genericTemplate['GenericTemplateModel']
-          ?.modelProperties['basicParameterProperty']
-          ?.propertyElement,
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        'GenericTemplateIntermediateModel["genericParameters"][number] => GenericParameter',
+      caseOutputPath: [
+        'schemaModels',
+        'genericTemplate',
+        'GenericTemplateModel',
+        'genericParameters',
+        0,
+      ],
+      caseHighlights: [{
+        highlightExpected: 'BasicParameter',
+        highlightSource: schemaSourceInputs['GenericTemplateModel']!,
+        highlightRange: [31, 45],
+      }],
+    }),   
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => BasicParameterElement',
+      caseOutputPath: [
+        'schemaModels',
+        'genericTemplate',
+        'GenericTemplateModel',
+        'modelProperties',
+        'basicParameterProperty',
+        'propertyElement',
+      ],
+      caseHighlights: [
         {
-          elementKind: 'basicParameter',
-          parameterName: 'BasicParameter',
+          highlightExpected: 'BasicParameter',
+          highlightSource: schemaSourceInputs['GenericTemplateModel']!,
+          highlightRange: [31, 45],
         },
-      );
-    }),
-    testContext.step('ConstrainedParameterElement', () => {
-      Assert.assert(
-        genericTemplateModelSource.includes(
-          'ConstrainedParameter extends number,',
-        ),
-      );
-      Assert.assert(
-        genericTemplateModelSource.includes(
-          'constrainedParameterProperty: ConstrainedParameter;',
-        ),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels
-          .genericTemplate['GenericTemplateModel']
-          ?.modelProperties['constrainedParameterProperty']
-          ?.propertyElement,
         {
-          elementKind: 'constrainedParameter',
-          parameterName: 'ConstrainedParameter',
+          highlightExpected: 'basicParameterProperty: BasicParameter;',
+          highlightSource: schemaSourceInputs['GenericTemplateModel']!,
+          highlightRange: [115, 154],
         },
-      );
+      ],
     }),
-    testContext.step('GenericParameter', () => {
-      Assert.assert(
-        genericTemplateModelSource.includes(
-          'interface GenericTemplateModel<BasicParameter, ConstrainedParameter extends number, DefaultParameter = string>',
-        ),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels
-          .genericTemplate['GenericTemplateModel']?.genericParameters,
-        [
-          { parameterName: 'BasicParameter' },
-          { parameterName: 'ConstrainedParameter' },
-          { parameterName: 'DefaultParameter' },
-        ],
-      );
-    }),
-    testContext.step('ConcreteModelTemplate', () => {
-      Assert.assert(
-        compositeDataModelSource.includes('extends ConcreteTemplateModel,'),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels.data['CompositeDataModel']?.modelTemplates[0],
+    schemaTestCase({
+      testContext,
+      expectedIntermediateSchema,
+      actualIntermediateSchema,
+      caseLabel:
+        'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => ConstrainedParameterElement',
+      caseOutputPath: [
+        'schemaModels',
+        'genericTemplate',
+        'GenericTemplateModel',
+        'modelProperties',
+        'constrainedParameterProperty',
+        'propertyElement',
+      ],
+      caseHighlights: [
         {
-          templateKind: 'concreteTemplate',
-          templateModelNameKey: 'ConcreteTemplateModel'
-        }
-      )
-    }),
-    testContext.step('GenericModelTemplate', () => {
-      Assert.assert(
-        compositeDataModelSource.includes(', GenericTemplateModel<boolean, number>'),
-      );
-      Assert.assertEquals(
-        validIntermediateSchema.schemaModels.data['CompositeDataModel']?.modelTemplates[1],
+          highlightExpected: 'ConstrainedParameter',
+          highlightSource: schemaSourceInputs['GenericTemplateModel']!,
+          highlightRange: [47, 67],
+        },
         {
-          templateKind: 'genericTemplate',
-          templateModelNameKey: 'GenericTemplateModel',
-          genericArguments: {
-            BasicParameter: {
-              argumentIndex: 0,
-              argumentParameterNameKey: 'BasicParameter',
-              argumentElement: {
-                elementKind: 'booleanPrimitive'
-              }
-            },
-            ConstrainedParameter: {
-              argumentIndex: 1,
-              argumentParameterNameKey: 'ConstrainedParameter',
-              argumentElement: {
-                elementKind: 'numberPrimitive'
-              }
-            },
-            DefaultParameter: {
-              argumentIndex: 2,
-              argumentParameterNameKey: 'DefaultParameter',
-              argumentElement: {
-                elementKind: 'stringPrimitive'
-              }
-            }
-          }
-        }
-      )
-    }),
-    // testContext.step('GenericArgument', () => {}),
+          highlightExpected:
+            'constrainedParameterProperty: ConstrainedParameter;',
+          highlightSource: schemaSourceInputs['GenericTemplateModel']!,
+          highlightRange: [157, 208],
+        },
+      ],
+    }), 
   ]);
+}
+
+interface SchemaTestCaseApi extends
+  Pick<
+    deriveIntermediateSchema__AssertionsApi,
+    'testContext' | 'expectedIntermediateSchema' | 'actualIntermediateSchema'
+  > {
+  caseLabel: string;
+  caseOutputPath: Array<string | number>;
+  caseHighlights: Array<{
+    highlightSource: string;
+    highlightRange: [number, number];
+    highlightExpected: string;
+  }>;
+}
+
+function schemaTestCase(api: SchemaTestCaseApi) {
+  const {
+    testContext,
+    caseLabel,
+    caseHighlights,
+    caseOutputPath,
+    expectedIntermediateSchema,
+    actualIntermediateSchema,
+  } = api;
+  return testContext.step(caseLabel, () => {
+    caseHighlights.forEach(
+      ({ highlightExpected, highlightSource, highlightRange }) => {
+        Assert.assertEquals(
+          highlightExpected,
+          highlightSource.substring(
+            highlightRange[0],
+            highlightRange[1],
+          ),
+        );
+      },
+    );
+    const [expectedOutput, actualOutput] = retrieveCaseOutput({
+      caseOutputPath,
+      expectedInput: expectedIntermediateSchema,
+      actualInput: actualIntermediateSchema,
+    });
+    Assert.assertEquals(
+      expectedOutput,
+      actualOutput,
+    );
+  });
+}
+
+interface RetrieveCaseOutputApi
+  extends Pick<SchemaTestCaseApi, 'caseOutputPath'> {
+  expectedInput: any;
+  actualInput: any;
+}
+
+function retrieveCaseOutput(api: RetrieveCaseOutputApi): [unknown, unknown] {
+  const { caseOutputPath, expectedInput, actualInput } = api;
+  const [currentPathKey, ...remainingOutputPath] = caseOutputPath;
+  return currentPathKey
+    ? retrieveCaseOutput({
+      caseOutputPath: remainingOutputPath,
+      expectedInput: expectedInput[currentPathKey] ??
+        throwInvalidPathError('expectedInput[currentPathKey]'),
+      actualInput: actualInput[currentPathKey] ??
+        throwInvalidPathError('actualInput[currentPathKey]'),
+    })
+    : [expectedInput, actualInput];
 }
