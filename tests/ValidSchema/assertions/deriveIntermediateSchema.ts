@@ -4,9 +4,9 @@ import { Assert } from '../../imports/Assert.ts';
 
 export interface deriveIntermediateSchema__AssertionsApi {
   testContext: Deno.TestContext;
-  schemaSourceInputs: Record<string, string>;
   expectedIntermediateSchema: IntermediateSchema;
   actualIntermediateSchema: IntermediateSchema;
+  schemaSources: Record<string, string>;
 }
 
 export function deriveIntermediateSchema__Assertions(
@@ -14,7 +14,7 @@ export function deriveIntermediateSchema__Assertions(
 ) {
   const {
     testContext,
-    schemaSourceInputs,
+    schemaSources,
     expectedIntermediateSchema,
     actualIntermediateSchema,
   } = api;
@@ -25,17 +25,21 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         '__IntermediateModel["modelTemplates"][number] => ConcreteModelTemplate',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'data',
         'CompositeDataModel',
         'modelTemplates',
         0,
       ],
-      caseHighlights: [{
-        highlightExpected: 'ConcreteTemplateModel',
-        highlightSource: schemaSourceInputs['CompositeDataModel']!,
-        highlightRange: [39, 60],
+      caseInputContext: [{
+        contextSource: schemaSources['CompositeDataModel.ts']!,
+        contextScopes: [{
+          scopeRange: [7, 109],
+          scopeHighlights: [{
+            highlightRange: [39, 60],
+          }],
+        }],
       }],
     }),
     schemaTestCase({
@@ -44,17 +48,21 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         '__IntermediateModel["modelTemplates"][number] => GenericModelTemplate',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'data',
         'CompositeDataModel',
         'modelTemplates',
         1,
       ],
-      caseHighlights: [{
-        highlightExpected: 'GenericTemplateModel<boolean, number>',
-        highlightSource: schemaSourceInputs['CompositeDataModel']!,
-        highlightRange: [62, 99],
+      caseInputContext: [{
+        contextSource: schemaSources['CompositeDataModel.ts']!,
+        contextScopes: [{
+          scopeRange: [7, 109],
+          scopeHighlights: [{
+            highlightRange: [62, 99],
+          }],
+        }],
       }],
     }),
     schemaTestCase({
@@ -63,7 +71,7 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         '__IntermediateModel["modelProperties"][string]["propertyElement"] => BooleanLiteralElement',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'data',
         'BasicDataModel',
@@ -71,13 +79,15 @@ export function deriveIntermediateSchema__Assertions(
         'booleanLiteralProperty',
         'propertyElement',
       ],
-      caseHighlights: [
-        {
-          highlightExpected: 'booleanLiteralProperty: true;',
-          highlightSource: schemaSourceInputs['BasicDataModel']!,
-          highlightRange: [29, 58],
-        },
-      ],
+      caseInputContext: [{
+        contextSource: schemaSources['ValidSchema.ts']!,
+        contextScopes: [{
+          scopeRange: [219, 718],
+          scopeHighlights: [{
+            highlightRange: [29, 58],
+          }],
+        }],
+      }],
     }),
     schemaTestCase({
       testContext,
@@ -85,7 +95,7 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         '__IntermediateModel["modelProperties"][string]["propertyElement"] => NumberLiteralElement',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'data',
         'BasicDataModel',
@@ -93,13 +103,15 @@ export function deriveIntermediateSchema__Assertions(
         'numberLiteralProperty',
         'propertyElement',
       ],
-      caseHighlights: [
-        {
-          highlightExpected: 'numberLiteralProperty: 123;',
-          highlightSource: schemaSourceInputs['BasicDataModel']!,
-          highlightRange: [61, 88],
-        },
-      ],
+      caseInputContext: [{
+        contextSource: schemaSources['ValidSchema.ts']!,
+        contextScopes: [{
+          scopeRange: [219, 718],
+          scopeHighlights: [{
+            highlightRange: [61, 88],
+          }],
+        }],
+      }],
     }),
     schemaTestCase({
       testContext,
@@ -107,7 +119,7 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         '__IntermediateModel["modelProperties"][string]["propertyElement"] => StringLiteralElement',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'data',
         'BasicDataModel',
@@ -115,13 +127,15 @@ export function deriveIntermediateSchema__Assertions(
         'stringLiteralProperty',
         'propertyElement',
       ],
-      caseHighlights: [
-        {
-          highlightExpected: 'stringLiteralProperty: "hello";',
-          highlightSource: schemaSourceInputs['BasicDataModel']!,
-          highlightRange: [91, 122],
-        },
-      ],
+      caseInputContext: [{
+        contextSource: schemaSources['ValidSchema.ts']!,
+        contextScopes: [{
+          scopeRange: [219, 718],
+          scopeHighlights: [{
+            highlightRange: [91, 122],
+          }],
+        }],
+      }],
     }),
     schemaTestCase({
       testContext,
@@ -129,7 +143,7 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         '__IntermediateModel["modelProperties"][string]["propertyElement"] => BooleanElement',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'data',
         'BasicDataModel',
@@ -137,13 +151,15 @@ export function deriveIntermediateSchema__Assertions(
         'booleanProperty',
         'propertyElement',
       ],
-      caseHighlights: [
-        {
-          highlightExpected: 'booleanProperty: boolean;',
-          highlightSource: schemaSourceInputs['BasicDataModel']!,
-          highlightRange: [125, 150],
-        },
-      ],
+      caseInputContext: [{
+        contextSource: schemaSources['ValidSchema.ts']!,
+        contextScopes: [{
+          scopeRange: [219, 718],
+          scopeHighlights: [{
+            highlightRange: [125, 150],
+          }],
+        }],
+      }],
     }),
     schemaTestCase({
       testContext,
@@ -151,7 +167,7 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         '__IntermediateModel["modelProperties"][string]["propertyElement"] => NumberElement',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'data',
         'BasicDataModel',
@@ -159,13 +175,15 @@ export function deriveIntermediateSchema__Assertions(
         'numberProperty',
         'propertyElement',
       ],
-      caseHighlights: [
-        {
-          highlightExpected: 'numberProperty: number;',
-          highlightSource: schemaSourceInputs['BasicDataModel']!,
-          highlightRange: [153, 176],
-        },
-      ],
+      caseInputContext: [{
+        contextSource: schemaSources['ValidSchema.ts']!,
+        contextScopes: [{
+          scopeRange: [219, 718],
+          scopeHighlights: [{
+            highlightRange: [153, 176],
+          }],
+        }],
+      }],
     }),
     schemaTestCase({
       testContext,
@@ -173,7 +191,7 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         '__IntermediateModel["modelProperties"][string]["propertyElement"] => StringElement',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'data',
         'BasicDataModel',
@@ -181,13 +199,15 @@ export function deriveIntermediateSchema__Assertions(
         'stringProperty',
         'propertyElement',
       ],
-      caseHighlights: [
-        {
-          highlightExpected: 'stringProperty: string;',
-          highlightSource: schemaSourceInputs['BasicDataModel']!,
-          highlightRange: [179, 202],
-        },
-      ],
+      caseInputContext: [{
+        contextSource: schemaSources['ValidSchema.ts']!,
+        contextScopes: [{
+          scopeRange: [219, 718],
+          scopeHighlights: [{
+            highlightRange: [179, 202],
+          }],
+        }],
+      }],
     }),
     schemaTestCase({
       testContext,
@@ -195,7 +215,7 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         '__IntermediateModel["modelProperties"][string]["propertyElement"] => DataModelReferenceElement',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'data',
         'BasicDataModel',
@@ -203,13 +223,15 @@ export function deriveIntermediateSchema__Assertions(
         'dataModelProperty',
         'propertyElement',
       ],
-      caseHighlights: [
-        {
-          highlightExpected: 'dataModelProperty: BasicDataModel;',
-          highlightSource: schemaSourceInputs['BasicDataModel']!,
-          highlightRange: [205, 239],
-        },
-      ],
+      caseInputContext: [{
+        contextSource: schemaSources['ValidSchema.ts']!,
+        contextScopes: [{
+          scopeRange: [219, 718],
+          scopeHighlights: [{
+            highlightRange: [205, 239],
+          }],
+        }],
+      }],
     }),
     schemaTestCase({
       testContext,
@@ -217,7 +239,7 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         '__IntermediateModel["modelProperties"][string]["propertyElement"] => AliasReferenceElement',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'data',
         'BasicDataModel',
@@ -225,13 +247,15 @@ export function deriveIntermediateSchema__Assertions(
         'aliasProperty',
         'propertyElement',
       ],
-      caseHighlights: [
-        {
-          highlightExpected: 'aliasProperty: DataModelUnion;',
-          highlightSource: schemaSourceInputs['BasicDataModel']!,
-          highlightRange: [242, 272],
-        },
-      ],
+      caseInputContext: [{
+        contextSource: schemaSources['ValidSchema.ts']!,
+        contextScopes: [{
+          scopeRange: [219, 718],
+          scopeHighlights: [{
+            highlightRange: [242, 272],
+          }],
+        }],
+      }],
     }),
     schemaTestCase({
       testContext,
@@ -239,7 +263,7 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         '__IntermediateModel["modelProperties"][string]["propertyElement"] => VerdeTableElement',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'data',
         'BasicDataModel',
@@ -247,13 +271,15 @@ export function deriveIntermediateSchema__Assertions(
         'verdeTableProperty',
         'propertyElement',
       ],
-      caseHighlights: [
-        {
-          highlightExpected: 'verdeTableProperty: VerdeTable<DataModelUnion>;',
-          highlightSource: schemaSourceInputs['BasicDataModel']!,
-          highlightRange: [275, 322],
-        },
-      ],
+      caseInputContext: [{
+        contextSource: schemaSources['ValidSchema.ts']!,
+        contextScopes: [{
+          scopeRange: [219, 718],
+          scopeHighlights: [{
+            highlightRange: [275, 322],
+          }],
+        }],
+      }],
     }),
     schemaTestCase({
       testContext,
@@ -261,7 +287,7 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         '__IntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'data',
         'BasicDataModel',
@@ -269,13 +295,15 @@ export function deriveIntermediateSchema__Assertions(
         'verdeArrayProperty',
         'propertyElement',
       ],
-      caseHighlights: [
-        {
-          highlightExpected: 'verdeArrayProperty: VerdeArray<string>;',
-          highlightSource: schemaSourceInputs['BasicDataModel']!,
-          highlightRange: [325, 364],
-        },
-      ],
+      caseInputContext: [{
+        contextSource: schemaSources['ValidSchema.ts']!,
+        contextScopes: [{
+          scopeRange: [219, 718],
+          scopeHighlights: [{
+            highlightRange: [325, 364],
+          }],
+        }],
+      }],
     }),
     schemaTestCase({
       testContext,
@@ -283,7 +311,7 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         '__IntermediateModel["modelProperties"][string]["propertyElement"] => ObjectStructureElement',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'data',
         'BasicDataModel',
@@ -291,13 +319,15 @@ export function deriveIntermediateSchema__Assertions(
         'objectProperty',
         'propertyElement',
       ],
-      caseHighlights: [
-        {
-          highlightExpected: 'objectProperty: { objectStringProperty: string; };',
-          highlightSource: schemaSourceInputs['BasicDataModel']!,
-          highlightRange: [367, 417],
-        },
-      ],
+      caseInputContext: [{
+        contextSource: schemaSources['ValidSchema.ts']!,
+        contextScopes: [{
+          scopeRange: [219, 718],
+          scopeHighlights: [{
+            highlightRange: [367, 417],
+          }],
+        }],
+      }],
     }),
     schemaTestCase({
       testContext,
@@ -305,7 +335,7 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         '__IntermediateModel["modelProperties"][string]["propertyElement"] => TupleStructureElement',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'data',
         'BasicDataModel',
@@ -313,13 +343,15 @@ export function deriveIntermediateSchema__Assertions(
         'tupleProperty',
         'propertyElement',
       ],
-      caseHighlights: [
-        {
-          highlightExpected: 'tupleProperty: [tupleNumberProperty: number];',
-          highlightSource: schemaSourceInputs['BasicDataModel']!,
-          highlightRange: [420, 465],
-        },
-      ],
+      caseInputContext: [{
+        contextSource: schemaSources['ValidSchema.ts']!,
+        contextScopes: [{
+          scopeRange: [219, 718],
+          scopeHighlights: [{
+            highlightRange: [420, 465],
+          }],
+        }],
+      }],
     }),
     schemaTestCase({
       testContext,
@@ -327,7 +359,7 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         '__IntermediateModel["modelProperties"][string]["propertyElement"] => UnionCompositionElement',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'data',
         'BasicDataModel',
@@ -335,13 +367,15 @@ export function deriveIntermediateSchema__Assertions(
         'unionProperty',
         'propertyElement',
       ],
-      caseHighlights: [
-        {
-          highlightExpected: 'unionProperty: string | null;',
-          highlightSource: schemaSourceInputs['BasicDataModel']!,
-          highlightRange: [468, 497],
-        },
-      ],
+      caseInputContext: [{
+        contextSource: schemaSources['ValidSchema.ts']!,
+        contextScopes: [{
+          scopeRange: [219, 718],
+          scopeHighlights: [{
+            highlightRange: [468, 497],
+          }],
+        }],
+      }],
     }),
     schemaTestCase({
       testContext,
@@ -349,26 +383,32 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         'GenericTemplateIntermediateModel["genericParameters"][number] => GenericParameter',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'genericTemplate',
         'GenericTemplateModel',
         'genericParameters',
         0,
       ],
-      caseHighlights: [{
-        highlightExpected: 'BasicParameter',
-        highlightSource: schemaSourceInputs['GenericTemplateModel']!,
-        highlightRange: [31, 45],
+      caseInputContext: [{
+        contextSource: schemaSources['CompositeDataModel.ts']!,
+        contextScopes: [{
+          scopeRange: [161, 380],
+          scopeHighlights: [
+            { highlightRange: [34, 48] },
+            { highlightRange: [52, 87] },
+            { highlightRange: [91, 116] },
+          ],
+        }],
       }],
-    }),   
+    }),
     schemaTestCase({
       testContext,
       expectedIntermediateSchema,
       actualIntermediateSchema,
       caseLabel:
         'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => BasicParameterElement',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'genericTemplate',
         'GenericTemplateModel',
@@ -376,18 +416,16 @@ export function deriveIntermediateSchema__Assertions(
         'basicParameterProperty',
         'propertyElement',
       ],
-      caseHighlights: [
-        {
-          highlightExpected: 'BasicParameter',
-          highlightSource: schemaSourceInputs['GenericTemplateModel']!,
-          highlightRange: [31, 45],
-        },
-        {
-          highlightExpected: 'basicParameterProperty: BasicParameter;',
-          highlightSource: schemaSourceInputs['GenericTemplateModel']!,
-          highlightRange: [115, 154],
-        },
-      ],
+      caseInputContext: [{
+        contextSource: schemaSources['CompositeDataModel.ts']!,
+        contextScopes: [{
+          scopeRange: [161, 380],
+          scopeHighlights: [
+            { highlightRange: [34, 48] },
+            { highlightRange: [124, 163] }
+          ],
+        }],
+      }],
     }),
     schemaTestCase({
       testContext,
@@ -395,7 +433,7 @@ export function deriveIntermediateSchema__Assertions(
       actualIntermediateSchema,
       caseLabel:
         'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => ConstrainedParameterElement',
-      caseOutputPath: [
+      caseAssertionPath: [
         'schemaModels',
         'genericTemplate',
         'GenericTemplateModel',
@@ -403,20 +441,17 @@ export function deriveIntermediateSchema__Assertions(
         'constrainedParameterProperty',
         'propertyElement',
       ],
-      caseHighlights: [
-        {
-          highlightExpected: 'ConstrainedParameter',
-          highlightSource: schemaSourceInputs['GenericTemplateModel']!,
-          highlightRange: [47, 67],
-        },
-        {
-          highlightExpected:
-            'constrainedParameterProperty: ConstrainedParameter;',
-          highlightSource: schemaSourceInputs['GenericTemplateModel']!,
-          highlightRange: [157, 208],
-        },
-      ],
-    }), 
+      caseInputContext: [{
+        contextSource: schemaSources['CompositeDataModel.ts']!,
+        contextScopes: [{
+          scopeRange: [161, 380],
+          scopeHighlights: [
+            { highlightRange: [52, 87] },
+            { highlightRange: [166, 217] },
+          ],
+        }],
+      }],
+    }),
   ]);
 }
 
@@ -426,11 +461,15 @@ interface SchemaTestCaseApi extends
     'testContext' | 'expectedIntermediateSchema' | 'actualIntermediateSchema'
   > {
   caseLabel: string;
-  caseOutputPath: Array<string | number>;
-  caseHighlights: Array<{
-    highlightSource: string;
-    highlightRange: [number, number];
-    highlightExpected: string;
+  caseAssertionPath: Array<string | number>;
+  caseInputContext: Array<{
+    contextSource: string;
+    contextScopes: Array<{
+      scopeRange: [number, number];
+      scopeHighlights: Array<{
+        highlightRange: [number, number];
+      }>;
+    }>;
   }>;
 }
 
@@ -438,47 +477,58 @@ function schemaTestCase(api: SchemaTestCaseApi) {
   const {
     testContext,
     caseLabel,
-    caseHighlights,
-    caseOutputPath,
+    caseAssertionPath,
     expectedIntermediateSchema,
     actualIntermediateSchema,
+    caseInputContext,
   } = api;
   return testContext.step(caseLabel, () => {
-    caseHighlights.forEach(
-      ({ highlightExpected, highlightSource, highlightRange }) => {
-        Assert.assertEquals(
-          highlightExpected,
-          highlightSource.substring(
-            highlightRange[0],
-            highlightRange[1],
-          ),
-        );
-      },
-    );
-    const [expectedOutput, actualOutput] = retrieveCaseOutput({
-      caseOutputPath,
-      expectedInput: expectedIntermediateSchema,
-      actualInput: actualIntermediateSchema,
-    });
+    const [expectedAssertionValue, actualAssertionValue] =
+      retrieveCaseAssertionValues({
+        caseAssertionPath,
+        expectedInput: expectedIntermediateSchema,
+        actualInput: actualIntermediateSchema,
+      });
     Assert.assertEquals(
-      expectedOutput,
-      actualOutput,
+      expectedAssertionValue,
+      actualAssertionValue,
+    );
+    caseInputContext.forEach(
+      ({ contextSource, contextScopes }) => {
+        contextScopes.forEach(({ scopeRange, scopeHighlights }) => {
+          const sourceScope = contextSource.substring(
+            scopeRange[0],
+            scopeRange[1],
+          );
+          console.log(sourceScope);
+          scopeHighlights.forEach(({ highlightRange }) => {
+            const scopeHighlight = sourceScope.substring(
+              highlightRange[0],
+              highlightRange[1],
+            );
+            console.log(scopeHighlight);
+          });
+          console.log('')
+        });
+      },
     );
   });
 }
 
 interface RetrieveCaseOutputApi
-  extends Pick<SchemaTestCaseApi, 'caseOutputPath'> {
+  extends Pick<SchemaTestCaseApi, 'caseAssertionPath'> {
   expectedInput: any;
   actualInput: any;
 }
 
-function retrieveCaseOutput(api: RetrieveCaseOutputApi): [unknown, unknown] {
-  const { caseOutputPath, expectedInput, actualInput } = api;
-  const [currentPathKey, ...remainingOutputPath] = caseOutputPath;
+function retrieveCaseAssertionValues(
+  api: RetrieveCaseOutputApi,
+): [unknown, unknown] {
+  const { caseAssertionPath, expectedInput, actualInput } = api;
+  const [currentPathKey, ...remainingAssertionPath] = caseAssertionPath;
   return currentPathKey
-    ? retrieveCaseOutput({
-      caseOutputPath: remainingOutputPath,
+    ? retrieveCaseAssertionValues({
+      caseAssertionPath: remainingAssertionPath,
       expectedInput: expectedInput[currentPathKey] ??
         throwInvalidPathError('expectedInput[currentPathKey]'),
       actualInput: actualInput[currentPathKey] ??

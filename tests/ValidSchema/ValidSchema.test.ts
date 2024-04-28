@@ -1,30 +1,30 @@
 import { deriveIntermediateSchema } from '../../source/library/module.ts';
+import { Path } from '../imports/Path.ts';
 import { deriveIntermediateSchema__Assertions } from './assertions/deriveIntermediateSchema.ts';
-import { setupSchemaSource } from './setupSchemaSource.ts';
 import { expectedIntermediateSchema } from './expectedIntermediateSchema.ts';
-import { schemaSourceInputs } from './schemaSourceInputs.ts';
+import { readSchemaSources } from './readSchemaSourceFiles.ts';
 
 Deno.test(
   'verde: valid schema',
   { sanitizeResources: false, sanitizeOps: false, sanitizeExit: false },
   async (testContext) => {
-    const actualSchemaModulePath = await setupSchemaSource({
-      schemaSourceModules: [
-        ['ValidSchema', schemaSourceInputs['ValidSchemaModule']!],
-        ['SecondarySchemaModule', schemaSourceInputs['SecondarySchemaModule']!]
-      ]
+    const thisFilePath = Path.fromFileUrl(import.meta.url);
+    const testsDirectoryPath = Path.dirname(thisFilePath);
+    const schemaDirectoryPath = Path.join(testsDirectoryPath, './schema');
+    const schemaModulePath = Path.join(schemaDirectoryPath, './ValidSchema.ts');
+    const { schemaSources } = await readSchemaSources({
+      schemaDirectoryPath,
     });
     const actualIntermediateSchema = deriveIntermediateSchema({
-      schemaModulePath: actualSchemaModulePath,
+      schemaModulePath,
     });
     await Promise.all([
-      deriveIntermediateSchema__Assertions({       
+      deriveIntermediateSchema__Assertions({
         testContext,
-        schemaSourceInputs,
-        expectedIntermediateSchema, 
+        expectedIntermediateSchema,
         actualIntermediateSchema,
+        schemaSources,
       }),
     ]);
   },
 );
-
