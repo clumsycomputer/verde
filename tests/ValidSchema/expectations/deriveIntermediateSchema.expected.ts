@@ -1,4 +1,4 @@
-import { IntermediateSchema } from '../../source/library/schema/types/IntermediateSchema.ts';
+import { IntermediateSchema } from '../../../source/library/schema/types/IntermediateSchema.ts';
 
 export const expectedIntermediateSchema: IntermediateSchema = {
   schemaName: 'ValidSchema',

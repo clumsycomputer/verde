@@ -19,11 +19,6 @@
   },
   "tasks": {
     "verde": "deno run --allow-all ./source/main.ts",
-    "test": "deno test --allow-read --allow-write"
-  },
-  "test": {
-    "include": [
-      "tests/**/*.test.ts"
-    ]
+    "test": "deno run --allow-read --allow-write"
   }
 }
