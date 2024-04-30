@@ -13,54 +13,54 @@ export const expectedIntermediateSchema: IntermediateSchema = {
             propertyKey: 'booleanLiteralProperty',
             propertyElement: {
               elementKind: 'booleanLiteral',
-              literalSymbol: 'true'
-            }
+              literalSymbol: 'true',
+            },
           },
           numberLiteralProperty: {
             propertyKey: 'numberLiteralProperty',
             propertyElement: {
               elementKind: 'numberLiteral',
-              literalSymbol: '123'
-            }
+              literalSymbol: '123',
+            },
           },
           stringLiteralProperty: {
             propertyKey: 'stringLiteralProperty',
             propertyElement: {
               elementKind: 'stringLiteral',
-              literalSymbol: '"hello"'
-            }
+              literalSymbol: '"hello"',
+            },
           },
           booleanProperty: {
             propertyKey: 'booleanProperty',
             propertyElement: {
-              elementKind: 'booleanPrimitive'
-            }
+              elementKind: 'booleanPrimitive',
+            },
           },
           numberProperty: {
             propertyKey: 'numberProperty',
             propertyElement: {
-              elementKind: 'numberPrimitive'
-            }
+              elementKind: 'numberPrimitive',
+            },
           },
           stringProperty: {
             propertyKey: 'stringProperty',
             propertyElement: {
-              elementKind: 'stringPrimitive'
-            }
+              elementKind: 'stringPrimitive',
+            },
           },
           dataModelProperty: {
             propertyKey: 'dataModelProperty',
             propertyElement: {
               elementKind: 'dataModelReference',
-              dataModelNameKey: 'BasicDataModel'
-            }
+              dataModelNameKey: 'BasicDataModel',
+            },
           },
           aliasProperty: {
             propertyKey: 'aliasProperty',
             propertyElement: {
               elementKind: 'aliasReference',
-              aliasNameKey: 'DataModelUnion'
-            }
+              aliasNameKey: 'DataModelUnion',
+            },
           },
           verdeTableProperty: {
             propertyKey: 'verdeTableProperty',
@@ -68,9 +68,9 @@ export const expectedIntermediateSchema: IntermediateSchema = {
               elementKind: 'verdeTable',
               collectionElement: {
                 elementKind: 'aliasReference',
-                aliasNameKey: 'DataModelUnion'
-              }
-            }
+                aliasNameKey: 'DataModelUnion',
+              },
+            },
           },
           verdeArrayProperty: {
             propertyKey: 'verdeArrayProperty',
@@ -78,8 +78,8 @@ export const expectedIntermediateSchema: IntermediateSchema = {
               elementKind: 'verdeArray',
               collectionElement: {
                 elementKind: 'stringPrimitive',
-              }
-            }
+              },
+            },
           },
           objectProperty: {
             propertyKey: 'objectProperty',
@@ -89,11 +89,11 @@ export const expectedIntermediateSchema: IntermediateSchema = {
                 objectStringProperty: {
                   propertyKey: 'objectStringProperty',
                   propertyElement: {
-                    elementKind: 'stringPrimitive'
-                  }
-                }
-              }
-            }
+                    elementKind: 'stringPrimitive',
+                  },
+                },
+              },
+            },
           },
           tupleProperty: {
             propertyKey: 'tupleProperty',
@@ -104,11 +104,11 @@ export const expectedIntermediateSchema: IntermediateSchema = {
                   propertyIndex: 0,
                   propertyKey: 'tupleNumberProperty',
                   propertyElement: {
-                    elementKind: 'numberPrimitive'
-                  }
-                }
-              }
-            }
+                    elementKind: 'numberPrimitive',
+                  },
+                },
+              },
+            },
           },
           unionProperty: {
             propertyKey: 'unionProperty',
@@ -116,11 +116,11 @@ export const expectedIntermediateSchema: IntermediateSchema = {
               elementKind: 'unionComposition',
               unionMembers: [
                 { elementKind: 'stringPrimitive' },
-                { elementKind: 'null' }
-              ]
-            }
-          }
-        }
+                { elementKind: 'null' },
+              ],
+            },
+          },
+        },
       },
       CompositeDataModel: {
         modelKind: 'data',
@@ -128,7 +128,7 @@ export const expectedIntermediateSchema: IntermediateSchema = {
         modelTemplates: [
           {
             templateKind: 'concreteTemplate',
-            templateModelNameKey: 'ConcreteTemplateModel'
+            templateModelNameKey: 'ConcreteTemplateModel',
           },
           {
             templateKind: 'genericTemplate',
@@ -138,69 +138,108 @@ export const expectedIntermediateSchema: IntermediateSchema = {
                 argumentIndex: 0,
                 argumentParameterNameKey: 'BasicParameter',
                 argumentElement: {
-                  elementKind: 'booleanPrimitive'
-                }
+                  elementKind: 'dataModelReference',
+                  dataModelNameKey: 'CompositeDataModel',
+                },
               },
               ConstrainedParameter: {
                 argumentIndex: 1,
                 argumentParameterNameKey: 'ConstrainedParameter',
                 argumentElement: {
-                  elementKind: 'numberPrimitive'
-                }
+                  elementKind: 'numberPrimitive',
+                },
               },
               DefaultParameter: {
                 argumentIndex: 2,
                 argumentParameterNameKey: 'DefaultParameter',
                 argumentElement: {
-                  elementKind: 'stringPrimitive'
-                }
-              }
-            }
-          }
+                  elementKind: 'stringPrimitive',
+                },
+              },
+            },
+          },
         ],
-        modelProperties: {}
-      }
+        modelProperties: {},
+      },
     },
     concreteTemplate: {
       ConcreteTemplateModel: {
         modelKind: 'concreteTemplate',
         modelName: 'ConcreteTemplateModel',
         modelTemplates: [],
-        modelProperties: {}
-      }
+        modelProperties: {
+          indirectRecursiveTemplateDataModelProperty: {
+            propertyKey: 'indirectRecursiveTemplateDataModelProperty',
+            propertyElement: {
+              elementKind: 'dataModelReference',
+              dataModelNameKey: 'CompositeDataModel',
+            },
+          },
+        },
+      },
     },
     genericTemplate: {
       GenericTemplateModel: {
         modelKind: 'genericTemplate',
         modelName: 'GenericTemplateModel',
-        modelTemplates: [],
+        modelTemplates: [{
+          templateKind: 'genericTemplate',
+          templateModelNameKey: 'NestedGenericTemplateModel',
+          genericArguments: {
+            IndirectParameter: {
+              argumentIndex: 0,
+              argumentParameterNameKey: 'IndirectParameter',
+              argumentElement: {
+                elementKind: 'basicParameter',
+                parameterName: 'DefaultParameter',
+              },
+            },
+          },
+        }],
         modelProperties: {
           basicParameterProperty: {
             propertyKey: 'basicParameterProperty',
             propertyElement: {
               elementKind: 'basicParameter',
-              parameterName: 'BasicParameter'
-            }
+              parameterName: 'BasicParameter',
+            },
           },
           constrainedParameterProperty: {
             propertyKey: 'constrainedParameterProperty',
             propertyElement: {
               elementKind: 'constrainedParameter',
-              parameterName: 'ConstrainedParameter'
-            }
-          }
+              parameterName: 'ConstrainedParameter',
+            },
+          },
         },
         genericParameters: [
           { parameterName: 'BasicParameter' },
           { parameterName: 'ConstrainedParameter' },
           { parameterName: 'DefaultParameter' },
-        ]
+        ],
+      },
+      NestedGenericTemplateModel: {
+        modelKind: 'genericTemplate',
+        modelName: 'NestedGenericTemplateModel',
+        genericParameters: [{
+          parameterName: 'IndirectParameter'
+        }],
+        modelTemplates: [],
+        modelProperties: {
+          indirectParameterProperty: {
+            propertyKey: 'indirectParameterProperty',
+            propertyElement: {
+              elementKind: 'basicParameter',
+              parameterName: 'IndirectParameter'
+            }
+          }
+        },
       }
-    }
+    },
   },
   schemaAliases: {
     // DataModelUnion: {
     //   aliasKind: ''
     // }
-  }
-}
+  },
+};

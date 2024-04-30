@@ -1,4 +1,3 @@
-import { DataModelReferenceElement } from '../../../source/library/schema/types/SchemaElement.ts';
 import { TestCase } from '../../helpers/TestCase.ts';
 import { getStyledText } from '../../helpers/getStyledText.ts';
 import { expectedIntermediateSchema } from '../expectations/deriveIntermediateSchema.expected.ts';
@@ -17,23 +16,21 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'concrete model template',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelTemplates"][number] => ConcreteModelTemplate',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [49, 70],
           }],
         }),
         getStyledText({
           textSource: schemaSources['CompositeDataModel.ts']!.substring(7, 109),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [39, 60],
           }],
         }),
@@ -44,7 +41,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -54,23 +51,21 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'generic model template',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelTemplates"][number] => GenericModelTemplate',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [49, 70],
           }],
         }),
         getStyledText({
           textSource: schemaSources['CompositeDataModel.ts']!.substring(7, 109),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [62, 99],
           }],
         }),
@@ -81,7 +76,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -91,23 +86,21 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'boolean literal element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelProperties"][string]["propertyElement"] => BooleanLiteralElement',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [69, 90],
           }],
         }),
         getStyledText({
           textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [53, 57],
           }],
         }),
@@ -118,7 +111,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -128,23 +121,21 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'number literal element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelProperties"][string]["propertyElement"] => NumberLiteralElement',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [69, 89],
           }],
         }),
         getStyledText({
           textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [84, 87],
           }],
         }),
@@ -155,7 +146,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -165,23 +156,21 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'string literal element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelProperties"][string]["propertyElement"] => StringLiteralElement',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [69, 89],
           }],
         }),
         getStyledText({
           textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [114, 121],
           }],
         }),
@@ -192,7 +181,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -202,23 +191,21 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'boolean element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelProperties"][string]["propertyElement"] => BooleanElement',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [69, 89],
           }],
         }),
         getStyledText({
           textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [142, 149],
           }],
         }),
@@ -229,7 +216,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -239,23 +226,21 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'number element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelProperties"][string]["propertyElement"] => NumberElement',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [69, 82],
           }],
         }),
         getStyledText({
           textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [169, 175],
           }],
         }),
@@ -266,7 +251,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -276,23 +261,21 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'string element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelProperties"][string]["propertyElement"] => StringElement',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [69, 82],
           }],
         }),
         getStyledText({
           textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [195, 201],
           }],
         }),
@@ -303,7 +286,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -313,23 +296,21 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'data model reference element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelProperties"][string]["propertyElement"] => DataModelReferenceElement',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [69, 94],
           }],
         }),
         getStyledText({
           textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [224, 238],
           }],
         }),
@@ -340,7 +321,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -351,26 +332,23 @@ export function getDeriveIntermediateSchemaTestCases(
         getStyledText({
           textSource:
             'direct recursive data model reference element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '<ThisDataModel extends DataIntermediateModel>: ThisDataModel["modelProperties"][string]["propertyElement"] => DataModelReferenceElement["dataModelNameKey"] === ThisDataModel["modelName"]',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [110, 186],
           }],
         }),
         getStyledText({
           textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [10, 24],
           }, {
-            decorationCodes: [3, 1, 44],
             decorationRange: [224, 238],
           }],
         }),
@@ -381,9 +359,8 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [61, 77],
           }],
         }),
@@ -394,23 +371,21 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'alias reference element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelProperties"][string]["propertyElement"] => AliasReferenceElement',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [69, 90],
           }],
         }),
         getStyledText({
           textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [257, 271],
           }],
         }),
@@ -421,7 +396,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -432,23 +407,21 @@ export function getDeriveIntermediateSchemaTestCases(
         getStyledText({
           textSource:
             'verde table element => alias reference element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelProperties"][string]["propertyElement"] => VerdeTableElement<AliasReferenceElement>',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [69, 109],
           }],
         }),
         getStyledText({
           textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [295, 321],
           }],
         }),
@@ -459,7 +432,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -469,23 +442,21 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'verde table element => string element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelProperties"][string]["propertyElement"] => VerdeTableElement<StringElement>',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [69, 101],
           }],
         }),
         getStyledText({
           textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [345, 363],
           }],
         }),
@@ -496,7 +467,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -506,23 +477,21 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'object structure element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelProperties"][string]["propertyElement"] => ObjectStructureElement',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [69, 91],
           }],
         }),
         getStyledText({
           textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [383, 416],
           }],
         }),
@@ -533,7 +502,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -543,23 +512,21 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'tuple structure element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelProperties"][string]["propertyElement"] => TupleStructureElement',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [69, 90],
           }],
         }),
         getStyledText({
           textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [435, 464],
           }],
         }),
@@ -570,7 +537,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -580,23 +547,21 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'union composition element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelProperties"][string]["propertyElement"] => UnionCompositionElement',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [69, 92],
           }],
         }),
         getStyledText({
           textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [483, 496],
           }],
         }),
@@ -607,7 +572,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -617,23 +582,21 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'null element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             '__IntermediateModel["modelProperties"][string]["propertyElement"] => UnionCompositionElement => NullElement',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [96, 107],
           }],
         }),
         getStyledText({
           textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [492, 496],
           }],
         }),
@@ -644,9 +607,8 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [104, 134],
           }],
         }),
@@ -657,26 +619,24 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'generic parameter',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             'GenericTemplateIntermediateModel["genericParameters"][number] => GenericParameter',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [65, 81],
           }],
         }),
         getStyledText({
           textSource: schemaSources['CompositeDataModel.ts']!.substring(
-            161,
-            380,
+            239,
+            513,
           ),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [34, 48],
           }],
         }),
@@ -687,17 +647,16 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
         getStyledText({
           textSource: schemaSources['CompositeDataModel.ts']!.substring(
-            161,
-            380,
+            239,
+            513,
           ),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [52, 87],
           }],
         }),
@@ -708,17 +667,16 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
         getStyledText({
           textSource: schemaSources['CompositeDataModel.ts']!.substring(
-            161,
-            380,
+            239,
+            513,
           ),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [91, 116],
           }],
         }),
@@ -729,7 +687,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -739,30 +697,27 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'basic parameter element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => BasicParameterElement',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [82, 103],
           }],
         }),
         getStyledText({
           textSource: schemaSources['CompositeDataModel.ts']!.substring(
-            161,
-            380,
+            239,
+            513,
           ),
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [34, 48],
           }, {
-            decorationCodes: [3, 1, 44],
-            decorationRange: [148, 162],
+            decorationRange: [203, 217],
           }],
         }),
         getStyledText({
@@ -773,7 +728,7 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
@@ -783,31 +738,27 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         getStyledText({
           textSource: 'constrained parameter element (model property)',
-          textCodes: [1, 4],
+          textStyleCodes: [1, 4],
           textDecorations: [],
         }),
         getStyledText({
           textSource:
             'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => ConstrainedParameterElement',
-          textCodes: [],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [{
-            decorationCodes: [3, 1, 44],
             decorationRange: [82, 109],
           }],
         }),
         getStyledText({
           textSource: schemaSources['CompositeDataModel.ts']!.substring(
-            161,
-            380,
+            239,
+            513,
           ),
-          textCodes: [],
-          textDecorations: [{
-            decorationCodes: [3, 1, 44],
-            decorationRange: [52, 87],
-          }, {
-            decorationCodes: [3, 1, 44],
-            decorationRange: [196, 216],
-          }],
+          textStyleCodes: [3, 1, 44],
+          textDecorations: [
+            { decorationRange: [52, 87] },
+            { decorationRange: [251, 271] },
+          ],
         }),
         getStyledText({
           textSource: JSON.stringify(
@@ -817,10 +768,14 @@ export function getDeriveIntermediateSchemaTestCases(
             null,
             1,
           ),
-          textCodes: [3, 1, 44],
+          textStyleCodes: [3, 1, 44],
           textDecorations: [],
         }),
       ],
     },
+    // parameter element as generic argument
+    // indirect recursive data model reference element (model property)
+    // direct recursive data model reference element (generic argument)    
+    // indirect recursive data model reference element (generic argument)
   ];
 }

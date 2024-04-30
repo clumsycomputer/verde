@@ -19,7 +19,7 @@ async function runValidSchemaTest() {
   });
   const actualIntermediateSchema = deriveIntermediateSchema({
     schemaModulePath,
-  });
+  });  
   assertExpectationsAndLogTestCases({
     testCases: getDeriveIntermediateSchemaTestCases({ schemaSources }),
     expectedData: expectedIntermediateSchema,
