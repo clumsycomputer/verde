@@ -40,98 +40,10 @@ function assertExpectationsAndLogTestCases<ThisData>(
   Assert.assertEquals(expectedData, actualData);
   testCases.forEach((someTestCase) => {
     console.log();
-    console.log(`\x1b[1m\x1b[4m${someTestCase.caseLabel}\x1b[0m`, '\n');
-    console.log(`${someTestCase.caseTechnicalLabel}`, '\n');
-    someTestCase.caseAssertions.forEach((someCaseAssertion) => {
-      if (someCaseAssertion.assertionKind === 'direct') {
-        someCaseAssertion.assertionHighlights.forEach(
-          ({ highlightScopes, highlightSource }) => {
-            highlightScopes.forEach(
-              ({ scopeRange, scopeHighlights }) => {
-                const scopeSource = highlightSource.substring(
-                  scopeRange[0],
-                  scopeRange[1],
-                );
-                const sortedScopeHighlights = scopeHighlights.sort((
-                  scopeHighlightA,
-                  scopeHighlightB,
-                ) =>
-                  scopeHighlightA.highlightRange[0] -
-                  scopeHighlightB.highlightRange[0]
-                );
-                const highlightSources = sortedScopeHighlights.reduce(
-                  (
-                    highlightSourcesResult,
-                    someScopeHighlight,
-                    scopeHighlightIndex,
-                  ) => {
-                    highlightSourcesResult.push(
-                      `\x1b[1m\x1b[44m${
-                        scopeSource.substring(
-                          someScopeHighlight.highlightRange[0],
-                          someScopeHighlight.highlightRange[1],
-                        )
-                      }\x1b[0m`,
-                    );
-                    const nextScopeHighlightRange: [number, number] =
-                      sortedScopeHighlights[scopeHighlightIndex + 1]
-                        ?.highlightRange ??
-                        [scopeSource.length, NaN];
-                    highlightSourcesResult.push(
-                      scopeSource.substring(
-                        someScopeHighlight.highlightRange[1],
-                        nextScopeHighlightRange[0],
-                      ),
-                    );
-                    return highlightSourcesResult;
-                  },
-                  [scopeSource.substring(
-                    0,
-                    sortedScopeHighlights[0]?.highlightRange[0] ??
-                      throwInvalidPathError('highlightSources[0]'),
-                  )],
-                );
-                console.log(highlightSources.join(''), '\n');
-              },
-            );
-          },
-        );
-      }
-      const expectedAssertionData = getExpectedAssertionData({
-        expectedInput: expectedData,
-        assertionPath: someCaseAssertion.assertionPath,
-      });
-      const expectedAssertionJson = JSON.stringify(
-        expectedAssertionData,
-        null,
-        1,
-      );
-      console.log(
-        `\x1b[1m\x1b[44m${
-          expectedAssertionJson.replace(
-            expectedAssertionJson.charAt(0),
-            expectedAssertionJson.charAt(0).padEnd(Deno.consoleSize().columns),
-          )
-        }\x1b[0m`,
-      );
-    });
-    console.log();
+    someTestCase.caseNotes.forEach(
+      (someCaseNote) => {
+        console.log(someCaseNote)
+        console.log()},
+    );
   });
-}
-
-interface GetExpectedAssertionDataApi
-  extends Pick<CaseAssertion, 'assertionPath'> {
-  expectedInput: any;
-}
-
-function getExpectedAssertionData(api: GetExpectedAssertionDataApi): any {
-  const { assertionPath, expectedInput } = api;
-  const [currentPathKey, ...remainingAssertionPath] = assertionPath;
-  return currentPathKey !== undefined
-    ? getExpectedAssertionData({
-      assertionPath: remainingAssertionPath,
-      expectedInput: expectedInput[currentPathKey] ??
-        throwInvalidPathError('expectedInput[currentPathKey]'),
-    })
-    : expectedInput;
 }

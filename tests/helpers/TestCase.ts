@@ -1,14 +1,11 @@
 
 export interface TestCase {
   caseKey: string;
-  caseLabel: string;
-  caseTechnicalLabel: string;
-  caseAssertions: Array<CaseAssertion>;
+  caseNotes: Array<string>
 }
 
-export type CaseAssertion = DirectCaseAssertion | ProxyCaseAssertion;
-
-interface DirectCaseAssertion extends __CaseAssertion<'direct'> {
+export interface CaseAssertion {
+  assertionPath: Array<string | number>;
   assertionHighlights: Array<AssertionHighlight>;
 }
 
@@ -24,11 +21,4 @@ interface HighlightScope {
 
 interface ScopeHighlight {
   highlightRange: [number, number];
-}
-
-interface ProxyCaseAssertion extends __CaseAssertion<'proxy'> {}
-
-interface __CaseAssertion<ThisAssertionKind> {
-  assertionKind: ThisAssertionKind;
-  assertionPath: Array<string | number>;
 }
