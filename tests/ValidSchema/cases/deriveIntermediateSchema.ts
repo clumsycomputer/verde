@@ -1,6 +1,7 @@
 import { throwInvalidPathError } from '../../../source/helpers/throwError.ts';
 import { GenericModelTemplate } from '../../../source/library/schema/types/IntermediateSchema.ts';
 import { TestCase } from '../../helpers/TestCase.ts';
+import { getStyledJson } from '../../helpers/getStyledJson.ts';
 import { getStyledText } from '../../helpers/getStyledText.ts';
 import { expectedIntermediateSchema } from '../expectations/deriveIntermediateSchema.expected.ts';
 
@@ -38,16 +39,11 @@ export function getDeriveIntermediateSchemaTestCases(
             threadRegex: /Model__CC/
           }],
         }),
-        // getStyledText({
-        //   textSource: JSON.stringify(
-        //     expectedIntermediateSchema.schemaModels.data['CompositeDataModel']
-        //       ?.modelTemplates[0],
-        //     null,
-        //     1,
-        //   ),
-        //   textStyleCodes: [3, 1, 44],
-        //   textDecorations: [],
-        // }),
+        getStyledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels.data["Model__BB"]!,
+          jsonPropertyPath: ['modelTemplates', 0],
+          jsonPropertyStyle: [3, 1, 44],
+        })
       ],
     },
     // {
