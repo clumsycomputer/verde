@@ -1,19 +1,18 @@
-import { throwInvalidPathError } from '../../source/helpers/throwError.ts';
 import { deriveIntermediateSchema } from '../../source/library/module.ts';
-import { CaseAssertion, TestCase } from '../helpers/TestCase.ts';
+import { TestCase } from '../helpers/TestCase.ts';
 import { Assert } from '../imports/Assert.ts';
 import { Path } from '../imports/Path.ts';
 import { getDeriveIntermediateSchemaTestCases } from './cases/deriveIntermediateSchema.ts';
 import { expectedIntermediateSchema } from './expectations/deriveIntermediateSchema.expected.ts';
 import { readSchemaSources } from './readSchemaSourceFiles.ts';
 
-runValidSchemaTest();
+runSchemaAaTest();
 
-async function runValidSchemaTest() {
+async function runSchemaAaTest() {
   const thisFilePath = Path.fromFileUrl(import.meta.url);
   const testsDirectoryPath = Path.dirname(thisFilePath);
   const schemaDirectoryPath = Path.join(testsDirectoryPath, './schema');
-  const schemaModulePath = Path.join(schemaDirectoryPath, './ValidSchema.ts');
+  const schemaModulePath = Path.join(schemaDirectoryPath, './Schema__AA.ts');
   const { schemaSources } = await readSchemaSources({
     schemaDirectoryPath,
   });
