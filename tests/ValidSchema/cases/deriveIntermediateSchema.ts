@@ -1,8 +1,10 @@
-import { throwInvalidPathError } from '../../../source/helpers/throwError.ts';
-import { GenericModelTemplate } from '../../../source/library/schema/types/IntermediateSchema.ts';
 import { TestCase } from '../../helpers/TestCase.ts';
-import { getStyledJson } from '../../helpers/getStyledJson.ts';
-import { getStyledText } from '../../helpers/getStyledText.ts';
+import {
+  branchJsonNode,
+  leafJsonNode,
+  styledJson,
+} from '../../helpers/getStyledJson.ts';
+import { styledText } from '../../helpers/getStyledText.ts';
 import { expectedIntermediateSchema } from '../expectations/deriveIntermediateSchema.expected.ts';
 
 export interface GetDeriveIntermediateSchemaTestCasesApi {
@@ -17,435 +19,522 @@ export function getDeriveIntermediateSchemaTestCases(
     {
       caseKey: 'concreteModelTemplate',
       caseNotes: [
-        getStyledText({
+        styledText({
           textSource: 'concrete model template',
-          textDecorationThreads: [{
-            threadCodes: [1, 4],
-            threadRegex: /^.*$/
-          }]
-        }),
-        getStyledText({
-          textSource:
-            '__IntermediateModel["modelTemplates"][number] => ConcreteModelTemplate',
-            textDecorationThreads: [{
-              threadCodes: [3, 1, 44],
-              threadRegex: /ConcreteModelTemplate/
-            }],
-        }),
-        getStyledText({
-          textSource: schemaSources['Model__BB.ts']!.substring(7, 79),
-          textDecorationThreads: [{
-            threadCodes: [3, 1, 44],
-            threadRegex: /Model__CC/
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
           }],
         }),
-        getStyledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data["Model__BB"]!,
-          jsonPropertyPath: ['modelTemplates', 0],
-          jsonPropertyStyle: [3, 1, 44],
-        })
+        styledText({
+          textSource:
+            '__IntermediateModel["modelTemplates"][number] => ConcreteModelTemplate',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /ConcreteModelTemplate/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Model__BB.ts']!.substring(7, 79),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /Model__CC/,
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .data['Model__BB']!,
+          jsonNodes: [branchJsonNode({
+            nodeKey: 'modelTemplates',
+            nodeChildren: [leafJsonNode({
+              nodeKey: 0,
+              nodeStyle: [3, 1, 44],
+            })],
+          })],
+        }),
       ],
     },
-    // {
-    //   caseKey: 'genericModelTemplate',
-    //   caseNotes: [
-    //     getStyledText({
-    //       textSource: 'generic model template',
-    //       textStyleCodes: [1, 4],
-    //       textDecorations: [],
-    //     }),
-    //     getStyledText({
-    //       textSource:
-    //         '__IntermediateModel["modelTemplates"][number] => GenericModelTemplate',
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [49, 70],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: schemaSources['CompositeDataModel.ts']!.substring(7, 109),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [62, 99],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: JSON.stringify(
-    //         expectedIntermediateSchema.schemaModels.data['CompositeDataModel']
-    //           ?.modelTemplates[1],
-    //         null,
-    //         1,
-    //       ),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [],
-    //     }),
-    //   ],
-    // },
-    // {
-    //   caseKey: 'booleanLiteralElement__modelProperty',
-    //   caseNotes: [
-    //     getStyledText({
-    //       textSource: 'boolean literal element (model property)',
-    //       textStyleCodes: [1, 4],
-    //       textDecorations: [],
-    //     }),
-    //     getStyledText({
-    //       textSource:
-    //         '__IntermediateModel["modelProperties"][string]["propertyElement"] => BooleanLiteralElement',
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [69, 90],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [53, 57],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: JSON.stringify(
-    //         expectedIntermediateSchema.schemaModels.data['BasicDataModel']!
-    //           .modelProperties['booleanLiteralProperty']!.propertyElement,
-    //         null,
-    //         1,
-    //       ),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [],
-    //     }),
-    //   ],
-    // },
-    // {
-    //   caseKey: 'numberLiteralElement__modelProperty',
-    //   caseNotes: [
-    //     getStyledText({
-    //       textSource: 'number literal element (model property)',
-    //       textStyleCodes: [1, 4],
-    //       textDecorations: [],
-    //     }),
-    //     getStyledText({
-    //       textSource:
-    //         '__IntermediateModel["modelProperties"][string]["propertyElement"] => NumberLiteralElement',
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [69, 89],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [84, 87],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: JSON.stringify(
-    //         expectedIntermediateSchema.schemaModels.data['BasicDataModel']!
-    //           .modelProperties['numberLiteralProperty']!.propertyElement,
-    //         null,
-    //         1,
-    //       ),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [],
-    //     }),
-    //   ],
-    // },
-    // {
-    //   caseKey: 'stringLiteralElement__modelProperty',
-    //   caseNotes: [
-    //     getStyledText({
-    //       textSource: 'string literal element (model property)',
-    //       textStyleCodes: [1, 4],
-    //       textDecorations: [],
-    //     }),
-    //     getStyledText({
-    //       textSource:
-    //         '__IntermediateModel["modelProperties"][string]["propertyElement"] => StringLiteralElement',
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [69, 89],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [114, 121],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: JSON.stringify(
-    //         expectedIntermediateSchema.schemaModels.data['BasicDataModel']!
-    //           .modelProperties['stringLiteralProperty']!.propertyElement,
-    //         null,
-    //         1,
-    //       ),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [],
-    //     }),
-    //   ],
-    // },
-    // {
-    //   caseKey: 'booleanElement__modelProperty',
-    //   caseNotes: [
-    //     getStyledText({
-    //       textSource: 'boolean element (model property)',
-    //       textStyleCodes: [1, 4],
-    //       textDecorations: [],
-    //     }),
-    //     getStyledText({
-    //       textSource:
-    //         '__IntermediateModel["modelProperties"][string]["propertyElement"] => BooleanElement',
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [69, 89],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [142, 149],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: JSON.stringify(
-    //         expectedIntermediateSchema.schemaModels.data['BasicDataModel']!
-    //           .modelProperties['booleanProperty']!.propertyElement,
-    //         null,
-    //         1,
-    //       ),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [],
-    //     }),
-    //   ],
-    // },
-    // {
-    //   caseKey: 'numberElement__modelProperty',
-    //   caseNotes: [
-    //     getStyledText({
-    //       textSource: 'number element (model property)',
-    //       textStyleCodes: [1, 4],
-    //       textDecorations: [],
-    //     }),
-    //     getStyledText({
-    //       textSource:
-    //         '__IntermediateModel["modelProperties"][string]["propertyElement"] => NumberElement',
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [69, 82],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [169, 175],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: JSON.stringify(
-    //         expectedIntermediateSchema.schemaModels.data['BasicDataModel']!
-    //           .modelProperties['numberProperty']!.propertyElement,
-    //         null,
-    //         1,
-    //       ),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [],
-    //     }),
-    //   ],
-    // },
-    // {
-    //   caseKey: 'stringElement__modelProperty',
-    //   caseNotes: [
-    //     getStyledText({
-    //       textSource: 'string element (model property)',
-    //       textStyleCodes: [1, 4],
-    //       textDecorations: [],
-    //     }),
-    //     getStyledText({
-    //       textSource:
-    //         '__IntermediateModel["modelProperties"][string]["propertyElement"] => StringElement',
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [69, 82],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [195, 201],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: JSON.stringify(
-    //         expectedIntermediateSchema.schemaModels.data['BasicDataModel']!
-    //           .modelProperties['stringProperty']!.propertyElement,
-    //         null,
-    //         1,
-    //       ),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [],
-    //     }),
-    //   ],
-    // },
-    // {
-    //   caseKey: 'dataModelReferenceElement__modelProperty',
-    //   caseNotes: [
-    //     getStyledText({
-    //       textSource: 'data model reference element (model property)',
-    //       textStyleCodes: [1, 4],
-    //       textDecorations: [],
-    //     }),
-    //     getStyledText({
-    //       textSource:
-    //         '__IntermediateModel["modelProperties"][string]["propertyElement"] => DataModelReferenceElement',
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [69, 94],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [224, 238],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: JSON.stringify(
-    //         expectedIntermediateSchema.schemaModels.data['BasicDataModel']!
-    //           .modelProperties['dataModelProperty']!.propertyElement,
-    //         null,
-    //         1,
-    //       ),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [],
-    //     }),
-    //   ],
-    // },
-    // {
-    //   caseKey: 'directRecursiveDataModelReferenceElement__modelProperty',
-    //   caseNotes: [
-    //     getStyledText({
-    //       textSource:
-    //         'direct recursive data model reference element (model property)',
-    //       textStyleCodes: [1, 4],
-    //       textDecorations: [],
-    //     }),
-    //     getStyledText({
-    //       textSource:
-    //         '<ThisDataModel extends DataIntermediateModel>: ThisDataModel["modelProperties"][string]["propertyElement"] => DataModelReferenceElement["dataModelNameKey"] === ThisDataModel["modelName"]',
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [110, 186],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [10, 24],
-    //       }, {
-    //         decorationRange: [224, 238],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: JSON.stringify(
-    //         expectedIntermediateSchema.schemaModels.data['BasicDataModel']!
-    //           .modelProperties['dataModelProperty']!.propertyElement,
-    //         null,
-    //         1,
-    //       ),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [61, 77],
-    //       }],
-    //     }),
-    //   ],
-    // },
-    // {
-    //   caseKey: 'indirectRecursiveDataModelReferenceElement__modelProperty',
-    //   caseNotes: [
-    //     getStyledText({
-    //       textSource:
-    //         'indirect recursive data model reference element (model property)',
-    //       textStyleCodes: [1, 4],
-    //       textDecorations: [],
-    //     }),
-    //     // getStyledText({
-    //     //   textSource:
-    //     //     '<ThisDataModel extends DataIntermediateModel>: ThisDataModel["modelProperties"][string]["propertyElement"] => DataModelReferenceElement["dataModelNameKey"] === ThisDataModel["modelName"]',
-    //     //   textStyleCodes: [3, 1, 44],
-    //     //   textDecorations: [{
-    //     //     decorationRange: [10, 28],
-    //     //   }],
-    //     // }),
-    //     getStyledText({
-    //       textSource: schemaSources['CompositeDataModel.ts']!.substring(7, 120),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [10, 28],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: schemaSources['CompositeDataModel.ts']!.substring(129, 230),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [80, 98],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: JSON.stringify(
-    //         expectedIntermediateSchema.schemaModels.concreteTemplate['ConcreteTemplateModel']!
-    //           .modelProperties['indirectRecursiveTemplateDataModelProperty'],
-    //         null,
-    //         1,
-    //       ),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [84, 170],
-    //       }],
-    //     }),
-    //   ],
-    // },
-    // {
-    //   caseKey: 'aliasReferenceElement__modelProperty',
-    //   caseNotes: [
-    //     getStyledText({
-    //       textSource: 'alias reference element (model property)',
-    //       textStyleCodes: [1, 4],
-    //       textDecorations: [],
-    //     }),
-    //     getStyledText({
-    //       textSource:
-    //         '__IntermediateModel["modelProperties"][string]["propertyElement"] => AliasReferenceElement',
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [69, 90],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: schemaSources['ValidSchema.ts']!.substring(219, 718),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [{
-    //         decorationRange: [257, 271],
-    //       }],
-    //     }),
-    //     getStyledText({
-    //       textSource: JSON.stringify(
-    //         expectedIntermediateSchema.schemaModels.data['BasicDataModel']!
-    //           .modelProperties['aliasProperty']!.propertyElement,
-    //         null,
-    //         1,
-    //       ),
-    //       textStyleCodes: [3, 1, 44],
-    //       textDecorations: [],
-    //     }),
-    //   ],
-    // },
+    {
+      caseKey: 'genericModelTemplate',
+      caseNotes: [
+        styledText({
+          textSource: 'generic model template',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            '__IntermediateModel["modelTemplates"][number] => GenericModelTemplate',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /GenericModelTemplate/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Model__BB.ts']!.substring(7, 79),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /Model__DD<Model__BB, number>/,
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .data['Model__BB']!,
+          jsonNodes: [branchJsonNode({
+            nodeKey: 'modelTemplates',
+            nodeChildren: [leafJsonNode({
+              nodeKey: 1,
+              nodeStyle: [3, 1, 44],
+            })],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey: 'booleanLiteralElement__modelProperty',
+      caseNotes: [
+        styledText({
+          textSource: 'boolean literal element (model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            '__IntermediateModel["modelProperties"][string]["propertyElement"] => BooleanLiteralElement',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /BooleanLiteralElement/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /true/,
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
+            .modelProperties['aaProperty__AA'],
+          jsonNodes: [leafJsonNode({
+            nodeKey: 'propertyElement',
+            nodeStyle: [3, 1, 44],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey: 'numberLiteralElement__modelProperty',
+      caseNotes: [
+        styledText({
+          textSource: 'number literal element (model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            '__IntermediateModel["modelProperties"][string]["propertyElement"] => NumberLiteralElement',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /NumberLiteralElement/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /123/,
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
+            .modelProperties['aaProperty__BB'],
+          jsonNodes: [leafJsonNode({
+            nodeKey: 'propertyElement',
+            nodeStyle: [3, 1, 44],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey: 'stringLiteralElement__modelProperty',
+      caseNotes: [
+        styledText({
+          textSource: 'string literal element (model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            '__IntermediateModel["modelProperties"][string]["propertyElement"] => StringLiteralElement',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /StringLiteralElement/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /'hello'/,
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
+            .modelProperties['aaProperty__CC'],
+          jsonNodes: [leafJsonNode({
+            nodeKey: 'propertyElement',
+            nodeStyle: [3, 1, 44],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey: 'booleanElement__modelProperty',
+      caseNotes: [
+        styledText({
+          textSource: 'boolean element (model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            '__IntermediateModel["modelProperties"][string]["propertyElement"] => BooleanElement',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /BooleanElement/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /boolean/,
+            getFilteredPattern: ({ patternMatches }) =>
+              patternMatches.slice(0, 1),
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
+            .modelProperties['aaProperty__DD'],
+          jsonNodes: [leafJsonNode({
+            nodeKey: 'propertyElement',
+            nodeStyle: [3, 1, 44],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey: 'numberElement__modelProperty',
+      caseNotes: [
+        styledText({
+          textSource: 'number element (model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            '__IntermediateModel["modelProperties"][string]["propertyElement"] => NumberElement',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /NumberElement/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /number/,
+            getFilteredPattern: ({ patternMatches }) =>
+              patternMatches.slice(0, 1),
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
+            .modelProperties['aaProperty__EE'],
+          jsonNodes: [leafJsonNode({
+            nodeKey: 'propertyElement',
+            nodeStyle: [3, 1, 44],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey: 'stringElement__modelProperty',
+      caseNotes: [
+        styledText({
+          textSource: 'string element (model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            '__IntermediateModel["modelProperties"][string]["propertyElement"] => StringElement',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /StringElement/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /string/,
+            getFilteredPattern: ({ patternMatches }) =>
+              patternMatches.slice(0, 1),
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
+            .modelProperties['aaProperty__FF'],
+          jsonNodes: [leafJsonNode({
+            nodeKey: 'propertyElement',
+            nodeStyle: [3, 1, 44],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey: 'dataModelReferenceElement__modelProperty',
+      caseNotes: [
+        styledText({
+          textSource: 'data model reference element (model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            '__IntermediateModel["modelProperties"][string]["propertyElement"] => DataModelReferenceElement',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /DataModelReferenceElement/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /Model__AA/,
+            getFilteredPattern: ({ patternMatches }) =>
+              patternMatches.slice(1, 2),
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
+            .modelProperties['aaProperty__GG'],
+          jsonNodes: [leafJsonNode({
+            nodeKey: 'propertyElement',
+            nodeStyle: [3, 1, 44],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey: 'directRecursiveDataModelReferenceElement__modelProperty',
+      caseNotes: [
+        styledText({
+          textSource:
+            'direct recursive data model reference element (model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            '<ThisDataModel extends DataIntermediateModel>: ThisDataModel["modelProperties"][string]["propertyElement"] => DataModelReferenceElement["dataModelNameKey"] === ThisDataModel["modelName"]',
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /ThisDataModel/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /DataModelReferenceElement/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /Model__AA/,
+            getFilteredPattern: ({ patternMatches }) =>
+              patternMatches.slice(0, 2),
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
+            .modelProperties['aaProperty__CC'],
+          jsonNodes: [leafJsonNode({
+            nodeKey: 'propertyElement',
+            nodeStyle: [3, 1, 44],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey: 'indirectRecursiveDataModelReferenceElement__modelProperty',
+      caseNotes: [
+        styledText({
+          textSource:
+            'indirect recursive data model reference element (model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            '<ThisDataModel extends DataIntermediateModel>, <ThisIndirectTemplateModel extends __TemplateIntermediateModel>: ThisDataModel["modelTemplates"][number]["templateModelNameKey"] === ThisIndirectTemplateModel["modelName"] && ThisIndirectTemplateModel["modelProperties"][string]["propertyElement"] => DataModelReferenceElement["dataModelNameKey"] === ThisDataModel["modelName"]',
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /ThisDataModel/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /DataModelReferenceElement/,
+            },
+            {
+              patternStyle: [3, 1, 45],
+              patternRegex: /ThisIndirectTemplateModel/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Model__BB.ts']!.substring(7, 79),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /Model__BB/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(0, 1),
+            },
+            {
+              patternStyle: [3, 1, 45],
+              patternRegex: /Model__CC/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(0, 1),
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Model__BB.ts']!.substring(88, 140),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /Model__BB/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(0, 1),
+            },
+            {
+              patternStyle: [3, 1, 45],
+              patternRegex: /Model__CC/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(0, 1),
+            },
+          ],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .data['Model__BB'],
+          jsonNodes: [
+            leafJsonNode({
+              nodeKey: 'modelName',
+              nodeStyle: [3, 1, 44]
+            }),
+            branchJsonNode({
+              nodeKey: 'modelTemplates',
+              nodeChildren: [leafJsonNode({
+                nodeKey: 0,
+                nodeStyle: [3, 1, 45]
+              })],
+            }),
+          ],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .concreteTemplate['Model__CC'],
+          jsonNodes: [
+            leafJsonNode({
+              nodeKey: 'modelName',
+              nodeStyle: [3, 1, 45]
+            }),
+            branchJsonNode({
+              nodeKey: 'modelProperties',
+              nodeChildren: [branchJsonNode({
+                nodeKey: 'ccProperty__AA',
+                nodeChildren: [leafJsonNode({
+                  nodeKey: 'propertyElement',
+                  nodeStyle: [3, 1, 44],
+                })],
+              })],
+            }),
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'aliasReferenceElement__modelProperty',
+      caseNotes: [
+        styledText({
+          textSource: 'alias reference element (model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            '__IntermediateModel["modelProperties"][string]["propertyElement"] => AliasReferenceElement',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /AliasReferenceElement/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(631, 658),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /Alias__AA/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /Alias__AA/,
+            getFilteredPattern: ({ patternMatches }) =>
+              patternMatches.slice(0, 1),
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
+            .modelProperties['aaProperty__HH'],
+          jsonNodes: [leafJsonNode({
+            nodeKey: 'propertyElement',
+            nodeStyle: [3, 1, 44],
+          })],
+        }),
+      ],
+    },
     // {
     //   caseKey: 'verdeTableElement-aliasReferenceElement__modelProperty',
     //   caseNotes: [
@@ -860,7 +949,7 @@ export function getDeriveIntermediateSchemaTestCases(
     //     }),
     //   ],
     // },
-    // direct recursive data model reference element (generic argument)    
+    // direct recursive data model reference element (generic argument)
     // indirect recursive data model reference element (generic argument)
   ];
 }

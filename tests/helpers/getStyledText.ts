@@ -1,51 +1,53 @@
 import { throwInvalidPathError } from '../../source/helpers/throwError.ts';
 
+export const styledText = getStyledText
+
 export interface GetStyledTextApi {
   textSource: string;
-  textDecorationThreads: Array<{
-    threadCodes: Array<number>;
-    threadRegex: RegExp;
-    getFilteredThread?: (api: GetFilteredThreadApi) => Array<RegExpMatchArray>;
+  textPatterns: Array<{
+    patternRegex: RegExp;
+    patternStyle: Array<number>;    
+    getFilteredPattern?: (api: GetFilteredPatternApi) => Array<RegExpMatchArray>;
   }>;
 }
 
-interface GetFilteredThreadApi {
-  threadMatches: Array<RegExpMatchArray>;
+interface GetFilteredPatternApi {
+  patternMatches: Array<RegExpMatchArray>;
 }
 
 export function getStyledText(api: GetStyledTextApi) {
-  const { textDecorationThreads, textSource } = api;
-  const sortedTextDecorations = textDecorationThreads.reduce<
+  const { textPatterns, textSource } = api;
+  const sortedTextChunks = textPatterns.reduce<
     Array<{
-      decorationCodePrefix: string;
-      decorationRange: [number, number];
+      chunkStylePrefix: string;
+      chunkRange: [number, number];
     }>
   >(
     (
-      textDecorationsResult,
+      textChunksResult,
       {
-        threadCodes,
-        threadRegex,
-        getFilteredThread = ({ threadMatches }) => threadMatches,
+        patternStyle,
+        patternRegex,
+        getFilteredPattern = ({ patternMatches }) => patternMatches,
       },
     ) => {
-      const currentDecorationCodePrefix = threadCodes.reduce(
-        (codePrefixResult, someDecorationCode) =>
-          `${codePrefixResult}\x1b[${someDecorationCode}m`,
+      const patternStylePrefix = patternStyle.reduce(
+        (stylePrefixResult, someStyleCode) =>
+          `${stylePrefixResult}\x1b[${someStyleCode}m`,
         '',
       );
       return [
-        ...textDecorationsResult,
-        ...getFilteredThread({
-          threadMatches: Array.from(
+        ...textChunksResult,
+        ...getFilteredPattern({
+          patternMatches: Array.from(
             textSource.matchAll(
-              new RegExp(threadRegex.source, 'gd'),
+              new RegExp(patternRegex.source, 'gd'),
             ),
           ),
         })
           .map((someDecorationMatch) => ({
-            decorationCodePrefix: currentDecorationCodePrefix,
-            decorationRange:
+            chunkStylePrefix: patternStylePrefix,
+            chunkRange:
               someDecorationMatch.indices && someDecorationMatch.indices[0] ||
               throwInvalidPathError('threadDecorationRange'),
           })),
@@ -53,41 +55,41 @@ export function getStyledText(api: GetStyledTextApi) {
     },
     [],
   ).sort((decorationA, decorationB) =>
-    decorationA.decorationRange[0] - decorationB.decorationRange[0]
+    decorationA.chunkRange[0] - decorationB.chunkRange[0]
   );
-  const decoratedTextChunks = sortedTextDecorations.reduce(
+  const styledTextChunks = sortedTextChunks.reduce(
     (
-      decoratedTextChunksResult,
-      { decorationCodePrefix, decorationRange },
+      styledTextChunksResult,
+      { chunkStylePrefix, chunkRange },
       decorationIndex,
     ) => {
-      decoratedTextChunksResult.push(
-        `${decorationCodePrefix}${
+      styledTextChunksResult.push(
+        `${chunkStylePrefix}${
           textSource.substring(
-            decorationRange[0],
-            decorationRange[1],
+            chunkRange[0],
+            chunkRange[1],
           )
         }`,
       );
-      const nextDecorationRange: [number, number] =
-        sortedTextDecorations[decorationIndex + 1]
-          ?.decorationRange ??
+      const nextChunkRange: [number, number] =
+        sortedTextChunks[decorationIndex + 1]
+          ?.chunkRange ??
           [textSource.length, NaN];
-      decoratedTextChunksResult.push(
+          styledTextChunksResult.push(
         textSource.substring(
-          decorationRange[1],
-          nextDecorationRange[0],
+          chunkRange[1],
+          nextChunkRange[0],
         ),
       );
-      return decoratedTextChunksResult;
+      return styledTextChunksResult;
     },
     [
       textSource.substring(
         0,
-        sortedTextDecorations[0]?.decorationRange[0] ??
+        sortedTextChunks[0]?.chunkRange[0] ??
           throwInvalidPathError('sortedTextDecorations[0]'),
       ),
     ],
   );
-  return `${decoratedTextChunks.join('\x1b[0m')}\x1b[0m`;
+  return `${styledTextChunks.join('\x1b[0m')}\x1b[0m`;
 }
