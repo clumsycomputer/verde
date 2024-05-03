@@ -199,6 +199,14 @@ export const expectedIntermediateSchema: IntermediateSchema = {
                 parameterName: 'DdParameter__CC',
               },
             },
+            EeParameter__BB: {
+              argumentIndex: 1,
+              argumentParameterNameKey: 'EeParameter__BB',
+              argumentElement: {
+                elementKind: 'dataModelReference',
+                dataModelNameKey: 'Model__BB',
+              },
+            },
           },
         }],
         modelProperties: {
@@ -221,9 +229,10 @@ export const expectedIntermediateSchema: IntermediateSchema = {
       Model__EE: {
         modelKind: 'genericTemplate',
         modelName: 'Model__EE',
-        genericParameters: [{
-          parameterName: 'EeParameter__AA'
-        }],
+        genericParameters: [
+          { parameterName: 'EeParameter__AA' },
+          { parameterName: 'EeParameter__BB' }
+        ],
         modelTemplates: [],
         modelProperties: {
           eeProperty__AA: {
@@ -231,6 +240,13 @@ export const expectedIntermediateSchema: IntermediateSchema = {
             propertyElement: {
               elementKind: 'basicParameter',
               parameterName: 'EeParameter__AA'
+            }
+          },
+          eeProperty__BB: {
+            propertyKey: 'eeProperty__BB',
+            propertyElement: {
+              elementKind: 'basicParameter',
+              parameterName: 'EeParameter__BB'
             }
           }
         },
