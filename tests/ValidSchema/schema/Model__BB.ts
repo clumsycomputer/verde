@@ -16,5 +16,5 @@ export interface Model__DD<
 
 export interface Model__EE<EeParameter__AA, EeParameter__BB> {
   eeProperty__AA: EeParameter__AA;
-  eeProperty__BB: EeParameter__BB
+  eeProperty__BB: EeParameter__BB;
 }

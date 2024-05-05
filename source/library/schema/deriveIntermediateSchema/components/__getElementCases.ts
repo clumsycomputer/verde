@@ -1,16 +1,15 @@
 import { genericAny, irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
-  __SchemaElement,
-  BasicParameterElement,
   ObjectStructureElement,
   TerminalElement,
   TupleStructureElement,
+  __SchemaElement
 } from '../../types/SchemaElement.ts';
 import { deriveDataModel } from './__deriveIntermediateModel.ts';
 import {
-  deriveSchemaElement,
   DeriveSchemaElementApi,
+  deriveSchemaElement,
 } from './deriveSchemaElement.ts';
 
 export function getGenericElementCases() {

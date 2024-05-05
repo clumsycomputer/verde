@@ -1,7 +1,7 @@
 import { VerdeArray, VerdeTable } from '../../../source/library/module.ts';
-import { Model__BB } from './Model__BB.ts';
+import { Model__BB, Model__CC } from './Model__BB.ts';
 
-export type Schema__AA = [Model__AA, Alias__AA, Model__BB];
+export type Schema__AA = [Model__AA, Alias__AA, Model__BB, Model__FF];
 
 interface Model__AA {
   aaProperty__AA: true;
@@ -22,3 +22,13 @@ interface Model__AA {
 }
 
 type Alias__AA = Model__AA;
+
+interface Model__FF extends Model__CC, Model__GG<Model__AA> {
+  ffProperty__AA: Model__BB;
+}
+
+interface Model__GG<GgParameter__AA> {
+  ggProperty__AA: VerdeTable<GgParameter__AA>;
+  ggProperty__BB: VerdeTable<Model__AA>;
+  ggProperty__CC: VerdeTable<Model__AA | Model__BB>;
+}

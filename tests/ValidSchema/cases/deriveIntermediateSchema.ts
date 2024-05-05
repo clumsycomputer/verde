@@ -1,4 +1,3 @@
-import { GenericModelTemplate } from '../../../source/library/schema/types/IntermediateSchema.ts';
 import { TestCase } from '../../helpers/TestCase.ts';
 import {
   branchJsonNode,
@@ -112,7 +111,7 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 651),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /true/,
@@ -147,7 +146,7 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 651),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /123/,
@@ -182,7 +181,7 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 651),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /'hello'/,
@@ -217,7 +216,7 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 651),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /boolean/,
@@ -254,7 +253,7 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 651),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /number/,
@@ -291,7 +290,7 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 651),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /string/,
@@ -328,7 +327,7 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 651),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /Model__AA/,
@@ -372,7 +371,7 @@ export function getDeriveIntermediateSchemaTestCases(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 651),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /Model__AA/,
@@ -511,14 +510,14 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(631, 658),
+          textSource: schemaSources['Schema__AA.ts']!.substring(653, 680),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /Alias__AA/,
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 651),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /Alias__AA/,
@@ -556,7 +555,7 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 651),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeTable<Alias__AA>/,
@@ -565,6 +564,114 @@ export function getDeriveIntermediateSchemaTestCases(
         styledJson({
           jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
             .modelProperties['aaProperty__II'],
+          jsonNodes: [leafJsonNode({
+            nodeKey: 'propertyElement',
+            nodeStyle: [3, 1, 44],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey: 'verdeTableElement-dataModelReferenceElement__modelProperty',
+      caseNotes: [
+        styledText({
+          textSource:
+            'verde table element => data model reference element (model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            '__IntermediateModel["modelProperties"][string]["propertyElement"] => VerdeTableElement<DataModelReferenceElement>',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /VerdeTableElement<DataModelReferenceElement>/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 957),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /VerdeTable<Model__AA>/,
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels.genericTemplate['Model__GG']!
+            .modelProperties['ggProperty__BB'],
+          jsonNodes: [leafJsonNode({
+            nodeKey: 'propertyElement',
+            nodeStyle: [3, 1, 44],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey: 'verdeTableElement-basicParameterElement__modelProperty',
+      caseNotes: [
+        styledText({
+          textSource:
+            'verde table element => basic parameter element (model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            '__IntermediateModel["modelProperties"][string]["propertyElement"] => VerdeTableElement<BasicParameterElement>',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /VerdeTableElement<BasicParameterElement>/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 957),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /VerdeTable<GgParameter__AA>/,
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels.genericTemplate['Model__GG']!
+            .modelProperties['ggProperty__AA'],
+          jsonNodes: [leafJsonNode({
+            nodeKey: 'propertyElement',
+            nodeStyle: [3, 1, 44],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey: 'verdeTableElement-unionCompositionElement__modelProperty',
+      caseNotes: [
+        styledText({
+          textSource:
+            'verde table element => union composition element (model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            '__IntermediateModel["modelProperties"][string]["propertyElement"] => VerdeTableElement<UnionCompositionElement>',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /VerdeTableElement<UnionCompositionElement>/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 957),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /VerdeTable<Model__AA \| Model__BB>/,
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels.genericTemplate['Model__GG']!
+            .modelProperties['ggProperty__CC'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -591,7 +698,7 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 651),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeArray<string>/,
@@ -626,7 +733,7 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 651),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /string | null/,
@@ -661,7 +768,7 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 651),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /null/,
@@ -699,7 +806,7 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 651),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /\[__llProperty__AA: number\]/,
@@ -734,7 +841,7 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(182, 629),
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 651),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /\{\s*__mmProperty__AA\s*:\s*string\s*;\s*\}/,
@@ -1050,7 +1157,7 @@ export function getDeriveIntermediateSchemaTestCases(
               patternRegex: /Model__DD/,
               getFilteredPattern: ({ patternMatches }) =>
                 patternMatches.slice(0, 1),
-            }
+            },
           ],
         }),
         styledText({
@@ -1067,7 +1174,7 @@ export function getDeriveIntermediateSchemaTestCases(
               patternRegex: /Model__BB/,
               getFilteredPattern: ({ patternMatches }) =>
                 patternMatches.slice(0, 1),
-            }
+            },
           ],
         }),
         styledJson({
@@ -1083,14 +1190,15 @@ export function getDeriveIntermediateSchemaTestCases(
                 nodeKey: 1,
                 nodeChildren: [leafJsonNode({
                   nodeKey: 'templateModelNameKey',
-                  nodeStyle: [3, 1, 45]
+                  nodeStyle: [3, 1, 45],
                 })],
               })],
             }),
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.genericTemplate['Model__DD'],
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .genericTemplate['Model__DD'],
           jsonNodes: [
             leafJsonNode({
               nodeKey: 'modelName',
@@ -1116,5 +1224,182 @@ export function getDeriveIntermediateSchemaTestCases(
         }),
       ],
     },
+    {
+      caseKey: 'importSpecifier__schemaDataModelExport',
+      caseNotes: [
+        styledText({
+          textSource: 'import specifier (schema data model export)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            'Typescript.Declaration (DataIntermediateModel) <= Typescript.ImportSpecifer => Typescript.TupleTypeNode.elements => Typescript.NodeArray<Typescript.TypeNode> (IntermediateSchema["schemaModels"]["data"][string])',
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /ImportSpecifer/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /TypeNode/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(1, 2),
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(0, 202),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /Model__BB/,
+            getFilteredPattern: ({ patternMatches }) => {
+              patternMatches.splice(1, 1);
+              return patternMatches;
+            },
+          }],
+        }),
+      ],
+    },
+    {
+      caseKey: 'importSpecifier__modelTemplate',
+      caseNotes: [
+        styledText({
+          textSource: 'import specifier (model template)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            'Typescript.Declaration (ConcreteTemplateIntermediateModel) <= Typescript.ImportSpecifer => Typescript.HeritageClause.types => Typescript.NodeArray<Typescript.ExpressionWithTypeArguments> (DataIntermediateModel["modelTemplates"][number])',
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /ImportSpecifer/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /ExpressionWithTypeArguments/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(0, 774),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /Model__CC/,
+          }],
+        }),
+      ],
+    },
+    {
+      caseKey: 'importSpecifier__schemaElement',
+      caseNotes: [
+        styledText({
+          textSource: 'import specifier (schema element)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            'Typescript.Declaration (DataIntermediateModel) <= Typescript.ImportSpecifer => Typescript.Node (DataIntermediateModel["modelProperties"][string]["propertyElement"])',
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /ImportSpecifer/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /Node/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(0, 774),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /Model__BB/,
+            getFilteredPattern: ({ patternMatches }) => {
+              patternMatches.splice(1, 2);
+              return patternMatches;
+            },
+          }],
+        }),
+      ],
+    },
+    {
+      caseKey: 'defaultGenericArgument',
+      caseNotes: [
+        styledText({
+          textSource: 'default generic argument',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            'Typescript.InterfaceDeclaration.typeParameters[number] (GenericTemplateIntermediateModel["genericParameters"][number]) => Typescript.TypeParameterDeclaration.default => GenericArgument',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /GenericArgument/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Model__BB.ts']!.substring(149, 374),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 45],
+              patternRegex: /Model__DD/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /string/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Model__BB.ts']!.substring(7, 79),
+          textPatterns: [{
+            patternStyle: [3, 1, 45],
+            patternRegex: /Model__DD/,
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .data['Model__BB'],
+          jsonNodes: [
+            branchJsonNode({
+              nodeKey: 'modelTemplates',
+              nodeChildren: [branchJsonNode({
+                nodeKey: 1,
+                nodeChildren: [
+                  leafJsonNode({
+                    nodeKey: 'templateModelNameKey',
+                    nodeStyle: [3, 1, 45],
+                  }),
+                  branchJsonNode({
+                    nodeKey: 'genericArguments',
+                    nodeChildren: [leafJsonNode({
+                      nodeKey: 'DdParameter__CC',
+                      nodeStyle: [3, 1, 44],
+                    })],
+                  }),
+                ],
+              })],
+            }),
+          ],
+        }),
+      ],
+    },
+    // indirect recursive data model reference element (collection element)
+    // data model schema export
+    // alias data model union export
   ];
 }

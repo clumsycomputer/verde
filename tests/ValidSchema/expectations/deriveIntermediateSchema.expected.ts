@@ -1,4 +1,5 @@
 import { IntermediateSchema } from '../../../source/library/schema/types/IntermediateSchema.ts';
+import { dataSchema__EXAMPLE } from '../../../tests__LEGACY/data/helpers/dataSchema__EXAMPLE.ts';
 
 export const expectedIntermediateSchema: IntermediateSchema = {
   schemaName: 'Schema__AA',
@@ -119,7 +120,7 @@ export const expectedIntermediateSchema: IntermediateSchema = {
                 },
               },
             },
-          },          
+          },
         },
       },
       Model__BB: {
@@ -160,6 +161,39 @@ export const expectedIntermediateSchema: IntermediateSchema = {
           },
         ],
         modelProperties: {},
+      },
+      Model__FF: {
+        modelKind: 'data',
+        modelName: 'Model__FF',
+        modelProperties: {
+          ffProperty__AA: {
+            propertyKey: 'ffProperty__AA',
+            propertyElement: {
+              dataModelNameKey: 'Model__BB',
+              elementKind: 'dataModelReference',
+            },            
+          },
+        },
+        modelTemplates: [
+          {
+            templateKind: 'concreteTemplate',
+            templateModelNameKey: 'Model__CC',
+          },
+          {
+            templateKind: 'genericTemplate',
+            templateModelNameKey: 'Model__GG',
+            genericArguments: {
+              GgParameter__AA: {
+                argumentIndex: 0,
+                argumentParameterNameKey: 'GgParameter__AA',
+                argumentElement: {
+                  elementKind: 'dataModelReference',
+                  dataModelNameKey: 'Model__AA'
+                }
+              }
+            }
+          }
+        ],
       },
     },
     concreteTemplate: {
@@ -231,7 +265,7 @@ export const expectedIntermediateSchema: IntermediateSchema = {
         modelName: 'Model__EE',
         genericParameters: [
           { parameterName: 'EeParameter__AA' },
-          { parameterName: 'EeParameter__BB' }
+          { parameterName: 'EeParameter__BB' },
         ],
         modelTemplates: [],
         modelProperties: {
@@ -239,18 +273,67 @@ export const expectedIntermediateSchema: IntermediateSchema = {
             propertyKey: 'eeProperty__AA',
             propertyElement: {
               elementKind: 'basicParameter',
-              parameterName: 'EeParameter__AA'
-            }
+              parameterName: 'EeParameter__AA',
+            },
           },
           eeProperty__BB: {
             propertyKey: 'eeProperty__BB',
             propertyElement: {
               elementKind: 'basicParameter',
-              parameterName: 'EeParameter__BB'
+              parameterName: 'EeParameter__BB',
+            },
+          },
+        },
+      },
+      Model__GG: {
+        modelKind: 'genericTemplate',
+        modelName: 'Model__GG',
+        genericParameters: [{
+          parameterName: 'GgParameter__AA'
+        }],
+        modelTemplates: [],
+        modelProperties: {
+          ggProperty__AA: {
+            propertyKey: 'ggProperty__AA',
+            propertyElement: {
+              elementKind: 'verdeTable',
+              collectionElement: {
+                elementKind: 'basicParameter',
+                parameterName: 'GgParameter__AA'
+              }
+            }
+          },
+          ggProperty__BB: {
+            propertyKey: 'ggProperty__BB',
+            propertyElement: {
+              elementKind: 'verdeTable',
+              collectionElement: {
+                elementKind: 'dataModelReference',
+                dataModelNameKey: 'Model__AA'
+              }
+            }
+          },
+          ggProperty__CC: {
+            propertyKey: 'ggProperty__CC',
+            propertyElement: {
+              elementKind: 'verdeTable',
+              collectionElement: {
+                elementKind: 'unionComposition',
+                unionMembers: [
+                  {
+                    elementKind: 'dataModelReference',
+                    dataModelNameKey: 'Model__AA'
+                  },
+                  {
+                    elementKind: 'dataModelReference',
+                    dataModelNameKey: 'Model__BB'
+                  }
+                ]
+              }
             }
           }
-        },
-      }
+        }
+      },
     },
   },
   schemaAliases: {
