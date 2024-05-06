@@ -1,5 +1,4 @@
 import { IntermediateSchema } from '../../../source/library/schema/types/IntermediateSchema.ts';
-import { dataSchema__EXAMPLE } from '../../../tests__LEGACY/data/helpers/dataSchema__EXAMPLE.ts';
 
 export const expectedIntermediateSchema: IntermediateSchema = {
   schemaName: 'Schema__AA',
@@ -14,21 +13,21 @@ export const expectedIntermediateSchema: IntermediateSchema = {
             propertyKey: 'aaProperty__AA',
             propertyElement: {
               elementKind: 'booleanLiteral',
-              literalSymbol: 'true',
+              elementSymbol: 'true',
             },
           },
           aaProperty__BB: {
             propertyKey: 'aaProperty__BB',
             propertyElement: {
               elementKind: 'numberLiteral',
-              literalSymbol: '123',
+              elementSymbol: '123',
             },
           },
           aaProperty__CC: {
             propertyKey: 'aaProperty__CC',
             propertyElement: {
               elementKind: 'stringLiteral',
-              literalSymbol: '"hello"',
+              elementSymbol: '"hello"',
             },
           },
           aaProperty__DD: {
@@ -53,40 +52,40 @@ export const expectedIntermediateSchema: IntermediateSchema = {
             propertyKey: 'aaProperty__GG',
             propertyElement: {
               elementKind: 'dataModelReference',
-              dataModelNameKey: 'Model__AA',
+              elementName: 'Model__AA',
             },
           },
           aaProperty__HH: {
             propertyKey: 'aaProperty__HH',
             propertyElement: {
               elementKind: 'aliasReference',
-              aliasNameKey: 'Alias__AA',
+              elementName: 'Alias__AA',
             },
           },
           aaProperty__II: {
             propertyKey: 'aaProperty__II',
             propertyElement: {
               elementKind: 'verdeTable',
-              collectionElement: {
+              elementArguments: [{
                 elementKind: 'aliasReference',
-                aliasNameKey: 'Alias__AA',
-              },
+                elementName: 'Alias__AA',
+              }],
             },
           },
           aaProperty__JJ: {
             propertyKey: 'aaProperty__JJ',
             propertyElement: {
               elementKind: 'verdeArray',
-              collectionElement: {
+              elementArguments: [{
                 elementKind: 'stringPrimitive',
-              },
+              }],
             },
           },
           aaProperty__KK: {
             propertyKey: 'aaProperty__KK',
             propertyElement: {
               elementKind: 'unionComposition',
-              unionMembers: [
+              elementMembers: [
                 { elementKind: 'stringPrimitive' },
                 { elementKind: 'null' },
               ],
@@ -96,7 +95,7 @@ export const expectedIntermediateSchema: IntermediateSchema = {
             propertyKey: 'aaProperty__LL',
             propertyElement: {
               elementKind: 'tupleStructure',
-              structureProperties: {
+              elementProperties: {
                 __llProperty__AA: {
                   propertyIndex: 0,
                   propertyKey: '__llProperty__AA',
@@ -111,7 +110,7 @@ export const expectedIntermediateSchema: IntermediateSchema = {
             propertyKey: 'aaProperty__MM',
             propertyElement: {
               elementKind: 'objectStructure',
-              structureProperties: {
+              elementProperties: {
                 __mmProperty__AA: {
                   propertyKey: '__mmProperty__AA',
                   propertyElement: {
@@ -134,13 +133,13 @@ export const expectedIntermediateSchema: IntermediateSchema = {
           {
             templateKind: 'genericTemplate',
             templateModelNameKey: 'Model__DD',
-            genericArguments: {
+            templateArguments: {
               DdParameter__AA: {
                 argumentIndex: 0,
                 argumentParameterNameKey: 'DdParameter__AA',
                 argumentElement: {
                   elementKind: 'dataModelReference',
-                  dataModelNameKey: 'Model__BB',
+                  elementName: 'Model__BB',
                 },
               },
               DdParameter__BB: {
@@ -169,9 +168,9 @@ export const expectedIntermediateSchema: IntermediateSchema = {
           ffProperty__AA: {
             propertyKey: 'ffProperty__AA',
             propertyElement: {
-              dataModelNameKey: 'Model__BB',
               elementKind: 'dataModelReference',
-            },            
+              elementName: 'Model__BB',
+            },
           },
         },
         modelTemplates: [
@@ -182,17 +181,17 @@ export const expectedIntermediateSchema: IntermediateSchema = {
           {
             templateKind: 'genericTemplate',
             templateModelNameKey: 'Model__GG',
-            genericArguments: {
+            templateArguments: {
               GgParameter__AA: {
                 argumentIndex: 0,
                 argumentParameterNameKey: 'GgParameter__AA',
                 argumentElement: {
                   elementKind: 'dataModelReference',
-                  dataModelNameKey: 'Model__AA'
-                }
-              }
-            }
-          }
+                  elementName: 'Model__AA',
+                },
+              },
+            },
+          },
         ],
       },
     },
@@ -206,7 +205,7 @@ export const expectedIntermediateSchema: IntermediateSchema = {
             propertyKey: 'ccProperty__AA',
             propertyElement: {
               elementKind: 'dataModelReference',
-              dataModelNameKey: 'Model__BB',
+              elementName: 'Model__BB',
             },
           },
         },
@@ -216,21 +215,31 @@ export const expectedIntermediateSchema: IntermediateSchema = {
       Model__DD: {
         modelKind: 'genericTemplate',
         modelName: 'Model__DD',
-        genericParameters: [
-          { parameterName: 'DdParameter__AA' },
-          { parameterName: 'DdParameter__BB' },
-          { parameterName: 'DdParameter__CC' },
+        modelParameters: [
+          { 
+            parameterKind: 'basic',
+            parameterName: 'DdParameter__AA' 
+          },
+          { 
+            parameterKind: 'constrained',
+            parameterName: 'DdParameter__BB',
+            parameterConstraint: 'number'
+          },
+          { 
+            parameterKind: 'basic',
+            parameterName: 'DdParameter__CC' 
+          },
         ],
         modelTemplates: [{
           templateKind: 'genericTemplate',
           templateModelNameKey: 'Model__EE',
-          genericArguments: {
+          templateArguments: {
             EeParameter__AA: {
               argumentIndex: 0,
               argumentParameterNameKey: 'EeParameter__AA',
               argumentElement: {
-                elementKind: 'basicParameter',
-                parameterName: 'DdParameter__CC',
+                elementKind: 'parameterReference',
+                elementName: 'DdParameter__CC',
               },
             },
             EeParameter__BB: {
@@ -238,7 +247,7 @@ export const expectedIntermediateSchema: IntermediateSchema = {
               argumentParameterNameKey: 'EeParameter__BB',
               argumentElement: {
                 elementKind: 'dataModelReference',
-                dataModelNameKey: 'Model__BB',
+                elementName: 'Model__BB',
               },
             },
           },
@@ -247,15 +256,15 @@ export const expectedIntermediateSchema: IntermediateSchema = {
           ddProperty__AA: {
             propertyKey: 'ddProperty__AA',
             propertyElement: {
-              elementKind: 'basicParameter',
-              parameterName: 'DdParameter__AA',
+              elementKind: 'parameterReference',
+              elementName: 'DdParameter__AA',
             },
           },
           ddProperty__BB: {
             propertyKey: 'ddProperty__BB',
             propertyElement: {
-              elementKind: 'constrainedParameter',
-              parameterName: 'DdParameter__BB',
+              elementKind: 'parameterReference',
+              elementName: 'DdParameter__BB',
             },
           },
         },
@@ -263,24 +272,30 @@ export const expectedIntermediateSchema: IntermediateSchema = {
       Model__EE: {
         modelKind: 'genericTemplate',
         modelName: 'Model__EE',
-        genericParameters: [
-          { parameterName: 'EeParameter__AA' },
-          { parameterName: 'EeParameter__BB' },
+        modelParameters: [
+          { 
+            parameterKind: 'basic',
+            parameterName: 'EeParameter__AA' 
+          },
+          { 
+            parameterKind: 'basic',
+            parameterName: 'EeParameter__BB' 
+          },
         ],
         modelTemplates: [],
         modelProperties: {
           eeProperty__AA: {
             propertyKey: 'eeProperty__AA',
             propertyElement: {
-              elementKind: 'basicParameter',
-              parameterName: 'EeParameter__AA',
+              elementKind: 'parameterReference',
+              elementName: 'EeParameter__AA',
             },
           },
           eeProperty__BB: {
             propertyKey: 'eeProperty__BB',
             propertyElement: {
-              elementKind: 'basicParameter',
-              parameterName: 'EeParameter__BB',
+              elementKind: 'parameterReference',
+              elementName: 'EeParameter__BB',
             },
           },
         },
@@ -288,8 +303,9 @@ export const expectedIntermediateSchema: IntermediateSchema = {
       Model__GG: {
         modelKind: 'genericTemplate',
         modelName: 'Model__GG',
-        genericParameters: [{
-          parameterName: 'GgParameter__AA'
+        modelParameters: [{
+          parameterKind: 'basic',
+          parameterName: 'GgParameter__AA',
         }],
         modelTemplates: [],
         modelProperties: {
@@ -297,42 +313,42 @@ export const expectedIntermediateSchema: IntermediateSchema = {
             propertyKey: 'ggProperty__AA',
             propertyElement: {
               elementKind: 'verdeTable',
-              collectionElement: {
-                elementKind: 'basicParameter',
-                parameterName: 'GgParameter__AA'
-              }
-            }
+              elementArguments: [{
+                elementKind: 'parameterReference',
+                elementName: 'GgParameter__AA',
+              }],
+            },
           },
           ggProperty__BB: {
             propertyKey: 'ggProperty__BB',
             propertyElement: {
               elementKind: 'verdeTable',
-              collectionElement: {
+              elementArguments: [{
                 elementKind: 'dataModelReference',
-                dataModelNameKey: 'Model__AA'
-              }
-            }
+                elementName: 'Model__AA',
+              }],
+            },
           },
           ggProperty__CC: {
             propertyKey: 'ggProperty__CC',
             propertyElement: {
               elementKind: 'verdeTable',
-              collectionElement: {
+              elementArguments: [{
                 elementKind: 'unionComposition',
-                unionMembers: [
+                elementMembers: [
                   {
                     elementKind: 'dataModelReference',
-                    dataModelNameKey: 'Model__AA'
+                    elementName: 'Model__AA',
                   },
                   {
                     elementKind: 'dataModelReference',
-                    dataModelNameKey: 'Model__BB'
-                  }
-                ]
-              }
-            }
-          }
-        }
+                    elementName: 'Model__BB',
+                  },
+                ],
+              }],
+            },
+          },
+        },
       },
     },
   },

@@ -159,7 +159,7 @@ export function deriveGenericTemplateModel(api: DeriveGenericTemplateModelApi) {
 function initializeTargetModel__deriveGenericTemplateModel(
   api: InitializeTargetModelApi,
 ): GenericTemplateIntermediateModel {
-  const { modelName, modelDeclaration } = api;
+  const { modelName, modelDeclaration, schemaTypeChecker } = api;
   const modelTypeParameters = modelDeclaration.typeParameters ??
     throwInvalidPathError('modelTypeParameters');
   return {
@@ -167,11 +167,29 @@ function initializeTargetModel__deriveGenericTemplateModel(
     modelName,
     modelTemplates: [],
     modelProperties: {},
-    genericParameters: modelTypeParameters.map((
+    modelParameters: modelTypeParameters.map((
       someTypeParameterDeclaration,
-    ) => ({
-      parameterName: someTypeParameterDeclaration.name.text,
-    })),
+    ) => {
+      return someTypeParameterDeclaration.constraint
+        ? {
+          parameterKind: 'constrained',
+          parameterName: someTypeParameterDeclaration.name.text,
+          parameterConstraint:
+            Typescript.isTypeReferenceNode(
+                someTypeParameterDeclaration.constraint,
+              )
+              ? someTypeParameterDeclaration.name.text
+              : schemaTypeChecker.typeToString(
+                schemaTypeChecker.getTypeFromTypeNode(
+                  someTypeParameterDeclaration.constraint,
+                ),
+              ),
+        }
+        : {
+          parameterKind: 'basic',
+          parameterName: someTypeParameterDeclaration.name.text,
+        };
+    }),
   };
 }
 

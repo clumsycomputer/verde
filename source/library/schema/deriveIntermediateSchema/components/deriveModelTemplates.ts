@@ -62,34 +62,31 @@ export function deriveModelTemplates<
           return {
             templateKind: 'genericTemplate',
             templateModelNameKey: heritageGenericTemplateModel.modelName,
-            genericArguments: heritageSourceDeclaration.typeParameters.reduce<
-              GenericModelTemplate<any>['genericArguments']
-            >(
-              (
-                genericArgumentsResult,
-                someArgumentParameterSourceNode,
-                argumentIndex,
-              ) => {
-                const argumentParameterNameKey =
-                  someArgumentParameterSourceNode.name.text;
-                genericArgumentsResult[argumentParameterNameKey] = {
+            templateArguments: heritageGenericTemplateModel.modelParameters
+              .reduce<GenericModelTemplate<any>['templateArguments']>(
+                (
+                  genericArgumentsResult,
+                  someModelParameter,
                   argumentIndex,
-                  argumentParameterNameKey,
-                  argumentElement: deriveSchemaElement({
-                    elementCases,
-                    schemaTypeChecker,
-                    schemaResult,
-                    elementLocalNode:
-                      someHeritageLocalNode.typeArguments &&
-                        someHeritageLocalNode.typeArguments[argumentIndex] ||
-                      someArgumentParameterSourceNode.default ||
-                      throwInvalidPathError('argumentElementNode'),
-                  }),
-                };
-                return genericArgumentsResult;
-              },
-              {},
-            ),
+                ) => {
+                  const argumentParameterNameKey =
+                    someModelParameter.parameterName;
+                  genericArgumentsResult[argumentParameterNameKey] = {
+                    argumentIndex,
+                    argumentParameterNameKey,
+                    argumentElement: deriveSchemaElement({
+                      elementCases,
+                      schemaTypeChecker,
+                      schemaResult,
+                      elementLocalNode: someHeritageLocalNode.typeArguments &&
+                          someHeritageLocalNode.typeArguments[argumentIndex] ||
+                        throwInvalidPathError('argumentElementNode'),
+                    }),
+                  };
+                  return genericArgumentsResult;
+                },
+                {},
+              ),
           };
         } else {
           const heritageConcreteTemplateModel = deriveConcreteTemplateModel({

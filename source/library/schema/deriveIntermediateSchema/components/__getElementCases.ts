@@ -1,15 +1,15 @@
 import { genericAny, irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
+  __SchemaElement,
   ObjectStructureElement,
   TerminalElement,
   TupleStructureElement,
-  __SchemaElement
 } from '../../types/SchemaElement.ts';
 import { deriveDataModel } from './__deriveIntermediateModel.ts';
 import {
-  DeriveSchemaElementApi,
   deriveSchemaElement,
+  DeriveSchemaElementApi,
 } from './deriveSchemaElement.ts';
 
 export function getGenericElementCases() {
@@ -18,25 +18,11 @@ export function getGenericElementCases() {
       elementCase(({ elementSourceDeclaration }) => {
         if (
           elementSourceDeclaration &&
-          Typescript.isTypeParameterDeclaration(elementSourceDeclaration) &&
-          elementSourceDeclaration.constraint === undefined
+          Typescript.isTypeParameterDeclaration(elementSourceDeclaration)
         ) {
           return {
-            elementKind: 'basicParameter',
-            parameterName: elementSourceDeclaration.name.text,
-          };
-        }
-        return null;
-      }),
-      elementCase(({ elementSourceDeclaration }) => {
-        if (
-          elementSourceDeclaration &&
-          Typescript.isTypeParameterDeclaration(elementSourceDeclaration) &&
-          elementSourceDeclaration.constraint
-        ) {
-          return {
-            elementKind: 'constrainedParameter',
-            parameterName: elementSourceDeclaration.name.text,
+            elementKind: 'parameterReference',
+            elementName: elementSourceDeclaration.name.text,
           };
         }
         return null;
@@ -86,7 +72,7 @@ function __getElementCases<
               Typescript.SyntaxKind.FalseKeyword)
           ? ({
             elementKind: 'booleanLiteral',
-            literalSymbol: schemaTypeChecker.typeToString(
+            elementSymbol: schemaTypeChecker.typeToString(
               schemaTypeChecker.getTypeAtLocation(elementLocalNode),
             ),
           })
@@ -97,7 +83,7 @@ function __getElementCases<
         Typescript.isNumericLiteral(elementLocalNode.literal)
         ? ({
           elementKind: 'numberLiteral',
-          literalSymbol: schemaTypeChecker.typeToString(
+          elementSymbol: schemaTypeChecker.typeToString(
             schemaTypeChecker.getTypeAtLocation(elementLocalNode),
           ),
         })
@@ -108,7 +94,7 @@ function __getElementCases<
         Typescript.isStringLiteral(elementLocalNode.literal)
         ? ({
           elementKind: 'stringLiteral',
-          literalSymbol: schemaTypeChecker.typeToString(
+          elementSymbol: schemaTypeChecker.typeToString(
             schemaTypeChecker.getTypeAtLocation(elementLocalNode),
           ),
         })
@@ -142,7 +128,7 @@ function __getElementCases<
           });
           return {
             elementKind: 'dataModelReference',
-            dataModelNameKey: elementDataModel.modelName,
+            elementName: elementDataModel.modelName,
           };
         }
         return null;
@@ -158,7 +144,7 @@ function __getElementCases<
         // todo deriveIntermediateAlias
         return {
           elementKind: 'aliasReference',
-          aliasNameKey: elementSourceDeclaration.name.text,
+          elementName: elementSourceDeclaration.name.text,
         };
       }
       return null;
@@ -184,12 +170,12 @@ function __getElementCases<
         ) {
           return {
             elementKind: 'verdeTable',
-            collectionElement: deriveSchemaElement<any>({
+            elementArguments: [deriveSchemaElement<any>({
               elementCases: elementCases,
               schemaTypeChecker,
               schemaResult,
               elementLocalNode: elementLocalNode.typeArguments[0],
-            }),
+            })] as [any],
           };
         }
         return null;
@@ -216,12 +202,12 @@ function __getElementCases<
         ) {
           return {
             elementKind: 'verdeArray',
-            collectionElement: deriveSchemaElement<any>({
+            elementArguments: [deriveSchemaElement<any>({
               elementCases,
               schemaTypeChecker,
               schemaResult,
               elementLocalNode: elementLocalNode.typeArguments[0],
-            }),
+            })] as [any],
           };
         }
         return null;
@@ -232,10 +218,10 @@ function __getElementCases<
         if (Typescript.isTypeLiteralNode(elementLocalNode)) {
           return {
             elementKind: 'objectStructure',
-            structureProperties: elementLocalNode.members.reduce<
+            elementProperties: elementLocalNode.members.reduce<
               ObjectStructureElement<
                 TerminalElement<any>
-              >['structureProperties']
+              >['elementProperties']
             >(
               (objectPropertyElementsResult, someObjectPropertyNode) => {
                 if (
@@ -268,10 +254,10 @@ function __getElementCases<
         if (Typescript.isTupleTypeNode(elementLocalNode)) {
           return {
             elementKind: 'tupleStructure',
-            structureProperties: elementLocalNode.elements.reduce<
+            elementProperties: elementLocalNode.elements.reduce<
               TupleStructureElement<
                 TerminalElement<any>
-              >['structureProperties']
+              >['elementProperties']
             >(
               (
                 tuplePropertyElementsResult,
@@ -305,7 +291,7 @@ function __getElementCases<
         if (Typescript.isUnionTypeNode(elementLocalNode)) {
           return ({
             elementKind: 'unionComposition',
-            unionMembers: elementLocalNode.types.map((someUnionMemberNode) =>
+            elementMembers: elementLocalNode.types.map((someUnionMemberNode) =>
               deriveSchemaElement<any>({
                 elementCases,
                 schemaTypeChecker,

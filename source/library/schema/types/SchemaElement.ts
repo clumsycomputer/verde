@@ -1,21 +1,6 @@
 export type GenericSchemaElement = SchemaElement<
-  TerminalElement<TemplateParameterElement>
+  TerminalElement<ParameterReferenceElement>
 >;
-
-export type TemplateParameterElement =
-  | ConstrainedParameterElement
-  | BasicParameterElement;
-
-export interface ConstrainedParameterElement
-  extends __TemplateParameterElement<'constrainedParameter'> {}
-
-export interface BasicParameterElement
-  extends __TemplateParameterElement<'basicParameter'> {}
-
-interface __TemplateParameterElement<ThisElementKind>
-  extends __SchemaElement<ThisElementKind> {
-  parameterName: string;
-}
 
 export type DefinitiveSchemaElement = SchemaElement<
   TerminalElement<never>
@@ -25,12 +10,12 @@ type SchemaElement<ThisTerminalElement> =
   | ThisTerminalElement
   | StructureElement<ThisTerminalElement>
   | UnionCompositionElement<
-    ThisTerminalElement | StructureElement<ThisTerminalElement>
+    ThisTerminalElement | StructureElement<ThisTerminalElement> | NullElement
   >;
 
 export interface UnionCompositionElement<ThisMemberElement>
   extends __SchemaElement<'unionComposition'> {
-  unionMembers: Array<ThisMemberElement | NullElement>;
+  elementMembers: Array<ThisMemberElement>;
 }
 
 export interface NullElement extends __SchemaElement<'null'> {}
@@ -63,7 +48,7 @@ interface TupleElementProperty<ThisTerminalElement>
 
 interface __StructureElement<ThisElementKind, ThisElementProperty>
   extends __SchemaElement<ThisElementKind> {
-  structureProperties: Record<string, ThisElementProperty>;
+  elementProperties: Record<string, ThisElementProperty>;
 }
 
 interface __ElementProperty<ThisTerminalElement> {
@@ -108,21 +93,25 @@ export interface VerdeArrayElement<ThisParameterElement>
 interface __CollectionElement<
   ThisElementKind,
   ThisCollectionElement,
-> extends __VerdeElement<ThisElementKind> {
-  collectionElement: ThisCollectionElement;
+> extends __VerdeElement<ThisElementKind, [ThisCollectionElement]> {}
+
+interface __VerdeElement<ThisElementKind, ThisElementArguments>
+  extends __SchemaElement<ThisElementKind> {
+  elementArguments: ThisElementArguments
 }
 
-interface __VerdeElement<ThisElementKind>
-  extends __SchemaElement<ThisElementKind> {}
+export interface ParameterReferenceElement
+  extends __ReferenceElement<'parameterReference'> {}
 
 export interface AliasReferenceElement
-  extends __SchemaElement<'aliasReference'> {
-  aliasNameKey: string;
-}
+  extends __ReferenceElement<'aliasReference'> {}
 
 export interface DataModelReferenceElement
-  extends __SchemaElement<'dataModelReference'> {
-  dataModelNameKey: string;
+  extends __ReferenceElement<'dataModelReference'> {}
+
+interface __ReferenceElement<ThisElementKind>
+  extends __SchemaElement<ThisElementKind> {
+  elementName: string;
 }
 
 export type PrimitiveElement =
@@ -158,7 +147,7 @@ export interface BooleanLiteralElement
 
 interface __LiteralElement<ThisElementKind>
   extends __SchemaElement<ThisElementKind> {
-  literalSymbol: string;
+  elementSymbol: string;
 }
 
 export interface __SchemaElement<ThisElementKind> {

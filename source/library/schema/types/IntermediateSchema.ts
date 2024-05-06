@@ -44,16 +44,25 @@ export interface GenericTemplateIntermediateModel
       'genericTemplate',
       GenericSchemaElement
     > {
-  genericParameters: Array<GenericParameter>;
+  modelParameters: Array<GenericTemplateParameter>;
 }
 
-export interface GenericParameter {
+export type GenericTemplateParameter = BasicTemplateParameter | ConstrainedTemplateParameter;
+
+interface BasicTemplateParameter extends __GenericTemplateParameter<'basic'> {}
+
+interface ConstrainedTemplateParameter
+  extends __GenericTemplateParameter<'constrained'> {
+  parameterConstraint: string;
+}
+
+interface __GenericTemplateParameter<ThisParameterKind> {
+  parameterKind: ThisParameterKind;
   parameterName: string;
 }
 
 interface __TemplateIntermediateModel<ThisModelKind, ThisModelElement>
-  extends __IntermediateModel<ThisModelKind, ThisModelElement> {
-}
+  extends __IntermediateModel<ThisModelKind, ThisModelElement> {}
 
 interface __IntermediateModel<
   ThisModelKind,
@@ -71,7 +80,7 @@ interface ConcreteModelTemplate extends __ModelTemplate<'concreteTemplate'> {}
 
 export interface GenericModelTemplate<ThisArgumentElement>
   extends __ModelTemplate<'genericTemplate'> {
-  genericArguments: Record<
+  templateArguments: Record<
     GenericArgument<ThisArgumentElement>['argumentParameterNameKey'],
     GenericArgument<ThisArgumentElement>
   >;
