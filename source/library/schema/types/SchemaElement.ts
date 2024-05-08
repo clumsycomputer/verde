@@ -9,9 +9,11 @@ export type DefinitiveSchemaElement = SchemaElement<
 type SchemaElement<ThisTerminalElement> =
   | ThisTerminalElement
   | StructureElement<ThisTerminalElement>
-  | UnionCompositionElement<
-    ThisTerminalElement | StructureElement<ThisTerminalElement> | NullElement
-  >;
+  | SchemaUnionCompositionElement<ThisTerminalElement>;
+
+export type SchemaUnionCompositionElement<ThisTerminalElement> = UnionCompositionElement<
+  ThisTerminalElement | StructureElement<ThisTerminalElement> | NullElement
+>;
 
 export interface UnionCompositionElement<ThisMemberElement>
   extends __SchemaElement<'unionComposition'> {
@@ -21,8 +23,12 @@ export interface UnionCompositionElement<ThisMemberElement>
 export interface NullElement extends __SchemaElement<'null'> {}
 
 export type StructureElement<ThisTerminalElement> =
-  | ObjectStructureElement<ThisTerminalElement>
-  | TupleStructureElement<ThisTerminalElement>;
+  | ObjectStructureElement<
+    ThisTerminalElement | StructureElement<ThisTerminalElement>
+  >
+  | TupleStructureElement<
+    ThisTerminalElement | StructureElement<ThisTerminalElement>
+  >;
 
 export interface ObjectStructureElement<ThisTerminalElement>
   extends
@@ -56,10 +62,10 @@ interface __ElementProperty<ThisTerminalElement> {
   propertyElement: SchemaElement<ThisTerminalElement>;
 }
 
-export type TerminalElement<ThisParameterElement> =
+export type TerminalElement<ThisParameterReferenceElement> =
   | ConcreteTerminalElement
-  | ThisParameterElement
-  | VerdeElement<ThisParameterElement>;
+  | ThisParameterReferenceElement
+  | VerdeElement<ThisParameterReferenceElement>;
 
 export type ConcreteTerminalElement =
   | AliasReferenceElement
@@ -97,7 +103,7 @@ interface __CollectionElement<
 
 interface __VerdeElement<ThisElementKind, ThisElementArguments>
   extends __SchemaElement<ThisElementKind> {
-  elementArguments: ThisElementArguments
+  elementArguments: ThisElementArguments;
 }
 
 export interface ParameterReferenceElement

@@ -1,18 +1,16 @@
 import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
+import { genericAny, irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
-import {
-  GetThisIntermediateElement,
-  IntermediateSchema,
-} from '../../types/IntermediateSchema.ts';
+import { __SchemaElement } from '../../types/SchemaElement.ts';
 import { throwInvalidSchemaElement } from '../helpers/errors.ts';
 import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
 
 export interface DeriveSchemaElementApi<
-  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
+ThisSchemaElement extends __SchemaElement<genericAny>,
   ThisElementNode extends Typescript.Node,
 > extends
   Pick<
-    __DeriveIntermediateModelApi<ThisTargetModelKind>,
+    __DeriveIntermediateModelApi<irrelevantAny, ThisSchemaElement>,
     | 'elementCases'
     | 'schemaTypeChecker'
     | 'schemaResult'
@@ -22,10 +20,10 @@ export interface DeriveSchemaElementApi<
 }
 
 export function deriveSchemaElement<
-  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
+ThisSchemaElement extends __SchemaElement<genericAny>
 >(
-  api: DeriveSchemaElementApi<ThisTargetModelKind, Typescript.Node>,
-): GetThisIntermediateElement<ThisTargetModelKind> {
+  api: DeriveSchemaElementApi<ThisSchemaElement, Typescript.Node>,
+): ThisSchemaElement {
   const {
     elementCases,
     elementLocalNode,

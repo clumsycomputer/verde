@@ -1,14 +1,18 @@
 import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
-import { irrelevantAny } from '../../../../helpers/types.ts';
+import { genericAny, irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
   ConcreteTemplateIntermediateModel,
   DataIntermediateModel,
   GenericTemplateIntermediateModel,
-  GetThisIntermediateElement,
   GetThisIntermediateModel,
   IntermediateSchema,
 } from '../../types/IntermediateSchema.ts';
+import {
+  __SchemaElement,
+  DefinitiveSchemaElement,
+  GenericSchemaElement,
+} from '../../types/SchemaElement.ts';
 import { __DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
 import {
   ElementCaseHandler,
@@ -102,7 +106,10 @@ interface __DeriveDefinitiveModel<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
 > extends
   Pick<
-    __DeriveIntermediateModelApi<ThisTargetModelKind>,
+    __DeriveIntermediateModelApi<
+      ThisTargetModelKind,
+      irrelevantAny
+    >,
     | 'targetModelKind'
     | 'initializeTargetModel'
     | 'schemaTypeChecker'
@@ -125,7 +132,7 @@ function __deriveDefinitiveModel<
     // astContext,
   } = api;
   return __deriveIntermediateModel({
-    elementCases: getDefinitiveElementCases(),
+    elementCases: getDefinitiveElementCases() as any as Array<ElementCaseHandler<DefinitiveSchemaElement>>,
     targetModelKind,
     initializeTargetModel,
     schemaTypeChecker,
@@ -137,7 +144,10 @@ function __deriveDefinitiveModel<
 
 export interface DeriveGenericTemplateModelApi extends
   Pick<
-    __DeriveIntermediateModelApi<'genericTemplate'>,
+    __DeriveIntermediateModelApi<
+      irrelevantAny,
+      irrelevantAny
+    >,
     | 'schemaTypeChecker'
     | 'schemaResult'
     | 'modelDeclaration'
@@ -149,7 +159,7 @@ export function deriveGenericTemplateModel(api: DeriveGenericTemplateModelApi) {
   return __deriveIntermediateModel({
     targetModelKind: 'genericTemplate',
     initializeTargetModel: initializeTargetModel__deriveGenericTemplateModel,
-    elementCases: getGenericElementCases(),
+    elementCases: getGenericElementCases() as any as Array<ElementCaseHandler<GenericSchemaElement>>,
     schemaTypeChecker,
     schemaResult,
     modelDeclaration,
@@ -174,16 +184,15 @@ function initializeTargetModel__deriveGenericTemplateModel(
         ? {
           parameterKind: 'constrained',
           parameterName: someTypeParameterDeclaration.name.text,
-          parameterConstraint:
-            Typescript.isTypeReferenceNode(
+          parameterConstraint: Typescript.isTypeReferenceNode(
+              someTypeParameterDeclaration.constraint,
+            )
+            ? someTypeParameterDeclaration.name.text
+            : schemaTypeChecker.typeToString(
+              schemaTypeChecker.getTypeFromTypeNode(
                 someTypeParameterDeclaration.constraint,
-              )
-              ? someTypeParameterDeclaration.name.text
-              : schemaTypeChecker.typeToString(
-                schemaTypeChecker.getTypeFromTypeNode(
-                  someTypeParameterDeclaration.constraint,
-                ),
               ),
+            ),
         }
         : {
           parameterKind: 'basic',
@@ -195,9 +204,13 @@ function initializeTargetModel__deriveGenericTemplateModel(
 
 export interface __DeriveIntermediateModelApi<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
+  ThisSchemaElement extends __SchemaElement<genericAny>
 > extends
   Defined__DeriveIntermediateModelApi,
-  Custom__DeriveIntermediateModelApi<ThisTargetModelKind> {}
+  Custom__DeriveIntermediateModelApi<
+    ThisTargetModelKind,
+    ThisSchemaElement
+  > {}
 
 interface Defined__DeriveIntermediateModelApi
   extends Pick<__DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {
@@ -208,22 +221,21 @@ interface Defined__DeriveIntermediateModelApi
 
 interface Custom__DeriveIntermediateModelApi<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
+  ThisSchemaElement extends __SchemaElement<genericAny>
 > {
   targetModelKind: ThisTargetModelKind;
   initializeTargetModel: (
     api: InitializeTargetModelApi,
   ) => GetThisIntermediateModel<ThisTargetModelKind>;
-  elementCases: Array<
-    ElementCaseHandler<
-      GetThisIntermediateElement<ThisTargetModelKind>['elementKind'],
-      GetThisIntermediateElement<ThisTargetModelKind>
-    >
-  >;
+  elementCases: Array<ElementCaseHandler<ThisSchemaElement>>;
 }
 
 interface InitializeTargetModelApi extends
   Pick<
-    __DeriveIntermediateModelApi<irrelevantAny>,
+    __DeriveIntermediateModelApi<
+      irrelevantAny,
+      irrelevantAny
+    >,
     'schemaTypeChecker' | 'schemaResult' | 'modelDeclaration'
   > {
   modelName: string;
@@ -231,8 +243,12 @@ interface InitializeTargetModelApi extends
 
 function __deriveIntermediateModel<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
+  ThisSchemaElement extends __SchemaElement<genericAny>,
 >(
-  api: __DeriveIntermediateModelApi<ThisTargetModelKind>,
+  api: __DeriveIntermediateModelApi<
+    ThisTargetModelKind,
+    ThisSchemaElement
+  >,
 ): GetThisIntermediateModel<ThisTargetModelKind> {
   const {
     modelDeclaration,

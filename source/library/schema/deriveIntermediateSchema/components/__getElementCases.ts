@@ -1,10 +1,23 @@
-import { genericAny, irrelevantAny } from '../../../../helpers/types.ts';
+import { genericAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
   __SchemaElement,
+  AliasReferenceElement,
+  BooleanLiteralElement,
+  BooleanPrimitiveElement,
+  DataModelReferenceElement,
+  NullElement,
+  NumberLiteralElement,
+  NumberPrimitiveElement,
   ObjectStructureElement,
+  ParameterReferenceElement,
+  StringLiteralElement,
+  StringPrimitiveElement,
   TerminalElement,
   TupleStructureElement,
+  UnionCompositionElement,
+  VerdeArrayElement,
+  VerdeTableElement
 } from '../../types/SchemaElement.ts';
 import { deriveDataModel } from './__deriveIntermediateModel.ts';
 import {
@@ -15,18 +28,20 @@ import {
 export function getGenericElementCases() {
   return __getElementCases({
     uniqueElementCases: [
-      elementCase(({ elementSourceDeclaration }) => {
-        if (
-          elementSourceDeclaration &&
-          Typescript.isTypeParameterDeclaration(elementSourceDeclaration)
-        ) {
-          return {
-            elementKind: 'parameterReference',
-            elementName: elementSourceDeclaration.name.text,
-          };
-        }
-        return null;
-      }),
+      elementCase<ParameterReferenceElement>(
+        ({ elementSourceDeclaration }) => {
+          if (
+            elementSourceDeclaration &&
+            Typescript.isTypeParameterDeclaration(elementSourceDeclaration)
+          ) {
+            return {
+              elementKind: 'parameterReference',
+              elementName: elementSourceDeclaration.name.text,
+            };
+          }
+          return null;
+        },
+      ),
     ],
   });
 }
@@ -38,33 +53,25 @@ export function getDefinitiveElementCases() {
 }
 
 interface __GetElementCasesApi<
-  SomeElementKind extends string,
-  SomeSchemaElement extends __SchemaElement<SomeElementKind>,
   ThisUniqueElementCases extends [
-    ElementCaseHandler<SomeElementKind, SomeSchemaElement>,
-    ...Array<ElementCaseHandler<SomeElementKind, SomeSchemaElement>>,
+    ElementCaseHandler<genericAny>,
+    ...Array<ElementCaseHandler<genericAny>>,
   ] | [],
 > {
   uniqueElementCases: ThisUniqueElementCases;
 }
 
 function __getElementCases<
-  SomeElementKind extends string,
-  SomeSchemaElement extends __SchemaElement<SomeElementKind>,
   ThisUniqueElementCases extends [
-    ElementCaseHandler<SomeElementKind, SomeSchemaElement>,
-    ...Array<ElementCaseHandler<SomeElementKind, SomeSchemaElement>>,
+    ElementCaseHandler<genericAny>,
+    ...Array<ElementCaseHandler<genericAny>>,
   ] | [],
 >(
-  api: __GetElementCasesApi<
-    SomeElementKind,
-    SomeSchemaElement,
-    ThisUniqueElementCases
-  >,
+  api: __GetElementCasesApi<ThisUniqueElementCases>,
 ) {
   const { uniqueElementCases } = api;
   return getExtendedTuple([
-    elementCase(
+    elementCase<BooleanLiteralElement>(
       ({ elementLocalNode, schemaTypeChecker }) =>
         Typescript.isLiteralTypeNode(elementLocalNode) &&
           elementLocalNode.literal.kind ===
@@ -78,7 +85,9 @@ function __getElementCases<
           })
           : null,
     ),
-    elementCase(({ elementLocalNode, schemaTypeChecker }) =>
+    elementCase<NumberLiteralElement>((
+      { elementLocalNode, schemaTypeChecker },
+    ) =>
       Typescript.isLiteralTypeNode(elementLocalNode) &&
         Typescript.isNumericLiteral(elementLocalNode.literal)
         ? ({
@@ -89,7 +98,9 @@ function __getElementCases<
         })
         : null
     ),
-    elementCase(({ elementLocalNode, schemaTypeChecker }) =>
+    elementCase<StringLiteralElement>((
+      { elementLocalNode, schemaTypeChecker },
+    ) =>
       Typescript.isLiteralTypeNode(elementLocalNode) &&
         Typescript.isStringLiteral(elementLocalNode.literal)
         ? ({
@@ -100,22 +111,28 @@ function __getElementCases<
         })
         : null
     ),
-    elementCase(({ elementLocalNode }) =>
+    elementCase<BooleanPrimitiveElement>((
+      { elementLocalNode },
+    ) =>
       elementLocalNode.kind === Typescript.SyntaxKind.BooleanKeyword
         ? { elementKind: 'booleanPrimitive' }
         : null
     ),
-    elementCase(({ elementLocalNode }) =>
+    elementCase<NumberPrimitiveElement>((
+      { elementLocalNode },
+    ) =>
       elementLocalNode.kind === Typescript.SyntaxKind.NumberKeyword
         ? { elementKind: 'numberPrimitive' }
         : null
     ),
-    elementCase(({ elementLocalNode }) =>
+    elementCase<StringPrimitiveElement>((
+      { elementLocalNode },
+    ) =>
       elementLocalNode.kind === Typescript.SyntaxKind.StringKeyword
         ? { elementKind: 'stringPrimitive' }
         : null
     ),
-    elementCase(
+    elementCase<DataModelReferenceElement>(
       ({ elementSourceDeclaration, schemaTypeChecker, schemaResult }) => {
         if (
           elementSourceDeclaration &&
@@ -134,22 +151,24 @@ function __getElementCases<
         return null;
       },
     ),
-    elementCase(({ elementSourceDeclaration, elementLocalNode }) => {
-      if (
-        elementSourceDeclaration &&
-        Typescript.isTypeAliasDeclaration(elementSourceDeclaration) &&
-        Typescript.isTypeReferenceNode(elementLocalNode) &&
-        elementLocalNode.typeArguments === undefined
-      ) {
-        // todo deriveIntermediateAlias
-        return {
-          elementKind: 'aliasReference',
-          elementName: elementSourceDeclaration.name.text,
-        };
-      }
-      return null;
-    }),
-    elementCase(
+    elementCase<AliasReferenceElement>(
+      ({ elementSourceDeclaration, elementLocalNode }) => {
+        if (
+          elementSourceDeclaration &&
+          Typescript.isTypeAliasDeclaration(elementSourceDeclaration) &&
+          Typescript.isTypeReferenceNode(elementLocalNode) &&
+          elementLocalNode.typeArguments === undefined
+        ) {
+          // todo deriveIntermediateAlias
+          return {
+            elementKind: 'aliasReference',
+            elementName: elementSourceDeclaration.name.text,
+          };
+        }
+        return null;
+      },
+    ),
+    elementCase<VerdeTableElement<any>>(
       (
         {
           elementSourceDeclaration,
@@ -170,18 +189,18 @@ function __getElementCases<
         ) {
           return {
             elementKind: 'verdeTable',
-            elementArguments: [deriveSchemaElement<any>({
+            elementArguments: [deriveSchemaElement({
               elementCases: elementCases,
               schemaTypeChecker,
               schemaResult,
               elementLocalNode: elementLocalNode.typeArguments[0],
-            })] as [any],
+            })],
           };
         }
         return null;
       },
     ),
-    elementCase(
+    elementCase<VerdeArrayElement<any>>(
       (
         {
           elementSourceDeclaration,
@@ -202,18 +221,18 @@ function __getElementCases<
         ) {
           return {
             elementKind: 'verdeArray',
-            elementArguments: [deriveSchemaElement<any>({
+            elementArguments: [deriveSchemaElement({
               elementCases,
               schemaTypeChecker,
               schemaResult,
               elementLocalNode: elementLocalNode.typeArguments[0],
-            })] as [any],
+            })],
           };
         }
         return null;
       },
     ),
-    elementCase(
+    elementCase<ObjectStructureElement<any>>(
       ({ elementLocalNode, elementCases, schemaTypeChecker, schemaResult }) => {
         if (Typescript.isTypeLiteralNode(elementLocalNode)) {
           return {
@@ -249,7 +268,7 @@ function __getElementCases<
         return null;
       },
     ),
-    elementCase(
+    elementCase<TupleStructureElement<any>>(
       ({ elementLocalNode, elementCases, schemaTypeChecker, schemaResult }) => {
         if (Typescript.isTupleTypeNode(elementLocalNode)) {
           return {
@@ -286,13 +305,13 @@ function __getElementCases<
         return null;
       },
     ),
-    elementCase(
+    elementCase<UnionCompositionElement<any>>(
       ({ elementLocalNode, elementCases, schemaTypeChecker, schemaResult }) => {
         if (Typescript.isUnionTypeNode(elementLocalNode)) {
           return ({
             elementKind: 'unionComposition',
             elementMembers: elementLocalNode.types.map((someUnionMemberNode) =>
-              deriveSchemaElement<any>({
+              deriveSchemaElement({
                 elementCases,
                 schemaTypeChecker,
                 schemaResult,
@@ -304,7 +323,7 @@ function __getElementCases<
         return null;
       },
     ),
-    elementCase<string, any>(({ elementLocalNode }) =>
+    elementCase<NullElement>(({ elementLocalNode }) =>
       Typescript.isLiteralTypeNode(elementLocalNode) &&
         elementLocalNode.literal.kind === Typescript.SyntaxKind.NullKeyword
         ? { elementKind: 'null' }
@@ -314,13 +333,16 @@ function __getElementCases<
 }
 
 export type ElementCaseHandler<
-  ThisElementKind extends string,
-  ThisSchemaElement extends __SchemaElement<ThisElementKind>,
-> = (api: ElementCaseHandlerApi) => ThisSchemaElement | null;
+  ThisSchemaElement extends __SchemaElement<any>,
+> = (
+  api: ElementCaseHandlerApi<ThisSchemaElement>,
+) => ThisSchemaElement | null;
 
-interface ElementCaseHandlerApi extends
+interface ElementCaseHandlerApi<
+  ThisSchemaElement extends __SchemaElement<genericAny>,
+> extends
   Pick<
-    DeriveSchemaElementApi<irrelevantAny, Typescript.Node>,
+    DeriveSchemaElementApi<ThisSchemaElement, Typescript.Node>,
     'elementCases' | 'schemaTypeChecker' | 'schemaResult' | 'elementLocalNode'
   > // | 'astContext'
 {
@@ -328,13 +350,9 @@ interface ElementCaseHandlerApi extends
 }
 
 function elementCase<
-  ThisElementKind extends string,
-  ThisSchemaElement extends __SchemaElement<ThisElementKind>,
+  ThisSchemaElement extends __SchemaElement<genericAny>,
 >(
-  thisElementCaseHandler: ElementCaseHandler<
-    ThisElementKind,
-    ThisSchemaElement
-  >,
+  thisElementCaseHandler: ElementCaseHandler<ThisSchemaElement>,
 ) {
   return thisElementCaseHandler;
 }
