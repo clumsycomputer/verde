@@ -9,14 +9,23 @@ export type DefinitiveSchemaElement = SchemaElement<
 type SchemaElement<ThisTerminalElement> =
   | ThisTerminalElement
   | StructureElement<ThisTerminalElement>
-  | SchemaUnionCompositionElement<ThisTerminalElement>;
+  | CoreUnionElement<ThisTerminalElement>;
 
-export type SchemaUnionCompositionElement<ThisTerminalElement> = UnionCompositionElement<
-  ThisTerminalElement | StructureElement<ThisTerminalElement> | NullElement
->;
+export interface CoreUnionElement<ThisTerminalElement> extends
+  __UnionElement<
+    'coreUnion',
+    ThisTerminalElement | StructureElement<ThisTerminalElement> | NullElement
+  > {}
 
-export interface UnionCompositionElement<ThisMemberElement>
-  extends __SchemaElement<'unionComposition'> {
+export interface DataModelUnionElement<ThisParameterReferenceElement>
+  extends
+    __UnionElement<
+      'dataModelUnion',
+      DataModelReferenceElement | AliasReferenceElement | ThisParameterReferenceElement
+    > {}
+
+export interface __UnionElement<ThisElementKind, ThisMemberElement>
+  extends __SchemaElement<ThisElementKind> {
   elementMembers: Array<ThisMemberElement>;
 }
 
@@ -77,16 +86,14 @@ export type VerdeElement<ThisParameterElement> =
   | VerdeTableElement<ThisParameterElement>
   | VerdeArrayElement<ThisParameterElement>;
 
-export interface VerdeTableElement<ThisParameterElement>
+export interface VerdeTableElement<ThisParameterReferenceElement>
   extends
     __CollectionElement<
       'verdeTable',
       | DataModelReferenceElement
       | AliasReferenceElement
-      | ThisParameterElement
-      | UnionCompositionElement<
-        DataModelReferenceElement | AliasReferenceElement | ThisParameterElement
-      >
+      | ThisParameterReferenceElement
+      | DataModelUnionElement<ThisParameterReferenceElement>
     > {}
 
 export interface VerdeArrayElement<ThisParameterElement>
@@ -96,7 +103,7 @@ export interface VerdeArrayElement<ThisParameterElement>
       SchemaElement<ConcreteTerminalElement | ThisParameterElement>
     > {}
 
-interface __CollectionElement<
+export interface __CollectionElement<
   ThisElementKind,
   ThisCollectionElement,
 > extends __VerdeElement<ThisElementKind, [ThisCollectionElement]> {}

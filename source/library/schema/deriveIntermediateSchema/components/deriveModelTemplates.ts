@@ -12,25 +12,26 @@ import {
   deriveConcreteTemplateModel,
   deriveGenericTemplateModel,
 } from './__deriveIntermediateModel.ts';
+import { ElementCase, GetCaseSchemaElement } from './__getElementCases.ts';
 import { deriveSchemaElement } from './deriveSchemaElement.ts';
 
 export interface DeriveModelTemplatesApi<
-  ThisSchemaElement extends __SchemaElement<genericAny>,
+  ThisElementCase extends ElementCase<genericAny>,
 > extends
   Pick<
-    __DeriveIntermediateModelApi<irrelevantAny, ThisSchemaElement>,
+    __DeriveIntermediateModelApi<irrelevantAny, ThisElementCase>,
     | 'elementCases'
     | 'schemaTypeChecker'
     | 'schemaResult'
     | 'modelDeclaration'
-  > // | 'astContext'
+  >
 {}
 
 export function deriveModelTemplates<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
-  ThisSchemaElement extends __SchemaElement<genericAny>,
+  ThisElementCase extends ElementCase<genericAny>,
 >(
-  api: DeriveModelTemplatesApi<ThisSchemaElement>,
+  api: DeriveModelTemplatesApi<ThisElementCase>,
 ): GetThisIntermediateModel<ThisTargetModelKind>['modelTemplates'] {
   const { modelDeclaration, schemaTypeChecker, schemaResult, elementCases } =
     api;
@@ -67,7 +68,9 @@ export function deriveModelTemplates<
             templateModelNameKey: heritageGenericTemplateModel.modelName,
             templateArguments: heritageGenericTemplateModel.modelParameters
               .reduce<
-                GenericModelTemplate<ThisSchemaElement>['templateArguments']
+                GenericModelTemplate<
+                  GetCaseSchemaElement<ThisElementCase>
+                >['templateArguments']
               >(
                 (
                   genericArgumentsResult,

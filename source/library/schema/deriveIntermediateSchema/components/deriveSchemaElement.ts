@@ -4,13 +4,14 @@ import { Typescript } from '../../../../imports/Typescript.ts';
 import { __SchemaElement } from '../../types/SchemaElement.ts';
 import { throwInvalidSchemaElement } from '../helpers/errors.ts';
 import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
+import { ElementCase, GetCaseSchemaElement } from './__getElementCases.ts';
 
 export interface DeriveSchemaElementApi<
-ThisSchemaElement extends __SchemaElement<genericAny>,
+ThisElementCase extends ElementCase<genericAny>,
   ThisElementNode extends Typescript.Node,
 > extends
   Pick<
-    __DeriveIntermediateModelApi<irrelevantAny, ThisSchemaElement>,
+    __DeriveIntermediateModelApi<irrelevantAny, ThisElementCase>,
     | 'elementCases'
     | 'schemaTypeChecker'
     | 'schemaResult'
@@ -20,10 +21,10 @@ ThisSchemaElement extends __SchemaElement<genericAny>,
 }
 
 export function deriveSchemaElement<
-ThisSchemaElement extends __SchemaElement<genericAny>
+ThisElementCase extends ElementCase<genericAny>,
 >(
-  api: DeriveSchemaElementApi<ThisSchemaElement, Typescript.Node>,
-): ThisSchemaElement {
+  api: DeriveSchemaElementApi<ThisElementCase, Typescript.Node>,
+): GetCaseSchemaElement<ThisElementCase> {
   const {
     elementCases,
     elementLocalNode,
@@ -49,7 +50,6 @@ ThisSchemaElement extends __SchemaElement<genericAny>
     : null;
   for (const handleSomeElementCase of elementCases) {
     const maybeSchemaElement = handleSomeElementCase({
-      elementCases,
       schemaTypeChecker,
       schemaResult,
       elementLocalNode,
