@@ -72,19 +72,19 @@ interface __ElementProperty<ThisTerminalElement> {
 }
 
 export type TerminalElement<ThisParameterReferenceElement> =
-  | ConcreteTerminalElement
+  | BasicTerminalElement
   | ThisParameterReferenceElement
   | VerdeElement<ThisParameterReferenceElement>;
 
-export type ConcreteTerminalElement =
+export type BasicTerminalElement =
   | AliasReferenceElement
   | DataModelReferenceElement
   | PrimitiveElement
   | LiteralElement;
 
-export type VerdeElement<ThisParameterElement> =
-  | VerdeTableElement<ThisParameterElement>
-  | VerdeArrayElement<ThisParameterElement>;
+export type VerdeElement<ThisParameterReferenceElement> =
+  | VerdeTableElement<ThisParameterReferenceElement>
+  | VerdeArrayElement<ThisParameterReferenceElement>;
 
 export interface VerdeTableElement<ThisParameterReferenceElement>
   extends
@@ -96,11 +96,11 @@ export interface VerdeTableElement<ThisParameterReferenceElement>
       | DataModelUnionElement<ThisParameterReferenceElement>
     > {}
 
-export interface VerdeArrayElement<ThisParameterElement>
+export interface VerdeArrayElement<ThisParameterReferenceElement>
   extends
     __CollectionElement<
       'verdeArray',
-      SchemaElement<ConcreteTerminalElement | ThisParameterElement>
+      SchemaElement<BasicTerminalElement | ThisParameterReferenceElement>
     > {}
 
 export interface __CollectionElement<

@@ -1,29 +1,26 @@
 import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
 import { genericAny, irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
-import { __SchemaElement } from '../../types/SchemaElement.ts';
 import { throwInvalidSchemaElement } from '../helpers/errors.ts';
 import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
 import { ElementCase, GetCaseSchemaElement } from './__getElementCases.ts';
 
-export interface DeriveSchemaElementApi<
-ThisElementCase extends ElementCase<genericAny>,
-  ThisElementNode extends Typescript.Node,
-> extends
-  Pick<
-    __DeriveIntermediateModelApi<irrelevantAny, ThisElementCase>,
-    | 'elementCases'
-    | 'schemaTypeChecker'
-    | 'schemaResult'
-  > // | 'astContext'
+export interface DeriveSchemaElementApi<ThisElementNode extends Typescript.Node>
+  extends
+    Pick<
+      __DeriveIntermediateModelApi<irrelevantAny>,
+      | 'elementCases'
+      | 'schemaTypeChecker'
+      | 'schemaResult'
+    > // | 'astContext'
 {
   elementLocalNode: ThisElementNode;
 }
 
 export function deriveSchemaElement<
-ThisElementCase extends ElementCase<genericAny>,
+  ThisElementCase extends ElementCase<genericAny>,
 >(
-  api: DeriveSchemaElementApi<ThisElementCase, Typescript.Node>,
+  api: DeriveSchemaElementApi<Typescript.Node>,
 ): GetCaseSchemaElement<ThisElementCase> {
   const {
     elementCases,

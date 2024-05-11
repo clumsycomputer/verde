@@ -1,18 +1,14 @@
-import { genericAny, irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
   GetThisIntermediateModel,
   IntermediateSchema,
 } from '../../types/IntermediateSchema.ts';
 import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
-import { ElementCase } from './__getElementCases.ts';
 import { deriveSchemaElement } from './deriveSchemaElement.ts';
 
-export interface DeriveModelPropertiesApi<
-ThisElementCase extends ElementCase<genericAny>
-> extends
+export interface DeriveModelPropertiesApi<ThisTargetModelKind extends keyof IntermediateSchema['schemaModels']> extends
   Pick<
-    __DeriveIntermediateModelApi<irrelevantAny, ThisElementCase>,
+    __DeriveIntermediateModelApi<ThisTargetModelKind>,
     | 'elementCases'
     | 'schemaTypeChecker'
     | 'schemaResult'
@@ -21,10 +17,9 @@ ThisElementCase extends ElementCase<genericAny>
 {}
 
 export function deriveModelProperties<
-  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
-  ThisElementCase extends ElementCase<genericAny>
+  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels']
 >(
-  api: DeriveModelPropertiesApi<ThisElementCase>,
+  api: DeriveModelPropertiesApi<ThisTargetModelKind>,
 ): GetThisIntermediateModel<ThisTargetModelKind>['modelProperties'] {
   const {
     modelDeclaration,

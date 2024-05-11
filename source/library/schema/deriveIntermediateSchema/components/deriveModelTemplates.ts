@@ -1,37 +1,31 @@
 import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
-import { genericAny, irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
   GenericModelTemplate,
+  GetThisIntermediateElement,
   GetThisIntermediateModel,
   IntermediateSchema,
 } from '../../types/IntermediateSchema.ts';
-import { __SchemaElement } from '../../types/SchemaElement.ts';
 import {
   __DeriveIntermediateModelApi,
   deriveConcreteTemplateModel,
   deriveGenericTemplateModel,
 } from './__deriveIntermediateModel.ts';
-import { ElementCase, GetCaseSchemaElement } from './__getElementCases.ts';
 import { deriveSchemaElement } from './deriveSchemaElement.ts';
 
-export interface DeriveModelTemplatesApi<
-  ThisElementCase extends ElementCase<genericAny>,
-> extends
+export interface DeriveModelTemplatesApi<ThisTargetModelKind extends keyof IntermediateSchema['schemaModels']> extends
   Pick<
-    __DeriveIntermediateModelApi<irrelevantAny, ThisElementCase>,
+    __DeriveIntermediateModelApi<ThisTargetModelKind>,
     | 'elementCases'
     | 'schemaTypeChecker'
     | 'schemaResult'
     | 'modelDeclaration'
-  >
-{}
+  > {}
 
 export function deriveModelTemplates<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
-  ThisElementCase extends ElementCase<genericAny>,
 >(
-  api: DeriveModelTemplatesApi<ThisElementCase>,
+  api: DeriveModelTemplatesApi<ThisTargetModelKind>,
 ): GetThisIntermediateModel<ThisTargetModelKind>['modelTemplates'] {
   const { modelDeclaration, schemaTypeChecker, schemaResult, elementCases } =
     api;
@@ -69,7 +63,7 @@ export function deriveModelTemplates<
             templateArguments: heritageGenericTemplateModel.modelParameters
               .reduce<
                 GenericModelTemplate<
-                  GetCaseSchemaElement<ThisElementCase>
+                  GetThisIntermediateElement<ThisTargetModelKind>
                 >['templateArguments']
               >(
                 (

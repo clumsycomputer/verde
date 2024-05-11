@@ -84,7 +84,7 @@ export const expectedIntermediateSchema: IntermediateSchema = {
           aaProperty__KK: {
             propertyKey: 'aaProperty__KK',
             propertyElement: {
-              elementKind: 'unionComposition',
+              elementKind: 'coreUnion',
               elementMembers: [
                 { elementKind: 'stringPrimitive' },
                 { elementKind: 'null' },
@@ -334,7 +334,7 @@ export const expectedIntermediateSchema: IntermediateSchema = {
             propertyElement: {
               elementKind: 'verdeTable',
               elementArguments: [{
-                elementKind: 'unionComposition',
+                elementKind: 'dataModelUnion',
                 elementMembers: [
                   {
                     elementKind: 'dataModelReference',
