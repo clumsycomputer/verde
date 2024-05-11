@@ -6,31 +6,29 @@ import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
 import { ElementCase, GetCaseSchemaElement } from './__getElementCases.ts';
 
 export interface DeriveSchemaElementApi<
-  ThisElementCase extends ElementCase<genericAny>,
-  ThisElementNode extends Typescript.Node,
+  ThisElementCase extends ElementCase<genericAny>
 > extends
   Pick<
     __DeriveIntermediateModelApi<irrelevantAny>,
     | 'schemaTypeChecker'
     | 'schemaResult'
-  > // | 'astContext'
+  >
 {
   elementCases: Array<ThisElementCase>;
-  elementLocalNode: ThisElementNode;
+  elementLocalNode: Typescript.Node;
 }
 
 export function deriveSchemaElement<
   ThisElementCase extends ElementCase<genericAny>,
 >(
-  api: DeriveSchemaElementApi<ThisElementCase, Typescript.Node>,
+  api: DeriveSchemaElementApi<ThisElementCase>,
 ): GetCaseSchemaElement<ThisElementCase> {
   const {
     elementCases,
     elementLocalNode,
     schemaTypeChecker,
     schemaResult,
-    // astContext,
-  } = api;
+  } = api;  
   const elementLocalSymbol = Typescript.isTypeReferenceNode(elementLocalNode)
     ? schemaTypeChecker.getSymbolAtLocation(elementLocalNode.typeName) ??
       throwInvalidPathError('elementLocalSymbol')
@@ -53,7 +51,6 @@ export function deriveSchemaElement<
       schemaResult,
       elementLocalNode,
       elementSourceDeclaration,
-      // astContext
     });
     if (maybeSchemaElement) {
       return maybeSchemaElement;
@@ -61,6 +58,6 @@ export function deriveSchemaElement<
   }
   throwInvalidSchemaElement({
     schemaTypeChecker,
-    // astContext,
+    elementLocalNode
   });
 }

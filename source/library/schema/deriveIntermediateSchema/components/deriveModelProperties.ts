@@ -13,7 +13,7 @@ export interface DeriveModelPropertiesApi<ThisTargetModelKind extends keyof Inte
     | 'schemaTypeChecker'
     | 'schemaResult'
     | 'modelDeclaration'
-  > // | 'astContext'
+  >
 {}
 
 export function deriveModelProperties<
@@ -26,7 +26,6 @@ export function deriveModelProperties<
     schemaTypeChecker,
     schemaResult,
     targetModelElementCases,
-    // astContext,
   } = api;
   return modelDeclaration.members.reduce<
     GetThisIntermediateModel<ThisTargetModelKind>['modelProperties']
@@ -45,14 +44,6 @@ export function deriveModelProperties<
             schemaResult,
             elementCases: targetModelElementCases,
             elementLocalNode: somePropertyNode.type,
-            // astContext: [
-            //   ...astContext,
-            //   {
-            //     astNodeKind: 'propertyElement',
-            //     astNodeTypeNode: propertySourceTypeNode,
-            //     propertyKey,
-            //   },
-            // ],
           }),
         };
       }

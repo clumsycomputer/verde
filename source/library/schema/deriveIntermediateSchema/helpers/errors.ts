@@ -2,7 +2,6 @@ import { throwUserError } from '../../../../helpers/throwError.ts';
 import { irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import { DeriveSchemaElementApi } from '../components/deriveSchemaElement.ts';
-// import { DeriveSchemaElementApi } from '../components/deriveSchemaElement.ts';
 import { LoadSchemaModuleApi } from '../components/loadSchemaModule.ts';
 import { __DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
 
@@ -72,7 +71,7 @@ export function throwInvalidSchemaModule__NotTupleExport(
 
 export interface ThrowInvalidTopLevelModelApi extends
   Pick<
-  __DeriveIntermediateSchemaApi,
+    __DeriveIntermediateSchemaApi,
     'schemaTypeChecker'
   > {
   topLevelDataModelType: Typescript.Type;
@@ -110,14 +109,15 @@ export function throwInvalidTopLevelModel(
 
 export interface ThrowInvalidSchemaElementApi extends
   Pick<
-    DeriveSchemaElementApi<irrelevantAny, irrelevantAny>,
-    'schemaTypeChecker' 
-    // | 'astContext'
+    DeriveSchemaElementApi<irrelevantAny>,
+    'schemaTypeChecker' | 'elementLocalNode'
   > {}
 
 export function throwInvalidSchemaElement(
   api: ThrowInvalidSchemaElementApi,
 ): never {
-  const {} = api;
-  throwUserError(`invalid model element: TODO`);
+  const { elementLocalNode } = api;
+  throwUserError(
+    `invalid schema element: ${elementLocalNode.getText()} at ${elementLocalNode.parent.getText()}`,
+  );
 }

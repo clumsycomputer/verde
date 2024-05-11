@@ -725,7 +725,7 @@ export type ElementCase<ThisSchemaElement> = (
 
 interface ElementCaseApi extends
   Pick<
-    DeriveSchemaElementApi<irrelevantAny, Typescript.Node>,
+    DeriveSchemaElementApi<irrelevantAny>,
     'schemaTypeChecker' | 'schemaResult' | 'elementLocalNode'
   > {
   elementSourceDeclaration: Typescript.Declaration | null;

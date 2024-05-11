@@ -39,10 +39,6 @@ export function deriveDataModel(
     schemaTypeChecker,
     schemaResult,
     modelDeclaration,
-    // astContext: [{
-    //   astNodeKind: 'dataModel',
-    //   astNodeTypeNode: dataModelType,
-    // }],
   });
 }
 
@@ -79,10 +75,6 @@ export function deriveConcreteTemplateModel(
     schemaTypeChecker,
     schemaResult,
     modelDeclaration,
-    // astContext: [{
-    //   astNodeKind: 'dataModel',
-    //   astNodeTypeNode: dataModelType,
-    // }],
   });
 }
 
@@ -112,7 +104,7 @@ interface __DeriveDefinitiveModel<
     | 'schemaTypeChecker'
     | 'schemaResult'
     | 'modelDeclaration'
-  > // | 'astContext'
+  >
 {}
 
 function __deriveDefinitiveModel<
@@ -128,7 +120,6 @@ function __deriveDefinitiveModel<
     schemaTypeChecker,
     schemaResult,
     modelDeclaration,
-    // astContext,
   } = api;
   return __deriveIntermediateModel({
     targetModelElementCases: getDefinitiveElementCases(),
@@ -137,7 +128,6 @@ function __deriveDefinitiveModel<
     schemaTypeChecker,
     schemaResult,
     modelDeclaration,
-    // astContext,
   });
 }
 
@@ -149,7 +139,7 @@ export interface DeriveGenericTemplateModelApi extends
     | 'schemaTypeChecker'
     | 'schemaResult'
     | 'modelDeclaration'
-  > // | 'astContext'
+  >
 {}
 
 export function deriveGenericTemplateModel(api: DeriveGenericTemplateModelApi) {
@@ -212,7 +202,6 @@ interface Defined__DeriveIntermediateModelApi
   extends Pick<__DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {
   schemaResult: IntermediateSchema;
   modelDeclaration: Typescript.InterfaceDeclaration;
-  // astContext: AstContext;
 }
 
 interface Custom__DeriveIntermediateModelApi<
@@ -247,7 +236,6 @@ function __deriveIntermediateModel<
     schemaTypeChecker,
     initializeTargetModel,
     targetModelElementCases,
-    // astContext,
   } = api;
   // todo:
   //    1. check if declaration symbol for `someModelType` is unique, a.k.a,
@@ -267,7 +255,7 @@ function __deriveIntermediateModel<
     modelDeclaration,
     modelName,
   });
-  // enable recursive model processing (direct & indirect)
+  // enable recursive model derivation (direct & indirect)
   schemaResult.schemaModels[targetModelKind][newTargetModel.modelName] =
     newTargetModel;
   newTargetModel.modelTemplates = deriveModelTemplates({
@@ -275,14 +263,12 @@ function __deriveIntermediateModel<
     schemaTypeChecker,
     schemaResult,
     modelDeclaration,
-    // astContext,
   });
   newTargetModel.modelProperties = deriveModelProperties({
     targetModelElementCases,
     schemaTypeChecker,
     schemaResult,
     modelDeclaration,
-    // astContext,
   });
   return newTargetModel;
 }
@@ -307,43 +293,3 @@ function isCachedTargetKind<
       : throwInvalidPathError('isCachedTargetKind')
     : false;
 }
-
-// type AstContext = [
-//   DataModelAstNode,
-//   ...Array<SecondaryModelAstNode>,
-// ];
-
-// interface DataModelAstNode extends __AstNode<'dataModel'> {}
-
-// type SecondaryModelAstNode = TemplateAstNode | ElementAstNode;
-
-// type TemplateAstNode = ConcreteTemplateAstNode | GenericTemplateAstNode;
-
-// interface ConcreteTemplateAstNode
-//   extends __TemplateTypeInfo<'concreteTemplate'> {}
-
-// interface GenericTemplateAstNode
-//   extends __TemplateTypeInfo<'genericTemplate'> {}
-
-// interface __TemplateTypeInfo<ThisAstNodeKind>
-//   extends __AstNode<ThisAstNodeKind> {}
-
-// type ElementAstNode = ArgumentElementTypeInfo | PropertyElementTypeInfo | CollectionElementTypeInfo;
-
-// interface ArgumentElementTypeInfo extends __ElementAstNode<'argumentElement'> {}
-
-// interface PropertyElementTypeInfo extends __ElementAstNode<'propertyElement'> {
-//   propertyKey: string;
-// }
-
-// interface CollectionElementTypeInfo extends __ElementAstNode<'collectionElement'> {
-//   collectionAliasSymbol: Typescript.Symbol
-// }
-
-// interface __ElementAstNode<ThisAstNodeKind>
-//   extends __AstNode<ThisAstNodeKind> {}
-
-// interface __AstNode<ThisAstNodeKind> {
-//   astNodeKind: ThisAstNodeKind;
-//   astNodeTypeNode: Typescript.TypeNode;
-// }
