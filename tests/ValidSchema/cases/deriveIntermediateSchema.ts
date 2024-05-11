@@ -762,10 +762,10 @@ export function getDeriveIntermediateSchemaTestCases(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => TupleStructureElement',
+            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => TupleElement',
           textPatterns: [{
             patternStyle: [3, 1, 44],
-            patternRegex: /TupleStructureElement/,
+            patternRegex: /TupleElement/,
           }],
         }),
         styledText({
@@ -797,10 +797,10 @@ export function getDeriveIntermediateSchemaTestCases(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => ObjectStructureElement',
+            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => ObjectElement',
           textPatterns: [{
             patternStyle: [3, 1, 44],
-            patternRegex: /ObjectStructureElement/,
+            patternRegex: /ObjectElement/,
           }],
         }),
         styledText({

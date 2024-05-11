@@ -1,4 +1,4 @@
-import { genericAny } from '../../../../helpers/types.ts';
+import { genericAny, irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
   __CollectionElement,
@@ -13,12 +13,12 @@ import {
   NullElement,
   NumberLiteralElement,
   NumberPrimitiveElement,
-  ObjectStructureElement,
+  ObjectElement,
   ParameterReferenceElement,
   StringLiteralElement,
   StringPrimitiveElement,
   TerminalElement,
-  TupleStructureElement,
+  TupleElement,
   VerdeArrayElement,
   VerdeTableElement,
 } from '../../types/SchemaElement.ts';
@@ -38,8 +38,8 @@ export function getDefinitiveElementCases() {
 function getDefinitiveStructureElementCases() {
   return [
     ...getDefinitiveTerminalElementCases(),
-    definitiveTupleStructureElement,
-    definitiveObjectStructureElement,
+    definitiveTupleElement,
+    definitiveObjectElement,
   ];
 }
 
@@ -61,8 +61,8 @@ export function getGenericElementCases() {
 function getGenericStructureElementCases() {
   return [
     ...getGenericTerminalElementCases(),
-    genericTupleStructureElement,
-    genericObjectStructureElement,
+    genericTupleElement,
+    genericObjectElement,
   ];
 }
 
@@ -410,47 +410,47 @@ function __collectionElementCase<
   return null;
 }
 
-function definitiveObjectStructureElement(
+function definitiveObjectElement(
   api: ElementCaseApi,
 ): ElementCaseResult<
-  ObjectStructureElement<TerminalElement<never>>
+  ObjectElement<TerminalElement<never>>
 > {
-  return __objectStructureElementCase({
+  return __objectElementCase({
     ...api,
     elementCases: getDefinitiveElementCases(),
   });
 }
 
-function genericObjectStructureElement(
+function genericObjectElement(
   api: ElementCaseApi,
 ): ElementCaseResult<
-  ObjectStructureElement<TerminalElement<ParameterReferenceElement>>
+  ObjectElement<TerminalElement<ParameterReferenceElement>>
 > {
-  return __objectStructureElementCase({
+  return __objectElementCase({
     ...api,
     elementCases: getGenericElementCases(),
   });
 }
 
-interface __ObjectStructureElementCaseApi<
+interface __ObjectElementCaseApi<
   ThisElementCase extends ElementCase<genericAny>,
 > extends ElementCaseApi {
   elementCases: Array<ThisElementCase>;
 }
 
-function __objectStructureElementCase<
+function __objectElementCase<
   ThisElementCase extends ElementCase<genericAny>,
   ThisPropertyElement extends __SchemaElement<genericAny>,
 >(
-  api: __ObjectStructureElementCaseApi<ThisElementCase>,
-): ElementCaseResult<ObjectStructureElement<ThisPropertyElement>> {
+  api: __ObjectElementCaseApi<ThisElementCase>,
+): ElementCaseResult<ObjectElement<ThisPropertyElement>> {
   const { elementLocalNode, schemaTypeChecker, schemaResult, elementCases } =
     api;
   if (Typescript.isTypeLiteralNode(elementLocalNode)) {
     return {
       elementKind: 'objectStructure',
       elementProperties: elementLocalNode.members.reduce<
-        ObjectStructureElement<
+        ObjectElement<
           GetCaseSchemaElement<ThisElementCase>
         >['elementProperties']
       >(
@@ -480,45 +480,45 @@ function __objectStructureElementCase<
   return null;
 }
 
-function definitiveTupleStructureElement(
+function definitiveTupleElement(
   api: ElementCaseApi,
-): ElementCaseResult<TupleStructureElement<TerminalElement<never>>> {
-  return __tupleStructureElementCase({
+): ElementCaseResult<TupleElement<TerminalElement<never>>> {
+  return __tupleElementCase({
     ...api,
     elementCases: getDefinitiveElementCases(),
   });
 }
 
-function genericTupleStructureElement(
+function genericTupleElement(
   api: ElementCaseApi,
 ): ElementCaseResult<
-  TupleStructureElement<TerminalElement<ParameterReferenceElement>>
+  TupleElement<TerminalElement<ParameterReferenceElement>>
 > {
-  return __tupleStructureElementCase({
+  return __tupleElementCase({
     ...api,
     elementCases: getGenericElementCases(),
   });
 }
 
-interface __TupleStructureElementCaseApi<
+interface __TupleElementCaseApi<
   ThisPropertyElementCase extends ElementCase<genericAny>,
 > extends ElementCaseApi {
   elementCases: Array<ThisPropertyElementCase>;
 }
 
-function __tupleStructureElementCase<
+function __tupleElementCase<
   ThisPropertElement extends __SchemaElement<genericAny>,
   ThisPropertyElementCase extends ElementCase<genericAny>,
 >(
-  api: __TupleStructureElementCaseApi<ThisPropertyElementCase>,
-): ElementCaseResult<TupleStructureElement<ThisPropertElement>> {
+  api: __TupleElementCaseApi<ThisPropertyElementCase>,
+): ElementCaseResult<TupleElement<ThisPropertElement>> {
   const { elementLocalNode, schemaTypeChecker, schemaResult, elementCases } =
     api;
   if (Typescript.isTupleTypeNode(elementLocalNode)) {
     return {
       elementKind: 'tupleStructure',
       elementProperties: elementLocalNode.elements.reduce<
-        TupleStructureElement<
+        TupleElement<
           GetCaseSchemaElement<ThisPropertyElementCase>
         >['elementProperties']
       >(
@@ -725,7 +725,7 @@ export type ElementCase<ThisSchemaElement> = (
 
 interface ElementCaseApi extends
   Pick<
-    DeriveSchemaElementApi<Typescript.Node>,
+    DeriveSchemaElementApi<irrelevantAny, Typescript.Node>,
     'schemaTypeChecker' | 'schemaResult' | 'elementLocalNode'
   > {
   elementSourceDeclaration: Typescript.Declaration | null;

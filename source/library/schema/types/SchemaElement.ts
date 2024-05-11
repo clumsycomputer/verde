@@ -32,14 +32,14 @@ export interface __UnionElement<ThisElementKind, ThisMemberElement>
 export interface NullElement extends __SchemaElement<'null'> {}
 
 export type StructureElement<ThisTerminalElement> =
-  | ObjectStructureElement<
+  | ObjectElement<
     ThisTerminalElement | StructureElement<ThisTerminalElement>
   >
-  | TupleStructureElement<
+  | TupleElement<
     ThisTerminalElement | StructureElement<ThisTerminalElement>
   >;
 
-export interface ObjectStructureElement<ThisTerminalElement>
+export interface ObjectElement<ThisTerminalElement>
   extends
     __StructureElement<
       'objectStructure',
@@ -49,7 +49,7 @@ export interface ObjectStructureElement<ThisTerminalElement>
 interface ObjectElementProperty<ThisTerminalElement>
   extends __ElementProperty<ThisTerminalElement> {}
 
-export interface TupleStructureElement<ThisTerminalElement>
+export interface TupleElement<ThisTerminalElement>
   extends
     __StructureElement<
       'tupleStructure',

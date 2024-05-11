@@ -5,22 +5,24 @@ import { throwInvalidSchemaElement } from '../helpers/errors.ts';
 import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
 import { ElementCase, GetCaseSchemaElement } from './__getElementCases.ts';
 
-export interface DeriveSchemaElementApi<ThisElementNode extends Typescript.Node>
-  extends
-    Pick<
-      __DeriveIntermediateModelApi<irrelevantAny>,
-      | 'elementCases'
-      | 'schemaTypeChecker'
-      | 'schemaResult'
-    > // | 'astContext'
+export interface DeriveSchemaElementApi<
+  ThisElementCase extends ElementCase<genericAny>,
+  ThisElementNode extends Typescript.Node,
+> extends
+  Pick<
+    __DeriveIntermediateModelApi<irrelevantAny>,
+    | 'schemaTypeChecker'
+    | 'schemaResult'
+  > // | 'astContext'
 {
+  elementCases: Array<ThisElementCase>;
   elementLocalNode: ThisElementNode;
 }
 
 export function deriveSchemaElement<
   ThisElementCase extends ElementCase<genericAny>,
 >(
-  api: DeriveSchemaElementApi<Typescript.Node>,
+  api: DeriveSchemaElementApi<ThisElementCase, Typescript.Node>,
 ): GetCaseSchemaElement<ThisElementCase> {
   const {
     elementCases,

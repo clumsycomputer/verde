@@ -16,7 +16,7 @@ import { deriveSchemaElement } from './deriveSchemaElement.ts';
 export interface DeriveModelTemplatesApi<ThisTargetModelKind extends keyof IntermediateSchema['schemaModels']> extends
   Pick<
     __DeriveIntermediateModelApi<ThisTargetModelKind>,
-    | 'elementCases'
+    | 'targetModelElementCases'
     | 'schemaTypeChecker'
     | 'schemaResult'
     | 'modelDeclaration'
@@ -27,7 +27,7 @@ export function deriveModelTemplates<
 >(
   api: DeriveModelTemplatesApi<ThisTargetModelKind>,
 ): GetThisIntermediateModel<ThisTargetModelKind>['modelTemplates'] {
-  const { modelDeclaration, schemaTypeChecker, schemaResult, elementCases } =
+  const { modelDeclaration, schemaTypeChecker, schemaResult, targetModelElementCases } =
     api;
   return modelDeclaration.heritageClauses && modelDeclaration.heritageClauses[0]
     ? modelDeclaration.heritageClauses[0].types.map<
@@ -76,10 +76,10 @@ export function deriveModelTemplates<
                   genericArgumentsResult[argumentParameterNameKey] = {
                     argumentIndex,
                     argumentParameterNameKey,
-                    argumentElement: deriveSchemaElement({
-                      elementCases,
+                    argumentElement: deriveSchemaElement({                      
                       schemaTypeChecker,
                       schemaResult,
+                      elementCases: targetModelElementCases,
                       elementLocalNode: someHeritageLocalNode.typeArguments &&
                           someHeritageLocalNode.typeArguments[argumentIndex] ||
                         throwInvalidPathError('argumentElementNode'),

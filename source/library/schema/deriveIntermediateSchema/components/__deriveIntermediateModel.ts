@@ -131,7 +131,7 @@ function __deriveDefinitiveModel<
     // astContext,
   } = api;
   return __deriveIntermediateModel({
-    elementCases: getDefinitiveElementCases(),
+    targetModelElementCases: getDefinitiveElementCases(),
     targetModelKind,
     initializeTargetModel,
     schemaTypeChecker,
@@ -157,7 +157,7 @@ export function deriveGenericTemplateModel(api: DeriveGenericTemplateModelApi) {
   return __deriveIntermediateModel({
     targetModelKind: 'genericTemplate',
     initializeTargetModel: initializeTargetModel__deriveGenericTemplateModel,
-    elementCases: getGenericElementCases(),
+    targetModelElementCases: getGenericElementCases(),
     schemaTypeChecker,
     schemaResult,
     modelDeclaration,
@@ -222,7 +222,7 @@ interface Custom__DeriveIntermediateModelApi<
   initializeTargetModel: (
     api: InitializeTargetModelApi,
   ) => GetThisIntermediateModel<ThisTargetModelKind>;
-  elementCases: Array<
+  targetModelElementCases: Array<
     ElementCase<GetThisIntermediateElement<ThisTargetModelKind>>
   >;
 }
@@ -246,7 +246,7 @@ function __deriveIntermediateModel<
     targetModelKind,
     schemaTypeChecker,
     initializeTargetModel,
-    elementCases,
+    targetModelElementCases,
     // astContext,
   } = api;
   // todo:
@@ -271,14 +271,14 @@ function __deriveIntermediateModel<
   schemaResult.schemaModels[targetModelKind][newTargetModel.modelName] =
     newTargetModel;
   newTargetModel.modelTemplates = deriveModelTemplates({
-    elementCases,
+    targetModelElementCases,
     schemaTypeChecker,
     schemaResult,
     modelDeclaration,
     // astContext,
   });
   newTargetModel.modelProperties = deriveModelProperties({
-    elementCases,
+    targetModelElementCases,
     schemaTypeChecker,
     schemaResult,
     modelDeclaration,
