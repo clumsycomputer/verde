@@ -11,10 +11,10 @@ import {
 } from '../../types/IntermediateSchema.ts';
 import { __DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
 import {
-  ElementCase,
-  getDefinitiveElementCases,
-  getGenericElementCases,
-} from './__getElementCases.ts';
+  ElementResolver,
+  getDefinitiveElementResolvers,
+  getGenericElementResolvers,
+} from './__getElementResolvers.ts';
 import { deriveModelProperties } from './deriveModelProperties.ts';
 import { deriveModelTemplates } from './deriveModelTemplates.ts';
 
@@ -122,7 +122,7 @@ function __deriveDefinitiveModel<
     modelDeclaration,
   } = api;
   return __deriveIntermediateModel({
-    targetModelElementCases: getDefinitiveElementCases(),
+    targetModelElementCases: getDefinitiveElementResolvers(),
     targetModelKind,
     initializeTargetModel,
     schemaTypeChecker,
@@ -147,7 +147,7 @@ export function deriveGenericTemplateModel(api: DeriveGenericTemplateModelApi) {
   return __deriveIntermediateModel({
     targetModelKind: 'genericTemplate',
     initializeTargetModel: initializeTargetModel__deriveGenericTemplateModel,
-    targetModelElementCases: getGenericElementCases(),
+    targetModelElementCases: getGenericElementResolvers(),
     schemaTypeChecker,
     schemaResult,
     modelDeclaration,
@@ -212,7 +212,7 @@ interface Custom__DeriveIntermediateModelApi<
     api: InitializeTargetModelApi,
   ) => GetThisIntermediateModel<ThisTargetModelKind>;
   targetModelElementCases: Array<
-    ElementCase<GetThisIntermediateElement<ThisTargetModelKind>>
+    ElementResolver<GetThisIntermediateElement<ThisTargetModelKind>>
   >;
 }
 

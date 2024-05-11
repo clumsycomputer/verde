@@ -79,7 +79,7 @@ export function deriveModelTemplates<
                     argumentElement: deriveSchemaElement({                      
                       schemaTypeChecker,
                       schemaResult,
-                      elementCases: targetModelElementCases,
+                      elementResolvers: targetModelElementCases,
                       elementLocalNode: someHeritageLocalNode.typeArguments &&
                           someHeritageLocalNode.typeArguments[argumentIndex] ||
                         throwInvalidPathError('argumentElementNode'),

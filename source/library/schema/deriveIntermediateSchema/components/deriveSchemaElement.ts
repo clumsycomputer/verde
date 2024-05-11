@@ -3,10 +3,10 @@ import { genericAny, irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import { throwInvalidSchemaElement } from '../helpers/errors.ts';
 import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
-import { ElementCase, GetCaseSchemaElement } from './__getElementCases.ts';
+import { ElementResolver, GetResolverSchemaElement } from './__getElementResolvers.ts';
 
 export interface DeriveSchemaElementApi<
-  ThisElementCase extends ElementCase<genericAny>
+ThisElementResolver extends ElementResolver<genericAny>
 > extends
   Pick<
     __DeriveIntermediateModelApi<irrelevantAny>,
@@ -14,17 +14,17 @@ export interface DeriveSchemaElementApi<
     | 'schemaResult'
   >
 {
-  elementCases: Array<ThisElementCase>;
+  elementResolvers: Array<ThisElementResolver>;
   elementLocalNode: Typescript.Node;
 }
 
 export function deriveSchemaElement<
-  ThisElementCase extends ElementCase<genericAny>,
+  ThisElementResolver extends ElementResolver<genericAny>,
 >(
-  api: DeriveSchemaElementApi<ThisElementCase>,
-): GetCaseSchemaElement<ThisElementCase> {
+  api: DeriveSchemaElementApi<ThisElementResolver>,
+): GetResolverSchemaElement<ThisElementResolver> {
   const {
-    elementCases,
+    elementResolvers,
     elementLocalNode,
     schemaTypeChecker,
     schemaResult,
@@ -45,8 +45,8 @@ export function deriveSchemaElement<
     ? elementSourceSymbol.declarations && elementSourceSymbol.declarations[0] ||
       throwInvalidPathError('elementSourceDeclaration')
     : null;
-  for (const handleSomeElementCase of elementCases) {
-    const maybeSchemaElement = handleSomeElementCase({
+  for (const maybeResolveSomeElement of elementResolvers) {
+    const maybeSchemaElement = maybeResolveSomeElement({
       schemaTypeChecker,
       schemaResult,
       elementLocalNode,

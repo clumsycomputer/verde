@@ -42,7 +42,7 @@ export function deriveModelProperties<
           propertyElement: deriveSchemaElement({            
             schemaTypeChecker,
             schemaResult,
-            elementCases: targetModelElementCases,
+            elementResolvers: targetModelElementCases,
             elementLocalNode: somePropertyNode.type,
           }),
         };
