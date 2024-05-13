@@ -68,23 +68,42 @@ function getGenericStructureElementResolvers() {
 
 function getGenericTerminalElementResolvers() {
   return [
-    ...getBasicTerminalElementResolvers(),
+    ...getBasicElementResolvers(),
+    ...getGenericReferenceElementResolvers(),
     genericVerdeTableElementResolver,
     genericVerdeArrayElementResolver,
-    parameterReferenceElementResolver,
   ];
 }
 
 function getBasicTerminalElementResolvers() {
+  return [
+    ...getBasicElementResolvers(),
+    ...getBasicReferenceElementResolvers()
+  ]
+}
+
+function getGenericReferenceElementResolvers() {
+  return [
+    ...getBasicReferenceElementResolvers(),
+    parameterReferenceElementResolver
+  ]
+}
+
+function getBasicReferenceElementResolvers() {
+  return [
+    dataModelReferenceElementResolver,
+    aliasReferenceElementResolver,
+  ]
+}
+
+function getBasicElementResolvers() {
   return [
     booleanLiteralElementResolver,
     numberLiteralElementResolver,
     stringLiteralElementResolver,
     booleanPrimitiveElementResolver,
     numberPrimitiveElementResolver,
-    stringPrimitiveElementResolver,
-    dataModelReferenceElementResolver,
-    aliasReferenceElementResolver,
+    stringPrimitiveElementResolver,    
   ];
 }
 
@@ -224,8 +243,7 @@ function definitiveVerdeTableElementResolver(
   return __verdeTableElementResolver<never>({
     ...api,
     elementResolvers: [
-      dataModelReferenceElementResolver,
-      aliasReferenceElementResolver,
+      ...getBasicReferenceElementResolvers(),
       definitiveDataModelUnionElementResolver,
     ],
   });
@@ -237,10 +255,8 @@ function genericVerdeTableElementResolver(
   return __verdeTableElementResolver<ParameterReferenceElement>({
     ...api,
     elementResolvers: [
-      dataModelReferenceElementResolver,
-      aliasReferenceElementResolver,
-      genericDataModelUnionElementResolver,
-      parameterReferenceElementResolver,
+      ...getGenericReferenceElementResolvers(),
+      genericDataModelUnionElementResolver,      
     ],
   });
 }
@@ -625,10 +641,7 @@ function definitiveDataModelUnionElementResolver(api: ElementResolverApi) {
     createThisUnionElement: createThisUnionElement__dataModelUnionElementResolver<
       never
     >,
-    elementResolvers: [
-      dataModelReferenceElementResolver,
-      aliasReferenceElementResolver,
-    ],
+    elementResolvers: getBasicReferenceElementResolvers()
   });
 }
 
@@ -640,11 +653,7 @@ function genericDataModelUnionElementResolver(
     createThisUnionElement: createThisUnionElement__dataModelUnionElementResolver<
       ParameterReferenceElement
     >,
-    elementResolvers: [
-      dataModelReferenceElementResolver,
-      aliasReferenceElementResolver,
-      parameterReferenceElementResolver,
-    ],
+    elementResolvers: getGenericReferenceElementResolvers()
   });
 }
 

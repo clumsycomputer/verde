@@ -353,7 +353,8 @@ export function getDeriveIntermediateSchemaTestCases(
       ],
     },
     {
-      caseKey: 'indirectRecursiveDataModelReferenceElement__concreteTemplateModelProperty',
+      caseKey:
+        'indirectRecursiveDataModelReferenceElement__concreteTemplateModelProperty',
       caseNotes: [
         styledText({
           textSource:
@@ -535,7 +536,8 @@ export function getDeriveIntermediateSchemaTestCases(
       ],
     },
     {
-      caseKey: 'verdeTableElement-dataModelReferenceElement__genericTemplateModelProperty',
+      caseKey:
+        'verdeTableElement-dataModelReferenceElement__genericTemplateModelProperty',
       caseNotes: [
         styledText({
           textSource:
@@ -561,8 +563,10 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__BB'],
+          jsonSource:
+            expectedIntermediateSchema.schemaModels
+              .genericTemplate['Model__GG']!
+              .modelProperties['ggProperty__BB'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -571,7 +575,8 @@ export function getDeriveIntermediateSchemaTestCases(
       ],
     },
     {
-      caseKey: 'verdeTableElement-parameterReferenceElement__genericTemplateModelProperty',
+      caseKey:
+        'verdeTableElement-parameterReferenceElement__genericTemplateModelProperty',
       caseNotes: [
         styledText({
           textSource:
@@ -597,8 +602,10 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__AA'],
+          jsonSource:
+            expectedIntermediateSchema.schemaModels
+              .genericTemplate['Model__GG']!
+              .modelProperties['ggProperty__AA'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -607,7 +614,8 @@ export function getDeriveIntermediateSchemaTestCases(
       ],
     },
     {
-      caseKey: 'verdeTableElement-unionCompositionElement__genericTemplateModelProperty',
+      caseKey:
+        'verdeTableElement-unionCompositionElement__genericTemplateModelProperty',
       caseNotes: [
         styledText({
           textSource:
@@ -633,8 +641,10 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__CC'],
+          jsonSource:
+            expectedIntermediateSchema.schemaModels
+              .genericTemplate['Model__GG']!
+              .modelProperties['ggProperty__CC'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -646,7 +656,8 @@ export function getDeriveIntermediateSchemaTestCases(
       caseKey: 'verdeArrayElement-stringElement__dataModelProperty',
       caseNotes: [
         styledText({
-          textSource: 'verde array element => string element (data model property)',
+          textSource:
+            'verde array element => string element (data model property)',
           textPatterns: [{
             patternStyle: [1, 4],
             patternRegex: /^.*$/,
@@ -820,86 +831,84 @@ export function getDeriveIntermediateSchemaTestCases(
         }),
       ],
     },
-    // {
-    //   caseKey: 'genericParameter',
-    //   caseNotes: [
-    //     styledText({
-    //       textSource: 'generic parameter',
-    //       textPatterns: [{
-    //         patternStyle: [1, 4],
-    //         patternRegex: /^.*$/,
-    //       }],
-    //     }),
-    //     styledText({
-    //       textSource:
-    //         'GenericTemplateIntermediateModel["genericParameters"][number] => GenericParameter',
-    //       textPatterns: [{
-    //         patternStyle: [3, 1, 44],
-    //         patternRegex: /GenericParameter/,
-    //       }],
-    //     }),
-    //     styledText({
-    //       textSource: schemaSources['Model__BB.ts']!.substring(157, 373),
-    //       textPatterns: [{
-    //         patternStyle: [3, 1, 44],
-    //         patternRegex: /DdParameter__AA/,
-    //         getFilteredPattern: ({ patternMatches }) =>
-    //           patternMatches.slice(0, 1),
-    //       }],
-    //     }),
-    //     styledJson({
-    //       jsonSource: expectedIntermediateSchema.schemaModels
-    //         .genericTemplate['Model__DD'],
-    //       jsonNodes: [branchJsonNode({
-    //         nodeKey: 'genericParameters',
-    //         nodeChildren: [leafJsonNode({
-    //           nodeKey: 0,
-    //           nodeStyle: [3, 1, 44],
-    //         })],
-    //       })],
-    //     }),
-    //     styledText({
-    //       textSource: schemaSources['Model__BB.ts']!.substring(157, 373),
-    //       textPatterns: [{
-    //         patternStyle: [3, 1, 44],
-    //         patternRegex: /DdParameter__BB extends number/,
-    //         getFilteredPattern: ({ patternMatches }) =>
-    //           patternMatches.slice(0, 1),
-    //       }],
-    //     }),
-    //     styledJson({
-    //       jsonSource: expectedIntermediateSchema.schemaModels
-    //         .genericTemplate['Model__DD'],
-    //       jsonNodes: [branchJsonNode({
-    //         nodeKey: 'genericParameters',
-    //         nodeChildren: [leafJsonNode({
-    //           nodeKey: 1,
-    //           nodeStyle: [3, 1, 44],
-    //         })],
-    //       })],
-    //     }),
-    //     styledText({
-    //       textSource: schemaSources['Model__BB.ts']!.substring(157, 373),
-    //       textPatterns: [{
-    //         patternStyle: [3, 1, 44],
-    //         patternRegex: /DdParameter__CC/,
-    //         getFilteredPattern: ({ patternMatches }) =>
-    //           patternMatches.slice(0, 1),
-    //       }],
-    //     }),
-    //     styledJson({
-    //       jsonSource: expectedIntermediateSchema.schemaModels
-    //         .genericTemplate['Model__DD'],
-    //       jsonNodes: [branchJsonNode({
-    //         nodeKey: 'genericParameters',
-    //         nodeChildren: [leafJsonNode({
-    //           nodeKey: 2,
-    //           nodeStyle: [3, 1, 44],
-    //         })],
-    //       })],
-    //     }),
-    //   ],
-    // },
+    {
+      caseKey: 'basicTemplateParameter',
+      caseNotes: [
+        styledText({
+          textSource: 'basic template parameter',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            'GenericTemplateIntermediateModel["modelParameters"][number] => BasicTemplateParameter',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /BasicTemplateParameter/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Model__BB.ts']!.substring(157, 373),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /DdParameter__AA/,
+            getFilteredPattern: ({ patternMatches }) =>
+              patternMatches.slice(0, 1),
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .genericTemplate['Model__DD'],
+          jsonNodes: [branchJsonNode({
+            nodeKey: 'modelParameters',
+            nodeChildren: [leafJsonNode({
+              nodeKey: 0,
+              nodeStyle: [3, 1, 44],
+            })],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey: 'constrainedTemplateParameter',
+      caseNotes: [
+        styledText({
+          textSource: 'constrained template parameter',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            'GenericTemplateIntermediateModel["modelParameters"][number] => ConstrainedTemplateParameter',
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /ConstrainedTemplateParameter/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Model__BB.ts']!.substring(157, 373),
+          textPatterns: [{
+            patternStyle: [3, 1, 44],
+            patternRegex: /DdParameter__BB extends number/
+          }],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .genericTemplate['Model__DD'],
+          jsonNodes: [branchJsonNode({
+            nodeKey: 'modelParameters',
+            nodeChildren: [leafJsonNode({
+              nodeKey: 1,
+              nodeStyle: [3, 1, 44],
+            })],
+          })],
+        }),
+      ],
+    },
     {
       caseKey: 'parameterReferenceElement__modelProperty',
       caseNotes: [
@@ -1260,7 +1269,7 @@ export function getDeriveIntermediateSchemaTestCases(
           }],
         }),
       ],
-    },    
+    },
     {
       caseKey: 'dataModel__schemaExportItem',
       caseNotes: [
@@ -1268,15 +1277,16 @@ export function getDeriveIntermediateSchemaTestCases(
           textSource: 'data model (schema export item)',
           textPatterns: [{
             patternStyle: [1, 4],
-            patternRegex: /^.*$/
-          }]
+            patternRegex: /^.*$/,
+          }],
         }),
         styledText({
-          textSource: 'Typescript.TupleTypeNode.elements[number] (module export) => DataIntermediateModel',
+          textSource:
+            'Typescript.TupleTypeNode.elements[number] (module export) => DataIntermediateModel',
           textPatterns: [{
             patternStyle: [3, 1, 44],
-            patternRegex: /DataIntermediateModel/
-          }]
+            patternRegex: /DataIntermediateModel/,
+          }],
         }),
         styledText({
           textSource: schemaSources['Schema__AA.ts']!.substring(132, 202),
@@ -1293,12 +1303,12 @@ export function getDeriveIntermediateSchemaTestCases(
               nodeKey: 'data',
               nodeChildren: [leafJsonNode({
                 nodeStyle: [3, 1, 44],
-                nodeKey: 'Model__AA',                
-              })]              
-            })]
-          })]
-        })
-      ]
+                nodeKey: 'Model__AA',
+              })],
+            })],
+          })],
+        }),
+      ],
     },
     // {
     //   caseKey: 'dataModelUnionAlias__schemaExportItem',
@@ -1332,8 +1342,8 @@ export function getDeriveIntermediateSchemaTestCases(
     //     //       nodeKey: 'data',
     //     //       nodeChildren: [leafJsonNode({
     //     //         nodeStyle: [3, 1, 44],
-    //     //         nodeKey: 'Model__AA',                
-    //     //       })]              
+    //     //         nodeKey: 'Model__AA',
+    //     //       })]
     //     //     })]
     //     //   })]
     //     // })
