@@ -9,7 +9,6 @@ import {
   BooleanPrimitiveElement,
   CoreUnionElement,
   DataModelReferenceElement,
-  DataModelUnionElement,
   NullElement,
   NumberLiteralElement,
   NumberPrimitiveElement,
@@ -20,7 +19,9 @@ import {
   TerminalElement,
   TupleElement,
   VerdeArrayElement,
+  VerdeArrayUnionElement,
   VerdeTableElement,
+  VerdeTableUnionElement,
 } from '../../types/SchemaElement.ts';
 import { deriveDataModel } from './__deriveIntermediateModel.ts';
 import {
@@ -45,7 +46,8 @@ function getDefinitiveStructureElementResolvers() {
 
 function getDefinitiveTerminalElementResolvers() {
   return [
-    ...getBasicTerminalElementResolvers(),
+    ...getBasicElementResolvers(),
+    ...getBasicReferenceElementResolvers(),
     definitiveVerdeTableElementResolver,
     definitiveVerdeArrayElementResolver,
   ];
@@ -75,9 +77,9 @@ function getGenericTerminalElementResolvers() {
   ];
 }
 
-function getBasicTerminalElementResolvers() {
+function getBasicVerdeArrayElementResolvers() {
   return [
-    ...getBasicElementResolvers(),
+    ...getPrimitiveElementResolvers(),
     ...getBasicReferenceElementResolvers()
   ]
 }
@@ -98,13 +100,25 @@ function getBasicReferenceElementResolvers() {
 
 function getBasicElementResolvers() {
   return [
-    booleanLiteralElementResolver,
-    numberLiteralElementResolver,
-    stringLiteralElementResolver,
+    ...getLiteralElementResolvers(),
+    ...getPrimitiveElementResolvers()   
+  ];
+}
+
+function getPrimitiveElementResolvers() {
+  return [
     booleanPrimitiveElementResolver,
     numberPrimitiveElementResolver,
-    stringPrimitiveElementResolver,    
-  ];
+    stringPrimitiveElementResolver,
+  ]
+}
+
+function getLiteralElementResolvers() {
+  return [
+    booleanLiteralElementResolver,
+    numberLiteralElementResolver,
+    stringLiteralElementResolver
+  ]
 }
 
 function booleanLiteralElementResolver(
@@ -244,7 +258,7 @@ function definitiveVerdeTableElementResolver(
     ...api,
     elementResolvers: [
       ...getBasicReferenceElementResolvers(),
-      definitiveDataModelUnionElementResolver,
+      definitiveVerdeTableUnionElementResolver,
     ],
   });
 }
@@ -256,7 +270,7 @@ function genericVerdeTableElementResolver(
     ...api,
     elementResolvers: [
       ...getGenericReferenceElementResolvers(),
-      genericDataModelUnionElementResolver,      
+      genericVerdeTableUnionElementResolver,      
     ],
   });
 }
@@ -308,7 +322,10 @@ function definitiveVerdeArrayElementResolver(
 ) {
   return __verdeArrayElementResolver<never>({
     ...api,
-    elementResolvers: getBasicTerminalElementResolvers(),
+    elementResolvers: [
+      ...getBasicVerdeArrayElementResolvers(),
+      definitiveVerdeArrayUnionElementResolver
+    ]
   });
 }
 
@@ -318,7 +335,8 @@ function genericVerdeArrayElementResolver(
   return __verdeArrayElementResolver<ParameterReferenceElement>({
     ...api,
     elementResolvers: [
-      ...getBasicTerminalElementResolvers(),
+      ...getBasicVerdeArrayElementResolvers(),
+      genericVerdeArrayUnionElementResolver,
       parameterReferenceElementResolver,
     ],
   });
@@ -635,54 +653,111 @@ function createThisUnionElement__coreUnionElementResolver<
   };
 }
 
-function definitiveDataModelUnionElementResolver(api: ElementResolverApi) {
-  return __dataModelUnionElementResolver({
+function definitiveVerdeTableUnionElementResolver(api: ElementResolverApi) {
+  return __verdeTableUnionElementResolver({
     ...api,
-    createThisUnionElement: createThisUnionElement__dataModelUnionElementResolver<
+    createThisUnionElement: createThisUnionElement__verdeTableUnionElementResolver<
       never
     >,
     elementResolvers: getBasicReferenceElementResolvers()
   });
 }
 
-function genericDataModelUnionElementResolver(
+function genericVerdeTableUnionElementResolver(
   api: ElementResolverApi,
 ) {
-  return __dataModelUnionElementResolver({
+  return __verdeTableUnionElementResolver({
     ...api,
-    createThisUnionElement: createThisUnionElement__dataModelUnionElementResolver<
+    createThisUnionElement: createThisUnionElement__verdeTableUnionElementResolver<
       ParameterReferenceElement
     >,
     elementResolvers: getGenericReferenceElementResolvers()
   });
 }
 
-interface __DataModelUnionElementResolverApi<
+interface __VerdeTableUnionElementResolverApi<
   ThisParameterReferenceElement,
 > extends
   ElementResolverApi,
   Pick<
-    __UnionElementResolverApi<DataModelUnionElement<ThisParameterReferenceElement>>,
+    __UnionElementResolverApi<VerdeTableUnionElement<ThisParameterReferenceElement>>,
     'elementResolvers' | 'createThisUnionElement'
   > {}
 
-function __dataModelUnionElementResolver<ThisParameterReferenceElement>(
-  api: __DataModelUnionElementResolverApi<ThisParameterReferenceElement>,
+function __verdeTableUnionElementResolver<ThisParameterReferenceElement>(
+  api: __VerdeTableUnionElementResolverApi<ThisParameterReferenceElement>,
 ) {
   return __unionElementResolver(api);
 }
 
-function createThisUnionElement__dataModelUnionElementResolver<
+function createThisUnionElement__verdeTableUnionElementResolver<
   ThisParameterReferenceElement,
 >(
   api: CreateThisUnionElementApi<
-    DataModelUnionElement<ThisParameterReferenceElement>
+  VerdeTableUnionElement<ThisParameterReferenceElement>
   >,
-): DataModelUnionElement<ThisParameterReferenceElement> {
+): VerdeTableUnionElement<ThisParameterReferenceElement> {
   const { elementMembers } = api;
   return {
     elementMembers,
-    elementKind: 'dataModelUnion',
+    elementKind: 'verdeTableUnion',
+  };
+}
+
+function definitiveVerdeArrayUnionElementResolver(api: ElementResolverApi) {
+  return __verdeArrayUnionElementResolver({
+    ...api,
+    createThisUnionElement: createThisUnionElement__verdeArrayUnionElementResolver<
+      never
+    >,
+    elementResolvers: [
+      ...getPrimitiveElementResolvers(),
+      ...getBasicReferenceElementResolvers(),      
+    ]
+  });
+}
+
+function genericVerdeArrayUnionElementResolver(
+  api: ElementResolverApi,
+) {
+  return __verdeArrayUnionElementResolver({
+    ...api,
+    createThisUnionElement: createThisUnionElement__verdeArrayUnionElementResolver<
+      ParameterReferenceElement
+    >,
+    elementResolvers: [
+      ...getPrimitiveElementResolvers(),
+      ...getGenericReferenceElementResolvers(),      
+    ]
+  });
+}
+
+interface __VerdeArrayUnionElementResolverApi<
+  ThisParameterReferenceElement,
+> extends
+  ElementResolverApi,
+  Pick<
+    __UnionElementResolverApi<VerdeArrayUnionElement<ThisParameterReferenceElement>>,
+    'elementResolvers' | 'createThisUnionElement'
+  > {}
+
+function __verdeArrayUnionElementResolver<ThisParameterReferenceElement>(
+  api: __VerdeArrayUnionElementResolverApi<ThisParameterReferenceElement>,
+) {
+  return __unionElementResolver(api);
+}
+
+function createThisUnionElement__verdeArrayUnionElementResolver<
+  ThisParameterReferenceElement,
+>(
+  api: CreateThisUnionElementApi<
+  VerdeArrayUnionElement<ThisParameterReferenceElement>
+  >,
+): VerdeArrayUnionElement<ThisParameterReferenceElement> {
+  const { elementMembers } = api;
+  return {
+    elementMembers,
+    elementKind: 'verdeArrayUnion',
   };
 }
 

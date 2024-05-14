@@ -17,11 +17,19 @@ export interface CoreUnionElement<ThisTerminalElement> extends
     ThisTerminalElement | StructureElement<ThisTerminalElement> | NullElement
   > {}
 
-export interface DataModelUnionElement<ThisParameterReferenceElement>
+export interface VerdeTableUnionElement<ThisParameterReferenceElement>
   extends
     __UnionElement<
-      'dataModelUnion',
-      DataModelReferenceElement | AliasReferenceElement | ThisParameterReferenceElement
+      'verdeTableUnion',
+      ReferenceElement<ThisParameterReferenceElement>
+    > {}
+
+export interface VerdeArrayUnionElement<ThisParameterReferenceElement>
+  extends
+    __UnionElement<
+      'verdeArrayUnion',
+      | PrimitiveElement
+      | ReferenceElement<ThisParameterReferenceElement>
     > {}
 
 export interface __UnionElement<ThisElementKind, ThisMemberElement>
@@ -39,22 +47,20 @@ export type StructureElement<ThisTerminalElement> =
     ThisTerminalElement | StructureElement<ThisTerminalElement>
   >;
 
-export interface ObjectElement<ThisTerminalElement>
-  extends
-    __StructureElement<
-      'objectStructure',
-      ObjectElementProperty<ThisTerminalElement>
-    > {}
+export interface ObjectElement<ThisTerminalElement> extends
+  __StructureElement<
+    'objectStructure',
+    ObjectElementProperty<ThisTerminalElement>
+  > {}
 
 interface ObjectElementProperty<ThisTerminalElement>
   extends __ElementProperty<ThisTerminalElement> {}
 
-export interface TupleElement<ThisTerminalElement>
-  extends
-    __StructureElement<
-      'tupleStructure',
-      TupleElementProperty<ThisTerminalElement>
-    > {}
+export interface TupleElement<ThisTerminalElement> extends
+  __StructureElement<
+    'tupleStructure',
+    TupleElementProperty<ThisTerminalElement>
+  > {}
 
 interface TupleElementProperty<ThisTerminalElement>
   extends __ElementProperty<ThisTerminalElement> {
@@ -72,15 +78,10 @@ interface __ElementProperty<ThisTerminalElement> {
 }
 
 export type TerminalElement<ThisParameterReferenceElement> =
-  | BasicTerminalElement
-  | ThisParameterReferenceElement
-  | VerdeElement<ThisParameterReferenceElement>;
-
-export type BasicTerminalElement =
-  | AliasReferenceElement
-  | DataModelReferenceElement
+  | LiteralElement
   | PrimitiveElement
-  | LiteralElement;
+  | ReferenceElement<ThisParameterReferenceElement>
+  | VerdeElement<ThisParameterReferenceElement>;
 
 export type VerdeElement<ThisParameterReferenceElement> =
   | VerdeTableElement<ThisParameterReferenceElement>
@@ -90,17 +91,19 @@ export interface VerdeTableElement<ThisParameterReferenceElement>
   extends
     __CollectionElement<
       'verdeTable',
-      | DataModelReferenceElement
-      | AliasReferenceElement
-      | ThisParameterReferenceElement
-      | DataModelUnionElement<ThisParameterReferenceElement>
+      | ReferenceElement<ThisParameterReferenceElement>
+      | VerdeTableUnionElement<ThisParameterReferenceElement>
     > {}
 
 export interface VerdeArrayElement<ThisParameterReferenceElement>
   extends
     __CollectionElement<
       'verdeArray',
-      SchemaElement<BasicTerminalElement | ThisParameterReferenceElement>
+      SchemaElement<
+        | PrimitiveElement
+        | ReferenceElement<ThisParameterReferenceElement>
+        | VerdeArrayUnionElement<ThisParameterReferenceElement>
+      >
     > {}
 
 export interface __CollectionElement<
@@ -112,6 +115,11 @@ interface __VerdeElement<ThisElementKind, ThisElementArguments>
   extends __SchemaElement<ThisElementKind> {
   elementArguments: ThisElementArguments;
 }
+
+export type ReferenceElement<ThisParameterReferenceElement> =
+  | DataModelReferenceElement
+  | AliasReferenceElement
+  | ThisParameterReferenceElement;
 
 export interface ParameterReferenceElement
   extends __ReferenceElement<'parameterReference'> {}

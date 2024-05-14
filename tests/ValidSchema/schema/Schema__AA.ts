@@ -31,4 +31,10 @@ interface Model__GG<GgParameter__AA> {
   ggProperty__AA: VerdeTable<GgParameter__AA>;
   ggProperty__BB: VerdeTable<Model__AA>;
   ggProperty__CC: VerdeTable<Model__AA | Model__BB>;
+  ggProperty__DD: VerdeArray<boolean>;
+  ggProperty__EE: VerdeArray<number>;
+  ggProperty__FF: VerdeArray<Model__AA>;
+  ggProperty__GG: VerdeArray<Alias__AA>;
+  ggProperty__HH: VerdeArray<GgParameter__AA>;
+  ggProperty__II: VerdeArray<string | Model__AA>;
 }

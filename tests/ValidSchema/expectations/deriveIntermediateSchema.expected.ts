@@ -216,18 +216,18 @@ export const expectedIntermediateSchema: IntermediateSchema = {
         modelKind: 'genericTemplate',
         modelName: 'Model__DD',
         modelParameters: [
-          { 
+          {
             parameterKind: 'basic',
-            parameterName: 'DdParameter__AA' 
+            parameterName: 'DdParameter__AA',
           },
-          { 
+          {
             parameterKind: 'constrained',
             parameterName: 'DdParameter__BB',
-            parameterConstraint: 'number'
+            parameterConstraint: 'number',
           },
-          { 
+          {
             parameterKind: 'basic',
-            parameterName: 'DdParameter__CC' 
+            parameterName: 'DdParameter__CC',
           },
         ],
         modelTemplates: [{
@@ -273,13 +273,13 @@ export const expectedIntermediateSchema: IntermediateSchema = {
         modelKind: 'genericTemplate',
         modelName: 'Model__EE',
         modelParameters: [
-          { 
+          {
             parameterKind: 'basic',
-            parameterName: 'EeParameter__AA' 
+            parameterName: 'EeParameter__AA',
           },
-          { 
+          {
             parameterKind: 'basic',
-            parameterName: 'EeParameter__BB' 
+            parameterName: 'EeParameter__BB',
           },
         ],
         modelTemplates: [],
@@ -334,7 +334,7 @@ export const expectedIntermediateSchema: IntermediateSchema = {
             propertyElement: {
               elementKind: 'verdeTable',
               elementArguments: [{
-                elementKind: 'dataModelUnion',
+                elementKind: 'verdeTableUnion',
                 elementMembers: [
                   {
                     elementKind: 'dataModelReference',
@@ -343,6 +343,72 @@ export const expectedIntermediateSchema: IntermediateSchema = {
                   {
                     elementKind: 'dataModelReference',
                     elementName: 'Model__BB',
+                  },
+                ],
+              }],
+            },
+          },
+          ggProperty__DD: {
+            propertyKey: 'ggProperty__DD',
+            propertyElement: {
+              elementKind: 'verdeArray',
+              elementArguments: [{
+                elementKind: 'booleanPrimitive',
+              }],
+            },
+          },
+          ggProperty__EE: {
+            propertyKey: 'ggProperty__EE',
+            propertyElement: {
+              elementKind: 'verdeArray',
+              elementArguments: [{
+                elementKind: 'numberPrimitive',
+              }],
+            },
+          },
+          ggProperty__FF: {
+            propertyKey: 'ggProperty__FF',
+            propertyElement: {
+              elementKind: 'verdeArray',
+              elementArguments: [{
+                elementKind: 'dataModelReference',
+                elementName: 'Model__AA',
+              }],
+            },
+          },
+          ggProperty__GG: {
+            propertyKey: 'ggProperty__GG',
+            propertyElement: {
+              elementKind: 'verdeArray',
+              elementArguments: [{
+                elementKind: 'aliasReference',
+                elementName: 'Alias__AA',
+              }],
+            },
+          },
+          ggProperty__HH: {
+            propertyKey: 'ggProperty__HH',
+            propertyElement: {
+              elementKind: 'verdeArray',
+              elementArguments: [{
+                elementKind: 'parameterReference',
+                elementName: 'GgParameter__AA',
+              }],
+            },
+          },
+          ggProperty__II: {
+            propertyKey: 'ggProperty__II',
+            propertyElement: {
+              elementKind: 'verdeArray',
+              elementArguments: [{
+                elementKind: 'verdeArrayUnion',
+                elementMembers: [
+                  {
+                    elementKind: 'stringPrimitive',
+                  },
+                  {
+                    elementKind: 'dataModelReference',
+                    elementName: 'Model__AA',
                   },
                 ],
               }],
