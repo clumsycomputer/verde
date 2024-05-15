@@ -47,23 +47,23 @@ export type StructureElement<ThisTerminalElement> =
     ThisTerminalElement | StructureElement<ThisTerminalElement>
   >;
 
-export interface ObjectElement<ThisTerminalElement> extends
+export interface ObjectElement<ThisPropertyElement> extends
   __StructureElement<
     'objectStructure',
-    ObjectElementProperty<ThisTerminalElement>
+    ObjectElementProperty<ThisPropertyElement>
   > {}
 
-interface ObjectElementProperty<ThisTerminalElement>
-  extends __ElementProperty<ThisTerminalElement> {}
+interface ObjectElementProperty<ThisPropertyElement>
+  extends __ElementProperty<ThisPropertyElement> {}
 
-export interface TupleElement<ThisTerminalElement> extends
+export interface TupleElement<ThisPropertyElement> extends
   __StructureElement<
     'tupleStructure',
-    TupleElementProperty<ThisTerminalElement>
+    TupleElementProperty<ThisPropertyElement>
   > {}
 
-interface TupleElementProperty<ThisTerminalElement>
-  extends __ElementProperty<ThisTerminalElement> {
+interface TupleElementProperty<ThisPropertyElement>
+  extends __ElementProperty<ThisPropertyElement> {
   propertyIndex: number;
 }
 
@@ -72,9 +72,9 @@ interface __StructureElement<ThisElementKind, ThisElementProperty>
   elementProperties: Record<string, ThisElementProperty>;
 }
 
-interface __ElementProperty<ThisTerminalElement> {
+interface __ElementProperty<ThisPropertyElement> {
   propertyKey: string;
-  propertyElement: SchemaElement<ThisTerminalElement>;
+  propertyElement: SchemaElement<ThisPropertyElement>;
 }
 
 export type TerminalElement<ThisParameterReferenceElement> =

@@ -341,8 +341,12 @@ export const expectedIntermediateSchema: IntermediateSchema = {
                     elementName: 'Model__AA',
                   },
                   {
-                    elementKind: 'dataModelReference',
-                    elementName: 'Model__BB',
+                    elementKind: 'aliasReference',
+                    elementName: 'Alias__AA',
+                  },
+                  {
+                    elementKind: 'parameterReference',
+                    elementName: 'GgParameter__AA',
                   },
                 ],
               }],
@@ -404,11 +408,25 @@ export const expectedIntermediateSchema: IntermediateSchema = {
                 elementKind: 'verdeArrayUnion',
                 elementMembers: [
                   {
+                    elementKind: 'booleanPrimitive',
+                  },
+                  {
+                    elementKind: 'numberPrimitive',
+                  },
+                  {
                     elementKind: 'stringPrimitive',
                   },
                   {
                     elementKind: 'dataModelReference',
                     elementName: 'Model__AA',
+                  },
+                  {
+                    elementKind: 'aliasReference',
+                    elementName: 'Alias__AA',
+                  },
+                  {
+                    elementKind: 'parameterReference',
+                    elementName: 'GgParameter__AA',
                   },
                 ],
               }],

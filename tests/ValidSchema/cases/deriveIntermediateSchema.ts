@@ -201,7 +201,7 @@ export function getDeriveIntermediateSchemaTestCases(
       caseKey: 'booleanPrimitiveElement__dataModelProperty',
       caseNotes: [
         styledText({
-          textSource: 'boolean element (data model property)',
+          textSource: 'boolean primitive element (data model property)',
           textPatterns: [{
             patternStyle: [1, 4],
             patternRegex: /^.*$/,
@@ -238,7 +238,7 @@ export function getDeriveIntermediateSchemaTestCases(
       caseKey: 'numberPrimitiveElement__dataModelProperty',
       caseNotes: [
         styledText({
-          textSource: 'number element (data model property)',
+          textSource: 'number primitive element (data model property)',
           textPatterns: [{
             patternStyle: [1, 4],
             patternRegex: /^.*$/,
@@ -275,7 +275,7 @@ export function getDeriveIntermediateSchemaTestCases(
       caseKey: 'stringPrimitiveElement__dataModelProperty',
       caseNotes: [
         styledText({
-          textSource: 'string element (data model property)',
+          textSource: 'string primitive element (data model property)',
           textPatterns: [{
             patternStyle: [1, 4],
             patternRegex: /^.*$/,
@@ -568,7 +568,7 @@ export function getDeriveIntermediateSchemaTestCases(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1213),
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeTable<Model__AA>/,
@@ -612,7 +612,7 @@ export function getDeriveIntermediateSchemaTestCases(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1213),
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeTable<GgParameter__AA>/,
@@ -631,11 +631,11 @@ export function getDeriveIntermediateSchemaTestCases(
     },
     {
       caseKey:
-        'verdeTableElement-dataModelUnionElement__genericTemplateModelProperty',
+        'verdeTableElement-dataModelUnionElement-dataModelReferenceElement__genericTemplateModelProperty',
       caseNotes: [
         styledText({
           textSource:
-            'verde table element => data model union element (generic template model property)',
+            'verde table element => data model union element => data model reference element (generic template model property)',
           textPatterns: [{
             patternStyle: [1, 4],
             patternRegex: /^.*$/,
@@ -660,19 +660,219 @@ export function getDeriveIntermediateSchemaTestCases(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1213),
-          textPatterns: [{
-            patternStyle: [3, 1, 44],
-            patternRegex: /VerdeTable<Model__AA \| Model__BB>/,
-          }],
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeTable/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(2, 3),
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /Model__AA/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(1, 2),
+            },
+          ],
         }),
         styledJson({
           jsonSource: expectedIntermediateSchema.schemaModels
             .genericTemplate['Model__GG']!
             .modelProperties['ggProperty__CC'],
-          jsonNodes: [leafJsonNode({
+          jsonNodes: [branchJsonNode({
             nodeKey: 'propertyElement',
-            nodeStyle: [3, 1, 44],
+            nodeChildren: [
+              leafJsonNode({
+                nodeKey: 'elementKind',
+                nodeStyle: [3, 1, 44],
+              }),
+              branchJsonNode({
+                nodeKey: 'elementArguments',
+                nodeChildren: [branchJsonNode({
+                  nodeKey: 0,
+                  nodeChildren: [
+                    leafJsonNode({
+                      nodeKey: 'elementKind',
+                      nodeStyle: [3, 1, 44],
+                    }),
+                    branchJsonNode({
+                      nodeKey: 'elementMembers',
+                      nodeChildren: [leafJsonNode({
+                        nodeKey: 0,
+                        nodeStyle: [3, 1, 44],
+                      })],
+                    }),
+                  ],
+                })],
+              }),
+            ],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey:
+        'verdeTableElement-dataModelUnionElement-aliasReferenceElement__genericTemplateModelProperty',
+      caseNotes: [
+        styledText({
+          textSource:
+            'verde table element => data model union element => alias reference element (generic template model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeTableElement<ParameterReferenceElement>["elementArguments"][0] => DataModelUnionElement<ParameterReferenceElement>["elementMembers"][number] => AliasReferenceElement',
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeTableElement<ParameterReferenceElement>/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /DataModelUnionElement<ParameterReferenceElement>/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /AliasReferenceElement/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeTable/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(2, 3),
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /Alias__AA/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(0, 1),
+            },
+          ],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .genericTemplate['Model__GG']!
+            .modelProperties['ggProperty__CC'],
+          jsonNodes: [branchJsonNode({
+            nodeKey: 'propertyElement',
+            nodeChildren: [
+              leafJsonNode({
+                nodeKey: 'elementKind',
+                nodeStyle: [3, 1, 44],
+              }),
+              branchJsonNode({
+                nodeKey: 'elementArguments',
+                nodeChildren: [branchJsonNode({
+                  nodeKey: 0,
+                  nodeChildren: [
+                    leafJsonNode({
+                      nodeKey: 'elementKind',
+                      nodeStyle: [3, 1, 44],
+                    }),
+                    branchJsonNode({
+                      nodeKey: 'elementMembers',
+                      nodeChildren: [leafJsonNode({
+                        nodeKey: 1,
+                        nodeStyle: [3, 1, 44],
+                      })],
+                    }),
+                  ],
+                })],
+              }),
+            ],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey:
+        'verdeTableElement-dataModelUnionElement-parameterReferenceElement__genericTemplateModelProperty',
+      caseNotes: [
+        styledText({
+          textSource:
+            'verde table element => data model union element => parameter reference element (generic template model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeTableElement<ParameterReferenceElement>["elementArguments"][0] => DataModelUnionElement<ParameterReferenceElement>["elementMembers"][number] => ParameterReferenceElement',
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeTableElement<ParameterReferenceElement>/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /DataModelUnionElement<ParameterReferenceElement>/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /ParameterReferenceElement/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(2, 3),
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeTable/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(2, 3),
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /GgParameter__AA/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(2, 3),
+            },
+          ],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .genericTemplate['Model__GG']!
+            .modelProperties['ggProperty__CC'],
+          jsonNodes: [branchJsonNode({
+            nodeKey: 'propertyElement',
+            nodeChildren: [
+              leafJsonNode({
+                nodeKey: 'elementKind',
+                nodeStyle: [3, 1, 44],
+              }),
+              branchJsonNode({
+                nodeKey: 'elementArguments',
+                nodeChildren: [branchJsonNode({
+                  nodeKey: 0,
+                  nodeChildren: [
+                    leafJsonNode({
+                      nodeKey: 'elementKind',
+                      nodeStyle: [3, 1, 44],
+                    }),
+                    branchJsonNode({
+                      nodeKey: 'elementMembers',
+                      nodeChildren: [leafJsonNode({
+                        nodeKey: 2,
+                        nodeStyle: [3, 1, 44],
+                      })],
+                    }),
+                  ],
+                })],
+              }),
+            ],
           })],
         }),
       ],
@@ -683,7 +883,7 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         styledText({
           textSource:
-            'verde array element => boolean element (generic template model property)',
+            'verde array element => boolean primitive element (generic template model property)',
           textPatterns: [{
             patternStyle: [1, 4],
             patternRegex: /^.*$/,
@@ -704,7 +904,7 @@ export function getDeriveIntermediateSchemaTestCases(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1213),
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeArray<boolean>/,
@@ -727,7 +927,7 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         styledText({
           textSource:
-            'verde array element => number element (generic template model property)',
+            'verde array element => number primitive element (generic template model property)',
           textPatterns: [{
             patternStyle: [1, 4],
             patternRegex: /^.*$/,
@@ -748,7 +948,7 @@ export function getDeriveIntermediateSchemaTestCases(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1213),
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeArray<number>/,
@@ -770,7 +970,7 @@ export function getDeriveIntermediateSchemaTestCases(
       caseNotes: [
         styledText({
           textSource:
-            'verde array element => string element (data model property)',
+            'verde array element => string primitive element (data model property)',
           textPatterns: [{
             patternStyle: [1, 4],
             patternRegex: /^.*$/,
@@ -834,7 +1034,7 @@ export function getDeriveIntermediateSchemaTestCases(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1213),
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeArray<Model__AA>/,
@@ -878,7 +1078,7 @@ export function getDeriveIntermediateSchemaTestCases(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1213),
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeArray<Alias__AA>/,
@@ -924,7 +1124,7 @@ export function getDeriveIntermediateSchemaTestCases(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1213),
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeArray<GgParameter__AA>/,
@@ -943,11 +1143,175 @@ export function getDeriveIntermediateSchemaTestCases(
     },
     {
       caseKey:
+        'verdeArrayElement-verdeArrayUnionElement-booleanPrimitiveElement__genericTemplateModelProperty',
+      caseNotes: [
+        styledText({
+          textSource:
+            'verde array element => verde array union element => boolean primitive element (generic template model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => BooleanPrimitiveElement',
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArrayElement<ParameterReferenceElement>/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArrayUnionElement<ParameterReferenceElement>/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /BooleanPrimitiveElement/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArray/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(5, 6),
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /boolean/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(1, 2),
+            },
+          ],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .genericTemplate['Model__GG']!
+            .modelProperties['ggProperty__II'],
+          jsonNodes: [branchJsonNode({
+            nodeKey: 'propertyElement',
+            nodeChildren: [
+              leafJsonNode({
+                nodeKey: 'elementKind',
+                nodeStyle: [3, 1, 44],
+              }),
+              branchJsonNode({
+                nodeKey: 'elementArguments',
+                nodeChildren: [branchJsonNode({
+                  nodeKey: 0,
+                  nodeChildren: [
+                    leafJsonNode({
+                      nodeKey: 'elementKind',
+                      nodeStyle: [3, 1, 44],
+                    }),
+                    branchJsonNode({
+                      nodeKey: 'elementMembers',
+                      nodeChildren: [leafJsonNode({
+                        nodeKey: 0,
+                        nodeStyle: [3, 1, 44],
+                      })],
+                    }),
+                  ],
+                })],
+              }),
+            ],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey:
+        'verdeArrayElement-verdeArrayUnionElement-numberPrimitiveElement__genericTemplateModelProperty',
+      caseNotes: [
+        styledText({
+          textSource:
+            'verde array element => verde array union element => number primitive element (generic template model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => NumberPrimitiveElement',
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArrayElement<ParameterReferenceElement>/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArrayUnionElement<ParameterReferenceElement>/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /NumberPrimitiveElement/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArray/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(5, 6),
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /number/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(1, 2),
+            },
+          ],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .genericTemplate['Model__GG']!
+            .modelProperties['ggProperty__II'],
+          jsonNodes: [branchJsonNode({
+            nodeKey: 'propertyElement',
+            nodeChildren: [
+              leafJsonNode({
+                nodeKey: 'elementKind',
+                nodeStyle: [3, 1, 44],
+              }),
+              branchJsonNode({
+                nodeKey: 'elementArguments',
+                nodeChildren: [branchJsonNode({
+                  nodeKey: 0,
+                  nodeChildren: [
+                    leafJsonNode({
+                      nodeKey: 'elementKind',
+                      nodeStyle: [3, 1, 44],
+                    }),
+                    branchJsonNode({
+                      nodeKey: 'elementMembers',
+                      nodeChildren: [leafJsonNode({
+                        nodeKey: 1,
+                        nodeStyle: [3, 1, 44],
+                      })],
+                    }),
+                  ],
+                })],
+              }),
+            ],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey:
         'verdeArrayElement-verdeArrayUnionElement-stringPrimitiveElement__genericTemplateModelProperty',
       caseNotes: [
         styledText({
           textSource:
-            'verde array element => verde array union element (generic template model property)',
+            'verde array element => verde array union element => string primitive element (generic template model property)',
           textPatterns: [{
             patternStyle: [1, 4],
             patternRegex: /^.*$/,
@@ -972,19 +1336,301 @@ export function getDeriveIntermediateSchemaTestCases(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1213),
-          textPatterns: [{
-            patternStyle: [3, 1, 44],
-            patternRegex: /VerdeArray<string \| Model__AA>/,
-          }],
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArray/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(5, 6),
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /string/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(0, 1),
+            },
+          ],
         }),
         styledJson({
           jsonSource: expectedIntermediateSchema.schemaModels
             .genericTemplate['Model__GG']!
             .modelProperties['ggProperty__II'],
-          jsonNodes: [leafJsonNode({
+          jsonNodes: [branchJsonNode({
             nodeKey: 'propertyElement',
-            nodeStyle: [3, 1, 44],
+            nodeChildren: [
+              leafJsonNode({
+                nodeKey: 'elementKind',
+                nodeStyle: [3, 1, 44],
+              }),
+              branchJsonNode({
+                nodeKey: 'elementArguments',
+                nodeChildren: [branchJsonNode({
+                  nodeKey: 0,
+                  nodeChildren: [
+                    leafJsonNode({
+                      nodeKey: 'elementKind',
+                      nodeStyle: [3, 1, 44],
+                    }),
+                    branchJsonNode({
+                      nodeKey: 'elementMembers',
+                      nodeChildren: [leafJsonNode({
+                        nodeKey: 2,
+                        nodeStyle: [3, 1, 44],
+                      })],
+                    }),
+                  ],
+                })],
+              }),
+            ],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey:
+        'verdeArrayElement-verdeArrayUnionElement-dataModelReferenceElement__genericTemplateModelProperty',
+      caseNotes: [
+        styledText({
+          textSource:
+            'verde array element => verde array union element => data model reference element (generic template model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => DataModelReferenceElement',
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArrayElement<ParameterReferenceElement>/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArrayUnionElement<ParameterReferenceElement>/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /DataModelReferenceElement/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArray/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(5, 6),
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /Model__AA/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(3, 4),
+            },
+          ],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .genericTemplate['Model__GG']!
+            .modelProperties['ggProperty__II'],
+          jsonNodes: [branchJsonNode({
+            nodeKey: 'propertyElement',
+            nodeChildren: [
+              leafJsonNode({
+                nodeKey: 'elementKind',
+                nodeStyle: [3, 1, 44],
+              }),
+              branchJsonNode({
+                nodeKey: 'elementArguments',
+                nodeChildren: [branchJsonNode({
+                  nodeKey: 0,
+                  nodeChildren: [
+                    leafJsonNode({
+                      nodeKey: 'elementKind',
+                      nodeStyle: [3, 1, 44],
+                    }),
+                    branchJsonNode({
+                      nodeKey: 'elementMembers',
+                      nodeChildren: [leafJsonNode({
+                        nodeKey: 3,
+                        nodeStyle: [3, 1, 44],
+                      })],
+                    }),
+                  ],
+                })],
+              }),
+            ],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey:
+        'verdeArrayElement-verdeArrayUnionElement-aliasReferenceElement__genericTemplateModelProperty',
+      caseNotes: [
+        styledText({
+          textSource:
+            'verde array element => verde array union element => alias reference element (generic template model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => AliasReferenceElement',
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArrayElement<ParameterReferenceElement>/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArrayUnionElement<ParameterReferenceElement>/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /AliasReferenceElement/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArray/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(5, 6),
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /Alias__AA/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(2, 3),
+            },
+          ],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .genericTemplate['Model__GG']!
+            .modelProperties['ggProperty__II'],
+          jsonNodes: [branchJsonNode({
+            nodeKey: 'propertyElement',
+            nodeChildren: [
+              leafJsonNode({
+                nodeKey: 'elementKind',
+                nodeStyle: [3, 1, 44],
+              }),
+              branchJsonNode({
+                nodeKey: 'elementArguments',
+                nodeChildren: [branchJsonNode({
+                  nodeKey: 0,
+                  nodeChildren: [
+                    leafJsonNode({
+                      nodeKey: 'elementKind',
+                      nodeStyle: [3, 1, 44],
+                    }),
+                    branchJsonNode({
+                      nodeKey: 'elementMembers',
+                      nodeChildren: [leafJsonNode({
+                        nodeKey: 4,
+                        nodeStyle: [3, 1, 44],
+                      })],
+                    }),
+                  ],
+                })],
+              }),
+            ],
+          })],
+        }),
+      ],
+    },
+    {
+      caseKey:
+        'verdeArrayElement-verdeArrayUnionElement-parameterReferenceElement__genericTemplateModelProperty',
+      caseNotes: [
+        styledText({
+          textSource:
+            'verde array element => verde array union element => parameter reference element (generic template model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => ParameterReferenceElement',
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArrayElement<ParameterReferenceElement>/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArrayUnionElement<ParameterReferenceElement>/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /ParameterReferenceElement/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(2, 3),
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /VerdeArray/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(5, 6),
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /GgParameter__AA/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(4, 5),
+            },
+          ],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .genericTemplate['Model__GG']!
+            .modelProperties['ggProperty__II'],
+          jsonNodes: [branchJsonNode({
+            nodeKey: 'propertyElement',
+            nodeChildren: [
+              leafJsonNode({
+                nodeKey: 'elementKind',
+                nodeStyle: [3, 1, 44],
+              }),
+              branchJsonNode({
+                nodeKey: 'elementArguments',
+                nodeChildren: [branchJsonNode({
+                  nodeKey: 0,
+                  nodeChildren: [
+                    leafJsonNode({
+                      nodeKey: 'elementKind',
+                      nodeStyle: [3, 1, 44],
+                    }),
+                    branchJsonNode({
+                      nodeKey: 'elementMembers',
+                      nodeChildren: [leafJsonNode({
+                        nodeKey: 5,
+                        nodeStyle: [3, 1, 44],
+                      })],
+                    }),
+                  ],
+                })],
+              }),
+            ],
           })],
         }),
       ],
