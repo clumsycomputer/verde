@@ -24,6 +24,7 @@ import {
   VerdeTableUnionElement,
 } from '../../types/SchemaElement.ts';
 import { deriveDataModel } from './__deriveIntermediateModel.ts';
+import { deriveIntermediateAlias } from './deriveIntermediateAlias.ts';
 import {
   deriveSchemaElement,
   DeriveSchemaElementApi,
@@ -219,17 +220,21 @@ function dataModelReferenceElementResolver(
 function aliasReferenceElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<AliasReferenceElement> {
-  const { elementSourceDeclaration, elementLocalNode } = api;
+  const { elementSourceDeclaration, elementLocalNode, schemaTypeChecker, schemaResult } = api;
   if (
     elementSourceDeclaration &&
     Typescript.isTypeAliasDeclaration(elementSourceDeclaration) &&
     Typescript.isTypeReferenceNode(elementLocalNode) &&
     elementLocalNode.typeArguments === undefined
   ) {
-    // todo deriveIntermediateAlias
+    const elementAlias = deriveIntermediateAlias({
+      schemaTypeChecker,
+      schemaResult,
+      aliasSourceDeclaration: elementSourceDeclaration
+    })
     return {
       elementKind: 'aliasReference',
-      elementName: elementSourceDeclaration.name.text,
+      elementName: elementAlias.aliasName,
     };
   }
   return null;

@@ -2,9 +2,10 @@ import { throwInvalidPathError, throwUserError } from '../../../helpers/throwErr
 import { Typescript } from '../../../imports/Typescript.ts';
 import { IntermediateSchema } from '../types/IntermediateSchema.ts';
 import { deriveDataModel } from './components/__deriveIntermediateModel.ts';
+import { deriveIntermediateAlias } from './components/deriveIntermediateAlias.ts';
 import {
-  loadSchemaModule,
   LoadSchemaModuleResult,
+  loadSchemaModule,
 } from './components/loadSchemaModule.ts';
 
 export interface DeriveIntermediateSchemaApi {
@@ -74,7 +75,11 @@ function __deriveIntermediateSchema(
         modelDeclaration: exportItemSourceDeclaration,
       });
     } else if (Typescript.isTypeAliasDeclaration(exportItemSourceDeclaration)) {
-      // todo deriveSchemaAlias
+      deriveIntermediateAlias({
+        schemaTypeChecker,
+        schemaResult,
+        aliasSourceDeclaration: exportItemSourceDeclaration
+      })
     } else {
       // when does this execute
       throwUserError('invalid schema export item: todo');

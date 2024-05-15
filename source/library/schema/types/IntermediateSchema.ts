@@ -99,12 +99,12 @@ interface __ModelTemplate<
   templateModelNameKey: TemplateIntermediateModel['modelName'];
 }
 
-type IntermediateSchemaAlias =
-  | DataModelIntermediateAlias
+export type IntermediateSchemaAlias =
+  // | DataModelIntermediateAlias
   | GeneralIntermediateAlias;
 
-export interface DataModelIntermediateAlias
-  extends __SchemaAlias<'dataModel'> {}
+// export interface DataModelIntermediateAlias
+//   extends __SchemaAlias<'dataModel'> {}
 
 export interface GeneralIntermediateAlias extends __SchemaAlias<'general'> {}
 

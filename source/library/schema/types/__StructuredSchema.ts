@@ -1,4 +1,6 @@
-import { AliasReferenceElement } from './SchemaElement.ts';
+import {
+  DefinitiveSchemaElement
+} from './SchemaElement.ts';
 
 export interface __StructuredSchema<ThisSchemaModels, ThisSchemaAlias> {
   schemaName: string;
@@ -22,5 +24,5 @@ export interface ModelProperty<ThisModelElement> {
 export interface __SchemaAlias<ThisAliasKind> {
   aliasKind: ThisAliasKind;
   aliasName: string;
-  aliasElement: AliasReferenceElement;
+  aliasElement: DefinitiveSchemaElement;
 }

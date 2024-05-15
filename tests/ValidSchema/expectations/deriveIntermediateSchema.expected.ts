@@ -437,8 +437,13 @@ export const expectedIntermediateSchema: IntermediateSchema = {
     },
   },
   schemaAliases: {
-    // DataModelUnion: {
-    //   aliasKind: ''
-    // }
+    Alias__AA: {
+      aliasKind: 'general',
+      aliasName: 'Alias__AA',
+      aliasElement: {
+        elementKind: 'dataModelReference',
+        elementName: 'Model__AA'
+      }
+    }
   },
 };
