@@ -99,14 +99,7 @@ interface __ModelTemplate<
   templateModelNameKey: TemplateIntermediateModel['modelName'];
 }
 
-export type IntermediateSchemaAlias =
-  // | DataModelIntermediateAlias
-  | GeneralIntermediateAlias;
-
-// export interface DataModelIntermediateAlias
-//   extends __SchemaAlias<'dataModel'> {}
-
-export interface GeneralIntermediateAlias extends __SchemaAlias<'general'> {}
+export interface IntermediateSchemaAlias extends __SchemaAlias {}
 
 export type GetThisIntermediateElement<
   ThisModelKind extends keyof IntermediateSchema['schemaModels'],

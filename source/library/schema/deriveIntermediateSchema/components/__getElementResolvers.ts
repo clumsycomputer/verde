@@ -81,28 +81,28 @@ function getGenericTerminalElementResolvers() {
 function getBasicVerdeArrayElementResolvers() {
   return [
     ...getPrimitiveElementResolvers(),
-    ...getBasicReferenceElementResolvers()
-  ]
+    ...getBasicReferenceElementResolvers(),
+  ];
 }
 
 function getGenericReferenceElementResolvers() {
   return [
     ...getBasicReferenceElementResolvers(),
-    parameterReferenceElementResolver
-  ]
+    parameterReferenceElementResolver,
+  ];
 }
 
 function getBasicReferenceElementResolvers() {
   return [
     dataModelReferenceElementResolver,
     aliasReferenceElementResolver,
-  ]
+  ];
 }
 
 function getBasicElementResolvers() {
   return [
     ...getLiteralElementResolvers(),
-    ...getPrimitiveElementResolvers()   
+    ...getPrimitiveElementResolvers(),
   ];
 }
 
@@ -111,15 +111,15 @@ function getPrimitiveElementResolvers() {
     booleanPrimitiveElementResolver,
     numberPrimitiveElementResolver,
     stringPrimitiveElementResolver,
-  ]
+  ];
 }
 
 function getLiteralElementResolvers() {
   return [
     booleanLiteralElementResolver,
     numberLiteralElementResolver,
-    stringLiteralElementResolver
-  ]
+    stringLiteralElementResolver,
+  ];
 }
 
 function booleanLiteralElementResolver(
@@ -220,18 +220,23 @@ function dataModelReferenceElementResolver(
 function aliasReferenceElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<AliasReferenceElement> {
-  const { elementSourceDeclaration, elementLocalNode, schemaTypeChecker, schemaResult } = api;
+  const {
+    elementLocalNode,
+    elementSourceDeclaration,
+    schemaTypeChecker,
+    schemaResult,
+  } = api;
   if (
+    Typescript.isTypeReferenceNode(elementLocalNode) &&
     elementSourceDeclaration &&
     Typescript.isTypeAliasDeclaration(elementSourceDeclaration) &&
-    Typescript.isTypeReferenceNode(elementLocalNode) &&
-    elementLocalNode.typeArguments === undefined
+    elementSourceDeclaration.typeParameters === undefined
   ) {
     const elementAlias = deriveIntermediateAlias({
       schemaTypeChecker,
       schemaResult,
-      aliasSourceDeclaration: elementSourceDeclaration
-    })
+      aliasSourceDeclaration: elementSourceDeclaration,
+    });
     return {
       elementKind: 'aliasReference',
       elementName: elementAlias.aliasName,
@@ -275,7 +280,7 @@ function genericVerdeTableElementResolver(
     ...api,
     elementResolvers: [
       ...getGenericReferenceElementResolvers(),
-      genericVerdeTableUnionElementResolver,      
+      genericVerdeTableUnionElementResolver,
     ],
   });
 }
@@ -329,8 +334,8 @@ function definitiveVerdeArrayElementResolver(
     ...api,
     elementResolvers: [
       ...getBasicVerdeArrayElementResolvers(),
-      definitiveVerdeArrayUnionElementResolver
-    ]
+      definitiveVerdeArrayUnionElementResolver,
+    ],
   });
 }
 
@@ -483,8 +488,12 @@ function __objectElementResolver<
 >(
   api: __ObjectElementResolverApi<ThisElementResolver>,
 ): ElementResolverResult<ObjectElement<ThisPropertyElement>> {
-  const { elementLocalNode, schemaTypeChecker, schemaResult, elementResolvers } =
-    api;
+  const {
+    elementLocalNode,
+    schemaTypeChecker,
+    schemaResult,
+    elementResolvers,
+  } = api;
   if (Typescript.isTypeLiteralNode(elementLocalNode)) {
     return {
       elementKind: 'objectStructure',
@@ -551,8 +560,12 @@ function __tupleElementResolver<
 >(
   api: __TupleElementResolverApi<ThisPropertyElementResolver>,
 ): ElementResolverResult<TupleElement<ThisPropertElement>> {
-  const { elementLocalNode, schemaTypeChecker, schemaResult, elementResolvers } =
-    api;
+  const {
+    elementLocalNode,
+    schemaTypeChecker,
+    schemaResult,
+    elementResolvers,
+  } = api;
   if (Typescript.isTupleTypeNode(elementLocalNode)) {
     return {
       elementKind: 'tupleStructure',
@@ -588,7 +601,9 @@ function __tupleElementResolver<
   return null;
 }
 
-function nullElementResolver(api: ElementResolverApi): ElementResolverResult<NullElement> {
+function nullElementResolver(
+  api: ElementResolverApi,
+): ElementResolverResult<NullElement> {
   const { elementLocalNode } = api;
   return Typescript.isLiteralTypeNode(elementLocalNode) &&
       elementLocalNode.literal.kind === Typescript.SyntaxKind.NullKeyword
@@ -599,7 +614,9 @@ function nullElementResolver(api: ElementResolverApi): ElementResolverResult<Nul
 function definitiveCoreUnionElementResolver(api: ElementResolverApi) {
   return __coreUnionElementResolver({
     ...api,
-    createThisUnionElement: createThisUnionElement__coreUnionElementResolver<never>,
+    createThisUnionElement: createThisUnionElement__coreUnionElementResolver<
+      never
+    >,
     elementResolvers: [
       ...getDefinitiveStructureElementResolvers(),
       nullElementResolver,
@@ -661,10 +678,11 @@ function createThisUnionElement__coreUnionElementResolver<
 function definitiveVerdeTableUnionElementResolver(api: ElementResolverApi) {
   return __verdeTableUnionElementResolver({
     ...api,
-    createThisUnionElement: createThisUnionElement__verdeTableUnionElementResolver<
-      never
-    >,
-    elementResolvers: getBasicReferenceElementResolvers()
+    createThisUnionElement:
+      createThisUnionElement__verdeTableUnionElementResolver<
+        never
+      >,
+    elementResolvers: getBasicReferenceElementResolvers(),
   });
 }
 
@@ -673,10 +691,11 @@ function genericVerdeTableUnionElementResolver(
 ) {
   return __verdeTableUnionElementResolver({
     ...api,
-    createThisUnionElement: createThisUnionElement__verdeTableUnionElementResolver<
-      ParameterReferenceElement
-    >,
-    elementResolvers: getGenericReferenceElementResolvers()
+    createThisUnionElement:
+      createThisUnionElement__verdeTableUnionElementResolver<
+        ParameterReferenceElement
+      >,
+    elementResolvers: getGenericReferenceElementResolvers(),
   });
 }
 
@@ -685,7 +704,9 @@ interface __VerdeTableUnionElementResolverApi<
 > extends
   ElementResolverApi,
   Pick<
-    __UnionElementResolverApi<VerdeTableUnionElement<ThisParameterReferenceElement>>,
+    __UnionElementResolverApi<
+      VerdeTableUnionElement<ThisParameterReferenceElement>
+    >,
     'elementResolvers' | 'createThisUnionElement'
   > {}
 
@@ -699,7 +720,7 @@ function createThisUnionElement__verdeTableUnionElementResolver<
   ThisParameterReferenceElement,
 >(
   api: CreateThisUnionElementApi<
-  VerdeTableUnionElement<ThisParameterReferenceElement>
+    VerdeTableUnionElement<ThisParameterReferenceElement>
   >,
 ): VerdeTableUnionElement<ThisParameterReferenceElement> {
   const { elementMembers } = api;
@@ -712,13 +733,14 @@ function createThisUnionElement__verdeTableUnionElementResolver<
 function definitiveVerdeArrayUnionElementResolver(api: ElementResolverApi) {
   return __verdeArrayUnionElementResolver({
     ...api,
-    createThisUnionElement: createThisUnionElement__verdeArrayUnionElementResolver<
-      never
-    >,
+    createThisUnionElement:
+      createThisUnionElement__verdeArrayUnionElementResolver<
+        never
+      >,
     elementResolvers: [
       ...getPrimitiveElementResolvers(),
-      ...getBasicReferenceElementResolvers(),      
-    ]
+      ...getBasicReferenceElementResolvers(),
+    ],
   });
 }
 
@@ -727,13 +749,14 @@ function genericVerdeArrayUnionElementResolver(
 ) {
   return __verdeArrayUnionElementResolver({
     ...api,
-    createThisUnionElement: createThisUnionElement__verdeArrayUnionElementResolver<
-      ParameterReferenceElement
-    >,
+    createThisUnionElement:
+      createThisUnionElement__verdeArrayUnionElementResolver<
+        ParameterReferenceElement
+      >,
     elementResolvers: [
       ...getPrimitiveElementResolvers(),
-      ...getGenericReferenceElementResolvers(),      
-    ]
+      ...getGenericReferenceElementResolvers(),
+    ],
   });
 }
 
@@ -742,7 +765,9 @@ interface __VerdeArrayUnionElementResolverApi<
 > extends
   ElementResolverApi,
   Pick<
-    __UnionElementResolverApi<VerdeArrayUnionElement<ThisParameterReferenceElement>>,
+    __UnionElementResolverApi<
+      VerdeArrayUnionElement<ThisParameterReferenceElement>
+    >,
     'elementResolvers' | 'createThisUnionElement'
   > {}
 
@@ -756,7 +781,7 @@ function createThisUnionElement__verdeArrayUnionElementResolver<
   ThisParameterReferenceElement,
 >(
   api: CreateThisUnionElementApi<
-  VerdeArrayUnionElement<ThisParameterReferenceElement>
+    VerdeArrayUnionElement<ThisParameterReferenceElement>
   >,
 ): VerdeArrayUnionElement<ThisParameterReferenceElement> {
   const { elementMembers } = api;
@@ -769,7 +794,9 @@ function createThisUnionElement__verdeArrayUnionElementResolver<
 interface __UnionElementResolverApi<
   ThisUnionElement extends __UnionElement<genericAny, genericAny>,
 > extends ElementResolverApi {
-  elementResolvers: Array<ElementResolver<ThisUnionElement['elementMembers'][number]>>;
+  elementResolvers: Array<
+    ElementResolver<ThisUnionElement['elementMembers'][number]>
+  >;
   createThisUnionElement: (
     api: CreateThisUnionElementApi<ThisUnionElement>,
   ) => ThisUnionElement;

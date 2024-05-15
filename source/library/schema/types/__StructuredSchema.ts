@@ -21,8 +21,7 @@ export interface ModelProperty<ThisModelElement> {
   propertyElement: ThisModelElement;
 }
 
-export interface __SchemaAlias<ThisAliasKind> {
-  aliasKind: ThisAliasKind;
+export interface __SchemaAlias {
   aliasName: string;
   aliasElement: DefinitiveSchemaElement;
 }

@@ -438,7 +438,6 @@ export const expectedIntermediateSchema: IntermediateSchema = {
   },
   schemaAliases: {
     Alias__AA: {
-      aliasKind: 'general',
       aliasName: 'Alias__AA',
       aliasElement: {
         elementKind: 'dataModelReference',

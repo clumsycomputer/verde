@@ -14,8 +14,11 @@ export interface DeriveIntermediateAliasApi
 export function deriveIntermediateAlias(api: DeriveIntermediateAliasApi): IntermediateSchemaAlias {
   const { aliasSourceDeclaration, schemaResult, schemaTypeChecker } = api;
   const aliasName = aliasSourceDeclaration.name.text;
+  const maybeCachedAlias = schemaResult .schemaAliases[aliasName];
+  if (maybeCachedAlias !== undefined) {
+    return maybeCachedAlias;
+  }
   const newSchemaAlias: IntermediateSchemaAlias = {
-    aliasKind: 'general',
     aliasName: aliasName,
     aliasElement: undefined as unknown as DefinitiveSchemaElement
   };

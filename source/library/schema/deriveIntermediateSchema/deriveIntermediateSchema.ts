@@ -1,11 +1,14 @@
-import { throwInvalidPathError, throwUserError } from '../../../helpers/throwError.ts';
+import {
+  throwInvalidPathError,
+  throwUserError,
+} from '../../../helpers/throwError.ts';
 import { Typescript } from '../../../imports/Typescript.ts';
 import { IntermediateSchema } from '../types/IntermediateSchema.ts';
 import { deriveDataModel } from './components/__deriveIntermediateModel.ts';
 import { deriveIntermediateAlias } from './components/deriveIntermediateAlias.ts';
 import {
-  LoadSchemaModuleResult,
   loadSchemaModule,
+  LoadSchemaModuleResult,
 } from './components/loadSchemaModule.ts';
 
 export interface DeriveIntermediateSchemaApi {
@@ -64,22 +67,24 @@ function __deriveIntermediateSchema(
       Typescript.isImportSpecifier(exportItemLocalDeclaration)
         ? schemaTypeChecker.getAliasedSymbol(exportItemLocalSymbol)
         : exportItemLocalSymbol;
-    const exportItemSourceDeclaration =
-      exportItemSourceSymbol.declarations &&
+    const exportItemSourceDeclaration = exportItemSourceSymbol.declarations &&
         exportItemSourceSymbol.declarations[0] ||
-      throwInvalidPathError('exportItemSourceDeclaration');    
+      throwInvalidPathError('exportItemSourceDeclaration');
     if (Typescript.isInterfaceDeclaration(exportItemSourceDeclaration)) {
       deriveDataModel({
         schemaTypeChecker,
         schemaResult,
         modelDeclaration: exportItemSourceDeclaration,
       });
-    } else if (Typescript.isTypeAliasDeclaration(exportItemSourceDeclaration)) {
+    } else if (
+      Typescript.isTypeAliasDeclaration(exportItemSourceDeclaration) &&
+      exportItemSourceDeclaration.typeParameters === undefined
+    ) {
       deriveIntermediateAlias({
         schemaTypeChecker,
         schemaResult,
-        aliasSourceDeclaration: exportItemSourceDeclaration
-      })
+        aliasSourceDeclaration: exportItemSourceDeclaration,
+      });
     } else {
       // when does this execute
       throwUserError('invalid schema export item: todo');
