@@ -60,14 +60,14 @@ export function throwInvalidSchemaModule__GenericTypeAliasExport(
   );
 }
 
-export function throwInvalidSchemaModule__NotTupleExport(
-  api: ThrowInvalidSchemaModuleApi,
-): never {
-  const { schemaModulePath } = api;
-  throwUserError(
-    `invalid schema module: non-tuple export at "${schemaModulePath}"`,
-  );
-}
+// export function throwInvalidSchemaModule__ExportValue(
+//   api: ThrowInvalidSchemaModuleApi,
+// ): never {
+//   const { schemaModulePath } = api;
+//   throwUserError(
+//     `invalid schema module: export value at "${schemaModulePath}"`,
+//   );
+// }
 
 export interface ThrowInvalidTopLevelModelApi extends
   Pick<

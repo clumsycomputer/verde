@@ -7,8 +7,9 @@ import {
   AliasReferenceElement,
   BooleanLiteralElement,
   BooleanPrimitiveElement,
-  CoreUnionElement,
   DataModelReferenceElement,
+  ExportUnionElement,
+  GeneralUnionElement,
   NullElement,
   NumberLiteralElement,
   NumberPrimitiveElement,
@@ -24,16 +25,23 @@ import {
   VerdeTableUnionElement,
 } from '../../types/SchemaElement.ts';
 import { deriveDataModel } from './__deriveIntermediateModel.ts';
-import { deriveElementAlias } from './__deriveIntermediateAlias.ts';
+import { deriveIntermediateAlias } from './deriveIntermediateAlias.ts';
 import {
   deriveSchemaElement,
   DeriveSchemaElementApi,
 } from './deriveSchemaElement.ts';
 
+export function getExportElementResolvers() {
+  return [
+    ...getBasicReferenceElementResolvers(),
+    exportUnionElementResolver
+  ]
+}
+
 export function getDefinitiveElementResolvers() {
   return [
     ...getDefinitiveStructureElementResolvers(),
-    definitiveCoreUnionElementResolver,
+    definitiveGeneralUnionElementResolver,
   ];
 }
 
@@ -57,7 +65,7 @@ function getDefinitiveTerminalElementResolvers() {
 export function getGenericElementResolvers() {
   return [
     ...getGenericStructureElementResolvers(),
-    genericCoreUnionElementResolver,
+    genericGeneralUnionElementResolver,
   ];
 }
 
@@ -232,7 +240,7 @@ function aliasReferenceElementResolver(
     Typescript.isTypeAliasDeclaration(elementSourceDeclaration) &&
     elementSourceDeclaration.typeParameters === undefined
   ) {
-    const elementAlias = deriveElementAlias({
+    const elementAlias = deriveIntermediateAlias({
       schemaTypeChecker,
       schemaResult,
       aliasSourceDeclaration: elementSourceDeclaration,
@@ -611,20 +619,28 @@ function nullElementResolver(
     : null;
 }
 
-export function exportItemCoreUnionElementResolver(api: ElementResolverApi) {
-  return __coreUnionElementResolver({
+export function exportUnionElementResolver(api: ElementResolverApi) {
+  return __unionElementResolver({
     ...api,
-    createThisUnionElement: createThisUnionElement__coreUnionElementResolver<
-      never
-    >,
-    elementResolvers: getBasicReferenceElementResolvers()
+    createThisUnionElement: createThisUnionElement__exportUnionElementResolver,
+    elementResolvers: getBasicReferenceElementResolvers(),
   });
 }
 
-function definitiveCoreUnionElementResolver(api: ElementResolverApi) {
-  return __coreUnionElementResolver({
+function createThisUnionElement__exportUnionElementResolver(
+  api: CreateThisUnionElementApi<ExportUnionElement>,
+): ExportUnionElement {
+  const { elementMembers } = api;
+  return {
+    elementMembers,
+    elementKind: 'exportUnion',
+  };
+}
+
+function definitiveGeneralUnionElementResolver(api: ElementResolverApi) {
+  return __generalUnionElementResolver({
     ...api,
-    createThisUnionElement: createThisUnionElement__coreUnionElementResolver<
+    createThisUnionElement: createThisUnionElement__generalUnionElementResolver<
       never
     >,
     elementResolvers: [
@@ -634,10 +650,10 @@ function definitiveCoreUnionElementResolver(api: ElementResolverApi) {
   });
 }
 
-function genericCoreUnionElementResolver(api: ElementResolverApi) {
-  return __coreUnionElementResolver({
+function genericGeneralUnionElementResolver(api: ElementResolverApi) {
+  return __generalUnionElementResolver({
     ...api,
-    createThisUnionElement: createThisUnionElement__coreUnionElementResolver<
+    createThisUnionElement: createThisUnionElement__generalUnionElementResolver<
       ParameterReferenceElement
     >,
     elementResolvers: [
@@ -647,41 +663,41 @@ function genericCoreUnionElementResolver(api: ElementResolverApi) {
   });
 }
 
-interface __CoreUnionElementResolverApi<
+interface __GeneralUnionElementResolverApi<
   ThisParameterReferenceElement,
 > extends
   ElementResolverApi,
   Pick<
     __UnionElementResolverApi<
-      CoreUnionElement<TerminalElement<ThisParameterReferenceElement>>
+      GeneralUnionElement<TerminalElement<ThisParameterReferenceElement>>
     >,
     'elementResolvers' | 'createThisUnionElement'
   > {}
 
-function __coreUnionElementResolver<
+function __generalUnionElementResolver<
   ThisParameterReferenceElement,
 >(
-  api: __CoreUnionElementResolverApi<ThisParameterReferenceElement>,
+  api: __GeneralUnionElementResolverApi<ThisParameterReferenceElement>,
 ) {
   return __unionElementResolver({
     ...api,
-    createThisUnionElement: createThisUnionElement__coreUnionElementResolver<
+    createThisUnionElement: createThisUnionElement__generalUnionElementResolver<
       ThisParameterReferenceElement
     >,
   });
 }
 
-function createThisUnionElement__coreUnionElementResolver<
+function createThisUnionElement__generalUnionElementResolver<
   ThisParameterReferenceElement,
 >(
   api: CreateThisUnionElementApi<
-    CoreUnionElement<TerminalElement<ThisParameterReferenceElement>>
+    GeneralUnionElement<TerminalElement<ThisParameterReferenceElement>>
   >,
-): CoreUnionElement<TerminalElement<ThisParameterReferenceElement>> {
+): GeneralUnionElement<TerminalElement<ThisParameterReferenceElement>> {
   const { elementMembers } = api;
   return {
     elementMembers,
-    elementKind: 'coreUnion',
+    elementKind: 'generalUnion',
   };
 }
 

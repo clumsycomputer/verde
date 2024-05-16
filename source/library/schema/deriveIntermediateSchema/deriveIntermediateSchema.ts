@@ -1,14 +1,9 @@
-import {
-  throwInvalidPathError,
-  throwUserError,
-} from '../../../helpers/throwError.ts';
-import { Typescript } from '../../../imports/Typescript.ts';
 import { IntermediateSchema } from '../types/IntermediateSchema.ts';
-import { deriveDataModel } from './components/__deriveIntermediateModel.ts';
-import { deriveExportItemAlias } from './components/__deriveIntermediateAlias.ts';
+import { getExportElementResolvers } from './components/__getElementResolvers.ts';
+import { deriveSchemaElement } from './components/deriveSchemaElement.ts';
 import {
-  loadSchemaModule,
   LoadSchemaModuleResult,
+  loadSchemaModule,
 } from './components/loadSchemaModule.ts';
 
 export interface DeriveIntermediateSchemaApi {
@@ -21,74 +16,43 @@ export function deriveIntermediateSchema(
   const { schemaModulePath } = api;
   const {
     schemaTypeChecker,
-    lhsSchemaExportSymbol,
-    rhsSchemaExportNode,
+    schemaExportNode,
   } = loadSchemaModule({
     schemaModulePath,
   });
   return __deriveIntermediateSchema({
     schemaTypeChecker,
-    lhsSchemaExportSymbol,
-    rhsSchemaExportNode,
+    schemaExportNode,
   });
 }
 
 export interface __DeriveIntermediateSchemaApi extends
   Pick<
     LoadSchemaModuleResult,
-    'schemaTypeChecker' | 'lhsSchemaExportSymbol' | 'rhsSchemaExportNode'
+    'schemaTypeChecker' | 'schemaExportNode'
   > {}
 
 function __deriveIntermediateSchema(
   api: __DeriveIntermediateSchemaApi,
 ): IntermediateSchema {
-  const { schemaTypeChecker, lhsSchemaExportSymbol, rhsSchemaExportNode } = api;
+  const { schemaTypeChecker, schemaExportNode } = api;
   const schemaResult: IntermediateSchema = {
-    schemaName: lhsSchemaExportSymbol.name,
     schemaAliases: {},
     schemaModels: {
       data: {},
       concreteTemplate: {},
       genericTemplate: {},
-    },    
+    },
+    schemaExport: undefined as unknown as IntermediateSchema['schemaExport'],
   };
-  rhsSchemaExportNode.elements.forEach((someExportItemLocalNode) => {
-    const exportItemLocalSymbol =
-      Typescript.isTypeReferenceNode(someExportItemLocalNode) &&
-        schemaTypeChecker.getSymbolAtLocation(
-          someExportItemLocalNode.typeName,
-        ) ||
-      throwUserError('exportItemLocalSymbol: todo');
-    const exportItemLocalDeclaration = exportItemLocalSymbol.declarations &&
-        exportItemLocalSymbol.declarations.length === 1 &&
-        exportItemLocalSymbol.declarations[0] ||
-      throwUserError('exportItemLocalDeclaration: todo');
-    const exportItemSourceSymbol =
-      Typescript.isImportSpecifier(exportItemLocalDeclaration)
-        ? schemaTypeChecker.getAliasedSymbol(exportItemLocalSymbol)
-        : exportItemLocalSymbol;
-    const exportItemSourceDeclaration = exportItemSourceSymbol.declarations &&
-        exportItemSourceSymbol.declarations[0] ||
-      throwInvalidPathError('exportItemSourceDeclaration');
-    if (Typescript.isInterfaceDeclaration(exportItemSourceDeclaration)) {
-      deriveDataModel({
-        schemaTypeChecker,
-        schemaResult,
-        modelSourceDeclaration: exportItemSourceDeclaration,
-      });
-    } else if (
-      Typescript.isTypeAliasDeclaration(exportItemSourceDeclaration) &&
-      exportItemSourceDeclaration.typeParameters === undefined
-    ) {
-      deriveExportItemAlias({
-        schemaTypeChecker,
-        schemaResult,
-        aliasSourceDeclaration: exportItemSourceDeclaration,
-      });
-    } else {
-      // when does this execute
-      throwUserError('invalid schema export item: todo');
-    }
-  });
+  schemaResult.schemaExport = {
+    exportName: schemaExportNode.name.text,
+    exportElement: deriveSchemaElement({
+      schemaTypeChecker,
+      schemaResult,
+      elementLocalNode: schemaExportNode.type,
+      elementResolvers: getExportElementResolvers(),
+    }),
+  };
   return schemaResult;
 }

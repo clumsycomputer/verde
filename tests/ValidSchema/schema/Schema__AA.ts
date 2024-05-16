@@ -1,7 +1,7 @@
 import { VerdeArray, VerdeTable } from '../../../source/library/module.ts';
 import { Model__BB, Model__CC } from './Model__BB.ts';
 
-export type Schema__AA = [Model__AA, Alias__AA, Model__BB, Model__FF];
+export type Schema__AA = Model__AA | Alias__AA | Model__BB | Model__FF;
 
 interface Model__AA {
   aaProperty__AA: true;

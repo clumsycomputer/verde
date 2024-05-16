@@ -2109,45 +2109,6 @@ export function getDeriveIntermediateSchemaTestCases(
       ],
     },
     {
-      caseKey: 'importSpecifier__schemaDataModelExport',
-      caseNotes: [
-        styledText({
-          textSource: 'import specifier (schema data model export)',
-          textPatterns: [{
-            patternStyle: [1, 4],
-            patternRegex: /^.*$/,
-          }],
-        }),
-        styledText({
-          textSource:
-            'Typescript.Declaration (DataIntermediateModel) <= Typescript.ImportSpecifer => Typescript.TupleTypeNode.elements => Typescript.NodeArray<Typescript.TypeNode> (IntermediateSchema["schemaModels"]["data"][string])',
-          textPatterns: [
-            {
-              patternStyle: [3, 1, 44],
-              patternRegex: /ImportSpecifer/,
-            },
-            {
-              patternStyle: [3, 1, 44],
-              patternRegex: /TypeNode/,
-              getFilteredPattern: ({ patternMatches }) =>
-                patternMatches.slice(1, 2),
-            },
-          ],
-        }),
-        styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(0, 202),
-          textPatterns: [{
-            patternStyle: [3, 1, 44],
-            patternRegex: /Model__BB/,
-            getFilteredPattern: ({ patternMatches }) => {
-              patternMatches.splice(1, 1);
-              return patternMatches;
-            },
-          }],
-        }),
-      ],
-    },
-    {
       caseKey: 'importSpecifier__modelTemplate',
       caseNotes: [
         styledText({
@@ -2172,7 +2133,7 @@ export function getDeriveIntermediateSchemaTestCases(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(0, 774),
+          textSource: schemaSources['Schema__AA.ts']!.substring(0, 775),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /Model__CC/,
@@ -2205,7 +2166,7 @@ export function getDeriveIntermediateSchemaTestCases(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(0, 774),
+          textSource: schemaSources['Schema__AA.ts']!.substring(0, 775),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /Model__BB/,
@@ -2217,84 +2178,5 @@ export function getDeriveIntermediateSchemaTestCases(
         }),
       ],
     },
-    {
-      caseKey: 'dataModel__schemaExportItem',
-      caseNotes: [
-        styledText({
-          textSource: 'data model (schema export item)',
-          textPatterns: [{
-            patternStyle: [1, 4],
-            patternRegex: /^.*$/,
-          }],
-        }),
-        styledText({
-          textSource:
-            'Typescript.TupleTypeNode.elements[number] (module export) => DataIntermediateModel',
-          textPatterns: [{
-            patternStyle: [3, 1, 44],
-            patternRegex: /DataIntermediateModel/,
-          }],
-        }),
-        styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(132, 202),
-          textPatterns: [{
-            patternStyle: [3, 1, 44],
-            patternRegex: /Model__AA/,
-          }],
-        }),
-        styledJson({
-          jsonSource: expectedIntermediateSchema,
-          jsonNodes: [branchJsonNode({
-            nodeKey: 'schemaModels',
-            nodeChildren: [branchJsonNode({
-              nodeKey: 'data',
-              nodeChildren: [leafJsonNode({
-                nodeStyle: [3, 1, 44],
-                nodeKey: 'Model__AA',
-              })],
-            })],
-          })],
-        }),
-      ],
-    },
-    // {
-    //   caseKey: 'dataModelUnionAlias__schemaExportItem',
-    //   caseNotes: [
-    //     styledText({
-    //       textSource: 'data model union alias (schema export item)',
-    //       textPatterns: [{
-    //         patternStyle: [1, 4],
-    //         patternRegex: /^.*$/
-    //       }]
-    //     }),
-    //     styledText({
-    //       textSource: 'DataModelIntermediateAlias => Typescript.TupleTypeNode.elements[number] (module export)',
-    //       textPatterns: [{
-    //         patternStyle: [3, 1, 44],
-    //         patternRegex: /DataModelIntermediateAlias/
-    //       }]
-    //     }),
-    //     styledText({
-    //       textSource: schemaSources['Schema__AA.ts']!.substring(132, 202),
-    //       textPatterns: [{
-    //         patternStyle: [3, 1, 44],
-    //         patternRegex: /Alias__AA/,
-    //       }],
-    //     }),
-    //     // styledJson({
-    //     //   jsonSource: expectedIntermediateSchema,
-    //     //   jsonNodes: [branchJsonNode({
-    //     //     nodeKey: 'schemaAliases',
-    //     //     nodeChildren: [branchJsonNode({
-    //     //       nodeKey: 'data',
-    //     //       nodeChildren: [leafJsonNode({
-    //     //         nodeStyle: [3, 1, 44],
-    //     //         nodeKey: 'Model__AA',
-    //     //       })]
-    //     //     })]
-    //     //   })]
-    //     // })
-    //   ]
-    // }
   ];
 }

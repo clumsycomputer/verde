@@ -9,11 +9,11 @@ export type DefinitiveSchemaElement = SchemaElement<
 type SchemaElement<ThisTerminalElement> =
   | ThisTerminalElement
   | StructureElement<ThisTerminalElement>
-  | CoreUnionElement<ThisTerminalElement>;
+  | GeneralUnionElement<ThisTerminalElement>;
 
-export interface CoreUnionElement<ThisTerminalElement> extends
+export interface GeneralUnionElement<ThisTerminalElement> extends
   __UnionElement<
-    'coreUnion',
+    'generalUnion',
     ThisTerminalElement | StructureElement<ThisTerminalElement> | NullElement
   > {}
 
@@ -30,6 +30,13 @@ export interface VerdeArrayUnionElement<ThisParameterReferenceElement>
       'verdeArrayUnion',
       | PrimitiveElement
       | ReferenceElement<ThisParameterReferenceElement>
+    > {}
+
+export interface ExportUnionElement
+  extends
+    __UnionElement<
+      'exportUnion',
+      DataModelReferenceElement | AliasReferenceElement
     > {}
 
 export interface __UnionElement<ThisElementKind, ThisMemberElement>

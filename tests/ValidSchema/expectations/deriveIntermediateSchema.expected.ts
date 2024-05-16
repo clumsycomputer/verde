@@ -1,7 +1,30 @@
 import { IntermediateSchema } from '../../../source/library/schema/types/IntermediateSchema.ts';
 
 export const expectedIntermediateSchema: IntermediateSchema = {
-  schemaName: 'Schema__AA',
+  schemaExport: {
+    exportName: 'Schema__AA',
+    exportElement: {
+      elementKind: 'exportUnion',
+      elementMembers: [
+        {
+          elementKind: 'dataModelReference',
+          elementName: 'Model__AA'
+        },
+        {
+          elementKind: 'aliasReference',
+          elementName: 'Alias__AA'
+        },
+        {
+          elementKind: 'dataModelReference',
+          elementName: 'Model__BB'
+        },
+        {
+          elementKind: 'dataModelReference',
+          elementName: 'Model__FF'
+        }
+      ]
+    }
+  },
   schemaModels: {
     data: {
       Model__AA: {
@@ -84,7 +107,7 @@ export const expectedIntermediateSchema: IntermediateSchema = {
           aaProperty__KK: {
             propertyKey: 'aaProperty__KK',
             propertyElement: {
-              elementKind: 'coreUnion',
+              elementKind: 'generalUnion',
               elementMembers: [
                 { elementKind: 'stringPrimitive' },
                 { elementKind: 'null' },

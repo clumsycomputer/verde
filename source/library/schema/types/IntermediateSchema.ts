@@ -1,16 +1,29 @@
 import {
+  AliasReferenceElement,
+  DataModelReferenceElement,
   DefinitiveSchemaElement,
+  ExportUnionElement,
   GenericSchemaElement,
 } from './SchemaElement.ts';
 import {
   __SchemaAlias,
+  __SchemaExport,
   __SchemaModel,
   __StructuredSchema,
 } from './__StructuredSchema.ts';
 
-export interface IntermediateSchema
+export interface IntermediateSchema extends
+  __StructuredSchema<
+    IntermediateSchemaExport,
+    IntermediateSchemaModels,
+    IntermediateSchemaAlias
+  > {}
+
+interface IntermediateSchemaExport
   extends
-    __StructuredSchema<IntermediateSchemaModels, IntermediateSchemaAlias> {}
+    __SchemaExport<
+      DataModelReferenceElement | AliasReferenceElement | ExportUnionElement
+    > {}
 
 interface IntermediateSchemaModels {
   data: Record<DataIntermediateModel['modelName'], DataIntermediateModel>;
@@ -47,7 +60,9 @@ export interface GenericTemplateIntermediateModel
   modelParameters: Array<GenericTemplateParameter>;
 }
 
-export type GenericTemplateParameter = BasicTemplateParameter | ConstrainedTemplateParameter;
+export type GenericTemplateParameter =
+  | BasicTemplateParameter
+  | ConstrainedTemplateParameter;
 
 interface BasicTemplateParameter extends __GenericTemplateParameter<'basic'> {}
 
