@@ -5,7 +5,7 @@ import {
 import { Typescript } from '../../../imports/Typescript.ts';
 import { IntermediateSchema } from '../types/IntermediateSchema.ts';
 import { deriveDataModel } from './components/__deriveIntermediateModel.ts';
-import { deriveIntermediateAlias } from './components/deriveIntermediateAlias.ts';
+import { deriveExportItemAlias } from './components/__deriveIntermediateAlias.ts';
 import {
   loadSchemaModule,
   LoadSchemaModuleResult,
@@ -45,12 +45,12 @@ function __deriveIntermediateSchema(
   const { schemaTypeChecker, lhsSchemaExportSymbol, rhsSchemaExportNode } = api;
   const schemaResult: IntermediateSchema = {
     schemaName: lhsSchemaExportSymbol.name,
+    schemaAliases: {},
     schemaModels: {
       data: {},
       concreteTemplate: {},
       genericTemplate: {},
-    },
-    schemaAliases: {},
+    },    
   };
   rhsSchemaExportNode.elements.forEach((someExportItemLocalNode) => {
     const exportItemLocalSymbol =
@@ -74,13 +74,13 @@ function __deriveIntermediateSchema(
       deriveDataModel({
         schemaTypeChecker,
         schemaResult,
-        modelDeclaration: exportItemSourceDeclaration,
+        modelSourceDeclaration: exportItemSourceDeclaration,
       });
     } else if (
       Typescript.isTypeAliasDeclaration(exportItemSourceDeclaration) &&
       exportItemSourceDeclaration.typeParameters === undefined
     ) {
-      deriveIntermediateAlias({
+      deriveExportItemAlias({
         schemaTypeChecker,
         schemaResult,
         aliasSourceDeclaration: exportItemSourceDeclaration,

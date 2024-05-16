@@ -24,7 +24,7 @@ import {
   VerdeTableUnionElement,
 } from '../../types/SchemaElement.ts';
 import { deriveDataModel } from './__deriveIntermediateModel.ts';
-import { deriveIntermediateAlias } from './deriveIntermediateAlias.ts';
+import { deriveElementAlias } from './__deriveIntermediateAlias.ts';
 import {
   deriveSchemaElement,
   DeriveSchemaElementApi,
@@ -37,7 +37,7 @@ export function getDefinitiveElementResolvers() {
   ];
 }
 
-function getDefinitiveStructureElementResolvers() {
+export function getDefinitiveStructureElementResolvers() {
   return [
     ...getDefinitiveTerminalElementResolvers(),
     definitiveTupleElementResolver,
@@ -207,7 +207,7 @@ function dataModelReferenceElementResolver(
     const elementDataModel = deriveDataModel({
       schemaTypeChecker,
       schemaResult,
-      modelDeclaration: elementSourceDeclaration,
+      modelSourceDeclaration: elementSourceDeclaration,
     });
     return {
       elementKind: 'dataModelReference',
@@ -232,7 +232,7 @@ function aliasReferenceElementResolver(
     Typescript.isTypeAliasDeclaration(elementSourceDeclaration) &&
     elementSourceDeclaration.typeParameters === undefined
   ) {
-    const elementAlias = deriveIntermediateAlias({
+    const elementAlias = deriveElementAlias({
       schemaTypeChecker,
       schemaResult,
       aliasSourceDeclaration: elementSourceDeclaration,
@@ -609,6 +609,16 @@ function nullElementResolver(
       elementLocalNode.literal.kind === Typescript.SyntaxKind.NullKeyword
     ? { elementKind: 'null' }
     : null;
+}
+
+export function exportItemCoreUnionElementResolver(api: ElementResolverApi) {
+  return __coreUnionElementResolver({
+    ...api,
+    createThisUnionElement: createThisUnionElement__coreUnionElementResolver<
+      never
+    >,
+    elementResolvers: getBasicReferenceElementResolvers()
+  });
 }
 
 function definitiveCoreUnionElementResolver(api: ElementResolverApi) {

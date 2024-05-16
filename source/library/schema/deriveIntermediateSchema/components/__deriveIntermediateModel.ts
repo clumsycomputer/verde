@@ -21,9 +21,8 @@ import { deriveModelTemplates } from './deriveModelTemplates.ts';
 export interface DeriveDataModelApi extends
   Pick<
     Defined__DeriveIntermediateModelApi,
-    'schemaTypeChecker' | 'schemaResult' | 'modelDeclaration'
-  > {
-}
+    'schemaTypeChecker' | 'schemaResult' | 'modelSourceDeclaration'
+  > {}
 
 export function deriveDataModel(
   api: DeriveDataModelApi,
@@ -31,14 +30,14 @@ export function deriveDataModel(
   const {
     schemaTypeChecker,
     schemaResult,
-    modelDeclaration,
+    modelSourceDeclaration,
   } = api;
   return __deriveDefinitiveModel({
-    targetModelKind: 'data',
-    initializeTargetModel: initializeTargetModel__deriveDataModel,
     schemaTypeChecker,
     schemaResult,
-    modelDeclaration,
+    modelSourceDeclaration,
+    targetModelKind: 'data',
+    initializeTargetModel: initializeTargetModel__deriveDataModel,
   });
 }
 
@@ -47,8 +46,8 @@ function initializeTargetModel__deriveDataModel(
 ): DataIntermediateModel {
   const { modelName } = api;
   return {
-    modelKind: 'data',
     modelName,
+    modelKind: 'data',
     modelTemplates: [],
     modelProperties: {},
   };
@@ -57,7 +56,7 @@ function initializeTargetModel__deriveDataModel(
 export interface DeriveConcreteTemplateModelApi extends
   Pick<
     Defined__DeriveIntermediateModelApi,
-    'schemaTypeChecker' | 'schemaResult' | 'modelDeclaration'
+    'schemaTypeChecker' | 'schemaResult' | 'modelSourceDeclaration'
   > {
 }
 
@@ -67,14 +66,14 @@ export function deriveConcreteTemplateModel(
   const {
     schemaTypeChecker,
     schemaResult,
-    modelDeclaration,
+    modelSourceDeclaration,
   } = api;
   return __deriveDefinitiveModel({
-    targetModelKind: 'concreteTemplate',
-    initializeTargetModel: initializeTargetModel__deriveConcreteTemplateModel,
     schemaTypeChecker,
     schemaResult,
-    modelDeclaration,
+    modelSourceDeclaration,
+    targetModelKind: 'concreteTemplate',
+    initializeTargetModel: initializeTargetModel__deriveConcreteTemplateModel,
   });
 }
 
@@ -83,8 +82,8 @@ function initializeTargetModel__deriveConcreteTemplateModel(
 ): ConcreteTemplateIntermediateModel {
   const { modelName } = api;
   return {
-    modelKind: 'concreteTemplate',
     modelName,
+    modelKind: 'concreteTemplate',
     modelTemplates: [],
     modelProperties: {},
   };
@@ -99,13 +98,12 @@ interface __DeriveDefinitiveModel<
     __DeriveIntermediateModelApi<
       ThisTargetModelKind
     >,
-    | 'targetModelKind'
-    | 'initializeTargetModel'
     | 'schemaTypeChecker'
     | 'schemaResult'
-    | 'modelDeclaration'
-  >
-{}
+    | 'modelSourceDeclaration'
+    | 'targetModelKind'
+    | 'initializeTargetModel'
+  > {}
 
 function __deriveDefinitiveModel<
   ThisTargetModelKind extends
@@ -115,19 +113,19 @@ function __deriveDefinitiveModel<
   api: __DeriveDefinitiveModel<ThisTargetModelKind>,
 ): GetThisIntermediateModel<ThisTargetModelKind> {
   const {
-    targetModelKind,
-    initializeTargetModel,
     schemaTypeChecker,
     schemaResult,
-    modelDeclaration,
+    modelSourceDeclaration,
+    targetModelKind,
+    initializeTargetModel,
   } = api;
   return __deriveIntermediateModel({
-    targetModelElementCases: getDefinitiveElementResolvers(),
-    targetModelKind,
-    initializeTargetModel,
     schemaTypeChecker,
     schemaResult,
-    modelDeclaration,
+    modelSourceDeclaration,
+    targetModelKind,
+    initializeTargetModel,
+    targetModelElementResolvers: getDefinitiveElementResolvers(),
   });
 }
 
@@ -138,31 +136,30 @@ export interface DeriveGenericTemplateModelApi extends
     >,
     | 'schemaTypeChecker'
     | 'schemaResult'
-    | 'modelDeclaration'
-  >
-{}
+    | 'modelSourceDeclaration'
+  > {}
 
 export function deriveGenericTemplateModel(api: DeriveGenericTemplateModelApi) {
-  const { schemaTypeChecker, schemaResult, modelDeclaration } = api;
+  const { schemaTypeChecker, schemaResult, modelSourceDeclaration } = api;
   return __deriveIntermediateModel({
-    targetModelKind: 'genericTemplate',
-    initializeTargetModel: initializeTargetModel__deriveGenericTemplateModel,
-    targetModelElementCases: getGenericElementResolvers(),
     schemaTypeChecker,
     schemaResult,
-    modelDeclaration,
+    modelSourceDeclaration,
+    targetModelKind: 'genericTemplate',
+    initializeTargetModel: initializeTargetModel__deriveGenericTemplateModel,
+    targetModelElementResolvers: getGenericElementResolvers(),
   });
 }
 
 function initializeTargetModel__deriveGenericTemplateModel(
   api: InitializeTargetModelApi,
 ): GenericTemplateIntermediateModel {
-  const { modelName, modelDeclaration, schemaTypeChecker } = api;
-  const modelTypeParameters = modelDeclaration.typeParameters ??
+  const { modelName, modelSourceDeclaration, schemaTypeChecker } = api;
+  const modelTypeParameters = modelSourceDeclaration.typeParameters ??
     throwInvalidPathError('modelTypeParameters');
   return {
-    modelKind: 'genericTemplate',
     modelName,
+    modelKind: 'genericTemplate',
     modelTemplates: [],
     modelProperties: {},
     modelParameters: modelTypeParameters.map((
@@ -194,14 +191,12 @@ export interface __DeriveIntermediateModelApi<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
 > extends
   Defined__DeriveIntermediateModelApi,
-  Custom__DeriveIntermediateModelApi<
-    ThisTargetModelKind
-  > {}
+  Custom__DeriveIntermediateModelApi<ThisTargetModelKind> {}
 
 interface Defined__DeriveIntermediateModelApi
   extends Pick<__DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {
   schemaResult: IntermediateSchema;
-  modelDeclaration: Typescript.InterfaceDeclaration;
+  modelSourceDeclaration: Typescript.InterfaceDeclaration;
 }
 
 interface Custom__DeriveIntermediateModelApi<
@@ -211,7 +206,7 @@ interface Custom__DeriveIntermediateModelApi<
   initializeTargetModel: (
     api: InitializeTargetModelApi,
   ) => GetThisIntermediateModel<ThisTargetModelKind>;
-  targetModelElementCases: Array<
+  targetModelElementResolvers: Array<
     ElementResolver<GetThisIntermediateElement<ThisTargetModelKind>>
   >;
 }
@@ -219,7 +214,7 @@ interface Custom__DeriveIntermediateModelApi<
 interface InitializeTargetModelApi extends
   Pick<
     __DeriveIntermediateModelApi<irrelevantAny>,
-    'schemaTypeChecker' | 'schemaResult' | 'modelDeclaration'
+    'schemaTypeChecker' | 'schemaResult' | 'modelSourceDeclaration'
   > {
   modelName: string;
 }
@@ -230,20 +225,20 @@ function __deriveIntermediateModel<
   api: __DeriveIntermediateModelApi<ThisTargetModelKind>,
 ): GetThisIntermediateModel<ThisTargetModelKind> {
   const {
-    modelDeclaration,
+    modelSourceDeclaration,
     schemaResult,
     targetModelKind,
     schemaTypeChecker,
     initializeTargetModel,
-    targetModelElementCases,
+    targetModelElementResolvers,
   } = api;
   // todo:
-  //    1. check if declaration symbol for `someModelType` is unique, a.k.a,
+  //    1. check if declaration name for `modelSourceDeclaration` is unique, a.k.a,
   //       check for naming collisions with other processed model type declarations
   //
-  //    2. if declaration symbol not unique or exists as other modelKind, throw user error
+  //    2. if declaration name not unique or exists as other modelKind, throw user error
   //
-  const modelName = modelDeclaration.name.text;
+  const modelName = modelSourceDeclaration.name.text;
   const maybeCachedTargetModel = schemaResult
     .schemaModels[targetModelKind][modelName];
   if (isCachedTargetKind(targetModelKind, maybeCachedTargetModel)) {
@@ -252,23 +247,22 @@ function __deriveIntermediateModel<
   const newTargetModel = initializeTargetModel({
     schemaTypeChecker,
     schemaResult,
-    modelDeclaration,
+    modelSourceDeclaration,
     modelName,
   });
-  // enable recursive model derivation (direct & indirect)
   schemaResult.schemaModels[targetModelKind][newTargetModel.modelName] =
     newTargetModel;
   newTargetModel.modelTemplates = deriveModelTemplates({
-    targetModelElementCases,
     schemaTypeChecker,
     schemaResult,
-    modelDeclaration,
+    modelSourceDeclaration,
+    targetModelElementResolvers,
   });
   newTargetModel.modelProperties = deriveModelProperties({
-    targetModelElementCases,
     schemaTypeChecker,
     schemaResult,
-    modelDeclaration,
+    modelSourceDeclaration,
+    targetModelElementResolvers,
   });
   return newTargetModel;
 }

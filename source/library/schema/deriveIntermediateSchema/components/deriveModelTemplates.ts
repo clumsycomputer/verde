@@ -15,11 +15,11 @@ import { deriveSchemaElement } from './deriveSchemaElement.ts';
 
 export interface DeriveModelTemplatesApi<ThisTargetModelKind extends keyof IntermediateSchema['schemaModels']> extends
   Pick<
-    __DeriveIntermediateModelApi<ThisTargetModelKind>,
-    | 'targetModelElementCases'
+    __DeriveIntermediateModelApi<ThisTargetModelKind>,    
     | 'schemaTypeChecker'
     | 'schemaResult'
-    | 'modelDeclaration'
+    | 'modelSourceDeclaration'
+    | 'targetModelElementResolvers'
   > {}
 
 export function deriveModelTemplates<
@@ -27,10 +27,10 @@ export function deriveModelTemplates<
 >(
   api: DeriveModelTemplatesApi<ThisTargetModelKind>,
 ): GetThisIntermediateModel<ThisTargetModelKind>['modelTemplates'] {
-  const { modelDeclaration, schemaTypeChecker, schemaResult, targetModelElementCases } =
+  const { modelSourceDeclaration, schemaTypeChecker, schemaResult, targetModelElementResolvers } =
     api;
-  return modelDeclaration.heritageClauses && modelDeclaration.heritageClauses[0]
-    ? modelDeclaration.heritageClauses[0].types.map<
+  return modelSourceDeclaration.heritageClauses && modelSourceDeclaration.heritageClauses[0]
+    ? modelSourceDeclaration.heritageClauses[0].types.map<
       GetThisIntermediateModel<ThisTargetModelKind>['modelTemplates'][number]
     >(
       (someHeritageLocalNode) => {
@@ -55,7 +55,7 @@ export function deriveModelTemplates<
           const heritageGenericTemplateModel = deriveGenericTemplateModel({
             schemaTypeChecker,
             schemaResult,
-            modelDeclaration: heritageSourceDeclaration,
+            modelSourceDeclaration: heritageSourceDeclaration,
           });
           return {
             templateKind: 'genericTemplate',
@@ -79,7 +79,7 @@ export function deriveModelTemplates<
                     argumentElement: deriveSchemaElement({                      
                       schemaTypeChecker,
                       schemaResult,
-                      elementResolvers: targetModelElementCases,
+                      elementResolvers: targetModelElementResolvers,
                       elementLocalNode: someHeritageLocalNode.typeArguments &&
                           someHeritageLocalNode.typeArguments[argumentIndex] ||
                         throwInvalidPathError('argumentElementNode'),
@@ -94,7 +94,7 @@ export function deriveModelTemplates<
           const heritageConcreteTemplateModel = deriveConcreteTemplateModel({
             schemaTypeChecker,
             schemaResult,
-            modelDeclaration: heritageSourceDeclaration,
+            modelSourceDeclaration: heritageSourceDeclaration,
           });
           return {
             templateKind: 'concreteTemplate',

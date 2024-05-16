@@ -8,11 +8,11 @@ import { deriveSchemaElement } from './deriveSchemaElement.ts';
 
 export interface DeriveModelPropertiesApi<ThisTargetModelKind extends keyof IntermediateSchema['schemaModels']> extends
   Pick<
-    __DeriveIntermediateModelApi<ThisTargetModelKind>,
-    | 'targetModelElementCases'
+    __DeriveIntermediateModelApi<ThisTargetModelKind>,    
     | 'schemaTypeChecker'
     | 'schemaResult'
-    | 'modelDeclaration'
+    | 'modelSourceDeclaration'
+    | 'targetModelElementResolvers'
   >
 {}
 
@@ -22,12 +22,12 @@ export function deriveModelProperties<
   api: DeriveModelPropertiesApi<ThisTargetModelKind>,
 ): GetThisIntermediateModel<ThisTargetModelKind>['modelProperties'] {
   const {
-    modelDeclaration,
+    modelSourceDeclaration,
     schemaTypeChecker,
     schemaResult,
-    targetModelElementCases,
+    targetModelElementResolvers,
   } = api;
-  return modelDeclaration.members.reduce<
+  return modelSourceDeclaration.members.reduce<
     GetThisIntermediateModel<ThisTargetModelKind>['modelProperties']
   >(
     (modelPropertiesResult, somePropertyNode) => {
@@ -42,7 +42,7 @@ export function deriveModelProperties<
           propertyElement: deriveSchemaElement({            
             schemaTypeChecker,
             schemaResult,
-            elementResolvers: targetModelElementCases,
+            elementResolvers: targetModelElementResolvers,
             elementLocalNode: somePropertyNode.type,
           }),
         };
