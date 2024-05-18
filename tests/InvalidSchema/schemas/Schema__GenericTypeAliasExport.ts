@@ -1,1 +1,1 @@
-export type Schema__GenericTypeAliasExport<T> = never
+export type Schema__GenericTypeAliasExport<T> = never;

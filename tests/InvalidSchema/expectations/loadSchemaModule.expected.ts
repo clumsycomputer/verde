@@ -1,6 +1,8 @@
 export const expectedLoadSchemaModuleErrors = {
   'Schema__CodeExport.ts':
     'invalid schema module: code export at "/home/verde/tests/InvalidSchema/schemas/Schema__CodeExport.ts"',
+  'Schema__DefaultCodeExport.ts':
+    'invalid schema module: code export at "/home/verde/tests/InvalidSchema/schemas/Schema__DefaultCodeExport.ts"',
   'Schema__GenericTypeAliasExport.ts':
     'invalid schema module: generic type-alias export at "/home/verde/tests/InvalidSchema/schemas/Schema__GenericTypeAliasExport.ts"',
   'Schema__MultipleExports.ts':

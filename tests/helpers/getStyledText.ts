@@ -41,7 +41,7 @@ export function getStyledText(api: GetStyledTextApi) {
         ...getFilteredPattern({
           patternMatches: Array.from(
             textSource.matchAll(
-              new RegExp(patternRegex.source, 'gd'),
+              new RegExp(patternRegex.source, 'gds'),
             ),
           ),
         })
