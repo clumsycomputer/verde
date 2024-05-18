@@ -1,11 +1,11 @@
 import { Path } from '../imports/Path.ts';
 
-export interface ReadSchemaSourceFilesApi {
+export interface ReadSchemaSourcesApi {
   schemaDirectoryPath: string;
 }
 
 export async function readSchemaSources(
-  api: ReadSchemaSourceFilesApi,
+  api: ReadSchemaSourcesApi,
 ) {
   const {schemaDirectoryPath} = api
   const schemaSourcesResult: Record<string, string> = {}

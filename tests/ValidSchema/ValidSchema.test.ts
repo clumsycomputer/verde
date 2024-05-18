@@ -1,14 +1,14 @@
 import { deriveIntermediateSchema } from '../../source/library/module.ts';
-import { TestCase } from '../helpers/TestCase.ts';
+import { ExpectationCase } from '../helpers/ExpectationCase.ts';
 import { Assert } from '../imports/Assert.ts';
 import { Path } from '../imports/Path.ts';
-import { getDeriveIntermediateSchemaTestCases } from './cases/deriveIntermediateSchema.ts';
+import { getExpectationCases__DeriveIntermediateSchema } from './cases/getExpectationCases__DeriveIntermediateSchema.ts';
 import { expectedIntermediateSchema } from './expectations/deriveIntermediateSchema.expected.ts';
-import { readSchemaSources } from './readSchemaSourceFiles.ts';
+import { readSchemaSources } from './readSchemaSource.ts';
 
-runSchemaAaTest();
+Deno.test(validSchemaTest);
 
-async function runSchemaAaTest() {
+async function validSchemaTest() {
   const thisFilePath = Path.fromFileUrl(import.meta.url);
   const testsDirectoryPath = Path.dirname(thisFilePath);
   const schemaDirectoryPath = Path.join(testsDirectoryPath, './schema');
@@ -19,30 +19,33 @@ async function runSchemaAaTest() {
   const actualIntermediateSchema = deriveIntermediateSchema({
     schemaModulePath,
   });
-  assertExpectationsAndLogTestCases({
-    testCases: getDeriveIntermediateSchemaTestCases({ schemaSources }),
+  assertAndLogExpectations({
     expectedData: expectedIntermediateSchema,
     actualData: actualIntermediateSchema,
+    expectationCases: getExpectationCases__DeriveIntermediateSchema({
+      schemaSources,
+    }),
   });
 }
 
-interface AssertExpectationsAndLogTestCasesApi<ThisData> {
-  testCases: Array<TestCase>;
+interface AssertAndLogExpectationsApi<ThisData> {
+  expectationCases: Array<ExpectationCase>;
   expectedData: ThisData;
   actualData: ThisData;
 }
 
-function assertExpectationsAndLogTestCases<ThisData>(
-  api: AssertExpectationsAndLogTestCasesApi<ThisData>,
+function assertAndLogExpectations<ThisData>(
+  api: AssertAndLogExpectationsApi<ThisData>,
 ) {
-  const { expectedData, actualData, testCases } = api;
+  const { expectedData, actualData, expectationCases } = api;
   Assert.assertEquals(expectedData, actualData);
-  testCases.forEach((someTestCase) => {
+  expectationCases.forEach((someExpectationCase) => {
     console.log();
-    someTestCase.caseNotes.forEach(
+    someExpectationCase.caseNotes.forEach(
       (someCaseNote) => {
-        console.log(someCaseNote)
-        console.log()},
+        console.log(someCaseNote);
+        console.log();
+      },
     );
   });
 }

@@ -1,4 +1,4 @@
-import { TestCase } from '../../helpers/TestCase.ts';
+import { ExpectationCase } from '../../helpers/ExpectationCase.ts';
 import {
   branchJsonNode,
   leafJsonNode,
@@ -7,13 +7,13 @@ import {
 import { styledText } from '../../helpers/getStyledText.ts';
 import { expectedIntermediateSchema } from '../expectations/deriveIntermediateSchema.expected.ts';
 
-export interface GetDeriveIntermediateSchemaTestCasesApi {
+export interface getExpectationCases__DeriveIntermediateSchemaApi {
   schemaSources: Record<string, string>;
 }
 
-export function getDeriveIntermediateSchemaTestCases(
-  api: GetDeriveIntermediateSchemaTestCasesApi,
-): Array<TestCase> {
+export function getExpectationCases__DeriveIntermediateSchema(
+  api: getExpectationCases__DeriveIntermediateSchemaApi,
+): Array<ExpectationCase> {
   const { schemaSources } = api;
   return [
     {
@@ -1999,7 +1999,7 @@ export function getDeriveIntermediateSchemaTestCases(
       ],
     },
     {
-      caseKey: 'indirectRecursiveDataModelReference__templateArguments',
+      caseKey: 'indirectRecursiveDataModelReference__templateArgument',
       caseNotes: [
         styledText({
           textSource:
@@ -2248,17 +2248,17 @@ export function getDeriveIntermediateSchemaTestCases(
           jsonSource: expectedIntermediateSchema.schemaExport.exportElement,
           jsonNodes: [
             leafJsonNode({
-              nodeKey: "elementKind",
+              nodeKey: 'elementKind',
               nodeStyle: [3, 1, 44],
             }),
             branchJsonNode({
-            nodeKey: 'elementMembers',
-            nodeChildren: [leafJsonNode({
-              nodeKey: 0,
-              nodeStyle: [3, 1, 44],
-            })]
-          })
-        ],
+              nodeKey: 'elementMembers',
+              nodeChildren: [leafJsonNode({
+                nodeKey: 0,
+                nodeStyle: [3, 1, 44],
+              })],
+            }),
+          ],
         }),
       ],
     },
@@ -2266,8 +2266,7 @@ export function getDeriveIntermediateSchemaTestCases(
       caseKey: 'exportUnion-aliasReferenceElement__schemaExport',
       caseNotes: [
         styledText({
-          textSource:
-            'export union => alias reference element (schema export)',
+          textSource: 'export union => alias reference element (schema export)',
           textPatterns: [{
             patternStyle: [1, 4],
             patternRegex: /^.*$/,
@@ -2298,19 +2297,102 @@ export function getDeriveIntermediateSchemaTestCases(
           jsonSource: expectedIntermediateSchema.schemaExport.exportElement,
           jsonNodes: [
             leafJsonNode({
-              nodeKey: "elementKind",
+              nodeKey: 'elementKind',
               nodeStyle: [3, 1, 44],
             }),
             branchJsonNode({
-            nodeKey: 'elementMembers',
-            nodeChildren: [leafJsonNode({
-              nodeKey: 1,
-              nodeStyle: [3, 1, 44],
-            })]
-          })
-        ],
+              nodeKey: 'elementMembers',
+              nodeChildren: [leafJsonNode({
+                nodeKey: 1,
+                nodeStyle: [3, 1, 44],
+              })],
+            }),
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'indirectRecursiveAliasReferenceElement__modelProperty',
+      caseNotes: [
+        styledText({
+          textSource:
+            'indirect recursive alias reference element (data model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            '<ThisAlias extends IntermediateSchemaAlias>, <ThisIndirectDataModel extends DataIntermediateModel>: ThisAlias["aliasElement"] => DataModelReferenceElement["elementName"] == ThisIndirectDataModel["modelName"] && ThisIndirectDataModel["modelProperties"][string]["propertyElement"] => AliasReferenceElement["elementName"] == ThisAlias["aliasName"]',
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /ThisAlias/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /AliasReferenceElement/,
+            },
+            {
+              patternStyle: [3, 1, 45],
+              patternRegex: /ThisIndirectDataModel/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(654, 681),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /Alias__AA/,
+            },
+            {
+              patternStyle: [3, 1, 45],
+              patternRegex: /Model__AA/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(204, 652),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /Alias__AA/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(0, 1),
+            },
+            {
+              patternStyle: [3, 1, 45],
+              patternRegex: /Model__AA/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(0, 1),
+            },
+          ],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaModels
+            .data['Model__AA']!,
+          jsonNodes: [
+            leafJsonNode({
+              nodeKey: 'modelName',
+              nodeStyle: [3, 1, 45],
+            }),
+            branchJsonNode({
+              nodeKey: 'modelProperties',
+              nodeChildren: [branchJsonNode({
+                nodeKey: 'aaProperty__HH',
+                nodeChildren: [leafJsonNode({
+                  nodeKey: 'propertyElement',
+                  nodeStyle: [3, 1, 44],
+                })],
+              })],
+            }),
+          ],
         }),
       ],
     },
   ];
 }
+
+// alias reference element with contextually invalid value

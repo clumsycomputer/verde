@@ -34,9 +34,9 @@ export function loadSchemaModule(
       schemaModulePath,
     });
   }
-  const schemaProgram = Typescript.createProgram([schemaModulePath], {
-    target: Typescript.ScriptTarget.Latest,
+  const schemaProgram = Typescript.createProgram([schemaModulePath], {    
     rootDir: workingDirectoryPath,
+    target: Typescript.ScriptTarget.Latest,
     strictNullChecks: true,
   });
   const schemaTypeChecker = schemaProgram.getTypeChecker();

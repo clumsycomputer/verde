@@ -36,7 +36,7 @@ export interface ExportUnionElement
   extends
     __UnionElement<
       'exportUnion',
-      DataModelReferenceElement | AliasReferenceElement
+      ReferenceElement<never>
     > {}
 
 export interface __UnionElement<ThisElementKind, ThisMemberElement>
