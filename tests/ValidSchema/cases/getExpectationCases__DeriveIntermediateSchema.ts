@@ -1,4 +1,4 @@
-import { ExpectationCase } from '../../helpers/ExpectationCase.ts';
+import { ExpectationCase } from '../../helpers/assertAndLogExpectations.ts';
 import {
   branchJsonNode,
   leafJsonNode,
