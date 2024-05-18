@@ -1,4 +1,4 @@
-import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
+import { throwInvalidPathError, throwUserError } from '../../../../helpers/throwError.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
   GenericModelTemplate,
@@ -58,7 +58,7 @@ export function deriveModelTemplates<
             modelSourceDeclaration: heritageSourceDeclaration,
           });
           return {
-            templateKind: 'genericTemplate',
+            templateKind: 'genericTemplate' as const,
             templateModelNameKey: heritageGenericTemplateModel.modelName,
             templateArguments: heritageGenericTemplateModel.modelParameters
               .reduce<
@@ -82,7 +82,7 @@ export function deriveModelTemplates<
                       elementResolvers: targetModelElementResolvers,
                       elementLocalNode: someHeritageLocalNode.typeArguments &&
                           someHeritageLocalNode.typeArguments[argumentIndex] ||
-                        throwInvalidPathError('argumentElementNode'),
+                        throwUserError(`invalid schema model template: default parameter arguments not supported (extends ${someHeritageLocalNode.getText()} on ${modelSourceDeclaration.name.text})`),
                     }),
                   };
                   return genericArgumentsResult;

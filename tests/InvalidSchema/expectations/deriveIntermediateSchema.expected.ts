@@ -1,4 +1,4 @@
-export const expectedLoadSchemaModuleErrors = {
+export const expectedDeriveIntermediateSchemaErrors = {
   'Schema__CodeExport.ts':
     'invalid schema module: code export at "/home/verde/tests/InvalidSchema/schemas/Schema__CodeExport.ts"',
   'Schema__DefaultCodeExport.ts':
@@ -11,4 +11,6 @@ export const expectedLoadSchemaModuleErrors = {
     'invalid schema module: no exports at "/home/verde/tests/InvalidSchema/schemas/Schema__NoExports.ts"',
   'Schema__NonTypeAliasExport.ts':
     'invalid schema module: non type-alias export at "/home/verde/tests/InvalidSchema/schemas/Schema__NonTypeAliasExport.ts"',
+  'Schema__UndefinedTemplateArgument.ts':
+    'invalid schema model template: default parameter arguments not supported (extends Model__BB on Model__AA)',
 };

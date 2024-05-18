@@ -5,14 +5,14 @@ import {
   styledJson,
 } from '../../helpers/getStyledJson.ts';
 import { styledText } from '../../helpers/getStyledText.ts';
-import { expectedLoadSchemaModuleErrors } from '../expectations/loadSchemaModule.expected.ts';
+import { expectedDeriveIntermediateSchemaErrors } from '../expectations/deriveIntermediateSchema.expected.ts';
 
-export interface GetExpectationCases__LoadSchemaModuleApi {
+export interface getExpectationCasesApi__DeriveIntermediateSchema__Errors {
   schemaSources: Record<string, string>;
 }
 
-export function getExpectationCases__LoadSchemaModule(
-  api: GetExpectationCases__LoadSchemaModuleApi,
+export function getExpectationCases__DeriveIntermediateSchema__Errors(
+  api: getExpectationCasesApi__DeriveIntermediateSchema__Errors,
 ): Array<ExpectationCase> {
   const { schemaSources } = api;
   return [
@@ -34,9 +34,9 @@ export function getExpectationCases__LoadSchemaModule(
           }],
         }),
         styledText({
-          textSource: expectedLoadSchemaModuleErrors['Schema__NoExports.ts']!,
+          textSource: expectedDeriveIntermediateSchemaErrors['Schema__NoExports.ts']!,
           textPatterns: [{
-            patternStyle: [3, 1, 44],
+            patternStyle: [3, 1, 41],
             patternRegex: /no exports/,
           }],
         }),
@@ -55,14 +55,14 @@ export function getExpectationCases__LoadSchemaModule(
         styledText({
           textSource: schemaSources['Schema__MultipleExports.ts']!.trim(),
           textPatterns: [{
-            patternStyle: [3, 1, 44],
+            patternStyle: [3, 1, 41],
             patternRegex: /export/,
           }],
         }),
         styledText({
-          textSource: expectedLoadSchemaModuleErrors['Schema__MultipleExports.ts']!,
+          textSource: expectedDeriveIntermediateSchemaErrors['Schema__MultipleExports.ts']!,
           textPatterns: [{
-            patternStyle: [3, 1, 44],
+            patternStyle: [3, 1, 41],
             patternRegex: /multiple exports/,
           }],
         }),
@@ -81,14 +81,14 @@ export function getExpectationCases__LoadSchemaModule(
         styledText({
           textSource: schemaSources['Schema__CodeExport.ts']!.trim(),
           textPatterns: [{
-            patternStyle: [3, 1, 44],
+            patternStyle: [3, 1, 41],
             patternRegex: /^.*$/,
           }],
         }),
         styledText({
-          textSource: expectedLoadSchemaModuleErrors['Schema__CodeExport.ts']!,
+          textSource: expectedDeriveIntermediateSchemaErrors['Schema__CodeExport.ts']!,
           textPatterns: [{
-            patternStyle: [3, 1, 44],
+            patternStyle: [3, 1, 41],
             patternRegex: /code export/,
           }],
         }),
@@ -107,14 +107,14 @@ export function getExpectationCases__LoadSchemaModule(
         styledText({
           textSource: schemaSources['Schema__DefaultCodeExport.ts']!.trim(),
           textPatterns: [{
-            patternStyle: [3, 1, 44],
+            patternStyle: [3, 1, 41],
             patternRegex: /^.*$/,
           }],
         }),
         styledText({
-          textSource: expectedLoadSchemaModuleErrors['Schema__CodeExport.ts']!,
+          textSource: expectedDeriveIntermediateSchemaErrors['Schema__CodeExport.ts']!,
           textPatterns: [{
-            patternStyle: [3, 1, 44],
+            patternStyle: [3, 1, 41],
             patternRegex: /code export/,
           }],
         }),
@@ -133,14 +133,14 @@ export function getExpectationCases__LoadSchemaModule(
         styledText({
           textSource: schemaSources['Schema__NonTypeAliasExport.ts']!.trim(),
           textPatterns: [{
-            patternStyle: [3, 1, 44],
+            patternStyle: [3, 1, 41],
             patternRegex: /export interface/,
           }],
         }),
         styledText({
-          textSource: expectedLoadSchemaModuleErrors['Schema__NonTypeAliasExport.ts']!,
+          textSource: expectedDeriveIntermediateSchemaErrors['Schema__NonTypeAliasExport.ts']!,
           textPatterns: [{
-            patternStyle: [3, 1, 44],
+            patternStyle: [3, 1, 41],
             patternRegex: /non type-alias export/,
           }],
         }),
@@ -160,24 +160,64 @@ export function getExpectationCases__LoadSchemaModule(
           textSource: schemaSources['Schema__GenericTypeAliasExport.ts']!.trim(),
           textPatterns: [
             {
-              patternStyle: [3, 1, 44],
+              patternStyle: [3, 1, 41],
               patternRegex: /export/,
             },
             {
-              patternStyle: [3, 1, 44],
+              patternStyle: [3, 1, 41],
               patternRegex: /<T>/,
             },
           ],
         }),
         styledText({
-          textSource: expectedLoadSchemaModuleErrors['Schema__GenericTypeAliasExport.ts']!,
+          textSource: expectedDeriveIntermediateSchemaErrors['Schema__GenericTypeAliasExport.ts']!,
           textPatterns: [{
-            patternStyle: [3, 1, 44],
+            patternStyle: [3, 1, 41],
             patternRegex: /generic type-alias export/,
           }],
         }),
       ],
     },
+    {
+      caseKey: 'undefinedTemplateArgument',
+      caseNotes: [
+        styledText({
+          textSource: 'undefined template argument (template parameter with default argument)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource: '<ThisGenericTemplate extends GenericModelTemplate, ThisGenericModel extends GenericTemplateIntermediateModel, ThisGenericParameter extends GenericTemplateParameter, ThisDataModel extends DataIntermediateModel>: ThisGenericModel["modelParameters"][number] => ThisGenericParameter && ThisDataModel["modelTemplates"][number] => ThisGenericTemplate && ThisGenericTemplate["templateModelNameKey"] == ThisGenericModel["modelName"] && ThisGenericTemplate["templateArguments"][ThisGenericParameter["parameterName"]] => undefined',
+          textPatterns: [{
+            patternStyle: [3, 1, 41],
+            patternRegex: /undefined/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__UndefinedTemplateArgument.ts']!.trim(),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /Model__BB/,
+              getFilteredPattern: ({ patternMatches }) => patternMatches.slice(0, 1)
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /BbParameter__AA = string/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: expectedDeriveIntermediateSchemaErrors['Schema__UndefinedTemplateArgument.ts']!,
+          textPatterns: [{
+            patternStyle: [3, 1, 41],
+            patternRegex: /default parameter arguments not supported/,
+          }],
+        }),
+      ]
+    }
   ];
 }
 

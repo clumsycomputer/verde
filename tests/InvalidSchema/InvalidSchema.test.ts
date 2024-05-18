@@ -3,8 +3,8 @@ import { assertAndLogExpectations } from '../helpers/assertAndLogExpectations.ts
 import { getPathFromThisDirectory } from '../helpers/getPathFromThisDirectory.ts';
 import { readSchemaSources } from '../helpers/readSchemaSources.ts';
 import { Path } from '../imports/Path.ts';
-import { getExpectationCases__LoadSchemaModule } from './cases/getExpectationCases__LoadSchemaModule.ts';
-import { expectedLoadSchemaModuleErrors } from './expectations/loadSchemaModule.expected.ts';
+import { getExpectationCases__DeriveIntermediateSchema__Errors } from './cases/getExpectationCases__DeriveIntermediateSchema__Errors.ts';
+import { expectedDeriveIntermediateSchemaErrors } from './expectations/deriveIntermediateSchema.expected.ts';
 
 Deno.test(invalidSchemaTest);
 
@@ -36,9 +36,9 @@ async function invalidSchemaTest() {
     }),
   );
   assertAndLogExpectations({
-    expectedData: expectedLoadSchemaModuleErrors,
+    expectedData: expectedDeriveIntermediateSchemaErrors,
     actualData: actualLoadSchemaModuleErrors,
-    expectationCases: getExpectationCases__LoadSchemaModule({
+    expectationCases: getExpectationCases__DeriveIntermediateSchema__Errors({
       schemaSources,
     }),
   });
