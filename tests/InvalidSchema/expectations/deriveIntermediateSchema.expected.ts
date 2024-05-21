@@ -12,7 +12,10 @@ export const expectedDeriveIntermediateSchemaErrors = {
   'Schema__NonTypeAliasExport.ts':
     'invalid schema module: non type-alias export at "/home/verde/tests/InvalidSchema/schemas/Schema__NonTypeAliasExport.ts"',
   'Schema__UndefinedTemplateArgument.ts':
-    'invalid schema model template: default parameter arguments not supported (extends Model__BB on Model__AA)',
+    'invalid model template: default parameter arguments not supported (extends Model__BB on Model__AA)',
   'Schema__CustomGenericTypeAliasElement.ts':
     'invalid schema element: Alias__AA<never> at aaProperty__AA: Alias__AA<never>;',
+  'Schema__IndirectModelName.ts': 'indirect model name: "Model__AA as Model__BB"',
+  'Schema__DoubleDeclarationModel.ts':
+    'invalid model declaration: "Model__AA" has multiple declarations',
 };

@@ -207,14 +207,18 @@ function stringPrimitiveElementResolver(
 function dataModelReferenceElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<DataModelReferenceElement> {
-  const { elementSourceDeclaration, schemaTypeChecker, schemaResult } = api;
+  const { elementLocalSymbol, elementSourceSymbol, elementSourceDeclaration, schemaTypeChecker, schemaResult } = api;  
   if (
+    elementLocalSymbol &&
+    elementSourceSymbol &&
     elementSourceDeclaration &&
     Typescript.isInterfaceDeclaration(elementSourceDeclaration)
-  ) {
+  ) {    
     const elementDataModel = deriveDataModel({
       schemaTypeChecker,
       schemaResult,
+      modelLocalSymbol: elementLocalSymbol,
+      modelSourceSymbol: elementSourceSymbol,
       modelSourceDeclaration: elementSourceDeclaration,
     });
     return {
@@ -870,6 +874,8 @@ interface ElementResolverApi extends
     DeriveSchemaElementApi<irrelevantAny>,
     'schemaTypeChecker' | 'schemaResult' | 'elementLocalNode'
   > {
+  elementLocalSymbol: Typescript.Symbol | null
+  elementSourceSymbol: Typescript.Symbol | null
   elementSourceDeclaration: Typescript.Declaration | null;
 }
 

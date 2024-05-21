@@ -49,6 +49,8 @@ export function deriveSchemaElement<
       schemaTypeChecker,
       schemaResult,
       elementLocalNode,
+      elementLocalSymbol,
+      elementSourceSymbol,
       elementSourceDeclaration,
     });
     if (maybeSchemaElement) {

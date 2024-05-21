@@ -1,4 +1,6 @@
-import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
+import {
+  throwInvalidPathError
+} from '../../../../helpers/throwError.ts';
 import { irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
@@ -10,6 +12,7 @@ import {
   IntermediateSchema,
 } from '../../types/IntermediateSchema.ts';
 import { __DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
+import { throwIndirectModelName, throwInvalidModelDeclaration__MultipleDeclarations, throwInvalidModelUsage__AliasRegistered, throwInvalidModelUsage__ConcreteTemplateModelRegistered, throwInvalidModelUsage__DataModelRegistered } from '../helpers/errors.ts';
 import {
   ElementResolver,
   getDefinitiveElementResolvers,
@@ -21,7 +24,11 @@ import { deriveModelTemplates } from './deriveModelTemplates.ts';
 export interface DeriveDataModelApi extends
   Pick<
     Defined__DeriveIntermediateModelApi,
-    'schemaTypeChecker' | 'schemaResult' | 'modelSourceDeclaration'
+    | 'schemaTypeChecker'
+    | 'schemaResult'
+    | 'modelLocalSymbol'
+    | 'modelSourceSymbol'
+    | 'modelSourceDeclaration'
   > {}
 
 export function deriveDataModel(
@@ -30,11 +37,15 @@ export function deriveDataModel(
   const {
     schemaTypeChecker,
     schemaResult,
+    modelLocalSymbol,
+    modelSourceSymbol,
     modelSourceDeclaration,
   } = api;
   return __deriveDefinitiveModel({
     schemaTypeChecker,
     schemaResult,
+    modelLocalSymbol,
+    modelSourceSymbol,
     modelSourceDeclaration,
     targetModelKind: 'data',
     initializeTargetModel: initializeTargetModel__deriveDataModel,
@@ -56,7 +67,11 @@ function initializeTargetModel__deriveDataModel(
 export interface DeriveConcreteTemplateModelApi extends
   Pick<
     Defined__DeriveIntermediateModelApi,
-    'schemaTypeChecker' | 'schemaResult' | 'modelSourceDeclaration'
+    | 'schemaTypeChecker'
+    | 'schemaResult'
+    | 'modelLocalSymbol'
+    | 'modelSourceSymbol'
+    | 'modelSourceDeclaration'
   > {
 }
 
@@ -66,11 +81,15 @@ export function deriveConcreteTemplateModel(
   const {
     schemaTypeChecker,
     schemaResult,
+    modelLocalSymbol,
+    modelSourceSymbol,
     modelSourceDeclaration,
   } = api;
   return __deriveDefinitiveModel({
     schemaTypeChecker,
     schemaResult,
+    modelLocalSymbol,
+    modelSourceSymbol,
     modelSourceDeclaration,
     targetModelKind: 'concreteTemplate',
     initializeTargetModel: initializeTargetModel__deriveConcreteTemplateModel,
@@ -100,6 +119,8 @@ interface __DeriveDefinitiveModel<
     >,
     | 'schemaTypeChecker'
     | 'schemaResult'
+    | 'modelLocalSymbol'
+    | 'modelSourceSymbol'
     | 'modelSourceDeclaration'
     | 'targetModelKind'
     | 'initializeTargetModel'
@@ -115,6 +136,8 @@ function __deriveDefinitiveModel<
   const {
     schemaTypeChecker,
     schemaResult,
+    modelLocalSymbol,
+    modelSourceSymbol,
     modelSourceDeclaration,
     targetModelKind,
     initializeTargetModel,
@@ -122,6 +145,8 @@ function __deriveDefinitiveModel<
   return __deriveIntermediateModel({
     schemaTypeChecker,
     schemaResult,
+    modelLocalSymbol,
+    modelSourceSymbol,
     modelSourceDeclaration,
     targetModelKind,
     initializeTargetModel,
@@ -136,14 +161,24 @@ export interface DeriveGenericTemplateModelApi extends
     >,
     | 'schemaTypeChecker'
     | 'schemaResult'
+    | 'modelLocalSymbol'
+    | 'modelSourceSymbol'
     | 'modelSourceDeclaration'
   > {}
 
 export function deriveGenericTemplateModel(api: DeriveGenericTemplateModelApi) {
-  const { schemaTypeChecker, schemaResult, modelSourceDeclaration } = api;
+  const {
+    schemaTypeChecker,
+    schemaResult,
+    modelLocalSymbol,
+    modelSourceSymbol,
+    modelSourceDeclaration,
+  } = api;
   return __deriveIntermediateModel({
     schemaTypeChecker,
     schemaResult,
+    modelLocalSymbol,
+    modelSourceSymbol,
     modelSourceDeclaration,
     targetModelKind: 'genericTemplate',
     initializeTargetModel: initializeTargetModel__deriveGenericTemplateModel,
@@ -196,6 +231,8 @@ export interface __DeriveIntermediateModelApi<
 interface Defined__DeriveIntermediateModelApi
   extends Pick<__DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {
   schemaResult: IntermediateSchema;
+  modelLocalSymbol: Typescript.Symbol;
+  modelSourceSymbol: Typescript.Symbol;
   modelSourceDeclaration: Typescript.InterfaceDeclaration;
 }
 
@@ -203,12 +240,12 @@ interface Custom__DeriveIntermediateModelApi<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
 > {
   targetModelKind: ThisTargetModelKind;
-  initializeTargetModel: (
-    api: InitializeTargetModelApi,
-  ) => GetThisIntermediateModel<ThisTargetModelKind>;
   targetModelElementResolvers: Array<
     ElementResolver<GetThisIntermediateElement<ThisTargetModelKind>>
   >;
+  initializeTargetModel: (
+    api: InitializeTargetModelApi,
+  ) => GetThisIntermediateModel<ThisTargetModelKind>;
 }
 
 interface InitializeTargetModelApi extends
@@ -218,6 +255,14 @@ interface InitializeTargetModelApi extends
   > {
   modelName: string;
 }
+
+export interface ValidateTargetModelApi extends
+  Pick<
+    Defined__DeriveIntermediateModelApi,
+    | 'schemaResult'
+    | 'modelLocalSymbol'
+    | 'modelSourceSymbol'
+  > {}
 
 function __deriveIntermediateModel<
   ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
@@ -229,20 +274,42 @@ function __deriveIntermediateModel<
     schemaResult,
     targetModelKind,
     schemaTypeChecker,
+    modelLocalSymbol,
+    modelSourceSymbol,
     initializeTargetModel,
     targetModelElementResolvers,
   } = api;
-  // todo:
-  //    1. check if declaration name for `modelSourceDeclaration` is unique, a.k.a,
-  //       check for naming collisions with other processed model type declarations
-  //
-  //    2. if declaration name not unique or exists as other modelKind, throw user error
-  //
   const modelName = modelSourceDeclaration.name.text;
   const maybeCachedTargetModel = schemaResult
     .schemaModels[targetModelKind][modelName];
   if (isCachedTargetKind(targetModelKind, maybeCachedTargetModel)) {
     return maybeCachedTargetModel;
+  }
+  else if (modelLocalSymbol.name !== modelSourceSymbol.name) {
+    throwIndirectModelName({
+      modelLocalSymbol,
+      modelSourceSymbol
+    })
+  }
+  else if (1 < modelSourceSymbol.declarations!.length) {
+    throwInvalidModelDeclaration__MultipleDeclarations({
+      modelSourceSymbol
+    })
+  }
+  else if (undefined !== schemaResult.schemaModels.data[modelSourceSymbol.name]) {
+    throwInvalidModelUsage__DataModelRegistered({
+      modelSourceSymbol
+    })
+  }
+  else if (undefined !== schemaResult.schemaModels.concreteTemplate[modelSourceSymbol.name]) {
+    throwInvalidModelUsage__ConcreteTemplateModelRegistered({
+      modelSourceSymbol
+    })
+  }
+  else if (undefined !== schemaResult.schemaAliases[modelSourceSymbol.name]) {
+    throwInvalidModelUsage__AliasRegistered({
+      modelSourceSymbol
+    })
   }
   const newTargetModel = initializeTargetModel({
     schemaTypeChecker,

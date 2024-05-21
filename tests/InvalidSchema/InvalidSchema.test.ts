@@ -18,7 +18,9 @@ async function invalidSchemaTest() {
   });
   const actualLoadSchemaModuleErrors: Record<string, string> = {};
   await Promise.all(
-    Object.keys(schemaSources).map((someSchemaFileName) => {
+    Object.keys(schemaSources).filter((someSourceFileName) =>
+      someSourceFileName.startsWith('Schema__')
+    ).map((someSchemaFileName) => {
       const schemaModulePath = Path.join(
         schemaDirectoryPath,
         someSchemaFileName,

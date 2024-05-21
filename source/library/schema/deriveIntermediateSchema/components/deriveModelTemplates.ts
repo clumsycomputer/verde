@@ -1,11 +1,14 @@
-import { throwInvalidPathError, throwUserError } from '../../../../helpers/throwError.ts';
+import {
+  throwInvalidPathError
+} from '../../../../helpers/throwError.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
   GenericModelTemplate,
   GetThisIntermediateElement,
   GetThisIntermediateModel,
-  IntermediateSchema,
+  IntermediateSchema
 } from '../../types/IntermediateSchema.ts';
+import { throwInvalidModelTemplate__DefaultParameterArgument } from '../helpers/errors.ts';
 import {
   __DeriveIntermediateModelApi,
   deriveConcreteTemplateModel,
@@ -13,9 +16,11 @@ import {
 } from './__deriveIntermediateModel.ts';
 import { deriveSchemaElement } from './deriveSchemaElement.ts';
 
-export interface DeriveModelTemplatesApi<ThisTargetModelKind extends keyof IntermediateSchema['schemaModels']> extends
+export interface DeriveModelTemplatesApi<
+  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
+> extends
   Pick<
-    __DeriveIntermediateModelApi<ThisTargetModelKind>,    
+    __DeriveIntermediateModelApi<ThisTargetModelKind>,
     | 'schemaTypeChecker'
     | 'schemaResult'
     | 'modelSourceDeclaration'
@@ -27,9 +32,14 @@ export function deriveModelTemplates<
 >(
   api: DeriveModelTemplatesApi<ThisTargetModelKind>,
 ): GetThisIntermediateModel<ThisTargetModelKind>['modelTemplates'] {
-  const { modelSourceDeclaration, schemaTypeChecker, schemaResult, targetModelElementResolvers } =
-    api;
-  return modelSourceDeclaration.heritageClauses && modelSourceDeclaration.heritageClauses[0]
+  const {
+    modelSourceDeclaration,
+    schemaTypeChecker,
+    schemaResult,
+    targetModelElementResolvers,
+  } = api;
+  return modelSourceDeclaration.heritageClauses &&
+      modelSourceDeclaration.heritageClauses[0]
     ? modelSourceDeclaration.heritageClauses[0].types.map<
       GetThisIntermediateModel<ThisTargetModelKind>['modelTemplates'][number]
     >(
@@ -55,6 +65,8 @@ export function deriveModelTemplates<
           const heritageGenericTemplateModel = deriveGenericTemplateModel({
             schemaTypeChecker,
             schemaResult,
+            modelLocalSymbol: heritageLocalSymbol,
+            modelSourceSymbol: heritageSourceSymbol,
             modelSourceDeclaration: heritageSourceDeclaration,
           });
           return {
@@ -76,13 +88,16 @@ export function deriveModelTemplates<
                   genericArgumentsResult[argumentParameterNameKey] = {
                     argumentIndex,
                     argumentParameterNameKey,
-                    argumentElement: deriveSchemaElement({                      
+                    argumentElement: deriveSchemaElement({
                       schemaTypeChecker,
                       schemaResult,
                       elementResolvers: targetModelElementResolvers,
                       elementLocalNode: someHeritageLocalNode.typeArguments &&
                           someHeritageLocalNode.typeArguments[argumentIndex] ||
-                        throwUserError(`invalid schema model template: default parameter arguments not supported (extends ${someHeritageLocalNode.getText()} on ${modelSourceDeclaration.name.text})`),
+                        throwInvalidModelTemplate__DefaultParameterArgument({
+                          modelSourceDeclaration,
+                          heritageLocalNode: someHeritageLocalNode,
+                        }),
                     }),
                   };
                   return genericArgumentsResult;
@@ -94,6 +109,8 @@ export function deriveModelTemplates<
           const heritageConcreteTemplateModel = deriveConcreteTemplateModel({
             schemaTypeChecker,
             schemaResult,
+            modelLocalSymbol: heritageLocalSymbol,
+            modelSourceSymbol: heritageSourceSymbol,
             modelSourceDeclaration: heritageSourceDeclaration,
           });
           return {

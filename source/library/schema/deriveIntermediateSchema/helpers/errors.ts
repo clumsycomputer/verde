@@ -1,6 +1,8 @@
 import { throwUserError } from '../../../../helpers/throwError.ts';
-import { irrelevantAny } from '../../../../helpers/types.ts';
+import { irrelevantAny, irrelevantUnknown } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
+import { ValidateTargetModelApi } from '../components/__deriveIntermediateModel.ts';
+import { DeriveModelTemplatesApi } from '../components/deriveModelTemplates.ts';
 import { DeriveSchemaElementApi } from '../components/deriveSchemaElement.ts';
 import { LoadSchemaModuleApi } from '../components/loadSchemaModule.ts';
 import { __DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
@@ -60,53 +62,6 @@ export function throwInvalidSchemaModule__GenericTypeAliasExport(
   );
 }
 
-// export function throwInvalidSchemaModule__ExportValue(
-//   api: ThrowInvalidSchemaModuleApi,
-// ): never {
-//   const { schemaModulePath } = api;
-//   throwUserError(
-//     `invalid schema module: export value at "${schemaModulePath}"`,
-//   );
-// }
-
-export interface ThrowInvalidTopLevelModelApi extends
-  Pick<
-    __DeriveIntermediateSchemaApi,
-    'schemaTypeChecker'
-  > {
-  topLevelDataModelType: Typescript.Type;
-}
-
-export function throwInvalidTopLevelModel(
-  api: ThrowInvalidTopLevelModelApi,
-): never {
-  const { schemaTypeChecker, topLevelDataModelType } = api;
-  throwUserError(
-    `invalid top-level model: ${
-      schemaTypeChecker.typeToString(topLevelDataModelType)
-    }`,
-  );
-}
-
-// export interface ThrowInvalidModelTemplateApi extends
-//   Pick<
-//     DeriveModelTemplatesApi<irrelevantAny, Typescript.Type>,
-//     'schemaTypeChecker' | 'modelType'
-//   > {
-//   modelTemplateType: Typescript.BaseType;
-// }
-
-// export function throwInvalidModelTemplate(
-//   api: ThrowInvalidModelTemplateApi,
-// ): never {
-//   const { schemaTypeChecker, modelTemplateType, modelType } = api;
-//   throwUserError(
-//     `invalid model template: ${
-//       schemaTypeChecker.typeToString(modelTemplateType)
-//     } on ${modelType.symbol.name}`,
-//   );
-// }
-
 export interface ThrowInvalidSchemaElementApi extends
   Pick<
     DeriveSchemaElementApi<irrelevantAny>,
@@ -119,5 +74,82 @@ export function throwInvalidSchemaElement(
   const { elementLocalNode } = api;
   throwUserError(
     `invalid schema element: ${elementLocalNode.getText()} at ${elementLocalNode.parent.getText()}`,
+  );
+}
+
+interface ThrowInvalidModelTemplateApi
+  extends
+    Pick<DeriveModelTemplatesApi<irrelevantUnknown>, 'modelSourceDeclaration'> {
+  heritageLocalNode: Typescript.Node;
+}
+
+export function throwInvalidModelTemplate__DefaultParameterArgument(
+  api: ThrowInvalidModelTemplateApi,
+): never {
+  const { heritageLocalNode, modelSourceDeclaration } = api;
+  throwUserError(
+    `invalid model template: default parameter arguments not supported (extends ${heritageLocalNode.getText()} on ${modelSourceDeclaration.name.text})`,
+  );
+}
+
+interface ThrowInvalidModelUsageApi
+  extends Pick<ValidateTargetModelApi, 'modelSourceSymbol'> {}
+
+export function throwInvalidModelUsage__AliasRegistered(
+  api: ThrowInvalidModelUsageApi,
+): never {
+  const { modelSourceSymbol } = api;
+  throwUserError(
+    `invalid model usage: "${modelSourceSymbol.name}" already registered as alias`,
+  );
+}
+
+export function throwInvalidModelUsage__GenericTemplateModelRegistered(
+  api: ThrowInvalidModelUsageApi,
+) {
+  const { modelSourceSymbol } = api;
+  throwUserError(
+    `invalid model usage: "${modelSourceSymbol.name}" already registered as generic template model`,
+  );
+}
+
+export function throwInvalidModelUsage__ConcreteTemplateModelRegistered(
+  api: ThrowInvalidModelUsageApi,
+): never {
+  const { modelSourceSymbol } = api;
+  throwUserError(
+    `invalid model usage: "${modelSourceSymbol.name}" already registered as concrete template model`,
+  );
+}
+
+export function throwInvalidModelUsage__DataModelRegistered(
+  api: ThrowInvalidModelUsageApi,
+): never {
+  const { modelSourceSymbol } = api;
+  throwUserError(
+    `invalid model usage: "${modelSourceSymbol.name}" already registered as data model`,
+  );
+}
+
+interface ThrowInvalidModelDeclarationApi
+  extends Pick<ValidateTargetModelApi, 'modelSourceSymbol'> {}
+
+export function throwInvalidModelDeclaration__MultipleDeclarations(
+  api: ThrowInvalidModelDeclarationApi,
+): never {
+  const { modelSourceSymbol } = api;
+  throwUserError(
+    `invalid model declaration: "${modelSourceSymbol.name}" has multiple declarations`,
+  );
+}
+
+interface ThrowIndirectModelNameApi
+  extends
+    Pick<ValidateTargetModelApi, 'modelSourceSymbol' | 'modelLocalSymbol'> {}
+
+export function throwIndirectModelName(api: ThrowIndirectModelNameApi) {
+  const { modelSourceSymbol, modelLocalSymbol } = api;
+  throwUserError(
+    `indirect model name: "${modelSourceSymbol.name} as ${modelLocalSymbol.name}"`,
   );
 }
