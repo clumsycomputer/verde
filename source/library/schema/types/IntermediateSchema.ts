@@ -17,7 +17,9 @@ export interface IntermediateSchema extends
     IntermediateSchemaExport,
     IntermediateSchemaModels,
     IntermediateSchemaAlias
-  > {}
+  > {
+  // schemaSymbolPathMap: Record<string, string>;
+}
 
 interface IntermediateSchemaExport
   extends

@@ -18,24 +18,27 @@ async function invalidSchemaTest() {
   });
   const actualLoadSchemaModuleErrors: Record<string, string> = {};
   await Promise.all(
-    Object.keys(schemaSources).filter((someSourceFileName) =>
-      someSourceFileName.startsWith('Schema__')
-    ).map((someSchemaFileName) => {
-      const schemaModulePath = Path.join(
-        schemaDirectoryPath,
-        someSchemaFileName,
-      );
-      try {
-        deriveIntermediateSchema({
-          schemaModulePath,
-        });
-      } catch (someSchemaModuleError: unknown) {
-        if (someSchemaModuleError instanceof Error) {
-          actualLoadSchemaModuleErrors[someSchemaFileName] =
-            someSchemaModuleError.message;
+    Object.keys({
+      ...schemaSources,
+      "Schema__Undefined.ts": 'undefined',
+    })
+      .filter((someSourceFileName) => someSourceFileName.startsWith('Schema__'))
+      .map((someSchemaFileName) => {
+        const schemaModulePath = Path.join(
+          schemaDirectoryPath,
+          someSchemaFileName,
+        );
+        try {
+          deriveIntermediateSchema({
+            schemaModulePath,
+          });
+        } catch (someSchemaModuleError: unknown) {
+          if (someSchemaModuleError instanceof Error) {
+            actualLoadSchemaModuleErrors[someSchemaFileName] =
+              someSchemaModuleError.message;
+          }
         }
-      }
-    }),
+      }),
   );
   assertAndLogExpectations({
     expectedData: expectedDeriveIntermediateSchemaErrors,

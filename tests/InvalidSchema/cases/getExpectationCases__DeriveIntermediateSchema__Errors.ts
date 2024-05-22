@@ -268,14 +268,209 @@ export function getExpectationCases__DeriveIntermediateSchema__Errors(
           ]!,
           textPatterns: [
             {
+              patternStyle: [3, 1, 41],
+              patternRegex: /invalid schema element/,
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /Alias__AA<never>/,
+            },
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'indirectDataModelImport',
+      caseNotes: [
+        styledText({
+          textSource: 'indirect data model import',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__IndirectModelName.ts']!
+            .trim(),
+          textPatterns: [{
             patternStyle: [3, 1, 41],
-            patternRegex: /invalid schema element/,
-          },
-          {
+            patternRegex: /as Model__BB/,
+          }],
+        }),
+        styledText({
+          textSource: expectedDeriveIntermediateSchemaErrors[
+            'Schema__IndirectModelName.ts'
+          ]!,
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /indirect model name/,
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /Model__AA as Model__BB/,
+            },
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'multipleColocatedDataModelDeclarations',
+      caseNotes: [
+        styledText({
+          textSource: 'multiple colocated data model declarations',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__DoubleDeclarationModel.ts']!
+            .trim(),
+          textPatterns: [{
             patternStyle: [3, 1, 41],
-            patternRegex: /Alias__AA<never>/,
-          }
-        ],
+            patternRegex: /interface Model__AA/,
+            getFilteredPattern: ({ patternMatches }) =>
+              patternMatches.slice(1, 2),
+          }],
+        }),
+        styledText({
+          textSource: expectedDeriveIntermediateSchemaErrors[
+            'Schema__DoubleDeclarationModel.ts'
+          ]!,
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /invalid model declaration/,
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /multiple declarations/,
+            },
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'schemaModulePathDoesNotExist',
+      caseNotes: [
+        styledText({
+          textSource: 'schema module path does not exist',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource: expectedDeriveIntermediateSchemaErrors[
+            'Schema__Undefined.ts'
+          ]!,
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /invalid schema module/,
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /does not exist/,
+            },
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'dataModelUsedAsConcreteTemplateModel',
+      caseNotes: [
+        styledText({
+          textSource: 'data model used as concrete template model',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__DataModelRegistered.ts']!
+            .trim(),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /Model__AA/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(0, 2),
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /extends Model__AA/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: expectedDeriveIntermediateSchemaErrors[
+            'Schema__DataModelRegistered.ts'
+          ]!,
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /invalid model usage/,
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /registered as data model/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /Model__AA/,
+            },
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'concreteTemplateModelUsedAsDataModel__schemaExportMember',
+      caseNotes: [
+        styledText({
+          textSource: 'concrete template model used as data model (schema export member)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__ConcreteTemplateModelRegistered.ts']!
+            .trim(),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /Model__BB/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(0, 1),
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /Model__BB/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(1, 2),
+            }
+          ],
+        }),
+        styledText({
+          textSource: expectedDeriveIntermediateSchemaErrors[
+            'Schema__ConcreteTemplateModelRegistered.ts'
+          ]!,
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /invalid model usage/,
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /registered as concrete template model/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /Model__BB/,
+            },
+          ],
         }),
       ],
     },

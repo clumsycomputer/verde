@@ -15,7 +15,16 @@ export const expectedDeriveIntermediateSchemaErrors = {
     'invalid model template: default parameter arguments not supported (extends Model__BB on Model__AA)',
   'Schema__CustomGenericTypeAliasElement.ts':
     'invalid schema element: Alias__AA<never> at aaProperty__AA: Alias__AA<never>;',
-  'Schema__IndirectModelName.ts': 'indirect model name: "Model__AA as Model__BB"',
+  'Schema__IndirectModelName.ts':
+    'indirect model name: "Model__AA as Model__BB"',
   'Schema__DoubleDeclarationModel.ts':
     'invalid model declaration: "Model__AA" has multiple declarations',
+  'Schema__Undefined.ts':
+    'invalid schema module: "/home/verde/tests/InvalidSchema/schemas/Schema__Undefined.ts" does not exist',
+  'Schema__DataModelRegistered.ts':
+    'invalid model usage: "Model__AA" already registered as data model',
+  'Schema__ConcreteTemplateModelRegistered.ts':
+    'invalid model usage: "Model__BB" already registered as concrete template model',
+  'Schema__AliasRegistered.ts':
+    'invalid model usage: "SharedReferenceTypeName" already registered as alias',
 };

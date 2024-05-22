@@ -35,8 +35,9 @@ export interface __DeriveIntermediateSchemaApi extends
 function __deriveIntermediateSchema(
   api: __DeriveIntermediateSchemaApi,
 ): IntermediateSchema {
-  const { schemaTypeChecker, schemaExportNode } = api;
+  const { schemaTypeChecker, schemaExportNode } = api;  
   const schemaResult: IntermediateSchema = {
+    // schemaSymbolPathMap: {},
     schemaAliases: {},
     schemaModels: {
       data: {},
@@ -48,7 +49,7 @@ function __deriveIntermediateSchema(
   schemaResult.schemaExport = {
     exportName: schemaExportNode.name.text,
     exportElement: deriveSchemaElement({
-      schemaTypeChecker,
+      schemaTypeChecker,      
       schemaResult,
       elementLocalNode: schemaExportNode.type,
       elementResolvers: getExportElementResolvers(),

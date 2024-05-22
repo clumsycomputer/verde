@@ -11,7 +11,7 @@ import {
 
 export interface DeriveSchemaElementApi<
   ThisElementResolver extends ElementResolver<genericAny>,
-> extends Pick<__DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {
+> extends Pick<__DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {  
   schemaResult: IntermediateSchema;
   elementResolvers: Array<ThisElementResolver>;
   elementLocalNode: Typescript.Node;
