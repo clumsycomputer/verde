@@ -1,9 +1,8 @@
 import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
 import { genericAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
-import { IntermediateSchema } from '../../types/IntermediateSchema.ts';
-import { __DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
-import { throwInvalidSchemaElement } from '../helpers/errors.ts';
+import { DeriveSchemaTypeQueueOperation, __DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
+import { throwInvalidSchemaElement } from '../errors.ts';
 import {
   ElementResolver,
   GetResolverSchemaElement,
@@ -11,8 +10,8 @@ import {
 
 export interface DeriveSchemaElementApi<
   ThisElementResolver extends ElementResolver<genericAny>,
-> extends Pick<__DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {  
-  schemaResult: IntermediateSchema;
+> extends Pick<__DeriveIntermediateSchemaApi, 'schemaTypeChecker'> { 
+  deriveSchemaTypeQueue: Array<DeriveSchemaTypeQueueOperation>
   elementResolvers: Array<ThisElementResolver>;
   elementLocalNode: Typescript.Node;
 }
@@ -26,7 +25,7 @@ export function deriveSchemaElement<
     elementResolvers,
     elementLocalNode,
     schemaTypeChecker,
-    schemaResult,
+    deriveSchemaTypeQueue
   } = api;
   const elementLocalSymbol = Typescript.isTypeReferenceNode(elementLocalNode)
     ? schemaTypeChecker.getSymbolAtLocation(elementLocalNode.typeName) ??
@@ -47,7 +46,7 @@ export function deriveSchemaElement<
   for (const maybeResolveSomeElement of elementResolvers) {
     const maybeSchemaElement = maybeResolveSomeElement({
       schemaTypeChecker,
-      schemaResult,
+      deriveSchemaTypeQueue,
       elementLocalNode,
       elementLocalSymbol,
       elementSourceSymbol,

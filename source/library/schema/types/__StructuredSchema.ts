@@ -1,11 +1,8 @@
-import {
-  DefinitiveSchemaElement
-} from './SchemaElement.ts';
+import { DefinitiveSchemaElement } from './SchemaElement.ts';
 
-export interface __StructuredSchema<ThisSchemaExport, ThisSchemaModels, ThisSchemaAlias> {
+export interface __StructuredSchema<ThisSchemaExport, ThisSchemaType> {
   schemaExport: ThisSchemaExport;
-  schemaModels: ThisSchemaModels;
-  schemaAliases: Record<string, ThisSchemaAlias>;
+  schemaTypes: Record<string, ThisSchemaType>;
 }
 
 export interface __SchemaExport<ThisExportElement> {
@@ -13,9 +10,14 @@ export interface __SchemaExport<ThisExportElement> {
   exportElement: ThisExportElement;
 }
 
-export interface __SchemaModel<ThisModelElement> {
-  modelName: string;
-  modelProperties: Record<
+export interface __SchemaType<ThisTypeKind> {
+  typeKind: ThisTypeKind;
+  typeName: string;
+}
+
+export interface __SchemaModel<ThisTypeKind, ThisModelElement>
+  extends __SchemaType<ThisTypeKind> {
+  typeModelProperties: Record<
     ModelProperty<ThisModelElement>['propertyKey'],
     ModelProperty<ThisModelElement>
   >;
@@ -26,7 +28,7 @@ export interface ModelProperty<ThisModelElement> {
   propertyElement: ThisModelElement;
 }
 
-export interface __SchemaAlias {
-  aliasName: string;
-  aliasElement: DefinitiveSchemaElement;
+export interface __SchemaAlias<ThisTypeKind>
+  extends __SchemaType<ThisTypeKind> {
+  typeAliasElement: DefinitiveSchemaElement;
 }

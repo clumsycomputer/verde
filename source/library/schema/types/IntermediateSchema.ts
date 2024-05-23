@@ -12,63 +12,46 @@ import {
   __StructuredSchema,
 } from './__StructuredSchema.ts';
 
-export interface IntermediateSchema extends
-  __StructuredSchema<
-    IntermediateSchemaExport,
-    IntermediateSchemaModels,
-    IntermediateSchemaAlias
-  > {
-  // schemaSymbolPathMap: Record<string, string>;
-}
+export interface IntermediateSchema
+  extends __StructuredSchema<IntermediateSchemaExport, IntermediateSchemaType> {}
 
-interface IntermediateSchemaExport
+interface IntermediateSchemaExport extends
+  __SchemaExport<
+    DataModelReferenceElement | AliasReferenceElement | ExportUnionElement
+  > {}
+
+export type IntermediateSchemaType = IntermediateSchemaModel | IntermediateSchemaAlias;
+
+export type IntermediateSchemaModel = DataIntermediateSchemaModel | TemplateIntermediateSchemaModel;
+
+export interface DataIntermediateSchemaModel
+  extends __IntermediateModel<'dataModel', DefinitiveSchemaElement> {}
+
+type TemplateIntermediateSchemaModel =
+  | ConcreteTemplateIntermediateSchemaModel
+  | GenericTemplateIntermediateSchemaModel;
+
+export interface ConcreteTemplateIntermediateSchemaModel
   extends
-    __SchemaExport<
-      DataModelReferenceElement | AliasReferenceElement | ExportUnionElement
-    > {}
-
-interface IntermediateSchemaModels {
-  data: Record<DataIntermediateModel['modelName'], DataIntermediateModel>;
-  concreteTemplate: Record<
-    ConcreteTemplateIntermediateModel['modelName'],
-    ConcreteTemplateIntermediateModel
-  >;
-  genericTemplate: Record<
-    GenericTemplateIntermediateModel['modelName'],
-    GenericTemplateIntermediateModel
-  >;
-}
-
-export interface DataIntermediateModel
-  extends __IntermediateModel<'data', DefinitiveSchemaElement> {}
-
-type TemplateIntermediateModel =
-  | ConcreteTemplateIntermediateModel
-  | GenericTemplateIntermediateModel;
-
-export interface ConcreteTemplateIntermediateModel
-  extends
-    __TemplateIntermediateModel<
-      'concreteTemplate',
+  __TemplateIntermediateSchemaModel<
+      'concreteTemplateModel',
       DefinitiveSchemaElement
     > {}
 
-export interface GenericTemplateIntermediateModel
+export interface GenericTemplateIntermediateSchemaModel
   extends
-    __TemplateIntermediateModel<
-      'genericTemplate',
-      GenericSchemaElement
-    > {
-  modelParameters: Array<GenericTemplateParameter>;
+  __TemplateIntermediateSchemaModel<'genericTemplateModel', GenericSchemaElement> {
+  typeModelParameters: Array<GenericTemplateModelParameter>;
 }
 
-export type GenericTemplateParameter =
-  | BasicTemplateParameter
-  | ConstrainedTemplateParameter;
+export type GenericTemplateModelParameter =
+  | BasicTemplateModelParameter
+  | ConstrainedTemplateModelParameter;
 
-interface BasicTemplateParameter extends __GenericTemplateParameter<'basic'> {}
+interface BasicTemplateModelParameter
+  extends __GenericTemplateParameter<'basic'> {}
 
-interface ConstrainedTemplateParameter
+interface ConstrainedTemplateModelParameter
   extends __GenericTemplateParameter<'constrained'> {
   parameterConstraint: string;
 }
@@ -78,52 +61,44 @@ interface __GenericTemplateParameter<ThisParameterKind> {
   parameterName: string;
 }
 
-interface __TemplateIntermediateModel<ThisModelKind, ThisModelElement>
-  extends __IntermediateModel<ThisModelKind, ThisModelElement> {}
+interface __TemplateIntermediateSchemaModel<ThisTypeKind, ThisModelElement>
+  extends __IntermediateModel<ThisTypeKind, ThisModelElement> {}
 
-interface __IntermediateModel<
-  ThisModelKind,
-  ThisModelElement,
-> extends __SchemaModel<ThisModelElement> {
-  modelKind: ThisModelKind;
-  modelTemplates: Array<ModelTemplate<ThisModelElement>>;
+interface __IntermediateModel<ThisTypeKind, ThisModelElement>
+  extends __SchemaModel<ThisTypeKind, ThisModelElement>, __IntermediateSchemaType {
+  typeModelTemplates: Array<ModelTemplate<ThisModelElement>>;
 }
 
 type ModelTemplate<ThisModelElement> =
   | ConcreteModelTemplate
   | GenericModelTemplate<ThisModelElement>;
 
-interface ConcreteModelTemplate extends __ModelTemplate<'concreteTemplate'> {}
+interface ConcreteModelTemplate
+  extends __ModelTemplate<'concreteTemplateModel'> {}
 
 export interface GenericModelTemplate<ThisArgumentElement>
-  extends __ModelTemplate<'genericTemplate'> {
+  extends __ModelTemplate<'genericTemplateModel'> {
   templateArguments: Record<
-    GenericArgument<ThisArgumentElement>['argumentParameterNameKey'],
-    GenericArgument<ThisArgumentElement>
+    GenericTemplateArgument<ThisArgumentElement>['argumentParameterName'],
+    GenericTemplateArgument<ThisArgumentElement>
   >;
 }
 
-interface GenericArgument<ThisModelElement> {
-  argumentParameterNameKey: string;
+interface GenericTemplateArgument<ThisModelElement> {
   argumentIndex: number;
+  argumentParameterName: string;  
   argumentElement: ThisModelElement;
 }
 
 interface __ModelTemplate<
-  ThisTemplateKind extends TemplateIntermediateModel['modelKind'],
+  ThisTemplateModelKind extends TemplateIntermediateSchemaModel['typeKind'],
 > {
-  templateKind: ThisTemplateKind;
-  templateModelNameKey: TemplateIntermediateModel['modelName'];
+  templateModelKind: ThisTemplateModelKind;
+  templateModelName: TemplateIntermediateSchemaModel['typeName'];
 }
 
-export interface IntermediateSchemaAlias extends __SchemaAlias {}
+export interface IntermediateSchemaAlias extends __SchemaAlias<'alias'>, __IntermediateSchemaType {}
 
-export type GetThisIntermediateElement<
-  ThisModelKind extends keyof IntermediateSchema['schemaModels'],
-> = GetThisIntermediateModel<
-  ThisModelKind
->['modelProperties'][string]['propertyElement'];
-
-export type GetThisIntermediateModel<
-  ThisModelKind extends keyof IntermediateSchema['schemaModels'],
-> = IntermediateSchema['schemaModels'][ThisModelKind][string];
+interface __IntermediateSchemaType {
+  typeSourcePath: string;
+}

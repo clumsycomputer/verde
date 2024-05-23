@@ -10,7 +10,7 @@ import {
   throwInvalidSchemaModule__NoExports,
   throwInvalidSchemaModule__NonTypeAliasExport,
   throwInvalidSchemaModule_PathDoesNotExist,
-} from '../helpers/errors.ts';
+} from '../errors.ts';
 
 export interface LoadSchemaModuleApi
   extends Pick<DeriveIntermediateSchemaApi, 'schemaModulePath'> {

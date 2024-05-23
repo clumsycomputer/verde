@@ -28,7 +28,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelTemplates"][number] => ConcreteModelTemplate',
+            'DataIntermediateModel["typeModelTemplates"][number] => ConcreteModelTemplate',
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /ConcreteModelTemplate/,
@@ -42,10 +42,9 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .data['Model__BB']!,
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__BB']!,
           jsonNodes: [branchJsonNode({
-            nodeKey: 'modelTemplates',
+            nodeKey: 'typeModelTemplates',
             nodeChildren: [leafJsonNode({
               nodeKey: 0,
               nodeStyle: [3, 1, 44],
@@ -66,7 +65,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelTemplates"][number] => GenericModelTemplate',
+            'DataIntermediateModel["typeModelTemplates"][number] => GenericModelTemplate',
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /GenericModelTemplate/,
@@ -80,10 +79,9 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .data['Model__BB']!,
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__BB']!,
           jsonNodes: [branchJsonNode({
-            nodeKey: 'modelTemplates',
+            nodeKey: 'typeModelTemplates',
             nodeChildren: [leafJsonNode({
               nodeKey: 1,
               nodeStyle: [3, 1, 44],
@@ -104,7 +102,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => BooleanLiteralElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => BooleanLiteralElement',
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /BooleanLiteralElement/,
@@ -118,8 +116,9 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
-            .modelProperties['aaProperty__AA'],
+          jsonSource:
+            expectedIntermediateSchema.schemaTypes['Model__AA']!
+              .typeModelProperties['aaProperty__AA'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -139,7 +138,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => NumberLiteralElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => NumberLiteralElement',
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /NumberLiteralElement/,
@@ -153,8 +152,9 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
-            .modelProperties['aaProperty__BB'],
+          jsonSource:
+            expectedIntermediateSchema.schemaTypes['Model__AA']
+              .typeModelProperties['aaProperty__BB'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -174,7 +174,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => StringLiteralElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => StringLiteralElement',
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /StringLiteralElement/,
@@ -188,8 +188,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
-            .modelProperties['aaProperty__CC'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__AA']
+            .typeModelProperties['aaProperty__CC'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -209,7 +209,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => BooleanPrimitiveElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => BooleanPrimitiveElement',
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /BooleanPrimitiveElement/,
@@ -225,8 +225,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
-            .modelProperties['aaProperty__DD'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__AA']
+            .typeModelProperties['aaProperty__DD'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -246,7 +246,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => NumberPrimitiveElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => NumberPrimitiveElement',
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /NumberPrimitiveElement/,
@@ -262,8 +262,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
-            .modelProperties['aaProperty__EE'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__AA']
+            .typeModelProperties['aaProperty__EE'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -283,7 +283,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => StringPrimitiveElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => StringPrimitiveElement',
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /StringPrimitiveElement/,
@@ -299,8 +299,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
-            .modelProperties['aaProperty__FF'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__AA']
+            .typeModelProperties['aaProperty__FF'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -321,7 +321,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            '<ThisDataModel extends DataIntermediateModel>: ThisDataModel["modelProperties"][string]["propertyElement"] => DataModelReferenceElement["elementName"] === ThisDataModel["modelName"]',
+            '<ThisDataModel extends DataIntermediateModel>: ThisDataModel["typeModelProperties"][string]["propertyElement"] => DataModelReferenceElement["elementName"] === ThisDataModel["typeName"]',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -343,8 +343,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
-            .modelProperties['aaProperty__GG'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__AA']
+            .typeModelProperties['aaProperty__GG'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -366,7 +366,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            '<ThisDataModel extends DataIntermediateModel>, <ThisIndirectTemplateModel extends __TemplateIntermediateModel>: ThisDataModel["modelTemplates"][number]["templateModelNameKey"] === ThisIndirectTemplateModel["modelName"] && ThisIndirectTemplateModel["modelProperties"][string]["propertyElement"] => DataModelReferenceElement["elementName"] === ThisDataModel["modelName"]',
+            '<ThisDataModel extends DataIntermediateModel>, <ThisIndirectTemplateModel extends __TemplateIntermediateModel>: ThisDataModel["typeModelTemplates"][number]["templateModelName"] === ThisIndirectTemplateModel["typeName"] && ThisIndirectTemplateModel["typeModelProperties"][string]["propertyElement"] => DataModelReferenceElement["elementName"] === ThisDataModel["typeName"]',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -417,15 +417,14 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .data['Model__BB'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__BB'],
           jsonNodes: [
             leafJsonNode({
-              nodeKey: 'modelName',
+              nodeKey: 'typeName',
               nodeStyle: [3, 1, 44],
             }),
             branchJsonNode({
-              nodeKey: 'modelTemplates',
+              nodeKey: 'typeModelTemplates',
               nodeChildren: [leafJsonNode({
                 nodeKey: 0,
                 nodeStyle: [3, 1, 45],
@@ -434,15 +433,14 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .concreteTemplate['Model__CC'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__CC'],
           jsonNodes: [
             leafJsonNode({
-              nodeKey: 'modelName',
+              nodeKey: 'typeName',
               nodeStyle: [3, 1, 45],
             }),
             branchJsonNode({
-              nodeKey: 'modelProperties',
+              nodeKey: 'typeModelProperties',
               nodeChildren: [branchJsonNode({
                 nodeKey: 'ccProperty__AA',
                 nodeChildren: [leafJsonNode({
@@ -467,7 +465,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => AliasReferenceElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => AliasReferenceElement',
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /AliasReferenceElement/,
@@ -490,8 +488,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
-            .modelProperties['aaProperty__HH'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__AA']
+            .typeModelProperties['aaProperty__HH'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -512,7 +510,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeTableElement<never>["elementArguments"][0] => AliasReferenceElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeTableElement<never>["elementArguments"][0] => AliasReferenceElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -532,8 +530,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
-            .modelProperties['aaProperty__II'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__AA']
+            .typeModelProperties['aaProperty__II'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -555,7 +553,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeTableElement<ParameterReferenceElement>["elementArguments"][0] => DataModelReferenceElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeTableElement<ParameterReferenceElement>["elementArguments"][0] => DataModelReferenceElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -575,9 +573,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__BB'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__BB'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -599,7 +596,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeTableElement<ParameterReferenceElement>["elementArguments"][0] => ParameterReferenceElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeTableElement<ParameterReferenceElement>["elementArguments"][0] => ParameterReferenceElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -619,9 +616,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__AA'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__AA'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -643,7 +639,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeTableElement<ParameterReferenceElement>["elementArguments"][0] => DataModelUnionElement<ParameterReferenceElement>["elementMembers"][number] => DataModelReferenceElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeTableElement<ParameterReferenceElement>["elementArguments"][0] => DataModelUnionElement<ParameterReferenceElement>["elementMembers"][number] => DataModelReferenceElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -677,9 +673,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__CC'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__CC'],
           jsonNodes: [branchJsonNode({
             nodeKey: 'propertyElement',
             nodeChildren: [
@@ -725,7 +720,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeTableElement<ParameterReferenceElement>["elementArguments"][0] => DataModelUnionElement<ParameterReferenceElement>["elementMembers"][number] => AliasReferenceElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeTableElement<ParameterReferenceElement>["elementArguments"][0] => DataModelUnionElement<ParameterReferenceElement>["elementMembers"][number] => AliasReferenceElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -759,9 +754,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__CC'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__CC'],
           jsonNodes: [branchJsonNode({
             nodeKey: 'propertyElement',
             nodeChildren: [
@@ -807,7 +801,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeTableElement<ParameterReferenceElement>["elementArguments"][0] => DataModelUnionElement<ParameterReferenceElement>["elementMembers"][number] => ParameterReferenceElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeTableElement<ParameterReferenceElement>["elementArguments"][0] => DataModelUnionElement<ParameterReferenceElement>["elementMembers"][number] => ParameterReferenceElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -843,9 +837,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__CC'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__CC'],
           jsonNodes: [branchJsonNode({
             nodeKey: 'propertyElement',
             nodeChildren: [
@@ -891,7 +884,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => BooleanPrimitiveElement',
+            'GenericTemplateIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => BooleanPrimitiveElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -911,9 +904,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__DD'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__DD'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -935,7 +927,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => NumberPrimitiveElement',
+            'GenericTemplateIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => NumberPrimitiveElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -955,9 +947,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__EE'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__EE'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -978,7 +969,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<never>["elementArguments"][0] => StringPrimitiveElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeArrayElement<never>["elementArguments"][0] => StringPrimitiveElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -998,8 +989,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
-            .modelProperties['aaProperty__JJ'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__AA']
+            .typeModelProperties['aaProperty__JJ'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -1021,7 +1012,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => DataModelReferenceElement',
+            'GenericTemplateIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => DataModelReferenceElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -1041,9 +1032,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__FF'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__FF'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -1065,7 +1055,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => AliasReferenceElement',
+            'GenericTemplateIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => AliasReferenceElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -1085,9 +1075,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__GG'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__GG'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -1109,7 +1098,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => ParameterReferenceElement',
+            'GenericTemplateIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => ParameterReferenceElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -1131,9 +1120,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__HH'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__HH'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -1155,7 +1143,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => BooleanPrimitiveElement',
+            'GenericTemplateIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => BooleanPrimitiveElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -1189,9 +1177,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__II'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__II'],
           jsonNodes: [branchJsonNode({
             nodeKey: 'propertyElement',
             nodeChildren: [
@@ -1237,7 +1224,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => NumberPrimitiveElement',
+            'GenericTemplateIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => NumberPrimitiveElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -1271,9 +1258,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__II'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__II'],
           jsonNodes: [branchJsonNode({
             nodeKey: 'propertyElement',
             nodeChildren: [
@@ -1319,7 +1305,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => StringPrimitiveElement',
+            'GenericTemplateIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => StringPrimitiveElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -1353,9 +1339,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__II'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__II'],
           jsonNodes: [branchJsonNode({
             nodeKey: 'propertyElement',
             nodeChildren: [
@@ -1401,7 +1386,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => DataModelReferenceElement',
+            'GenericTemplateIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => DataModelReferenceElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -1435,9 +1420,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__II'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__II'],
           jsonNodes: [branchJsonNode({
             nodeKey: 'propertyElement',
             nodeChildren: [
@@ -1483,7 +1467,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => AliasReferenceElement',
+            'GenericTemplateIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => AliasReferenceElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -1517,9 +1501,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__II'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__II'],
           jsonNodes: [branchJsonNode({
             nodeKey: 'propertyElement',
             nodeChildren: [
@@ -1565,7 +1548,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => ParameterReferenceElement',
+            'GenericTemplateIntermediateModel["typeModelProperties"][string]["propertyElement"] => VerdeArrayElement<ParameterReferenceElement>["elementArguments"][0] => VerdeArrayUnionElement<ParameterReferenceElement>["elementMembers"][number] => ParameterReferenceElement',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -1601,9 +1584,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__GG']!
-            .modelProperties['ggProperty__II'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__II'],
           jsonNodes: [branchJsonNode({
             nodeKey: 'propertyElement',
             nodeChildren: [
@@ -1647,7 +1629,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => CoreUnionElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => CoreUnionElement',
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /CoreUnionElement/,
@@ -1661,8 +1643,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
-            .modelProperties['aaProperty__KK'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__AA']
+            .typeModelProperties['aaProperty__KK'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -1696,8 +1678,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
-            .modelProperties['aaProperty__KK']!.propertyElement,
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__AA']
+            .typeModelProperties['aaProperty__KK'].propertyElement,
           jsonNodes: [branchJsonNode({
             nodeKey: 'elementMembers',
             nodeChildren: [leafJsonNode({
@@ -1720,7 +1702,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => TupleElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => TupleElement',
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /TupleElement/,
@@ -1734,8 +1716,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
-            .modelProperties['aaProperty__LL'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__AA']
+            .typeModelProperties['aaProperty__LL'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -1755,7 +1737,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'DataIntermediateModel["modelProperties"][string]["propertyElement"] => ObjectElement',
+            'DataIntermediateModel["typeModelProperties"][string]["propertyElement"] => ObjectElement',
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /ObjectElement/,
@@ -1769,8 +1751,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__AA']!
-            .modelProperties['aaProperty__MM'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__AA']
+            .typeModelProperties['aaProperty__MM'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -1790,7 +1772,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'GenericTemplateIntermediateModel["modelParameters"][number] => BasicTemplateParameter',
+            'GenericTemplateIntermediateModel["typeModelParameters"][number] => BasicTemplateParameter',
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /BasicTemplateParameter/,
@@ -1806,10 +1788,9 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__DD'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__DD'],
           jsonNodes: [branchJsonNode({
-            nodeKey: 'modelParameters',
+            nodeKey: 'typeModelParameters',
             nodeChildren: [leafJsonNode({
               nodeKey: 0,
               nodeStyle: [3, 1, 44],
@@ -1830,7 +1811,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'GenericTemplateIntermediateModel["modelParameters"][number] => ConstrainedTemplateParameter',
+            'GenericTemplateIntermediateModel["typeModelParameters"][number] => ConstrainedTemplateParameter',
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /ConstrainedTemplateParameter/,
@@ -1844,10 +1825,9 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__DD'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__DD'],
           jsonNodes: [branchJsonNode({
-            nodeKey: 'modelParameters',
+            nodeKey: 'typeModelParameters',
             nodeChildren: [leafJsonNode({
               nodeKey: 1,
               nodeStyle: [3, 1, 44],
@@ -1868,7 +1848,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'GenericTemplateIntermediateModel["modelProperties"][string]["propertyElement"] => ParameterReferenceElement',
+            'GenericTemplateIntermediateModel["typeModelProperties"][string]["propertyElement"] => ParameterReferenceElement',
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /ParameterReferenceElement/,
@@ -1882,8 +1862,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__DD']!.modelProperties['ddProperty__AA'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__DD']
+            .typeModelProperties['ddProperty__AA'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -1917,8 +1897,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__DD']!.modelTemplates[0],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__DD']
+            .typeModelTemplates[0],
           jsonNodes: [branchJsonNode({
             nodeKey: 'templateArguments',
             nodeChildren: [leafJsonNode({
@@ -1942,7 +1922,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            '<ThisDataModel extends DataIntermediateModel, ThisGenericModelTemplate extends GenericModelTemplate>: ThisDataModel["modelTemplates"][number] => ThisGenericModelTemplate["genericArguments"][string]["argumentElement"] => DataModelReferenceElement["elementName"] === ThisDataModel["modelName"]',
+            '<ThisDataModel extends DataIntermediateModel, ThisGenericModelTemplate extends GenericModelTemplate>: ThisDataModel["typeModelTemplates"][number] => ThisGenericModelTemplate["genericArguments"][string]["argumentElement"] => DataModelReferenceElement["elementName"] === ThisDataModel["typeName"]',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -1972,14 +1952,14 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__BB'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__BB'],
           jsonNodes: [
             leafJsonNode({
-              nodeKey: 'modelName',
+              nodeKey: 'typeName',
               nodeStyle: [3, 1, 44],
             }),
             branchJsonNode({
-              nodeKey: 'modelTemplates',
+              nodeKey: 'typeModelTemplates',
               nodeChildren: [branchJsonNode({
                 nodeKey: 1,
                 nodeChildren: [branchJsonNode({
@@ -2011,7 +1991,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            '<ThisDataModel extends DataIntermediateModel, ThisIndirectGenericTemplateModel extends GenericTemplateIntermediateModel, ThisTerminalGenericModelTemplate extends GenericModelTemplate>: ThisDataModel["modelTemplates"][number]["templateModelNameKey"] === ThisIndirectGenericTemplateModel["modelName"], ThisIndirectGenericTemplateModel["modelTemplates"][number]["templateArguments"][string]["argumentElement"] => DataModelReferenceElement["elementName"] === ThisDataModel["modelName"]',
+            '<ThisDataModel extends DataIntermediateModel, ThisIndirectGenericTemplateModel extends GenericTemplateIntermediateModel, ThisTerminalGenericModelTemplate extends GenericModelTemplate>: ThisDataModel["typeModelTemplates"][number]["templateModelName"] === ThisIndirectGenericTemplateModel["typeName"], ThisIndirectGenericTemplateModel["typeModelTemplates"][number]["templateArguments"][string]["argumentElement"] => DataModelReferenceElement["elementName"] === ThisDataModel["typeName"]',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -2062,18 +2042,18 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels.data['Model__BB'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__BB'],
           jsonNodes: [
             leafJsonNode({
-              nodeKey: 'modelName',
+              nodeKey: 'typeName',
               nodeStyle: [3, 1, 44],
             }),
             branchJsonNode({
-              nodeKey: 'modelTemplates',
+              nodeKey: 'typeModelTemplates',
               nodeChildren: [branchJsonNode({
                 nodeKey: 1,
                 nodeChildren: [leafJsonNode({
-                  nodeKey: 'templateModelNameKey',
+                  nodeKey: 'templateModelName',
                   nodeStyle: [3, 1, 45],
                 })],
               })],
@@ -2081,15 +2061,14 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .genericTemplate['Model__DD'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__DD'],
           jsonNodes: [
             leafJsonNode({
-              nodeKey: 'modelName',
+              nodeKey: 'typeName',
               nodeStyle: [3, 1, 45],
             }),
             branchJsonNode({
-              nodeKey: 'modelTemplates',
+              nodeKey: 'typeModelTemplates',
               nodeChildren: [branchJsonNode({
                 nodeKey: 0,
                 nodeChildren: [branchJsonNode({
@@ -2120,7 +2099,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'Typescript.Declaration (ConcreteTemplateIntermediateModel) <= Typescript.ImportSpecifer => Typescript.HeritageClause.types => Typescript.NodeArray<Typescript.ExpressionWithTypeArguments> (DataIntermediateModel["modelTemplates"][number])',
+            'Typescript.Declaration (ConcreteTemplateIntermediateModel) <= Typescript.ImportSpecifer => Typescript.HeritageClause.types => Typescript.NodeArray<Typescript.ExpressionWithTypeArguments> (DataIntermediateModel["typeModelTemplates"][number])',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -2153,7 +2132,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            'Typescript.Declaration (DataIntermediateModel) <= Typescript.ImportSpecifer => Typescript.Node (DataIntermediateModel["modelProperties"][string]["propertyElement"])',
+            'Typescript.Declaration (DataIntermediateModel) <= Typescript.ImportSpecifer => Typescript.Node (DataIntermediateModel["typeModelProperties"][string]["propertyElement"])',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -2324,7 +2303,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
         }),
         styledText({
           textSource:
-            '<ThisAlias extends IntermediateSchemaAlias>, <ThisIndirectDataModel extends DataIntermediateModel>: ThisAlias["aliasElement"] => DataModelReferenceElement["elementName"] == ThisIndirectDataModel["modelName"] && ThisIndirectDataModel["modelProperties"][string]["propertyElement"] => AliasReferenceElement["elementName"] == ThisAlias["aliasName"]',
+            '<ThisAlias extends IntermediateSchemaAlias>, <ThisIndirectDataModel extends DataIntermediateModel>: ThisAlias["aliasElement"] => DataModelReferenceElement["elementName"] == ThisIndirectDataModel["typeName"] && ThisIndirectDataModel["typeModelProperties"][string]["propertyElement"] => AliasReferenceElement["elementName"] == ThisAlias["aliasName"]',
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -2371,15 +2350,14 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledJson({
-          jsonSource: expectedIntermediateSchema.schemaModels
-            .data['Model__AA']!,
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__AA'],
           jsonNodes: [
             leafJsonNode({
-              nodeKey: 'modelName',
+              nodeKey: 'typeName',
               nodeStyle: [3, 1, 45],
             }),
             branchJsonNode({
-              nodeKey: 'modelProperties',
+              nodeKey: 'typeModelProperties',
               nodeChildren: [branchJsonNode({
                 nodeKey: 'aaProperty__HH',
                 nodeChildren: [leafJsonNode({

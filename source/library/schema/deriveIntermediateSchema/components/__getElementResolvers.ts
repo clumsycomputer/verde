@@ -24,21 +24,27 @@ import {
   VerdeTableElement,
   VerdeTableUnionElement,
 } from '../../types/SchemaElement.ts';
-import { deriveDataModel } from './__deriveIntermediateModel.ts';
-import { deriveIntermediateAlias } from './deriveIntermediateAlias.ts';
+import {
+  deriveAliasType,
+  deriveDataModelType,
+} from './__deriveIntermediateSchemaType.ts';
 import {
   deriveSchemaElement,
   DeriveSchemaElementApi,
 } from './deriveSchemaElement.ts';
 
-export function getExportElementResolvers() {
+export const EXPORT_ELEMENT_RESOLVERS = getExportElementResolvers();
+
+function getExportElementResolvers() {
   return [
     ...getBasicReferenceElementResolvers(),
-    exportUnionElementResolver
-  ]
+    exportUnionElementResolver,
+  ];
 }
 
-export function getDefinitiveElementResolvers() {
+export const DEFINITIVE_ELEMENT_RESOLVERS = getDefinitiveElementResolvers();
+
+function getDefinitiveElementResolvers() {
   return [
     ...getDefinitiveStructureElementResolvers(),
     definitiveGeneralUnionElementResolver,
@@ -62,7 +68,9 @@ function getDefinitiveTerminalElementResolvers() {
   ];
 }
 
-export function getGenericElementResolvers() {
+export const GENERIC_ELEMENT_RESOLVERS = getGenericElementResolvers();
+
+function getGenericElementResolvers() {
   return [
     ...getGenericStructureElementResolvers(),
     genericGeneralUnionElementResolver,
@@ -207,23 +215,29 @@ function stringPrimitiveElementResolver(
 function dataModelReferenceElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<DataModelReferenceElement> {
-  const { elementLocalSymbol, elementSourceSymbol, elementSourceDeclaration, schemaTypeChecker, schemaResult } = api;  
+  const {
+    elementLocalSymbol,
+    elementSourceSymbol,
+    elementSourceDeclaration,
+    deriveSchemaTypeQueue,
+  } = api;
   if (
     elementLocalSymbol &&
     elementSourceSymbol &&
     elementSourceDeclaration &&
     Typescript.isInterfaceDeclaration(elementSourceDeclaration)
-  ) {    
-    const elementDataModel = deriveDataModel({
-      schemaTypeChecker,
-      schemaResult,
-      modelLocalSymbol: elementLocalSymbol,
-      modelSourceSymbol: elementSourceSymbol,
-      modelSourceDeclaration: elementSourceDeclaration,
+  ) {
+    deriveSchemaTypeQueue.push({
+      deriveThisSchemaType: deriveDataModelType,
+      thisTypeArguments: {
+        typeLocalSymbol: elementLocalSymbol,
+        typeSourceSymbol: elementSourceSymbol,
+        typeSourceDeclaration: elementSourceDeclaration,
+      },
     });
     return {
       elementKind: 'dataModelReference',
-      elementName: elementDataModel.modelName,
+      elementName: elementSourceDeclaration.name.text,
     };
   }
   return null;
@@ -233,25 +247,31 @@ function aliasReferenceElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<AliasReferenceElement> {
   const {
+    elementLocalSymbol,
+    elementSourceSymbol,
     elementLocalNode,
     elementSourceDeclaration,
-    schemaTypeChecker,
-    schemaResult,
+    deriveSchemaTypeQueue,
   } = api;
   if (
+    elementLocalSymbol &&
+    elementSourceSymbol &&
     Typescript.isTypeReferenceNode(elementLocalNode) &&
     elementSourceDeclaration &&
     Typescript.isTypeAliasDeclaration(elementSourceDeclaration) &&
     elementSourceDeclaration.typeParameters === undefined
   ) {
-    const elementAlias = deriveIntermediateAlias({
-      schemaTypeChecker,
-      schemaResult,
-      aliasSourceDeclaration: elementSourceDeclaration,
+    deriveSchemaTypeQueue.push({
+      deriveThisSchemaType: deriveAliasType,
+      thisTypeArguments: {
+        typeLocalSymbol: elementLocalSymbol,
+        typeSourceSymbol: elementSourceSymbol,
+        typeSourceDeclaration: elementSourceDeclaration,
+      },
     });
     return {
       elementKind: 'aliasReference',
-      elementName: elementAlias.aliasName,
+      elementName: elementSourceDeclaration.name.text,
     };
   }
   return null;
@@ -442,7 +462,7 @@ function __collectionElementResolver<
     elementLocalNode,
     elementResolvers,
     schemaTypeChecker,
-    schemaResult,
+    deriveSchemaTypeQueue,
     createThisCollectionElement,
   } = api;
   if (
@@ -457,7 +477,7 @@ function __collectionElementResolver<
     return createThisCollectionElement({
       elementArguments: [deriveSchemaElement({
         schemaTypeChecker,
-        schemaResult,
+        deriveSchemaTypeQueue,
         elementResolvers,
         elementLocalNode: elementLocalNode.typeArguments[0],
       })],
@@ -503,7 +523,7 @@ function __objectElementResolver<
   const {
     elementLocalNode,
     schemaTypeChecker,
-    schemaResult,
+    deriveSchemaTypeQueue,
     elementResolvers,
   } = api;
   if (Typescript.isTypeLiteralNode(elementLocalNode)) {
@@ -525,7 +545,7 @@ function __objectElementResolver<
               propertyKey: objectPropertyKey,
               propertyElement: deriveSchemaElement({
                 schemaTypeChecker,
-                schemaResult,
+                deriveSchemaTypeQueue,
                 elementResolvers,
                 elementLocalNode: someObjectPropertyNode.type,
               }),
@@ -575,7 +595,7 @@ function __tupleElementResolver<
   const {
     elementLocalNode,
     schemaTypeChecker,
-    schemaResult,
+    deriveSchemaTypeQueue,
     elementResolvers,
   } = api;
   if (Typescript.isTupleTypeNode(elementLocalNode)) {
@@ -598,7 +618,7 @@ function __tupleElementResolver<
               propertyKey: tuplePropertyKey,
               propertyElement: deriveSchemaElement({
                 schemaTypeChecker,
-                schemaResult,
+                deriveSchemaTypeQueue,
                 elementResolvers,
                 elementLocalNode: someTuplePropertyNode.type,
               }),
@@ -847,7 +867,7 @@ function __unionElementResolver<
     elementLocalNode,
     createThisUnionElement,
     schemaTypeChecker,
-    schemaResult,
+    deriveSchemaTypeQueue,
     elementResolvers,
   } = api;
   if (Typescript.isUnionTypeNode(elementLocalNode)) {
@@ -855,7 +875,7 @@ function __unionElementResolver<
       elementMembers: elementLocalNode.types.map((someUnionMemberNode) =>
         deriveSchemaElement({
           schemaTypeChecker,
-          schemaResult,
+          deriveSchemaTypeQueue,
           elementResolvers,
           elementLocalNode: someUnionMemberNode,
         })
@@ -872,10 +892,10 @@ export type ElementResolver<ThisSchemaElement> = (
 interface ElementResolverApi extends
   Pick<
     DeriveSchemaElementApi<irrelevantAny>,
-    'schemaTypeChecker' | 'schemaResult' | 'elementLocalNode'
+    'schemaTypeChecker' | 'deriveSchemaTypeQueue' | 'elementLocalNode'
   > {
-  elementLocalSymbol: Typescript.Symbol | null
-  elementSourceSymbol: Typescript.Symbol | null
+  elementLocalSymbol: Typescript.Symbol | null;
+  elementSourceSymbol: Typescript.Symbol | null;
   elementSourceDeclaration: Typescript.Declaration | null;
 }
 

@@ -1,9 +1,16 @@
 import { IntermediateSchema } from '../types/IntermediateSchema.ts';
-import { getExportElementResolvers } from './components/__getElementResolvers.ts';
+import {
+  __DeriveSchemaTypeApi,
+  deriveAliasType,
+  deriveConcreteTemplateModelType,
+  deriveDataModelType,
+  deriveGenericTemplateModelType,
+} from './components/__deriveIntermediateSchemaType.ts';
+import { EXPORT_ELEMENT_RESOLVERS } from './components/__getElementResolvers.ts';
 import { deriveSchemaElement } from './components/deriveSchemaElement.ts';
 import {
-  LoadSchemaModuleResult,
   loadSchemaModule,
+  LoadSchemaModuleResult,
 } from './components/loadSchemaModule.ts';
 
 export interface DeriveIntermediateSchemaApi {
@@ -35,25 +42,73 @@ export interface __DeriveIntermediateSchemaApi extends
 function __deriveIntermediateSchema(
   api: __DeriveIntermediateSchemaApi,
 ): IntermediateSchema {
-  const { schemaTypeChecker, schemaExportNode } = api;  
+  const { schemaTypeChecker, schemaExportNode } = api;
+  const deriveSchemaTypeQueue: Array<DeriveSchemaTypeQueueOperation> = [];
   const schemaResult: IntermediateSchema = {
-    // schemaSymbolPathMap: {},
-    schemaAliases: {},
-    schemaModels: {
-      data: {},
-      concreteTemplate: {},
-      genericTemplate: {},
+    schemaTypes: {},
+    schemaExport: {
+      exportName: schemaExportNode.name.text,
+      exportElement: deriveSchemaElement({
+        schemaTypeChecker,
+        deriveSchemaTypeQueue,
+        elementLocalNode: schemaExportNode.type,
+        elementResolvers: EXPORT_ELEMENT_RESOLVERS,
+      }),
     },
-    schemaExport: undefined as unknown as IntermediateSchema['schemaExport'],
   };
-  schemaResult.schemaExport = {
-    exportName: schemaExportNode.name.text,
-    exportElement: deriveSchemaElement({
-      schemaTypeChecker,      
-      schemaResult,
-      elementLocalNode: schemaExportNode.type,
-      elementResolvers: getExportElementResolvers(),
-    }),
-  };
+  for (
+    const {
+      deriveThisSchemaType,
+      thisTypeArguments: {
+        typeLocalSymbol,
+        typeSourceSymbol,
+        typeSourceDeclaration,
+      },
+    } of deriveSchemaTypeQueue
+  ) {
+    const derivedSchemaType = deriveThisSchemaType({
+      schemaTypeChecker,
+      deriveSchemaTypeQueue,
+      schemaResult,      
+      typeLocalSymbol,
+      typeSourceSymbol,
+      typeSourceDeclaration,
+    } as any);
+    schemaResult.schemaTypes[derivedSchemaType.typeName] = derivedSchemaType;
+  }
   return schemaResult;
+}
+
+export type DeriveSchemaTypeQueueOperation =
+  | DeriveDataModelQueueOperation
+  | DeriveConcreteTemplateModelQueueOperation
+  | DeriveGenericTemplateModelQueueOperation
+  | DeriveAliasQueueOperation;
+
+interface DeriveDataModelQueueOperation
+  extends __DeriveSchemaTypeQueueOperation<typeof deriveDataModelType> {}
+
+interface DeriveConcreteTemplateModelQueueOperation
+  extends
+    __DeriveSchemaTypeQueueOperation<typeof deriveConcreteTemplateModelType> {}
+
+interface DeriveGenericTemplateModelQueueOperation
+  extends
+    __DeriveSchemaTypeQueueOperation<typeof deriveGenericTemplateModelType> {}
+
+interface DeriveAliasQueueOperation
+  extends __DeriveSchemaTypeQueueOperation<typeof deriveAliasType> {}
+
+interface __DeriveSchemaTypeQueueOperation<
+  DeriveThisSchemaType extends
+    | typeof deriveDataModelType
+    | typeof deriveConcreteTemplateModelType
+    | typeof deriveGenericTemplateModelType
+    | typeof deriveAliasType,
+> {
+  deriveThisSchemaType: DeriveThisSchemaType;
+  thisTypeArguments: Pick<
+    Parameters<DeriveThisSchemaType>[0],
+    'typeLocalSymbol' | 'typeSourceSymbol' | 'typeSourceDeclaration'
+  >;
 }

@@ -1,47 +1,55 @@
 import {
-  throwInvalidPathError
+  throwInvalidPathError,
+  throwUserError,
 } from '../../../../helpers/throwError.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
   GenericModelTemplate,
-  GetThisIntermediateElement,
-  GetThisIntermediateModel,
-  IntermediateSchema
+  IntermediateSchemaModel
 } from '../../types/IntermediateSchema.ts';
-import { throwInvalidModelTemplate__DefaultParameterArgument } from '../helpers/errors.ts';
 import {
-  __DeriveIntermediateModelApi,
-  deriveConcreteTemplateModel,
-  deriveGenericTemplateModel,
-} from './__deriveIntermediateModel.ts';
+  Data__DeriveNewThisSchemaTypeApi__DeriveModelType, deriveConcreteTemplateModelType, deriveGenericTemplateModelType,
+} from './__deriveIntermediateSchemaType.ts';
+import { ElementResolver } from './__getElementResolvers.ts';
 import { deriveSchemaElement } from './deriveSchemaElement.ts';
 
 export interface DeriveModelTemplatesApi<
-  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
+  ThisSchemaType extends IntermediateSchemaModel,
 > extends
+  Config__DeriveModelTemplatesApi<ThisSchemaType>,
+  Data__DeriveModelTemplatesApi {}
+
+interface Config__DeriveModelTemplatesApi<
+  ThisSchemaType extends IntermediateSchemaModel,
+> {
+  thisModelElementResolvers: Array<
+    ElementResolver<
+      ThisSchemaType['typeModelProperties'][string]['propertyElement']
+    >
+  >;
+}
+
+interface Data__DeriveModelTemplatesApi extends
   Pick<
-    __DeriveIntermediateModelApi<ThisTargetModelKind>,
-    | 'schemaTypeChecker'
-    | 'schemaResult'
-    | 'modelSourceDeclaration'
-    | 'targetModelElementResolvers'
+    Data__DeriveNewThisSchemaTypeApi__DeriveModelType,
+    'schemaTypeChecker' | 'deriveSchemaTypeQueue' | 'typeSourceDeclaration'
   > {}
 
 export function deriveModelTemplates<
-  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels'],
+  ThisSchemaType extends IntermediateSchemaModel,
 >(
-  api: DeriveModelTemplatesApi<ThisTargetModelKind>,
-): GetThisIntermediateModel<ThisTargetModelKind>['modelTemplates'] {
+  api: DeriveModelTemplatesApi<ThisSchemaType>,
+): ThisSchemaType['typeModelTemplates'] {
   const {
-    modelSourceDeclaration,
+    typeSourceDeclaration,
     schemaTypeChecker,
-    schemaResult,
-    targetModelElementResolvers,
+    deriveSchemaTypeQueue,
+    thisModelElementResolvers,
   } = api;
-  return modelSourceDeclaration.heritageClauses &&
-      modelSourceDeclaration.heritageClauses[0]
-    ? modelSourceDeclaration.heritageClauses[0].types.map<
-      GetThisIntermediateModel<ThisTargetModelKind>['modelTemplates'][number]
+  return typeSourceDeclaration.heritageClauses &&
+      typeSourceDeclaration.heritageClauses[0]
+    ? typeSourceDeclaration.heritageClauses[0].types.map<
+      ThisSchemaType['typeModelTemplates'][number]
     >(
       (someHeritageLocalNode) => {
         const heritageLocalSymbol = schemaTypeChecker.getSymbolAtLocation(
@@ -62,42 +70,46 @@ export function deriveModelTemplates<
             ) && heritageSourceSymbol.declarations[0] ||
           throwInvalidPathError('heritageSourceDeclaration');
         if (heritageSourceDeclaration.typeParameters) {
-          const heritageGenericTemplateModel = deriveGenericTemplateModel({
-            schemaTypeChecker,
-            schemaResult,
-            modelLocalSymbol: heritageLocalSymbol,
-            modelSourceSymbol: heritageSourceSymbol,
-            modelSourceDeclaration: heritageSourceDeclaration,
-          });
+          deriveSchemaTypeQueue.push({
+            deriveThisSchemaType: deriveGenericTemplateModelType,
+            thisTypeArguments: {
+              typeLocalSymbol: heritageLocalSymbol,
+              typeSourceSymbol: heritageSourceSymbol,
+              typeSourceDeclaration: heritageSourceDeclaration
+            }
+          })
           return {
-            templateKind: 'genericTemplate' as const,
-            templateModelNameKey: heritageGenericTemplateModel.modelName,
-            templateArguments: heritageGenericTemplateModel.modelParameters
+            templateModelKind: 'genericTemplateModel',
+            templateModelName: heritageSourceDeclaration.name.text,
+            templateArguments: heritageSourceDeclaration.typeParameters
               .reduce<
                 GenericModelTemplate<
-                  GetThisIntermediateElement<ThisTargetModelKind>
+                  ThisSchemaType['typeModelProperties'][string][
+                    'propertyElement'
+                  ]
                 >['templateArguments']
               >(
                 (
                   genericArgumentsResult,
-                  someModelParameter,
-                  argumentIndex,
+                  someTypeParameterDeclaration,
+                  parameterIndex,
                 ) => {
-                  const argumentParameterNameKey =
-                    someModelParameter.parameterName;
-                  genericArgumentsResult[argumentParameterNameKey] = {
-                    argumentIndex,
-                    argumentParameterNameKey,
+                  const argumentParameterName =
+                    someTypeParameterDeclaration.name.text;
+                  genericArgumentsResult[argumentParameterName] = {
+                    argumentParameterName,
+                    argumentIndex: parameterIndex,
                     argumentElement: deriveSchemaElement({
                       schemaTypeChecker,
-                      schemaResult,
-                      elementResolvers: targetModelElementResolvers,
+                      deriveSchemaTypeQueue,
+                      elementResolvers: thisModelElementResolvers,
                       elementLocalNode: someHeritageLocalNode.typeArguments &&
-                          someHeritageLocalNode.typeArguments[argumentIndex] ||
-                        throwInvalidModelTemplate__DefaultParameterArgument({
-                          modelSourceDeclaration,
-                          heritageLocalNode: someHeritageLocalNode,
-                        }),
+                          someHeritageLocalNode.typeArguments[parameterIndex] ||
+                        throwUserError('fooooo'),
+                      // throwInvalidModelTemplate__DefaultParameterArgument({
+                      //   typeSourceDeclaration,
+                      //   heritageLocalNode: someHeritageLocalNode,
+                      // }),
                     }),
                   };
                   return genericArgumentsResult;
@@ -106,16 +118,17 @@ export function deriveModelTemplates<
               ),
           };
         } else {
-          const heritageConcreteTemplateModel = deriveConcreteTemplateModel({
-            schemaTypeChecker,
-            schemaResult,
-            modelLocalSymbol: heritageLocalSymbol,
-            modelSourceSymbol: heritageSourceSymbol,
-            modelSourceDeclaration: heritageSourceDeclaration,
-          });
+          deriveSchemaTypeQueue.push({
+            deriveThisSchemaType: deriveConcreteTemplateModelType,
+            thisTypeArguments: {
+              typeLocalSymbol: heritageLocalSymbol,
+              typeSourceSymbol: heritageSourceSymbol,
+              typeSourceDeclaration: heritageSourceDeclaration
+            }
+          })
           return {
-            templateKind: 'concreteTemplate',
-            templateModelNameKey: heritageConcreteTemplateModel.modelName,
+            templateModelKind: 'concreteTemplateModel',
+            templateModelName: heritageSourceDeclaration.name.text,
           };
         }
       },

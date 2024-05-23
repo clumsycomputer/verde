@@ -1,34 +1,45 @@
 import { Typescript } from '../../../../imports/Typescript.ts';
-import {
-  GetThisIntermediateModel,
-  IntermediateSchema,
-} from '../../types/IntermediateSchema.ts';
-import { __DeriveIntermediateModelApi } from './__deriveIntermediateModel.ts';
+import { IntermediateSchemaModel } from '../../types/IntermediateSchema.ts';
+import { Data__DeriveNewThisSchemaTypeApi__DeriveModelType } from './__deriveIntermediateSchemaType.ts';
+import { ElementResolver } from './__getElementResolvers.ts';
+
 import { deriveSchemaElement } from './deriveSchemaElement.ts';
 
-export interface DeriveModelPropertiesApi<ThisTargetModelKind extends keyof IntermediateSchema['schemaModels']> extends
+export interface DeriveModelPropertiesApi<
+  ThisSchemaType extends IntermediateSchemaModel,
+> extends
+  Config__DeriveModelPropertiesApi<ThisSchemaType>,
+  Data__DeriveModelPropertiesApi {}
+
+interface Config__DeriveModelPropertiesApi<
+  ThisSchemaType extends IntermediateSchemaModel,
+> {
+  thisModelElementResolvers: Array<
+    ElementResolver<
+      ThisSchemaType['typeModelProperties'][string]['propertyElement']
+    >
+  >;
+}
+
+interface Data__DeriveModelPropertiesApi extends
   Pick<
-    __DeriveIntermediateModelApi<ThisTargetModelKind>,    
-    | 'schemaTypeChecker'
-    | 'schemaResult'
-    | 'modelSourceDeclaration'
-    | 'targetModelElementResolvers'
-  >
-{}
+    Data__DeriveNewThisSchemaTypeApi__DeriveModelType,
+    'schemaTypeChecker' | 'deriveSchemaTypeQueue' | 'typeSourceDeclaration'
+  > {}
 
 export function deriveModelProperties<
-  ThisTargetModelKind extends keyof IntermediateSchema['schemaModels']
+  ThisSchemaType extends IntermediateSchemaModel,
 >(
-  api: DeriveModelPropertiesApi<ThisTargetModelKind>,
-): GetThisIntermediateModel<ThisTargetModelKind>['modelProperties'] {
+  api: DeriveModelPropertiesApi<ThisSchemaType>,
+): ThisSchemaType['typeModelProperties'] {
   const {
-    modelSourceDeclaration,
+    typeSourceDeclaration,
     schemaTypeChecker,
-    schemaResult,
-    targetModelElementResolvers,
+    deriveSchemaTypeQueue,
+    thisModelElementResolvers,
   } = api;
-  return modelSourceDeclaration.members.reduce<
-    GetThisIntermediateModel<ThisTargetModelKind>['modelProperties']
+  return typeSourceDeclaration.members.reduce<
+    ThisSchemaType['typeModelProperties']
   >(
     (modelPropertiesResult, somePropertyNode) => {
       if (
@@ -39,10 +50,10 @@ export function deriveModelProperties<
         const propertyKey = somePropertyNode.name.text;
         modelPropertiesResult[propertyKey] = {
           propertyKey,
-          propertyElement: deriveSchemaElement({            
+          propertyElement: deriveSchemaElement({
             schemaTypeChecker,
-            schemaResult,
-            elementResolvers: targetModelElementResolvers,
+            deriveSchemaTypeQueue,
+            elementResolvers: thisModelElementResolvers,
             elementLocalNode: somePropertyNode.type,
           }),
         };
