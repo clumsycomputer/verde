@@ -1,15 +1,21 @@
-import { IntermediateSchema } from '../types/IntermediateSchema.ts';
+import { genericAny } from '../../../helpers/types.ts';
 import {
+  IntermediateSchema,
+  IntermediateSchemaType,
+} from '../types/IntermediateSchema.ts';
+import {
+  __DeriveSchemaTypeApi,
+  Data__DeriveSchemaTypeApi,
   deriveAliasType,
   deriveConcreteTemplateModelType,
   deriveDataModelType,
-  deriveGenericTemplateModelType
+  deriveGenericTemplateModelType,
 } from './components/__deriveIntermediateSchemaType.ts';
 import { EXPORT_ELEMENT_RESOLVERS } from './components/__getElementResolvers.ts';
 import { deriveSchemaElement } from './components/deriveSchemaElement.ts';
 import {
-  LoadSchemaModuleResult,
   loadSchemaModule,
+  LoadSchemaModuleResult,
 } from './components/loadSchemaModule.ts';
 
 export interface DeriveIntermediateSchemaApi {
@@ -65,14 +71,16 @@ function __deriveIntermediateSchema(
       },
     } of deriveSchemaTypeQueue
   ) {
-    const derivedSchemaType = deriveThisSchemaType({
+    const derivedSchemaType = (deriveThisSchemaType as (
+      api: Data__DeriveSchemaTypeApi<genericAny>,
+    ) => IntermediateSchemaType)({
       schemaTypeChecker,
       deriveSchemaTypeQueue,
-      schemaResult,      
+      schemaResult,
       typeLocalSymbol,
       typeSourceSymbol,
       typeSourceDeclaration,
-    } as any);
+    });
     schemaResult.schemaTypes[derivedSchemaType.typeName] = derivedSchemaType;
   }
   return schemaResult;
