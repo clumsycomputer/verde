@@ -16,15 +16,19 @@ export const expectedDeriveIntermediateSchemaErrors = {
   'Schema__CustomGenericTypeAliasElement.ts':
     'invalid schema element: Alias__AA<never> at aaProperty__AA: Alias__AA<never>;',
   'Schema__IndirectModelName.ts':
-    'indirect model name: "Model__AA as Model__BB"',
+    'invalid type import: "Model__AA as Model__BB"',
   'Schema__DoubleDeclarationModel.ts':
     'invalid model declaration: "Model__AA" has multiple declarations',
   'Schema__Undefined.ts':
     'invalid schema module: "/home/verde/tests/InvalidSchema/schemas/Schema__Undefined.ts" does not exist',
   'Schema__DataModelRegistered.ts':
-    'invalid model usage: "Model__AA" already registered as data model',
+    'invalid type usage (concreteTemplateModel): "Model__AA" already registered as "dataModel"',
   'Schema__ConcreteTemplateModelRegistered.ts':
-    'invalid model usage: "Model__BB" already registered as concrete template model',
+    'invalid type usage (dataModel): "Model__BB" already registered as "concreteTemplateModel"',
   'Schema__AliasRegistered.ts':
-    'invalid model usage: "SharedReferenceTypeName" already registered as alias',
+    'invalid type usage (dataModel): "SharedReferenceTypeName" already registered as "alias"',
+  'Schema__PrivateDoubleDeclaration.ts':
+    'invalid type declaration: "Model__AA" is defined in multiple files',
+  'Schema__DefaultParameterArgument.ts':
+    'invalid generic template model parameter: default arguments not supported ("BbParameter__AA" on "Model__BB")',
 };

@@ -1,6 +1,5 @@
 import {
   throwInvalidPathError,
-  throwUserError,
 } from '../../../../helpers/throwError.ts';
 import { irrelevantAny } from '../../../../helpers/types.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
@@ -17,6 +16,13 @@ import {
   __DeriveIntermediateSchemaApi,
   DeriveSchemaTypeQueueOperation,
 } from '../deriveIntermediateSchema.ts';
+import {
+  throwInvalidGenericTemplateModelParameter__DefaultArgument,
+  throwInvalidModelDeclaration__DeclarationMerging,
+  throwInvalidTypeDeclaration,
+  throwInvalidTypeImport__ImportAliased,
+  throwInvalidTypeUsage,
+} from '../errors.ts';
 import {
   DEFINITIVE_ELEMENT_RESOLVERS,
   GENERIC_ELEMENT_RESOLVERS,
@@ -205,7 +211,12 @@ function deriveNewThisSchemaType__deriveGenericTemplateModelType(
     typeModelParameters: typeSourceDeclaration.typeParameters?.map((
       someTypeParameterDeclaration,
     ) =>
-      someTypeParameterDeclaration.constraint
+      someTypeParameterDeclaration.default
+        ? throwInvalidGenericTemplateModelParameter__DefaultArgument({
+          typeName,
+          typeParameterDeclaration: someTypeParameterDeclaration,
+        })
+        : someTypeParameterDeclaration.constraint
         ? {
           parameterKind: 'constrained',
           parameterName: someTypeParameterDeclaration.name.text,
@@ -268,14 +279,22 @@ function __deriveModelType<ThisSchemaType extends IntermediateSchemaModel>(
     typeSourceDeclaration,
     thisSchemaTypeKind,
     deriveNewThisSchemaType,
-    validateThisSchemaTypeSource: validateThisSchemaTypeSource__deriveModelType,
+    thisSchemaTypeSourceValidators: [
+      validateThisSchemaTypeSourceName,
+      validateThisModelTypeSourceDeclarations,
+    ],
   });
 }
 
-function validateThisSchemaTypeSource__deriveModelType(
+function validateThisModelTypeSourceDeclarations(
   api: ValidateThisSchemaTypeSourceApi,
 ) {
-  const {} = api;
+  const { typeSourceSymbol } = api;
+  if (typeSourceSymbol.declarations!.length > 1) {
+    throwInvalidModelDeclaration__DeclarationMerging({
+      typeSourceSymbol,
+    });
+  }
 }
 
 export interface Data__DeriveNewThisSchemaTypeApi__DeriveModelType
@@ -301,18 +320,16 @@ export function deriveAliasType(api: DeriveAliasTypeApi) {
     typeSourceSymbol,
     typeSourceDeclaration,
     thisSchemaTypeKind: 'alias',
-    validateThisSchemaTypeSource: validateThisSchemaTypeSource__deriveAliasType,
-    deriveNewThisSchemaType: deriveNewThisSchemaType__DeriveAliasType,
+    deriveNewThisSchemaType: deriveNewThisSchemaType__deriveAliasType,
+    thisSchemaTypeSourceValidators: [validateThisSchemaTypeSourceName],
   });
 }
 
-function validateThisSchemaTypeSource__deriveAliasType() {}
-
-interface DeriveNewThisSchemaTypeApi__DeriveAliasType
+interface DeriveNewThisSchemaTypeApi__deriveAliasType
   extends Data__DeriveNewThisSchemaTypeApi<Typescript.TypeAliasDeclaration> {}
 
-function deriveNewThisSchemaType__DeriveAliasType(
-  api: DeriveNewThisSchemaTypeApi__DeriveAliasType,
+function deriveNewThisSchemaType__deriveAliasType(
+  api: DeriveNewThisSchemaTypeApi__deriveAliasType,
 ): IntermediateSchemaAlias {
   const {
     typeName,
@@ -362,7 +379,9 @@ interface Config__DeriveSchemaTypeApi<
     | Typescript.TypeAliasDeclaration,
 > {
   thisSchemaTypeKind: ThisSchemaType['typeKind'];
-  validateThisSchemaTypeSource: (api: ValidateThisSchemaTypeSourceApi) => void;
+  thisSchemaTypeSourceValidators: Array<
+    (api: ValidateThisSchemaTypeSourceApi) => void
+  >;
   deriveNewThisSchemaType: (
     api: DeriveNewThisSchemaTypeApi<ThisSourceDeclaration>,
   ) => ThisSchemaType;
@@ -402,7 +421,7 @@ function __deriveSchemaType<
   api: __DeriveSchemaTypeApi<ThisSchemaType, ThisSourceDeclaration>,
 ): ThisSchemaType {
   const {
-    validateThisSchemaTypeSource,
+    thisSchemaTypeSourceValidators,
     typeLocalSymbol,
     typeSourceSymbol,
     typeSourceDeclaration,
@@ -412,10 +431,12 @@ function __deriveSchemaType<
     schemaTypeChecker,
     deriveSchemaTypeQueue,
   } = api;
-  validateThisSchemaTypeSource({
-    typeLocalSymbol,
-    typeSourceSymbol,
-  });
+  for (const validateThisSchemaTypeSource of thisSchemaTypeSourceValidators) {
+    validateThisSchemaTypeSource({
+      typeLocalSymbol,
+      typeSourceSymbol,
+    });
+  }
   const typeName = typeSourceDeclaration.name.text;
   const typeSourcePath = typeSourceDeclaration.getSourceFile().fileName;
   const cachedSchemaType = schemaResult.schemaTypes[typeName];
@@ -446,13 +467,26 @@ function isValidThisSchemaType<ThisSchemaType extends IntermediateSchemaType>(
   if (cachedSchemaType === undefined) {
     return false;
   } else if (cachedSchemaType.typeKind !== thisSchemaTypeKind) {
-    throwUserError(
-      `invalid type usage (${thisSchemaTypeKind}): "${cachedSchemaType.typeName}" already registered as "${cachedSchemaType.typeKind}"`,
-    );
+    throwInvalidTypeUsage({
+      cachedSchemaType,
+      thisSchemaTypeKind,
+    });
   } else if (cachedSchemaType.typeSourcePath !== typeSourcePath) {
-    throwUserError(
-      `invalid type declaration: "${cachedSchemaType.typeName}" is defined in multiple files`,
-    );
+    throwInvalidTypeDeclaration({
+      cachedSchemaType,
+    });
   }
   return true;
+}
+
+function validateThisSchemaTypeSourceName(
+  api: ValidateThisSchemaTypeSourceApi,
+) {
+  const { typeLocalSymbol, typeSourceSymbol } = api;
+  if (typeLocalSymbol.name !== typeSourceSymbol.name) {
+    throwInvalidTypeImport__ImportAliased({
+      typeLocalSymbol,
+      typeSourceSymbol,
+    });
+  }
 }

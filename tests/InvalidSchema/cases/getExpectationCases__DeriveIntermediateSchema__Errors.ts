@@ -1,9 +1,4 @@
 import { ExpectationCase } from '../../helpers/assertAndLogExpectations.ts';
-import {
-  branchJsonNode,
-  leafJsonNode,
-  styledJson,
-} from '../../helpers/getStyledJson.ts';
 import { styledText } from '../../helpers/getStyledText.ts';
 import { expectedDeriveIntermediateSchemaErrors } from '../expectations/deriveIntermediateSchema.expected.ts';
 

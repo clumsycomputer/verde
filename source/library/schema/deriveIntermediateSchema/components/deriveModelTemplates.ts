@@ -1,14 +1,16 @@
 import {
-  throwInvalidPathError,
-  throwUserError,
+  throwInvalidPathError
 } from '../../../../helpers/throwError.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
 import {
   GenericModelTemplate,
-  IntermediateSchemaModel
+  IntermediateSchemaModel,
 } from '../../types/IntermediateSchema.ts';
+import { throwInvalidModelTemplate__DefaultParameterArgument } from '../errors.ts';
 import {
-  Data__DeriveNewThisSchemaTypeApi__DeriveModelType, deriveConcreteTemplateModelType, deriveGenericTemplateModelType,
+  Data__DeriveNewThisSchemaTypeApi__DeriveModelType,
+  deriveConcreteTemplateModelType,
+  deriveGenericTemplateModelType,
 } from './__deriveIntermediateSchemaType.ts';
 import { ElementResolver } from './__getElementResolvers.ts';
 import { deriveSchemaElement } from './deriveSchemaElement.ts';
@@ -75,9 +77,9 @@ export function deriveModelTemplates<
             thisTypeArguments: {
               typeLocalSymbol: heritageLocalSymbol,
               typeSourceSymbol: heritageSourceSymbol,
-              typeSourceDeclaration: heritageSourceDeclaration
-            }
-          })
+              typeSourceDeclaration: heritageSourceDeclaration,
+            },
+          });
           return {
             templateModelKind: 'genericTemplateModel',
             templateModelName: heritageSourceDeclaration.name.text,
@@ -105,11 +107,10 @@ export function deriveModelTemplates<
                       elementResolvers: thisModelElementResolvers,
                       elementLocalNode: someHeritageLocalNode.typeArguments &&
                           someHeritageLocalNode.typeArguments[parameterIndex] ||
-                        throwUserError('fooooo'),
-                      // throwInvalidModelTemplate__DefaultParameterArgument({
-                      //   typeSourceDeclaration,
-                      //   heritageLocalNode: someHeritageLocalNode,
-                      // }),
+                        throwInvalidModelTemplate__DefaultParameterArgument({
+                          typeSourceDeclaration,
+                          heritageLocalNode: someHeritageLocalNode,
+                        }),
                     }),
                   };
                   return genericArgumentsResult;
@@ -123,9 +124,9 @@ export function deriveModelTemplates<
             thisTypeArguments: {
               typeLocalSymbol: heritageLocalSymbol,
               typeSourceSymbol: heritageSourceSymbol,
-              typeSourceDeclaration: heritageSourceDeclaration
-            }
-          })
+              typeSourceDeclaration: heritageSourceDeclaration,
+            },
+          });
           return {
             templateModelKind: 'concreteTemplateModel',
             templateModelName: heritageSourceDeclaration.name.text,

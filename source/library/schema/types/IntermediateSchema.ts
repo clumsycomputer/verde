@@ -49,14 +49,14 @@ export type GenericTemplateModelParameter =
   | ConstrainedTemplateModelParameter;
 
 interface BasicTemplateModelParameter
-  extends __GenericTemplateParameter<'basic'> {}
+  extends __GenericTemplateModelParameter<'basic'> {}
 
 interface ConstrainedTemplateModelParameter
-  extends __GenericTemplateParameter<'constrained'> {
+  extends __GenericTemplateModelParameter<'constrained'> {
   parameterConstraint: string;
 }
 
-interface __GenericTemplateParameter<ThisParameterKind> {
+interface __GenericTemplateModelParameter<ThisParameterKind> {
   parameterKind: ThisParameterKind;
   parameterName: string;
 }

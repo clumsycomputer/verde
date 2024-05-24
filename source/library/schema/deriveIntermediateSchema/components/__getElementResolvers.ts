@@ -51,7 +51,9 @@ function getDefinitiveElementResolvers() {
   ];
 }
 
-export function getDefinitiveStructureElementResolvers() {
+export const DEFINITIVE_STRUCTURE_ELEMENT_RESOLVERS = getDefinitiveStructureElementResolvers()
+
+function getDefinitiveStructureElementResolvers() {
   return [
     ...getDefinitiveTerminalElementResolvers(),
     definitiveTupleElementResolver,
@@ -77,6 +79,8 @@ function getGenericElementResolvers() {
   ];
 }
 
+const GENERIC_STRUCTURE_ELEMENT_RESOLVERS = getGenericStructureElementResolvers()
+
 function getGenericStructureElementResolvers() {
   return [
     ...getGenericTerminalElementResolvers(),
@@ -94,12 +98,7 @@ function getGenericTerminalElementResolvers() {
   ];
 }
 
-function getBasicVerdeArrayElementResolvers() {
-  return [
-    ...getPrimitiveElementResolvers(),
-    ...getBasicReferenceElementResolvers(),
-  ];
-}
+const GENERIC_REFERENCE_ELEMENT_RESOLVERS = getGenericReferenceElementResolvers()
 
 function getGenericReferenceElementResolvers() {
   return [
@@ -107,6 +106,17 @@ function getGenericReferenceElementResolvers() {
     parameterReferenceElementResolver,
   ];
 }
+
+const BASIC_VERDE_ARRAY_ELEMENT_RESOLVERS = getBasicVerdeArrayElementResolvers()
+
+function getBasicVerdeArrayElementResolvers() {
+  return [
+    ...getPrimitiveElementResolvers(),
+    ...getBasicReferenceElementResolvers(),
+  ];
+}
+
+const BASIC_REFERENCE_ELEMENT_RESOLVERS = getBasicReferenceElementResolvers()
 
 function getBasicReferenceElementResolvers() {
   return [
@@ -121,6 +131,8 @@ function getBasicElementResolvers() {
     ...getPrimitiveElementResolvers(),
   ];
 }
+
+const PRIMITIVE_ELEMENT_RESOLVERS = getPrimitiveElementResolvers()
 
 function getPrimitiveElementResolvers() {
   return [
@@ -299,7 +311,7 @@ function definitiveVerdeTableElementResolver(
   return __verdeTableElementResolver<never>({
     ...api,
     elementResolvers: [
-      ...getBasicReferenceElementResolvers(),
+      ...BASIC_REFERENCE_ELEMENT_RESOLVERS,
       definitiveVerdeTableUnionElementResolver,
     ],
   });
@@ -311,7 +323,7 @@ function genericVerdeTableElementResolver(
   return __verdeTableElementResolver<ParameterReferenceElement>({
     ...api,
     elementResolvers: [
-      ...getGenericReferenceElementResolvers(),
+      ...GENERIC_REFERENCE_ELEMENT_RESOLVERS,
       genericVerdeTableUnionElementResolver,
     ],
   });
@@ -365,7 +377,7 @@ function definitiveVerdeArrayElementResolver(
   return __verdeArrayElementResolver<never>({
     ...api,
     elementResolvers: [
-      ...getBasicVerdeArrayElementResolvers(),
+      ...BASIC_VERDE_ARRAY_ELEMENT_RESOLVERS,
       definitiveVerdeArrayUnionElementResolver,
     ],
   });
@@ -377,7 +389,7 @@ function genericVerdeArrayElementResolver(
   return __verdeArrayElementResolver<ParameterReferenceElement>({
     ...api,
     elementResolvers: [
-      ...getBasicVerdeArrayElementResolvers(),
+      ...BASIC_VERDE_ARRAY_ELEMENT_RESOLVERS,
       genericVerdeArrayUnionElementResolver,
       parameterReferenceElementResolver,
     ],
@@ -493,7 +505,7 @@ function definitiveObjectElementResolver(
 > {
   return __objectElementResolver({
     ...api,
-    elementResolvers: getDefinitiveElementResolvers(),
+    elementResolvers: DEFINITIVE_ELEMENT_RESOLVERS,
   });
 }
 
@@ -504,7 +516,7 @@ function genericObjectElementResolver(
 > {
   return __objectElementResolver({
     ...api,
-    elementResolvers: getGenericElementResolvers(),
+    elementResolvers: GENERIC_ELEMENT_RESOLVERS,
   });
 }
 
@@ -565,7 +577,7 @@ function definitiveTupleElementResolver(
 ): ElementResolverResult<TupleElement<TerminalElement<never>>> {
   return __tupleElementResolver({
     ...api,
-    elementResolvers: getDefinitiveElementResolvers(),
+    elementResolvers: DEFINITIVE_ELEMENT_RESOLVERS,
   });
 }
 
@@ -576,7 +588,7 @@ function genericTupleElementResolver(
 > {
   return __tupleElementResolver({
     ...api,
-    elementResolvers: getGenericElementResolvers(),
+    elementResolvers: GENERIC_ELEMENT_RESOLVERS,
   });
 }
 
@@ -647,7 +659,7 @@ export function exportUnionElementResolver(api: ElementResolverApi) {
   return __unionElementResolver({
     ...api,
     createThisUnionElement: createThisUnionElement__exportUnionElementResolver,
-    elementResolvers: getBasicReferenceElementResolvers(),
+    elementResolvers: BASIC_REFERENCE_ELEMENT_RESOLVERS,
   });
 }
 
@@ -668,7 +680,7 @@ function definitiveGeneralUnionElementResolver(api: ElementResolverApi) {
       never
     >,
     elementResolvers: [
-      ...getDefinitiveStructureElementResolvers(),
+      ...DEFINITIVE_STRUCTURE_ELEMENT_RESOLVERS,
       nullElementResolver,
     ],
   });
@@ -681,7 +693,7 @@ function genericGeneralUnionElementResolver(api: ElementResolverApi) {
       ParameterReferenceElement
     >,
     elementResolvers: [
-      ...getGenericStructureElementResolvers(),
+      ...GENERIC_STRUCTURE_ELEMENT_RESOLVERS,
       nullElementResolver,
     ],
   });
@@ -732,7 +744,7 @@ function definitiveVerdeTableUnionElementResolver(api: ElementResolverApi) {
       createThisUnionElement__verdeTableUnionElementResolver<
         never
       >,
-    elementResolvers: getBasicReferenceElementResolvers(),
+    elementResolvers: BASIC_REFERENCE_ELEMENT_RESOLVERS,
   });
 }
 
@@ -745,7 +757,7 @@ function genericVerdeTableUnionElementResolver(
       createThisUnionElement__verdeTableUnionElementResolver<
         ParameterReferenceElement
       >,
-    elementResolvers: getGenericReferenceElementResolvers(),
+    elementResolvers: GENERIC_REFERENCE_ELEMENT_RESOLVERS,
   });
 }
 
@@ -788,8 +800,8 @@ function definitiveVerdeArrayUnionElementResolver(api: ElementResolverApi) {
         never
       >,
     elementResolvers: [
-      ...getPrimitiveElementResolvers(),
-      ...getBasicReferenceElementResolvers(),
+      ...PRIMITIVE_ELEMENT_RESOLVERS,
+      ...BASIC_REFERENCE_ELEMENT_RESOLVERS,
     ],
   });
 }
@@ -804,8 +816,8 @@ function genericVerdeArrayUnionElementResolver(
         ParameterReferenceElement
       >,
     elementResolvers: [
-      ...getPrimitiveElementResolvers(),
-      ...getGenericReferenceElementResolvers(),
+      ...PRIMITIVE_ELEMENT_RESOLVERS,
+      ...GENERIC_REFERENCE_ELEMENT_RESOLVERS,
     ],
   });
 }

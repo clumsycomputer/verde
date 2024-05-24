@@ -1,11 +1,11 @@
 import { throwUserError } from '../../../helpers/throwError.ts';
 import { irrelevantAny, irrelevantUnknown } from '../../../helpers/types.ts';
 import { Typescript } from '../../../imports/Typescript.ts';
+import { IntermediateSchemaType } from '../types/IntermediateSchema.ts';
 import { Data__DeriveSchemaTypeApi } from './components/__deriveIntermediateSchemaType.ts';
 import { DeriveModelTemplatesApi } from './components/deriveModelTemplates.ts';
 import { DeriveSchemaElementApi } from './components/deriveSchemaElement.ts';
 import { LoadSchemaModuleApi } from './components/loadSchemaModule.ts';
-import { __DeriveIntermediateSchemaApi } from './deriveIntermediateSchema.ts';
 
 export interface ThrowInvalidSchemaModuleApi
   extends Pick<LoadSchemaModuleApi, 'schemaModulePath'> {}
@@ -77,59 +77,20 @@ export function throwInvalidSchemaElement(
   );
 }
 
-// interface ThrowInvalidModelTemplateApi
-//   extends
-//     Pick<DeriveModelTemplatesApi<irrelevantUnknown>, 'modelSourceDeclaration'> {
-//   heritageLocalNode: Typescript.Node;
-// }
+interface ThrowInvalidModelTemplateApi
+  extends
+    Pick<DeriveModelTemplatesApi<irrelevantUnknown>, 'typeSourceDeclaration'> {
+  heritageLocalNode: Typescript.Node;
+}
 
-// export function throwInvalidModelTemplate__DefaultParameterArgument(
-//   api: ThrowInvalidModelTemplateApi,
-// ): never {
-//   const { heritageLocalNode, modelSourceDeclaration } = api;
-//   throwUserError(
-//     `invalid model template: default parameter arguments not supported (extends ${heritageLocalNode.getText()} on ${modelSourceDeclaration.name.text})`,
-//   );
-// }
-
-// interface ThrowInvalidModelUsageApi
-//   extends Pick<ValidateTargetModelApi, 'modelSourceSymbol'> {}
-
-// export function throwInvalidModelUsage__AliasRegistered(
-//   api: ThrowInvalidModelUsageApi,
-// ): never {
-//   const { modelSourceSymbol } = api;
-//   throwUserError(
-//     `invalid model usage: "${modelSourceSymbol.name}" already registered as alias`,
-//   );
-// }
-
-// export function throwInvalidModelUsage__GenericTemplateModelRegistered(
-//   api: ThrowInvalidModelUsageApi,
-// ) {
-//   const { modelSourceSymbol } = api;
-//   throwUserError(
-//     `invalid model usage: "${modelSourceSymbol.name}" already registered as generic template model`,
-//   );
-// }
-
-// export function throwInvalidModelUsage__ConcreteTemplateModelRegistered(
-//   api: ThrowInvalidModelUsageApi,
-// ): never {
-//   const { modelSourceSymbol } = api;
-//   throwUserError(
-//     `invalid model usage: "${modelSourceSymbol.name}" already registered as concrete template model`,
-//   );
-// }
-
-// export function throwInvalidModelUsage__DataModelRegistered(
-//   api: ThrowInvalidModelUsageApi,
-// ): never {
-//   const { modelSourceSymbol } = api;
-//   throwUserError(
-//     `invalid model usage: "${modelSourceSymbol.name}" already registered as data model`,
-//   );
-// }
+export function throwInvalidModelTemplate__DefaultParameterArgument(
+  api: ThrowInvalidModelTemplateApi,
+): never {
+  const { heritageLocalNode, typeSourceDeclaration } = api;
+  throwUserError(
+    `invalid model template: default parameter arguments not supported (extends ${heritageLocalNode.getText()} on ${typeSourceDeclaration.name.text})`,
+  );
+}
 
 interface ThrowInvalidModelDeclarationApi
   extends
@@ -144,16 +105,56 @@ export function throwInvalidModelDeclaration__DeclarationMerging(
   );
 }
 
-interface ThrowInvalidTypeImportApi__ImportAliased
-  extends
-    Pick<
-      Data__DeriveSchemaTypeApi<irrelevantUnknown>,
-      'typeLocalSymbol' | 'typeSourceSymbol'
-    > {}
+interface ThrowInvalidTypeImportApi__ImportAliased extends
+  Pick<
+    Data__DeriveSchemaTypeApi<irrelevantUnknown>,
+    'typeLocalSymbol' | 'typeSourceSymbol'
+  > {}
 
-export function throwInvalidTypeImport__ImportAliased(api: ThrowInvalidTypeImportApi__ImportAliased) {
+export function throwInvalidTypeImport__ImportAliased(
+  api: ThrowInvalidTypeImportApi__ImportAliased,
+): never {
   const { typeSourceSymbol, typeLocalSymbol } = api;
   throwUserError(
     `invalid type import: "${typeSourceSymbol.name} as ${typeLocalSymbol.name}"`,
+  );
+}
+
+interface ThrowInvalidTypeUsageApi {
+  cachedSchemaType: IntermediateSchemaType;
+  thisSchemaTypeKind: IntermediateSchemaType['typeKind'];
+}
+
+export function throwInvalidTypeUsage(api: ThrowInvalidTypeUsageApi): never {
+  const { thisSchemaTypeKind, cachedSchemaType } = api;
+  throwUserError(
+    `invalid type usage (${thisSchemaTypeKind}): "${cachedSchemaType.typeName}" already registered as "${cachedSchemaType.typeKind}"`,
+  );
+}
+
+interface ThrowInvalidTypeDeclarationApi {
+  cachedSchemaType: IntermediateSchemaType;
+}
+
+export function throwInvalidTypeDeclaration(
+  api: ThrowInvalidTypeDeclarationApi,
+): never {
+  const { cachedSchemaType } = api;
+  throwUserError(
+    `invalid type declaration: "${cachedSchemaType.typeName}" is defined in multiple files`,
+  );
+}
+
+interface ThrowInvalidGenericTemplateModelParameterApi__DefaultArgument {
+  typeParameterDeclaration: Typescript.TypeParameterDeclaration;
+  typeName: string;
+}
+
+export function throwInvalidGenericTemplateModelParameter__DefaultArgument(
+  api: ThrowInvalidGenericTemplateModelParameterApi__DefaultArgument,
+): never {
+  const { typeParameterDeclaration, typeName } = api;
+  throwUserError(
+    `invalid generic template model parameter: default arguments not supported ("${typeParameterDeclaration.name.text}" on "${typeName}")`,
   );
 }

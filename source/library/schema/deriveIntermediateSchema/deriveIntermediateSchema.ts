@@ -1,16 +1,15 @@
 import { IntermediateSchema } from '../types/IntermediateSchema.ts';
 import {
-  __DeriveSchemaTypeApi,
   deriveAliasType,
   deriveConcreteTemplateModelType,
   deriveDataModelType,
-  deriveGenericTemplateModelType,
+  deriveGenericTemplateModelType
 } from './components/__deriveIntermediateSchemaType.ts';
 import { EXPORT_ELEMENT_RESOLVERS } from './components/__getElementResolvers.ts';
 import { deriveSchemaElement } from './components/deriveSchemaElement.ts';
 import {
-  loadSchemaModule,
   LoadSchemaModuleResult,
+  loadSchemaModule,
 } from './components/loadSchemaModule.ts';
 
 export interface DeriveIntermediateSchemaApi {
