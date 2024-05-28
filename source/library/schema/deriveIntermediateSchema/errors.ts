@@ -2,9 +2,9 @@ import { throwUserError } from '../../../helpers/throwError.ts';
 import { irrelevantAny, irrelevantUnknown } from '../../../helpers/types.ts';
 import { Typescript } from '../../../imports/Typescript.ts';
 import { IntermediateSchemaType } from '../types/IntermediateSchema.ts';
-import { Data__DeriveSchemaTypeApi } from './components/__deriveIntermediateSchemaType.ts';
-import { DeriveModelTemplatesApi } from './components/deriveModelTemplates.ts';
-import { DeriveSchemaElementApi } from './components/deriveSchemaElement.ts';
+import { __DeriveSchemaElementApi } from './components/__deriveSchemaElement/__deriveSchemaElement.ts';
+import { __DeriveSchemaTypeApi } from './components/__deriveSchemaType/__deriveSchemaType.ts';
+import { __DeriveModelTemplatesApi__ } from './components/__deriveSchemaType/deriveModelTemplates__.ts';
 import { LoadSchemaModuleApi } from './components/loadSchemaModule.ts';
 
 export interface ThrowInvalidSchemaModuleApi
@@ -64,7 +64,7 @@ export function throwInvalidSchemaModule__GenericTypeAliasExport(
 
 export interface ThrowInvalidSchemaElementApi extends
   Pick<
-    DeriveSchemaElementApi<irrelevantAny>,
+    __DeriveSchemaElementApi<irrelevantAny>,
     'schemaTypeChecker' | 'elementLocalNode'
   > {}
 
@@ -79,7 +79,10 @@ export function throwInvalidSchemaElement(
 
 interface ThrowInvalidModelTemplateApi
   extends
-    Pick<DeriveModelTemplatesApi<irrelevantUnknown>, 'typeSourceDeclaration'> {
+    Pick<
+      __DeriveModelTemplatesApi__<irrelevantUnknown>,
+      'typeSourceDeclaration'
+    > {
   heritageLocalNode: Typescript.Node;
 }
 
@@ -94,7 +97,10 @@ export function throwInvalidModelTemplate__DefaultParameterArgument(
 
 interface ThrowInvalidModelDeclarationApi
   extends
-    Pick<Data__DeriveSchemaTypeApi<irrelevantUnknown>, 'typeSourceSymbol'> {}
+    Pick<
+      __DeriveSchemaTypeApi<irrelevantUnknown, irrelevantUnknown>,
+      'typeSourceSymbol'
+    > {}
 
 export function throwInvalidModelDeclaration__DeclarationMerging(
   api: ThrowInvalidModelDeclarationApi,
@@ -107,7 +113,7 @@ export function throwInvalidModelDeclaration__DeclarationMerging(
 
 interface ThrowInvalidTypeImportApi__ImportAliased extends
   Pick<
-    Data__DeriveSchemaTypeApi<irrelevantUnknown>,
+    __DeriveSchemaTypeApi<irrelevantUnknown, irrelevantUnknown>,
     'typeLocalSymbol' | 'typeSourceSymbol'
   > {}
 
@@ -122,13 +128,13 @@ export function throwInvalidTypeImport__ImportAliased(
 
 interface ThrowInvalidTypeUsageApi {
   cachedSchemaType: IntermediateSchemaType;
-  thisSchemaTypeKind: IntermediateSchemaType['typeKind'];
+  thisTypeKind: IntermediateSchemaType['typeKind'];
 }
 
 export function throwInvalidTypeUsage(api: ThrowInvalidTypeUsageApi): never {
-  const { thisSchemaTypeKind, cachedSchemaType } = api;
+  const { thisTypeKind, cachedSchemaType } = api;
   throwUserError(
-    `invalid type usage (${thisSchemaTypeKind}): "${cachedSchemaType.typeName}" already registered as "${cachedSchemaType.typeKind}"`,
+    `invalid type usage (${thisTypeKind}): "${cachedSchemaType.typeName}" already registered as "${cachedSchemaType.typeKind}"`,
   );
 }
 

@@ -2,19 +2,20 @@ import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
 import { FileSystem } from '../../../../imports/FileSystem.ts';
 import { Path } from '../../../../imports/Path.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
-import { DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
 import {
+  DeriveIntermediateSchemaApi
+} from '../deriveIntermediateSchema.ts';
+import {
+  throwInvalidSchemaModule_PathDoesNotExist,
   throwInvalidSchemaModule__CodeExport,
   throwInvalidSchemaModule__GenericTypeAliasExport,
   throwInvalidSchemaModule__MultipleExports,
   throwInvalidSchemaModule__NoExports,
   throwInvalidSchemaModule__NonTypeAliasExport,
-  throwInvalidSchemaModule_PathDoesNotExist,
 } from '../errors.ts';
 
 export interface LoadSchemaModuleApi
-  extends Pick<DeriveIntermediateSchemaApi, 'schemaModulePath'> {
-}
+  extends Pick<DeriveIntermediateSchemaApi, 'schemaModulePath'> {}
 
 export interface LoadSchemaModuleResult {
   schemaTypeChecker: Typescript.TypeChecker;
@@ -34,7 +35,7 @@ export function loadSchemaModule(
       schemaModulePath,
     });
   }
-  const schemaProgram = Typescript.createProgram([schemaModulePath], {    
+  const schemaProgram = Typescript.createProgram([schemaModulePath], {
     rootDir: workingDirectoryPath,
     target: Typescript.ScriptTarget.Latest,
     strictNullChecks: true,
@@ -73,14 +74,13 @@ export function loadSchemaModule(
     throwInvalidSchemaModule__NonTypeAliasExport({
       schemaModulePath,
     });
-  }
-  else if (undefined !== schemaExportNode.typeParameters) {
+  } else if (undefined !== schemaExportNode.typeParameters) {
     throwInvalidSchemaModule__GenericTypeAliasExport({
       schemaModulePath,
     });
   }
   return {
     schemaTypeChecker,
-    schemaExportNode
+    schemaExportNode,
   };
 }

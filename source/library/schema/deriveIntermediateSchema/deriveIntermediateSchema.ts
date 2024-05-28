@@ -1,21 +1,16 @@
-import { genericAny } from '../../../helpers/types.ts';
 import {
-  IntermediateSchema,
-  IntermediateSchemaType,
+  IntermediateSchema
 } from '../types/IntermediateSchema.ts';
+import { deriveExportElement } from './components/__deriveSchemaElement/__deriveSchemaElement.ts';
 import {
-  __DeriveSchemaTypeApi,
-  Data__DeriveSchemaTypeApi,
   deriveAliasType,
   deriveConcreteTemplateModelType,
   deriveDataModelType,
-  deriveGenericTemplateModelType,
-} from './components/__deriveIntermediateSchemaType.ts';
-import { EXPORT_ELEMENT_RESOLVERS } from './components/__getElementResolvers.ts';
-import { deriveSchemaElement } from './components/deriveSchemaElement.ts';
+  deriveGenericTemplateModelType
+} from './components/__deriveSchemaType/__deriveSchemaType.ts';
 import {
-  loadSchemaModule,
   LoadSchemaModuleResult,
+  loadSchemaModule,
 } from './components/loadSchemaModule.ts';
 
 export interface DeriveIntermediateSchemaApi {
@@ -26,16 +21,11 @@ export function deriveIntermediateSchema(
   api: DeriveIntermediateSchemaApi,
 ): IntermediateSchema {
   const { schemaModulePath } = api;
-  const {
-    schemaTypeChecker,
-    schemaExportNode,
-  } = loadSchemaModule({
-    schemaModulePath,
-  });
-  return __deriveIntermediateSchema({
-    schemaTypeChecker,
-    schemaExportNode,
-  });
+  return __deriveIntermediateSchema(
+    loadSchemaModule({
+      schemaModulePath,
+    }),
+  );
 }
 
 export interface __DeriveIntermediateSchemaApi extends
@@ -48,16 +38,15 @@ function __deriveIntermediateSchema(
   api: __DeriveIntermediateSchemaApi,
 ): IntermediateSchema {
   const { schemaTypeChecker, schemaExportNode } = api;
-  const deriveSchemaTypeQueue: Array<DeriveSchemaTypeQueueOperation> = [];
+  const schemaDeriveTypeQueue: Array<SchemaDeriveTypeQueueOperation> = [];
   const schemaResult: IntermediateSchema = {
     schemaTypes: {},
     schemaExport: {
       exportName: schemaExportNode.name.text,
-      exportElement: deriveSchemaElement({
+      exportElement: deriveExportElement({
         schemaTypeChecker,
-        deriveSchemaTypeQueue,
+        schemaDeriveTypeQueue,
         elementLocalNode: schemaExportNode.type,
-        elementResolvers: EXPORT_ELEMENT_RESOLVERS,
       }),
     },
   };
@@ -69,13 +58,11 @@ function __deriveIntermediateSchema(
         typeSourceSymbol,
         typeSourceDeclaration,
       },
-    } of deriveSchemaTypeQueue
+    } of schemaDeriveTypeQueue
   ) {
-    const derivedSchemaType = (deriveThisSchemaType as (
-      api: Data__DeriveSchemaTypeApi<genericAny>,
-    ) => IntermediateSchemaType)({
+    const derivedSchemaType = (deriveThisSchemaType as any)({
       schemaTypeChecker,
-      deriveSchemaTypeQueue,
+      schemaDeriveTypeQueue,
       schemaResult,
       typeLocalSymbol,
       typeSourceSymbol,
@@ -86,27 +73,27 @@ function __deriveIntermediateSchema(
   return schemaResult;
 }
 
-export type DeriveSchemaTypeQueueOperation =
+export type SchemaDeriveTypeQueueOperation =
   | DeriveDataModelQueueOperation
   | DeriveConcreteTemplateModelQueueOperation
   | DeriveGenericTemplateModelQueueOperation
   | DeriveAliasQueueOperation;
 
 interface DeriveDataModelQueueOperation
-  extends __DeriveSchemaTypeQueueOperation<typeof deriveDataModelType> {}
+  extends __SchemaDeriveTypeQueueOperation<typeof deriveDataModelType> {}
 
 interface DeriveConcreteTemplateModelQueueOperation
   extends
-    __DeriveSchemaTypeQueueOperation<typeof deriveConcreteTemplateModelType> {}
+    __SchemaDeriveTypeQueueOperation<typeof deriveConcreteTemplateModelType> {}
 
 interface DeriveGenericTemplateModelQueueOperation
   extends
-    __DeriveSchemaTypeQueueOperation<typeof deriveGenericTemplateModelType> {}
+    __SchemaDeriveTypeQueueOperation<typeof deriveGenericTemplateModelType> {}
 
 interface DeriveAliasQueueOperation
-  extends __DeriveSchemaTypeQueueOperation<typeof deriveAliasType> {}
+  extends __SchemaDeriveTypeQueueOperation<typeof deriveAliasType> {}
 
-interface __DeriveSchemaTypeQueueOperation<
+interface __SchemaDeriveTypeQueueOperation<
   DeriveThisSchemaType extends
     | typeof deriveDataModelType
     | typeof deriveConcreteTemplateModelType

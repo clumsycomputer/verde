@@ -1,52 +1,78 @@
 import {
-  throwInvalidPathError
-} from '../../../../helpers/throwError.ts';
-import { Typescript } from '../../../../imports/Typescript.ts';
-import {
+  ConcreteTemplateIntermediateSchemaModel,
+  DataIntermediateSchemaModel,
   GenericModelTemplate,
+  GenericTemplateIntermediateSchemaModel,
   IntermediateSchemaModel,
-} from '../../types/IntermediateSchema.ts';
-import { throwInvalidModelTemplate__DefaultParameterArgument } from '../errors.ts';
+} from '../../../types/IntermediateSchema.ts';
+import { throwInvalidModelTemplate__DefaultParameterArgument } from '../../errors.ts';
 import {
-  Data__DeriveNewThisSchemaTypeApi__DeriveModelType,
   deriveConcreteTemplateModelType,
   deriveGenericTemplateModelType,
-} from './__deriveIntermediateSchemaType.ts';
-import { ElementResolver } from './__getElementResolvers.ts';
-import { deriveSchemaElement } from './deriveSchemaElement.ts';
+  DeriveModelTemplatesApi__,
+} from './__deriveSchemaType.ts';
+import { resolveHeritageSourceDeclaration } from '../__resolveSourceDeclaration.ts';
+import {
+  __DeriveSchemaElementApi,
+  deriveDefinitiveElement,
+  deriveGenericTemplateModelElement,
+} from '../__deriveSchemaElement/__deriveSchemaElement.ts';
+import { irrelevantAny } from '../../../../../helpers/types.ts';
 
-export interface DeriveModelTemplatesApi<
-  ThisSchemaType extends IntermediateSchemaModel,
-> extends
-  Config__DeriveModelTemplatesApi<ThisSchemaType>,
-  Data__DeriveModelTemplatesApi {}
-
-interface Config__DeriveModelTemplatesApi<
-  ThisSchemaType extends IntermediateSchemaModel,
-> {
-  thisModelElementResolvers: Array<
-    ElementResolver<
-      ThisSchemaType['typeModelProperties'][string]['propertyElement']
-    >
-  >;
+export function deriveModelTemplates__deriveDefinitiveModelType__(
+  api: DeriveModelTemplatesApi__,
+) {
+  const { schemaTypeChecker, schemaDeriveTypeQueue, typeSourceDeclaration } =
+    api;
+  return __deriveModelTemplates__<
+    DataIntermediateSchemaModel | ConcreteTemplateIntermediateSchemaModel
+  >({
+    schemaTypeChecker,
+    schemaDeriveTypeQueue,
+    typeSourceDeclaration,
+    deriveModelElement__: deriveDefinitiveElement,
+  });
 }
 
-interface Data__DeriveModelTemplatesApi extends
+export function deriveModelTemplates__deriveGenericTemplateModelType__(
+  api: DeriveModelTemplatesApi__,
+) {
+  const { schemaTypeChecker, schemaDeriveTypeQueue, typeSourceDeclaration } =
+    api;
+  return __deriveModelTemplates__<
+    GenericTemplateIntermediateSchemaModel
+  >({
+    schemaTypeChecker,
+    schemaDeriveTypeQueue,
+    typeSourceDeclaration,
+    deriveModelElement__: deriveGenericTemplateModelElement,
+  });
+}
+
+export interface __DeriveModelTemplatesApi__<
+  ThisSchemaType extends IntermediateSchemaModel,
+> extends DeriveModelTemplatesApi__ {
+  deriveModelElement__: (
+    api: DeriveModelElementApi__,
+  ) => ThisSchemaType['typeModelProperties'][string]['propertyElement'];
+}
+
+interface DeriveModelElementApi__ extends
   Pick<
-    Data__DeriveNewThisSchemaTypeApi__DeriveModelType,
-    'schemaTypeChecker' | 'deriveSchemaTypeQueue' | 'typeSourceDeclaration'
+    __DeriveSchemaElementApi<irrelevantAny>,
+    'schemaTypeChecker' | 'schemaDeriveTypeQueue' | 'elementLocalNode'
   > {}
 
-export function deriveModelTemplates<
+function __deriveModelTemplates__<
   ThisSchemaType extends IntermediateSchemaModel,
 >(
-  api: DeriveModelTemplatesApi<ThisSchemaType>,
+  api: __DeriveModelTemplatesApi__<ThisSchemaType>,
 ): ThisSchemaType['typeModelTemplates'] {
   const {
     typeSourceDeclaration,
     schemaTypeChecker,
-    deriveSchemaTypeQueue,
-    thisModelElementResolvers,
+    schemaDeriveTypeQueue,
+    deriveModelElement__,
   } = api;
   return typeSourceDeclaration.heritageClauses &&
       typeSourceDeclaration.heritageClauses[0]
@@ -54,25 +80,16 @@ export function deriveModelTemplates<
       ThisSchemaType['typeModelTemplates'][number]
     >(
       (someHeritageLocalNode) => {
-        const heritageLocalSymbol = schemaTypeChecker.getSymbolAtLocation(
-          someHeritageLocalNode.expression,
-        ) ??
-          throwInvalidPathError('heritageLocalSymbol');
-        const heritageLocalDeclaration = heritageLocalSymbol.declarations &&
-            heritageLocalSymbol.declarations[0] ||
-          throwInvalidPathError('heritageLocalDeclaration');
-        const heritageSourceSymbol =
-          Typescript.isImportSpecifier(heritageLocalDeclaration)
-            ? schemaTypeChecker.getAliasedSymbol(heritageLocalSymbol)
-            : heritageLocalSymbol;
-        const heritageSourceDeclaration = heritageSourceSymbol.declarations &&
-            heritageSourceSymbol.declarations[0] &&
-            Typescript.isInterfaceDeclaration(
-              heritageSourceSymbol.declarations[0],
-            ) && heritageSourceSymbol.declarations[0] ||
-          throwInvalidPathError('heritageSourceDeclaration');
+        const [
+          heritageLocalSymbol,
+          heritageSourceSymbol,
+          heritageSourceDeclaration,
+        ] = resolveHeritageSourceDeclaration({
+          schemaTypeChecker,
+          localNode: someHeritageLocalNode.expression,
+        });
         if (heritageSourceDeclaration.typeParameters) {
-          deriveSchemaTypeQueue.push({
+          schemaDeriveTypeQueue.push({
             deriveThisSchemaType: deriveGenericTemplateModelType,
             thisTypeArguments: {
               typeLocalSymbol: heritageLocalSymbol,
@@ -101,10 +118,9 @@ export function deriveModelTemplates<
                   genericArgumentsResult[argumentParameterName] = {
                     argumentParameterName,
                     argumentIndex: parameterIndex,
-                    argumentElement: deriveSchemaElement({
+                    argumentElement: deriveModelElement__({
                       schemaTypeChecker,
-                      deriveSchemaTypeQueue,
-                      elementResolvers: thisModelElementResolvers,
+                      schemaDeriveTypeQueue,
                       elementLocalNode: someHeritageLocalNode.typeArguments &&
                           someHeritageLocalNode.typeArguments[parameterIndex] ||
                         throwInvalidModelTemplate__DefaultParameterArgument({
@@ -119,7 +135,7 @@ export function deriveModelTemplates<
               ),
           };
         } else {
-          deriveSchemaTypeQueue.push({
+          schemaDeriveTypeQueue.push({
             deriveThisSchemaType: deriveConcreteTemplateModelType,
             thisTypeArguments: {
               typeLocalSymbol: heritageLocalSymbol,
