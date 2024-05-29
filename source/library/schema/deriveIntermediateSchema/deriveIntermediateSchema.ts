@@ -1,16 +1,14 @@
-import {
-  IntermediateSchema
-} from '../types/IntermediateSchema.ts';
+import { IntermediateSchema } from '../types/IntermediateSchema.ts';
 import { deriveExportElement } from './components/__deriveSchemaElement/__deriveSchemaElement.ts';
 import {
   deriveAliasType,
   deriveConcreteTemplateModelType,
   deriveDataModelType,
-  deriveGenericTemplateModelType
+  deriveGenericTemplateModelType,
 } from './components/__deriveSchemaType/__deriveSchemaType.ts';
 import {
-  LoadSchemaModuleResult,
   loadSchemaModule,
+  LoadSchemaModuleResult,
 } from './components/loadSchemaModule.ts';
 
 export interface DeriveIntermediateSchemaApi {
@@ -21,11 +19,13 @@ export function deriveIntermediateSchema(
   api: DeriveIntermediateSchemaApi,
 ): IntermediateSchema {
   const { schemaModulePath } = api;
-  return __deriveIntermediateSchema(
-    loadSchemaModule({
-      schemaModulePath,
-    }),
-  );
+  const { schemaTypeChecker, schemaExportNode } = loadSchemaModule({
+    schemaModulePath,
+  });
+  return __deriveIntermediateSchema({
+    schemaTypeChecker,
+    schemaExportNode,
+  });
 }
 
 export interface __DeriveIntermediateSchemaApi extends

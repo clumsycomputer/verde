@@ -11,11 +11,12 @@ type SchemaElement<ThisTerminalElement> =
   | StructureElement<ThisTerminalElement>
   | GeneralUnionElement<ThisTerminalElement>;
 
-export interface GeneralUnionElement<ThisTerminalElement> extends
-  __UnionElement<
-    'generalUnion',
-    ThisTerminalElement | StructureElement<ThisTerminalElement> | NullElement
-  > {}
+export interface GeneralUnionElement<ThisTerminalElement>
+  extends
+    __UnionElement<
+      'generalUnion',
+      ThisTerminalElement | StructureElement<ThisTerminalElement> | NullElement
+    > {}
 
 export interface VerdeTableUnionElement<ThisParameterReferenceElement>
   extends
@@ -32,12 +33,11 @@ export interface VerdeArrayUnionElement<ThisParameterReferenceElement>
       | ReferenceElement<ThisParameterReferenceElement>
     > {}
 
-export interface ExportUnionElement
-  extends
-    __UnionElement<
-      'exportUnion',
-      ReferenceElement<never>
-    > {}
+export interface ExportUnionElement extends
+  __UnionElement<
+    'exportUnion',
+    ReferenceElement<never>
+  > {}
 
 export interface __UnionElement<ThisElementKind, ThisMemberElement>
   extends __SchemaElement<ThisElementKind> {
@@ -47,30 +47,26 @@ export interface __UnionElement<ThisElementKind, ThisMemberElement>
 export interface NullElement extends __SchemaElement<'null'> {}
 
 export type StructureElement<ThisTerminalElement> =
-  | ObjectElement<
-    ThisTerminalElement | StructureElement<ThisTerminalElement>
-  >
-  | TupleElement<
-    ThisTerminalElement | StructureElement<ThisTerminalElement>
-  >;
+  | ObjectElement<ThisTerminalElement>
+  | TupleElement<ThisTerminalElement>;
 
-export interface ObjectElement<ThisPropertyElement> extends
+export interface ObjectElement<ThisTerminalElement> extends
   __StructureElement<
     'objectStructure',
-    ObjectElementProperty<ThisPropertyElement>
+    ObjectElementProperty<ThisTerminalElement>
   > {}
 
-interface ObjectElementProperty<ThisPropertyElement>
-  extends __ElementProperty<ThisPropertyElement> {}
+interface ObjectElementProperty<ThisTerminalElement>
+  extends __ElementProperty<ThisTerminalElement> {}
 
-export interface TupleElement<ThisPropertyElement> extends
+export interface TupleElement<ThisTerminalElement> extends
   __StructureElement<
     'tupleStructure',
-    TupleElementProperty<ThisPropertyElement>
+    TupleElementProperty<ThisTerminalElement>
   > {}
 
-interface TupleElementProperty<ThisPropertyElement>
-  extends __ElementProperty<ThisPropertyElement> {
+interface TupleElementProperty<ThisTerminalElement>
+  extends __ElementProperty<ThisTerminalElement> {
   propertyIndex: number;
 }
 
@@ -79,9 +75,9 @@ interface __StructureElement<ThisElementKind, ThisElementProperty>
   elementProperties: Record<string, ThisElementProperty>;
 }
 
-interface __ElementProperty<ThisPropertyElement> {
+interface __ElementProperty<ThisTerminalElement> {
   propertyKey: string;
-  propertyElement: SchemaElement<ThisPropertyElement>;
+  propertyElement: SchemaElement<ThisTerminalElement>;
 }
 
 export type TerminalElement<ThisParameterReferenceElement> =
