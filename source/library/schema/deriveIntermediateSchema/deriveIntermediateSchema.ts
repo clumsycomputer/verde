@@ -1,6 +1,9 @@
+import { irrelevantAny } from '../../../helpers/types.ts';
+import { Typescript } from '../../../imports/Typescript.ts';
 import { IntermediateSchema } from '../types/IntermediateSchema.ts';
 import { deriveExportElement } from './components/__deriveSchemaElement/__deriveSchemaElement.ts';
 import {
+  __DeriveSchemaTypeApi,
   deriveAliasType,
   deriveConcreteTemplateModelType,
   deriveDataModelType,
@@ -52,15 +55,15 @@ function __deriveIntermediateSchema(
   };
   for (
     const {
-      deriveThisSchemaType,
-      thisTypeArguments: {
+      operationDeriveSchemaType: deriveSchemaType,
+      operationTypeArguments: {
         typeLocalSymbol,
         typeSourceSymbol,
         typeSourceDeclaration,
       },
     } of schemaDeriveTypeQueue
   ) {
-    const derivedSchemaType = (deriveThisSchemaType as any)({
+    const derivedSchemaType = deriveSchemaType({
       schemaTypeChecker,
       schemaDeriveTypeQueue,
       schemaResult,
@@ -94,15 +97,41 @@ interface DeriveAliasQueueOperation
   extends __SchemaDeriveTypeQueueOperation<typeof deriveAliasType> {}
 
 interface __SchemaDeriveTypeQueueOperation<
-  DeriveThisSchemaType extends
+  ThisDeriveSchemaType extends
     | typeof deriveDataModelType
     | typeof deriveConcreteTemplateModelType
     | typeof deriveGenericTemplateModelType
     | typeof deriveAliasType,
 > {
-  deriveThisSchemaType: DeriveThisSchemaType;
-  thisTypeArguments: Pick<
-    Parameters<DeriveThisSchemaType>[0],
+  operationDeriveSchemaType: (
+    api: OperationDeriveSchemaTypeApi<ThisDeriveSchemaType>,
+  ) => ReturnType<ThisDeriveSchemaType>;
+  operationTypeArguments: Pick<
+    Parameters<ThisDeriveSchemaType>[0],
     'typeLocalSymbol' | 'typeSourceSymbol' | 'typeSourceDeclaration'
   >;
+}
+
+interface OperationDeriveSchemaTypeApi<
+  ThisDeriveSchemaType extends
+    | typeof deriveDataModelType
+    | typeof deriveConcreteTemplateModelType
+    | typeof deriveGenericTemplateModelType
+    | typeof deriveAliasType,
+> extends
+  Pick<
+    __DeriveSchemaTypeApi<
+      ReturnType<ThisDeriveSchemaType>,
+      irrelevantAny
+    >,
+    | 'schemaTypeChecker'
+    | 'schemaDeriveTypeQueue'
+    | 'schemaResult'
+    | 'typeLocalSymbol'
+    | 'typeSourceSymbol'
+  > {
+  typeSourceDeclaration:
+    | Typescript.TypeAliasDeclaration
+    | Typescript.InterfaceDeclaration
+    | any;
 }

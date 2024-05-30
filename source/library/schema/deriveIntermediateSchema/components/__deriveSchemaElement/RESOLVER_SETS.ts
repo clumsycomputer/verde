@@ -11,13 +11,13 @@ import {
   definitiveVerdeTableElementResolver,
   definitiveVerdeTableUnionElementResolver,
   exportUnionElementResolver,
-  genericGeneralUnionElementResolver,
-  genericObjectElementResolver,
-  genericTupleElementResolver,
-  genericVerdeArrayElementResolver,
-  genericVerdeArrayUnionElementResolver,
-  genericVerdeTableElementResolver,
-  genericVerdeTableUnionElementResolver,
+  genericTemplateModelGeneralUnionElementResolver,
+  genericTemplateModelObjectElementResolver,
+  genericTemplateModelTupleElementResolver,
+  genericTemplateModelVerdeArrayElementResolver,
+  genericTemplateModelVerdeArrayUnionElementResolver,
+  genericTemplateModelVerdeTableElementResolver,
+  genericTemplateModelVerdeTableUnionElementResolver,
   nullElementResolver,
   numberLiteralElementResolver,
   numberPrimitiveElementResolver,
@@ -104,29 +104,29 @@ function getDefinitiveGeneralUnionElementResolvers() {
   ] as const;
 }
 
-export const GENERIC_ELEMENT_RESOLVERS = getGenericElementResolvers();
+export const GENERIC_TEMPLATE_MODEL_ELEMENT_RESOLVERS = getGenericTemplateModelElementResolvers();
 
-function getGenericElementResolvers() {
+function getGenericTemplateModelElementResolvers() {
   return [
-    ...getGenericStructureElementResolvers(),
-    genericGeneralUnionElementResolver,
+    ...getGenericTemplateModelStructureElementResolvers(),
+    genericTemplateModelGeneralUnionElementResolver,
   ] as const;
 }
 
-function getGenericStructureElementResolvers() {
+function getGenericTemplateModelStructureElementResolvers() {
   return [
-    ...getGenericTerminalElementResolvers(),
-    genericTupleElementResolver,
-    genericObjectElementResolver,
+    ...getGenericTemplateModeTerminalElementResolvers(),
+    genericTemplateModelTupleElementResolver,
+    genericTemplateModelObjectElementResolver,
   ] as const;
 }
 
-function getGenericTerminalElementResolvers() {
+function getGenericTemplateModeTerminalElementResolvers() {
   return [
     ...getBasicElementResolvers(),
-    ...getGenericReferenceElementResolvers(),
-    genericVerdeTableElementResolver,
-    genericVerdeArrayElementResolver,
+    ...getGenericTemplateModelReferenceElementResolvers(),
+    genericTemplateModelVerdeTableElementResolver,
+    genericTemplateModelVerdeArrayElementResolver,
   ] as const;
 }
 
@@ -135,8 +135,8 @@ export const GENERIC_TEMPLATE_MODEL_VERDE_TABLE_ELEMENT_RESOLVERS =
   
 function getGenericTemplateModelVerdeTableElementResolvers(){
   return [
-    ...getGenericReferenceElementResolvers(),
-    genericVerdeTableUnionElementResolver,
+    ...getGenericTemplateModelReferenceElementResolvers(),
+    genericTemplateModelVerdeTableUnionElementResolver,
   ] as const
 }
 
@@ -146,7 +146,7 @@ export const GENERIC_TEMPLATE_MODEL_VERDE_ARRAY_ELEMENT_RESOLVERS =
 function getGenericTemplateModelVerdeArrayElementResolvers() {
   return [
     ...getBasicVerdeArrayElementResolvers(),
-    genericVerdeArrayUnionElementResolver,
+    genericTemplateModelVerdeArrayUnionElementResolver,
     parameterReferenceElementResolver,
   ] as const;
 }
@@ -157,7 +157,7 @@ export const GENERIC_TEMPLATE_MODEL_VERDE_ARRAY_UNION_MEMBER_ELEMENT_RESOLVERS =
 function getGenericTemplateModelVerdeArrayUnionMemberElementResolvers() {
   return [
     ...getPrimitiveElementResolvers(),
-    ...getGenericReferenceElementResolvers(),
+    ...getGenericTemplateModelReferenceElementResolvers(),
   ] as const;
 }
 
@@ -166,15 +166,15 @@ export const GENERIC_TEMPLATE_MODEL_GENERAL_UNION_MEMBER_ELEMENT_RESOLVERS =
 
 function getGenericTemplateModelGeneralUnionMemberElementResolvers() {
   return [
-    ...getGenericStructureElementResolvers(),
+    ...getGenericTemplateModelStructureElementResolvers(),
     nullElementResolver,
   ] as const;
 }
 
-export const GENERIC_REFERENCE_ELEMENT_RESOLVERS =
-  getGenericReferenceElementResolvers();
+export const GENERIC_TEMPLATE_MODEL_REFERENCE_ELEMENT_RESOLVERS =
+  getGenericTemplateModelReferenceElementResolvers();
 
-function getGenericReferenceElementResolvers() {
+function getGenericTemplateModelReferenceElementResolvers() {
   return [
     ...getBasicReferenceElementResolvers(),
     parameterReferenceElementResolver,

@@ -134,8 +134,8 @@ export function dataModelReferenceElementResolver(
     Typescript.isInterfaceDeclaration(elementSourceDeclaration)
   ) {
     schemaDeriveTypeQueue.push({
-      deriveThisSchemaType: deriveDataModelType,
-      thisTypeArguments: {
+      operationDeriveSchemaType: deriveDataModelType,
+      operationTypeArguments: {
         typeLocalSymbol: elementLocalSymbol,
         typeSourceSymbol: elementSourceSymbol,
         typeSourceDeclaration: elementSourceDeclaration,
@@ -168,8 +168,8 @@ export function aliasReferenceElementResolver(
     elementSourceDeclaration.typeParameters === undefined
   ) {
     schemaDeriveTypeQueue.push({
-      deriveThisSchemaType: deriveAliasType,
-      thisTypeArguments: {
+      operationDeriveSchemaType: deriveAliasType,
+      operationTypeArguments: {
         typeLocalSymbol: elementLocalSymbol,
         typeSourceSymbol: elementSourceSymbol,
         typeSourceDeclaration: elementSourceDeclaration,
@@ -221,7 +221,7 @@ export function definitiveVerdeTableElementResolver(
   });
 }
 
-export function genericVerdeTableElementResolver(
+export function genericTemplateModelVerdeTableElementResolver(
   api: ElementResolverApi,
 ) {
   const {
@@ -322,7 +322,7 @@ export function definitiveVerdeArrayElementResolver(
   });
 }
 
-export function genericVerdeArrayElementResolver(
+export function genericTemplateModelVerdeArrayElementResolver(
   api: ElementResolverApi,
 ) {
   const {
@@ -477,7 +477,7 @@ export function definitiveObjectElementResolver(
   });
 }
 
-export function genericObjectElementResolver(
+export function genericTemplateModelObjectElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<
   ObjectElement<TerminalElement<ParameterReferenceElement>>
@@ -583,7 +583,7 @@ export function definitiveTupleElementResolver(
   });
 }
 
-export function genericTupleElementResolver(
+export function genericTemplateModelTupleElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<
   TupleElement<TerminalElement<ParameterReferenceElement>>
@@ -730,7 +730,7 @@ export function definitiveGeneralUnionElementResolver(
   });
 }
 
-export function genericGeneralUnionElementResolver(
+export function genericTemplateModelGeneralUnionElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<
   GeneralUnionElement<TerminalElement<ParameterReferenceElement>>
@@ -836,7 +836,7 @@ export function definitiveVerdeTableUnionElementResolver(
   });
 }
 
-export function genericVerdeTableUnionElementResolver(
+export function genericTemplateModelVerdeTableUnionElementResolver(
   api: ElementResolverApi,
 ) {
   const {
@@ -935,7 +935,7 @@ export function definitiveVerdeArrayUnionElementResolver(
   });
 }
 
-export function genericVerdeArrayUnionElementResolver(
+export function genericTemplateModelVerdeArrayUnionElementResolver(
   api: ElementResolverApi,
 ) {
   const {

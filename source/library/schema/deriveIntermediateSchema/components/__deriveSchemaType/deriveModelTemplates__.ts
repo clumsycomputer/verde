@@ -90,8 +90,8 @@ function __deriveModelTemplates__<
         });
         if (heritageSourceDeclaration.typeParameters) {
           schemaDeriveTypeQueue.push({
-            deriveThisSchemaType: deriveGenericTemplateModelType,
-            thisTypeArguments: {
+            operationDeriveSchemaType: deriveGenericTemplateModelType,
+            operationTypeArguments: {
               typeLocalSymbol: heritageLocalSymbol,
               typeSourceSymbol: heritageSourceSymbol,
               typeSourceDeclaration: heritageSourceDeclaration,
@@ -136,8 +136,8 @@ function __deriveModelTemplates__<
           };
         } else {
           schemaDeriveTypeQueue.push({
-            deriveThisSchemaType: deriveConcreteTemplateModelType,
-            thisTypeArguments: {
+            operationDeriveSchemaType: deriveConcreteTemplateModelType,
+            operationTypeArguments: {
               typeLocalSymbol: heritageLocalSymbol,
               typeSourceSymbol: heritageSourceSymbol,
               typeSourceDeclaration: heritageSourceDeclaration,
