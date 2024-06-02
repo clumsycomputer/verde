@@ -1,9 +1,9 @@
-import { irrelevantAny } from '../../../helpers/types.ts';
-import { Typescript } from '../../../imports/Typescript.ts';
-import { IntermediateSchema } from '../types/IntermediateSchema.ts';
+import {
+  IntermediateSchema,
+  IntermediateSchemaType,
+} from '../types/IntermediateSchema.ts';
 import { deriveExportElement } from './components/__deriveSchemaElement/__deriveSchemaElement.ts';
 import {
-  __DeriveSchemaTypeApi,
   deriveAliasType,
   deriveConcreteTemplateModelType,
   deriveDataModelType,
@@ -41,7 +41,7 @@ function __deriveIntermediateSchema(
   api: __DeriveIntermediateSchemaApi,
 ): IntermediateSchema {
   const { schemaTypeChecker, schemaExportNode } = api;
-  const schemaDeriveTypeQueue: Array<SchemaDeriveTypeQueueOperation> = [];
+  const schemaDeriveTypeQueue: Array<DeriveSchemaTypeOperation> = [];
   const schemaResult: IntermediateSchema = {
     schemaTypes: {},
     schemaExport: {
@@ -55,7 +55,7 @@ function __deriveIntermediateSchema(
   };
   for (
     const {
-      operationDeriveSchemaType: deriveSchemaType,
+      operationDeriveSchemaType: deriveOperationSchemaType,
       operationTypeArguments: {
         typeLocalSymbol,
         typeSourceSymbol,
@@ -63,75 +63,64 @@ function __deriveIntermediateSchema(
       },
     } of schemaDeriveTypeQueue
   ) {
-    const derivedSchemaType = deriveSchemaType({
-      schemaTypeChecker,
-      schemaDeriveTypeQueue,
-      schemaResult,
-      typeLocalSymbol,
-      typeSourceSymbol,
-      typeSourceDeclaration,
-    });
-    schemaResult.schemaTypes[derivedSchemaType.typeName] = derivedSchemaType;
+    const derivedOperationSchemaType =
+      (deriveOperationSchemaType as DeriveOperationSchemaType)({
+        schemaTypeChecker,
+        schemaDeriveTypeQueue,
+        schemaResult,
+        typeLocalSymbol,
+        typeSourceSymbol,
+        typeSourceDeclaration,
+      });
+    schemaResult.schemaTypes[derivedOperationSchemaType.typeName] =
+      derivedOperationSchemaType;
   }
   return schemaResult;
 }
 
-export type SchemaDeriveTypeQueueOperation =
-  | DeriveDataModelQueueOperation
-  | DeriveConcreteTemplateModelQueueOperation
-  | DeriveGenericTemplateModelQueueOperation
-  | DeriveAliasQueueOperation;
+export type DeriveSchemaTypeOperation =
+  | DeriveDataModelOperation
+  | DeriveConcreteTemplateModelOperation
+  | DeriveGenericTemplateModelOperation
+  | DeriveAliasOperation;
 
-interface DeriveDataModelQueueOperation
-  extends __SchemaDeriveTypeQueueOperation<typeof deriveDataModelType> {}
+interface DeriveDataModelOperation
+  extends __DeriveSchemaTypeOperation<typeof deriveDataModelType> {}
 
-interface DeriveConcreteTemplateModelQueueOperation
-  extends
-    __SchemaDeriveTypeQueueOperation<typeof deriveConcreteTemplateModelType> {}
+interface DeriveConcreteTemplateModelOperation
+  extends __DeriveSchemaTypeOperation<typeof deriveConcreteTemplateModelType> {}
 
-interface DeriveGenericTemplateModelQueueOperation
-  extends
-    __SchemaDeriveTypeQueueOperation<typeof deriveGenericTemplateModelType> {}
+interface DeriveGenericTemplateModelOperation
+  extends __DeriveSchemaTypeOperation<typeof deriveGenericTemplateModelType> {}
 
-interface DeriveAliasQueueOperation
-  extends __SchemaDeriveTypeQueueOperation<typeof deriveAliasType> {}
+interface DeriveAliasOperation
+  extends __DeriveSchemaTypeOperation<typeof deriveAliasType> {}
 
-interface __SchemaDeriveTypeQueueOperation<
+interface __DeriveSchemaTypeOperation<
   ThisDeriveSchemaType extends
     | typeof deriveDataModelType
     | typeof deriveConcreteTemplateModelType
     | typeof deriveGenericTemplateModelType
     | typeof deriveAliasType,
 > {
-  operationDeriveSchemaType: (
-    api: OperationDeriveSchemaTypeApi<ThisDeriveSchemaType>,
-  ) => ReturnType<ThisDeriveSchemaType>;
+  operationDeriveSchemaType: ThisDeriveSchemaType;
   operationTypeArguments: Pick<
     Parameters<ThisDeriveSchemaType>[0],
     'typeLocalSymbol' | 'typeSourceSymbol' | 'typeSourceDeclaration'
   >;
 }
 
-interface OperationDeriveSchemaTypeApi<
-  ThisDeriveSchemaType extends
-    | typeof deriveDataModelType
-    | typeof deriveConcreteTemplateModelType
-    | typeof deriveGenericTemplateModelType
-    | typeof deriveAliasType,
-> extends
+type DeriveOperationSchemaType = (
+  api: DeriveOperationSchemaTypeApi,
+) => IntermediateSchemaType;
+
+interface DeriveOperationSchemaTypeApi extends
   Pick<
-    __DeriveSchemaTypeApi<
-      ReturnType<ThisDeriveSchemaType>,
-      irrelevantAny
-    >,
+    Parameters<DeriveSchemaTypeOperation['operationDeriveSchemaType']>[0],
     | 'schemaTypeChecker'
     | 'schemaDeriveTypeQueue'
     | 'schemaResult'
     | 'typeLocalSymbol'
     | 'typeSourceSymbol'
-  > {
-  typeSourceDeclaration:
-    | Typescript.TypeAliasDeclaration
-    | Typescript.InterfaceDeclaration
-    | any;
-}
+    | 'typeSourceDeclaration'
+  > {}

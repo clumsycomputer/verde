@@ -77,12 +77,11 @@ export function throwInvalidSchemaElement(
   );
 }
 
-interface ThrowInvalidModelTemplateApi
-  extends
-    Pick<
-      __DeriveModelTemplatesApi__<irrelevantUnknown>,
-      'typeSourceDeclaration'
-    > {
+interface ThrowInvalidModelTemplateApi extends
+  Pick<
+    __DeriveModelTemplatesApi__<irrelevantUnknown>,
+    'typeSourceDeclaration'
+  > {
   heritageLocalNode: Typescript.Node;
 }
 
@@ -95,12 +94,11 @@ export function throwInvalidModelTemplate__DefaultParameterArgument(
   );
 }
 
-interface ThrowInvalidModelDeclarationApi
-  extends
-    Pick<
-      __DeriveSchemaTypeApi<irrelevantUnknown, irrelevantUnknown>,
-      'typeSourceSymbol'
-    > {}
+interface ThrowInvalidModelDeclarationApi extends
+  Pick<
+    __DeriveSchemaTypeApi<irrelevantUnknown, irrelevantUnknown>,
+    'typeSourceSymbol'
+  > {}
 
 export function throwInvalidModelDeclaration__DeclarationMerging(
   api: ThrowInvalidModelDeclarationApi,
@@ -162,5 +160,30 @@ export function throwInvalidGenericTemplateModelParameter__DefaultArgument(
   const { typeParameterDeclaration, typeName } = api;
   throwUserError(
     `invalid generic template model parameter: default arguments not supported ("${typeParameterDeclaration.name.text}" on "${typeName}")`,
+  );
+}
+
+interface ThrowInvalidObjecStructureApi__NonPropertySignature {
+  objectStructureNode: Typescript.TypeElement;
+}
+export function throwInvalidObjectStructure__NonPropertySignature(
+  api: ThrowInvalidObjecStructureApi__NonPropertySignature,
+): never {
+  const { objectStructureNode } = api;
+  throwUserError(
+    `invalid object structure: non-property signature ("${objectStructureNode.getText()}" in "${objectStructureNode.parent.getText()}")`,
+  );
+}
+
+
+interface ThrowInvalidTupleStructureApi__UnnamedTupleProperty {
+  tupleStructureNode: Typescript.TypeNode;
+}
+export function throwInvalidTupleStructure__UnnamedTupleProperty(
+  api: ThrowInvalidTupleStructureApi__UnnamedTupleProperty,
+): never {
+  const { tupleStructureNode } = api;
+  throwUserError(
+    `invalid tuple structure: tuple properties must have a name ("${tupleStructureNode.getText()}" in "${tupleStructureNode.parent.getText()}")`,
   );
 }

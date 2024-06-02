@@ -53,29 +53,32 @@ export type StructureElement<ThisTerminalElement> =
 export interface ObjectElement<ThisTerminalElement> extends
   __StructureElement<
     'objectStructure',
-    ObjectElementProperty<ThisTerminalElement>
+    Record<string, StructureProperty<ThisTerminalElement>>
   > {}
-
-interface ObjectElementProperty<ThisTerminalElement>
-  extends __ElementProperty<ThisTerminalElement> {}
 
 export interface TupleElement<ThisTerminalElement> extends
   __StructureElement<
     'tupleStructure',
-    TupleElementProperty<ThisTerminalElement>
+    Array<
+      | StructureProperty<ThisTerminalElement>
+      | TupleSpreadReference<ThisTerminalElement>
+    >
   > {}
 
-interface TupleElementProperty<ThisTerminalElement>
-  extends __ElementProperty<ThisTerminalElement> {
-  propertyIndex: number;
+export interface TupleSpreadReference<ThisTerminalElement> {
+  spreadElement:
+    | AliasReferenceElement
+    | Include<ThisTerminalElement, ParameterReferenceElement>
 }
 
-interface __StructureElement<ThisElementKind, ThisElementProperty>
+type Include<T, U> = T extends U ? T : never;
+
+interface __StructureElement<ThisElementKind, ThisElementStructure>
   extends __SchemaElement<ThisElementKind> {
-  elementProperties: Record<string, ThisElementProperty>;
+  elementStructure: ThisElementStructure;
 }
 
-interface __ElementProperty<ThisTerminalElement> {
+export interface StructureProperty<ThisTerminalElement> {
   propertyKey: string;
   propertyElement: SchemaElement<ThisTerminalElement>;
 }

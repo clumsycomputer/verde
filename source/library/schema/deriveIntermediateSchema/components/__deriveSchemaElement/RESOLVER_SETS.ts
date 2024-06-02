@@ -23,7 +23,7 @@ import {
   numberPrimitiveElementResolver,
   parameterReferenceElementResolver,
   stringLiteralElementResolver,
-  stringPrimitiveElementResolver
+  stringPrimitiveElementResolver,
 } from './__elementResolver.ts';
 
 export const EXPORT_ELEMENT_RESOLVERS = getExportElementResolvers();
@@ -40,7 +40,7 @@ export const DEFINITIVE_ELEMENT_RESOLVERS = getDefinitiveElementResolvers();
 function getDefinitiveElementResolvers() {
   return [
     ...getDefinitiveStructureElementResolvers(),
-    definitiveGeneralUnionElementResolver
+    definitiveGeneralUnionElementResolver,
   ] as const;
 }
 
@@ -84,6 +84,15 @@ function getDefinitiveVerdeTableElementResolvers() {
   ] as const;
 }
 
+export const DEFINITIVE_TUPLE_SPREAD_ELEMENT_RESOLVERS =
+  getDefinitiveTupleSpreadElementResolvers();
+
+function getDefinitiveTupleSpreadElementResolvers() {
+  return [
+    aliasReferenceElementResolver,
+  ] as const;
+}
+
 export const DEFINITIVE_VERDE_ARRAY_UNION_MEMBER_ELEMENT_RESOLVERS =
   getDefinitiveVerdeArrayUnionMemberElementResolvers();
 
@@ -104,7 +113,8 @@ function getDefinitiveGeneralUnionElementResolvers() {
   ] as const;
 }
 
-export const GENERIC_TEMPLATE_MODEL_ELEMENT_RESOLVERS = getGenericTemplateModelElementResolvers();
+export const GENERIC_TEMPLATE_MODEL_ELEMENT_RESOLVERS =
+  getGenericTemplateModelElementResolvers();
 
 function getGenericTemplateModelElementResolvers() {
   return [
@@ -131,13 +141,13 @@ function getGenericTemplateModeTerminalElementResolvers() {
 }
 
 export const GENERIC_TEMPLATE_MODEL_VERDE_TABLE_ELEMENT_RESOLVERS =
-  getGenericTemplateModelVerdeTableElementResolvers()
-  
-function getGenericTemplateModelVerdeTableElementResolvers(){
+  getGenericTemplateModelVerdeTableElementResolvers();
+
+function getGenericTemplateModelVerdeTableElementResolvers() {
   return [
     ...getGenericTemplateModelReferenceElementResolvers(),
     genericTemplateModelVerdeTableUnionElementResolver,
-  ] as const
+  ] as const;
 }
 
 export const GENERIC_TEMPLATE_MODEL_VERDE_ARRAY_ELEMENT_RESOLVERS =
@@ -148,6 +158,16 @@ function getGenericTemplateModelVerdeArrayElementResolvers() {
     ...getBasicVerdeArrayElementResolvers(),
     genericTemplateModelVerdeArrayUnionElementResolver,
     parameterReferenceElementResolver,
+  ] as const;
+}
+
+export const GENERIC_TEMPLATE_MODEL_TUPLE_SPREAD_ELEMENT_RESOLVERS =
+  getGenericTemplateModelTupleSpreadElementResolvers();
+
+function getGenericTemplateModelTupleSpreadElementResolvers() {
+  return [
+    aliasReferenceElementResolver,
+    parameterReferenceElementResolver
   ] as const;
 }
 

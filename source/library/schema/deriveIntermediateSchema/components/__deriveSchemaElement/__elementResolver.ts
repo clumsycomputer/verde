@@ -1,9 +1,6 @@
 import { genericAny, irrelevantAny } from '../../../../../helpers/types.ts';
 import { Typescript } from '../../../../../imports/Typescript.ts';
 import {
-  __CollectionElement,
-  __SchemaElement,
-  __UnionElement,
   AliasReferenceElement,
   BooleanLiteralElement,
   BooleanPrimitiveElement,
@@ -17,13 +14,18 @@ import {
   ParameterReferenceElement,
   StringLiteralElement,
   StringPrimitiveElement,
+  StructureProperty,
   TerminalElement,
   TupleElement,
+  TupleSpreadReference,
   VerdeArrayElement,
   VerdeArrayUnionElement,
   VerdeTableElement,
   VerdeTableUnionElement,
+  __CollectionElement,
+  __UnionElement,
 } from '../../../types/SchemaElement.ts';
+import { throwInvalidObjectStructure__NonPropertySignature, throwInvalidTupleStructure__UnnamedTupleProperty } from '../../errors.ts';
 import {
   deriveAliasType,
   deriveDataModelType,
@@ -33,11 +35,13 @@ import {
   deriveBasicReferenceElement,
   deriveDefinitiveElement,
   deriveDefinitiveGeneralUnionMemberElement,
+  deriveDefinitiveTupleSpreadElement,
   deriveDefinitiveVerdeArrayElement,
   deriveDefinitiveVerdeArrayUnionMemberElement,
   deriveDefinitiveVerdeTableElement,
   deriveGenericTemplateModelElement,
   deriveGenericTemplateModelGeneralUnionMemberElement,
+  deriveGenericTemplateModelTupleSpreadElement,
   deriveGenericTemplateModelVerdeArrayElement,
   deriveGenericTemplateModelVerdeArrayUnionMemberElement,
   deriveGenericTemplateModelVerdeTableElement,
@@ -508,14 +512,8 @@ interface __ObjectElementResolverApi<
     api: DerivePropertyElementApi__,
   ) => ObjectElement<
     TerminalElement<ThisParameterReferenceElement>
-  >['elementProperties'][string]['propertyElement'];
+  >['elementStructure'][string]['propertyElement'];
 }
-
-interface DerivePropertyElementApi__ extends
-  Pick<
-    __DeriveSchemaElementApi<irrelevantAny>,
-    'schemaTypeChecker' | 'schemaDeriveTypeQueue' | 'elementLocalNode'
-  > {}
 
 function __objectElementResolver<ThisParameterReferenceElement>(
   api: __ObjectElementResolverApi<ThisParameterReferenceElement>,
@@ -531,28 +529,32 @@ function __objectElementResolver<ThisParameterReferenceElement>(
   if (Typescript.isTypeLiteralNode(elementLocalNode)) {
     return {
       elementKind: 'objectStructure',
-      elementProperties: elementLocalNode.members.reduce<
+      elementStructure: elementLocalNode.members.reduce<
         ObjectElement<
           TerminalElement<ThisParameterReferenceElement>
-        >['elementProperties']
+        >['elementStructure']
       >(
-        (objectPropertyElementsResult, someObjectPropertyNode) => {
+        (elementStructureResult, someObjectStructureNode) => {
           if (
-            Typescript.isPropertySignature(someObjectPropertyNode) &&
-            Typescript.isIdentifier(someObjectPropertyNode.name) &&
-            someObjectPropertyNode.type
+            Typescript.isPropertySignature(someObjectStructureNode) &&
+            Typescript.isIdentifier(someObjectStructureNode.name) &&
+            someObjectStructureNode.type
           ) {
-            const objectPropertyKey = someObjectPropertyNode.name.text;
-            objectPropertyElementsResult[objectPropertyKey] = {
+            const objectPropertyKey = someObjectStructureNode.name.text;
+            elementStructureResult[objectPropertyKey] = {
               propertyKey: objectPropertyKey,
               propertyElement: derivePropertyElement__({
                 schemaTypeChecker,
                 schemaDeriveTypeQueue,
-                elementLocalNode: someObjectPropertyNode.type,
+                elementLocalNode: someObjectStructureNode.type,
               }),
             };
+          } else {
+            throwInvalidObjectStructure__NonPropertySignature({
+              objectStructureNode: someObjectStructureNode
+            })
           }
-          return objectPropertyElementsResult;
+          return elementStructureResult;
         },
         {},
       ),
@@ -580,6 +582,7 @@ export function definitiveTupleElementResolver(
     elementSourceSymbol,
     elementSourceDeclaration,
     derivePropertyElement__: deriveDefinitiveElement,
+    deriveSpreadElement__: deriveDefinitiveTupleSpreadElement,
   });
 }
 
@@ -604,19 +607,32 @@ export function genericTemplateModelTupleElementResolver(
     elementSourceSymbol,
     elementSourceDeclaration,
     derivePropertyElement__: deriveGenericTemplateModelElement,
+    deriveSpreadElement__: deriveGenericTemplateModelTupleSpreadElement,
   });
 }
 
-interface __TupleElementResolverApi<ThisParameterReferenceElement>
-  extends ElementResolverApi {
+interface __TupleElementResolverApi<
+  ThisParameterReferenceElement,
+> extends ElementResolverApi {
   derivePropertyElement__: (
     api: DerivePropertyElementApi__,
-  ) => TupleElement<
+  ) => StructureProperty<
     TerminalElement<ThisParameterReferenceElement>
-  >['elementProperties'][string]['propertyElement'];
+  >['propertyElement'];
+  deriveSpreadElement__: (
+    api: DeriveSpreadElementApi__,
+  ) => TupleSpreadReference<TerminalElement<ThisParameterReferenceElement>>['spreadElement'];
 }
 
-function __tupleElementResolver<ThisParameterReferenceElement>(
+interface DeriveSpreadElementApi__ extends
+  Pick<
+    __DeriveSchemaElementApi<irrelevantAny>,
+    'schemaTypeChecker' | 'schemaDeriveTypeQueue' | 'elementLocalNode'
+  > {}
+
+function __tupleElementResolver<
+  ThisParameterReferenceElement,
+>(
   api: __TupleElementResolverApi<ThisParameterReferenceElement>,
 ): ElementResolverResult<
   TupleElement<
@@ -628,44 +644,56 @@ function __tupleElementResolver<ThisParameterReferenceElement>(
     schemaTypeChecker,
     schemaDeriveTypeQueue,
     derivePropertyElement__,
+    deriveSpreadElement__,
   } = api;
   if (Typescript.isTupleTypeNode(elementLocalNode)) {
     return {
       elementKind: 'tupleStructure',
-      elementProperties: elementLocalNode.elements.reduce<
+      elementStructure: elementLocalNode.elements.map<
         TupleElement<
           TerminalElement<ThisParameterReferenceElement>
-        >['elementProperties']
+        >['elementStructure'][number]
       >(
-        (
-          tuplePropertyElementsResult,
-          someTuplePropertyNode,
-          tuplePropertyIndex,
-        ) => {
-          if (Typescript.isNamedTupleMember(someTuplePropertyNode)) {
-            const tuplePropertyKey = someTuplePropertyNode.name.text;
-            tuplePropertyElementsResult[tuplePropertyKey] = {
-              propertyIndex: tuplePropertyIndex,
+        (someTupleStructureNode) => {
+          if (Typescript.isNamedTupleMember(someTupleStructureNode)) {
+            const tuplePropertyKey = someTupleStructureNode.name.text;
+            return {
               propertyKey: tuplePropertyKey,
               propertyElement: derivePropertyElement__({
                 schemaTypeChecker,
                 schemaDeriveTypeQueue,
-                elementLocalNode: someTuplePropertyNode.type,
+                elementLocalNode: someTupleStructureNode.type,
               }),
             };
+          } else if (
+            Typescript.isRestTypeNode(someTupleStructureNode) &&
+            Typescript.isTypeReferenceNode(someTupleStructureNode.type) &&
+            Typescript.isIdentifier(someTupleStructureNode.type.typeName)
+          ) {
+            return {
+              spreadElement: deriveSpreadElement__({
+                schemaTypeChecker,
+                schemaDeriveTypeQueue,
+                elementLocalNode: someTupleStructureNode.type,
+              }),
+            }
+          } else {
+            throwInvalidTupleStructure__UnnamedTupleProperty({
+              tupleStructureNode: someTupleStructureNode,
+            });
           }
-          // else if (Typescript.isRestTypeNode(someTuplePropertyNode) && Typescript.isTypeReferenceNode(someTuplePropertyNode.type) && Typescript.isIdentifier(someTuplePropertyNode.type.typeName)) {
-          //   someTuplePropertyNode.type.
-          //   throw someTuplePropertyNode.type.typeName.text
-          // }
-          return tuplePropertyElementsResult;
         },
-        {},
       ),
     };
   }
   return null;
 }
+
+interface DerivePropertyElementApi__ extends
+  Pick<
+    __DeriveSchemaElementApi<irrelevantAny>,
+    'schemaTypeChecker' | 'schemaDeriveTypeQueue' | 'elementLocalNode'
+  > {}
 
 export function nullElementResolver(
   api: ElementResolverApi,

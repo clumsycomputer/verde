@@ -39,4 +39,7 @@ interface Model__GG<GgParameter__AA> {
   ggProperty__II: VerdeArray<
     boolean | number | string | Model__AA | Alias__AA | GgParameter__AA
   >;
+  ggProperty__JJ: [...Alias__BB, __ggProperty__11: string]
 }
+
+type Alias__BB = [bbProperty__00: number]

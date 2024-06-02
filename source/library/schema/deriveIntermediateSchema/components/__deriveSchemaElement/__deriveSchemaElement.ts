@@ -2,7 +2,7 @@ import { genericAny, irrelevantAny } from '../../../../../helpers/types.ts';
 import { Typescript } from '../../../../../imports/Typescript.ts';
 import {
   __DeriveIntermediateSchemaApi,
-  SchemaDeriveTypeQueueOperation,
+  DeriveSchemaTypeOperation,
 } from '../../deriveIntermediateSchema.ts';
 import { throwInvalidSchemaElement } from '../../errors.ts';
 import { resolveElementSourceDeclaration } from '../__resolveSourceDeclaration.ts';
@@ -10,6 +10,7 @@ import {
   BASIC_REFERENCE_ELEMENT_RESOLVERS,
   DEFINITIVE_ELEMENT_RESOLVERS,
   DEFINITIVE_GENERAL_UNION_MEMBER_ELEMENT_RESOLVERS,
+  DEFINITIVE_TUPLE_SPREAD_ELEMENT_RESOLVERS,
   DEFINITIVE_VERDE_ARRAY_ELEMENT_RESOLVERS,
   DEFINITIVE_VERDE_ARRAY_UNION_MEMBER_ELEMENT_RESOLVERS,
   DEFINITIVE_VERDE_TABLE_ELEMENT_RESOLVERS,
@@ -17,6 +18,7 @@ import {
   GENERIC_TEMPLATE_MODEL_ELEMENT_RESOLVERS,
   GENERIC_TEMPLATE_MODEL_GENERAL_UNION_MEMBER_ELEMENT_RESOLVERS,
   GENERIC_TEMPLATE_MODEL_REFERENCE_ELEMENT_RESOLVERS,
+  GENERIC_TEMPLATE_MODEL_TUPLE_SPREAD_ELEMENT_RESOLVERS,
   GENERIC_TEMPLATE_MODEL_VERDE_ARRAY_ELEMENT_RESOLVERS,
   GENERIC_TEMPLATE_MODEL_VERDE_ARRAY_UNION_MEMBER_ELEMENT_RESOLVERS,
   GENERIC_TEMPLATE_MODEL_VERDE_TABLE_ELEMENT_RESOLVERS,
@@ -255,13 +257,49 @@ export function deriveGenericTemplateModelGeneralUnionMemberElement(
   });
 }
 
+interface DeriveDefinitiveSpreadAliasElementApi extends
+  Pick<
+    __DeriveSchemaElementApi<irrelevantAny>,
+    'schemaTypeChecker' | 'schemaDeriveTypeQueue' | 'elementLocalNode'
+  > {}
+
+export function deriveDefinitiveTupleSpreadElement(
+  api: DeriveDefinitiveSpreadAliasElementApi,
+) {
+  const { schemaTypeChecker, schemaDeriveTypeQueue, elementLocalNode } = api;
+  return __deriveSchemaElement({
+    schemaTypeChecker,
+    schemaDeriveTypeQueue,
+    elementLocalNode,
+    elementResolvers__: DEFINITIVE_TUPLE_SPREAD_ELEMENT_RESOLVERS
+  });
+}
+
+interface DeriveGenericTemplateModelSpreadAliasElementApi extends
+  Pick<
+    __DeriveSchemaElementApi<irrelevantAny>,
+    'schemaTypeChecker' | 'schemaDeriveTypeQueue' | 'elementLocalNode'
+  > {}
+
+export function deriveGenericTemplateModelTupleSpreadElement(
+  api: DeriveGenericTemplateModelSpreadAliasElementApi,
+) {
+  const { schemaTypeChecker, schemaDeriveTypeQueue, elementLocalNode } = api;
+  return __deriveSchemaElement({
+    schemaTypeChecker,
+    schemaDeriveTypeQueue,
+    elementLocalNode,
+    elementResolvers__: GENERIC_TEMPLATE_MODEL_TUPLE_SPREAD_ELEMENT_RESOLVERS,
+  });
+}
+
 export interface __DeriveSchemaElementApi<
   ThisElementResolvers extends readonly [
     ElementResolver<genericAny>,
     ...Array<ElementResolver<genericAny>>,
   ],
 > extends Pick<__DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {
-  schemaDeriveTypeQueue: Array<SchemaDeriveTypeQueueOperation>;
+  schemaDeriveTypeQueue: Array<DeriveSchemaTypeOperation>;
   elementLocalNode: Typescript.Node;
   elementResolvers__: ThisElementResolvers;
 }

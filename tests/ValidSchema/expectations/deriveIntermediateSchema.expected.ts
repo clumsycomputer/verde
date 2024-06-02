@@ -8,22 +8,22 @@ export const expectedIntermediateSchema = {
       elementMembers: [
         {
           elementKind: 'dataModelReference',
-          elementName: 'Model__AA'
+          elementName: 'Model__AA',
         },
         {
           elementKind: 'aliasReference',
-          elementName: 'Alias__AA'
+          elementName: 'Alias__AA',
         },
         {
           elementKind: 'dataModelReference',
-          elementName: 'Model__BB'
+          elementName: 'Model__BB',
         },
         {
           elementKind: 'dataModelReference',
-          elementName: 'Model__FF'
-        }
-      ]
-    }
+          elementName: 'Model__FF',
+        },
+      ],
+    },
   },
   schemaTypes: {
     Model__AA: {
@@ -118,22 +118,19 @@ export const expectedIntermediateSchema = {
           propertyKey: 'aaProperty__LL',
           propertyElement: {
             elementKind: 'tupleStructure',
-            elementProperties: {
-              __llProperty__AA: {
-                propertyIndex: 0,
-                propertyKey: '__llProperty__AA',
-                propertyElement: {
-                  elementKind: 'numberPrimitive',
-                },
+            elementStructure: [{
+              propertyKey: '__llProperty__AA',
+              propertyElement: {
+                elementKind: 'numberPrimitive',
               },
-            },
+            }],
           },
         },
         aaProperty__MM: {
           propertyKey: 'aaProperty__MM',
           propertyElement: {
             elementKind: 'objectStructure',
-            elementProperties: {
+            elementStructure: {
               __mmProperty__AA: {
                 propertyKey: '__mmProperty__AA',
                 propertyElement: {
@@ -465,8 +462,8 @@ export const expectedIntermediateSchema = {
       typeSourcePath: '/home/verde/tests/ValidSchema/schema/Schema__AA.ts',
       typeAliasElement: {
         elementKind: 'dataModelReference',
-        elementName: 'Model__AA'
-      }
-    }
-  }
+        elementName: 'Model__AA',
+      },
+    },
+  },
 } satisfies IntermediateSchema;

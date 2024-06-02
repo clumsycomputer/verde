@@ -11,15 +11,15 @@ export function assertAndLogExpectations<ThisData>(
 ) {
   const { expectedData, actualData, expectationCases } = api;
   Assert.assertEquals(expectedData, actualData);
-  expectationCases.forEach((someExpectationCase) => {
-    console.log();
-    someExpectationCase.caseNotes.forEach(
-      (someCaseNote) => {
-        console.log(someCaseNote);
-        console.log();
-      },
-    );
-  });
+  // expectationCases.forEach((someExpectationCase) => {
+  //   console.log();
+  //   someExpectationCase.caseNotes.forEach(
+  //     (someCaseNote) => {
+  //       console.log(someCaseNote);
+  //       console.log();
+  //     },
+  //   );
+  // });
 }
 
 export interface ExpectationCase {
