@@ -1,7 +1,17 @@
 import { irrelevantAny } from '../../../../../helpers/types.ts';
 import { Typescript } from '../../../../../imports/Typescript.ts';
-import { ConcreteTemplateIntermediateSchemaModel, DataIntermediateSchemaModel, GenericTemplateIntermediateSchemaModel, IntermediateSchemaModel } from '../../../types/IntermediateSchema.ts';
-import { __DeriveSchemaElementApi, deriveDefinitiveElement, deriveGenericTemplateModelElement } from '../__deriveSchemaElement/__deriveSchemaElement.ts';
+import {
+  ConcreteTemplateIntermediateSchemaModel,
+  DataIntermediateSchemaModel,
+  GenericTemplateIntermediateSchemaModel,
+  IntermediateSchemaModel,
+} from '../../../types/IntermediateSchema.ts';
+import { throwInvalidModel__NonPropertySignature } from '../../errors.ts';
+import {
+  __DeriveSchemaElementApi,
+  deriveDefinitiveElement,
+  deriveGenericTemplateModelElement,
+} from '../__deriveSchemaElement/__deriveSchemaElement.ts';
 import { DeriveModelPropertiesApi__ } from './__deriveSchemaType.ts';
 
 export function deriveModelProperties__deriveDefinitiveModelType__(
@@ -62,21 +72,25 @@ function __deriveModelProperties__<
   return typeSourceDeclaration.members.reduce<
     ThisSchemaType['typeModelProperties']
   >(
-    (modelPropertiesResult, somePropertyNode) => {
+    (modelPropertiesResult, someModelMemberNode) => {
       if (
-        Typescript.isPropertySignature(somePropertyNode) &&
-        Typescript.isIdentifier(somePropertyNode.name) &&
-        somePropertyNode.type
+        Typescript.isPropertySignature(someModelMemberNode) &&
+        Typescript.isIdentifier(someModelMemberNode.name) &&
+        someModelMemberNode.type
       ) {
-        const propertyKey = somePropertyNode.name.text;
+        const propertyKey = someModelMemberNode.name.text;
         modelPropertiesResult[propertyKey] = {
           propertyKey,
           propertyElement: deriveModelElement__({
             schemaTypeChecker,
             schemaDeriveTypeQueue,
-            elementLocalNode: somePropertyNode.type,
+            elementLocalNode: someModelMemberNode.type,
           }),
         };
+      } else {
+        throwInvalidModel__NonPropertySignature({
+          modelMemberNode: someModelMemberNode,
+        });
       }
       return modelPropertiesResult;
     },

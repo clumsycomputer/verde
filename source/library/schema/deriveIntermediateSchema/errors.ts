@@ -166,6 +166,7 @@ export function throwInvalidGenericTemplateModelParameter__DefaultArgument(
 interface ThrowInvalidObjecStructureApi__NonPropertySignature {
   objectStructureNode: Typescript.TypeElement;
 }
+
 export function throwInvalidObjectStructure__NonPropertySignature(
   api: ThrowInvalidObjecStructureApi__NonPropertySignature,
 ): never {
@@ -179,11 +180,25 @@ export function throwInvalidObjectStructure__NonPropertySignature(
 interface ThrowInvalidTupleStructureApi__UnnamedTupleProperty {
   tupleStructureNode: Typescript.TypeNode;
 }
+
 export function throwInvalidTupleStructure__UnnamedTupleProperty(
   api: ThrowInvalidTupleStructureApi__UnnamedTupleProperty,
 ): never {
   const { tupleStructureNode } = api;
   throwUserError(
     `invalid tuple structure: tuple properties must have a name ("${tupleStructureNode.getText()}" in "${tupleStructureNode.parent.getText()}")`,
+  );
+}
+
+interface ThrowInvalidModelApi__NonPropertySignature {
+  modelMemberNode: Typescript.TypeElement;
+}
+
+export function throwInvalidModel__NonPropertySignature(
+  api: ThrowInvalidModelApi__NonPropertySignature,
+): never {
+  const { modelMemberNode } = api;
+  throwUserError(
+    `invalid model: non-property signature ("${modelMemberNode.getText()}" in "${modelMemberNode.parent.getText()}")`,
   );
 }

@@ -1,6 +1,8 @@
 import { genericAny, irrelevantAny } from '../../../../../helpers/types.ts';
 import { Typescript } from '../../../../../imports/Typescript.ts';
 import {
+  __CollectionElement,
+  __UnionElement,
   AliasReferenceElement,
   BooleanLiteralElement,
   BooleanPrimitiveElement,
@@ -22,10 +24,11 @@ import {
   VerdeArrayUnionElement,
   VerdeTableElement,
   VerdeTableUnionElement,
-  __CollectionElement,
-  __UnionElement,
 } from '../../../types/SchemaElement.ts';
-import { throwInvalidObjectStructure__NonPropertySignature, throwInvalidTupleStructure__UnnamedTupleProperty } from '../../errors.ts';
+import {
+  throwInvalidObjectStructure__NonPropertySignature,
+  throwInvalidTupleStructure__UnnamedTupleProperty,
+} from '../../errors.ts';
 import {
   deriveAliasType,
   deriveDataModelType,
@@ -413,7 +416,7 @@ interface __CollectionElementResolverApi<
     api: CreateCollectionElementApi__<ThisCollectionElement>,
   ) => ThisCollectionElement;
   deriveArgumentElement__: (
-    api: DerivePropertyElementApi__,
+    api: DeriveArgumentElementApi__,
   ) => ThisCollectionElement['elementArguments'][0];
 }
 
@@ -422,6 +425,12 @@ interface CreateCollectionElementApi__<
 > {
   elementArguments: [ThisCollectionElement['elementArguments'][number]];
 }
+
+interface DeriveArgumentElementApi__ extends
+  Pick<
+    __CollectionElementResolverApi<irrelevantAny>,
+    'schemaTypeChecker' | 'schemaDeriveTypeQueue' | 'elementLocalNode'
+  > {}
 
 function __collectionElementResolver<
   ThisCollectionElement extends __CollectionElement<genericAny, genericAny>,
@@ -509,11 +518,17 @@ interface __ObjectElementResolverApi<
   ThisParameterReferenceElement,
 > extends ElementResolverApi {
   derivePropertyElement__: (
-    api: DerivePropertyElementApi__,
+    api: DeriveObjectPropertyElementApi__,
   ) => ObjectElement<
     TerminalElement<ThisParameterReferenceElement>
   >['elementStructure'][string]['propertyElement'];
 }
+
+interface DeriveObjectPropertyElementApi__ extends
+  Pick<
+    __ObjectElementResolverApi<irrelevantAny>,
+    'schemaTypeChecker' | 'schemaDeriveTypeQueue' | 'elementLocalNode'
+  > {}
 
 function __objectElementResolver<ThisParameterReferenceElement>(
   api: __ObjectElementResolverApi<ThisParameterReferenceElement>,
@@ -551,8 +566,8 @@ function __objectElementResolver<ThisParameterReferenceElement>(
             };
           } else {
             throwInvalidObjectStructure__NonPropertySignature({
-              objectStructureNode: someObjectStructureNode
-            })
+              objectStructureNode: someObjectStructureNode,
+            });
           }
           return elementStructureResult;
         },
@@ -615,18 +630,26 @@ interface __TupleElementResolverApi<
   ThisParameterReferenceElement,
 > extends ElementResolverApi {
   derivePropertyElement__: (
-    api: DerivePropertyElementApi__,
+    api: DeriveTuplePropertyElementApi__,
   ) => StructureProperty<
     TerminalElement<ThisParameterReferenceElement>
   >['propertyElement'];
   deriveSpreadElement__: (
     api: DeriveSpreadElementApi__,
-  ) => TupleSpreadReference<TerminalElement<ThisParameterReferenceElement>>['spreadElement'];
+  ) => TupleSpreadReference<
+    TerminalElement<ThisParameterReferenceElement>
+  >['spreadElement'];
 }
+
+interface DeriveTuplePropertyElementApi__ extends
+  Pick<
+    __TupleElementResolverApi<irrelevantAny>,
+    'schemaTypeChecker' | 'schemaDeriveTypeQueue' | 'elementLocalNode'
+  > {}
 
 interface DeriveSpreadElementApi__ extends
   Pick<
-    __DeriveSchemaElementApi<irrelevantAny>,
+    __TupleElementResolverApi<irrelevantAny>,
     'schemaTypeChecker' | 'schemaDeriveTypeQueue' | 'elementLocalNode'
   > {}
 
@@ -676,7 +699,7 @@ function __tupleElementResolver<
                 schemaDeriveTypeQueue,
                 elementLocalNode: someTupleStructureNode.type,
               }),
-            }
+            };
           } else {
             throwInvalidTupleStructure__UnnamedTupleProperty({
               tupleStructureNode: someTupleStructureNode,
@@ -688,12 +711,6 @@ function __tupleElementResolver<
   }
   return null;
 }
-
-interface DerivePropertyElementApi__ extends
-  Pick<
-    __DeriveSchemaElementApi<irrelevantAny>,
-    'schemaTypeChecker' | 'schemaDeriveTypeQueue' | 'elementLocalNode'
-  > {}
 
 export function nullElementResolver(
   api: ElementResolverApi,
@@ -1061,7 +1078,7 @@ interface CreateUnionElementApi__<
 
 interface DeriveMemberElementApi__ extends
   Pick<
-    __DeriveSchemaElementApi<irrelevantAny>,
+    __UnionElementResolverApi<irrelevantAny>,
     'schemaTypeChecker' | 'schemaDeriveTypeQueue' | 'elementLocalNode'
   > {}
 
