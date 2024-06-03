@@ -31,4 +31,12 @@ export const expectedDeriveIntermediateSchemaErrors = {
     'invalid type declaration: "Model__AA" is defined in multiple files',
   'Schema__DefaultParameterArgument.ts':
     'invalid generic template model parameter: default arguments not supported ("BbParameter__AA" on "Model__BB")',
+  'Schema__UnnamedTupleProperty.ts':
+    'invalid tuple structure: tuple properties must have a name ("number" in "[number]")',
+  'Schema__TupleArraySpread.ts':
+    'invalid schema element: Array<string> at ...Array<string>',
+  'Schema__ModelIndexProperty.ts':
+    'invalid model: non-property signature ("[aaKey: string]: string;" in "interface Model__AA {\n  [aaKey: string]: string;\n}")',
+  'Schema__ObjectIndexProperty.ts':
+    'invalid object structure: non-property signature ("[__aaKey: string]: string;" in "{\n    [__aaKey: string]: string;\n  }")',
 };
