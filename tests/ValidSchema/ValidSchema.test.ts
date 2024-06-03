@@ -11,8 +11,8 @@ Deno.test(validSchemaTest);
 async function validSchemaTest() {
   const schemaDirectoryPath = getPathFromThisDirectory({
     thisImportMetaUrl: import.meta.url,
-    directoryPosfixPath: './schema'
-  })
+    directoryPosfixPath: './schema',
+  });
   const { schemaSources } = await readSchemaSources({
     schemaDirectoryPath,
   });
@@ -28,5 +28,3 @@ async function validSchemaTest() {
     }),
   });
 }
-
-

@@ -55,7 +55,7 @@ function __deriveIntermediateSchema(
   };
   for (
     const {
-      operationDeriveSchemaType: deriveOperationSchemaType,
+      operationDeriveSchemaType: deriveSchemaType,
       operationTypeArguments: {
         typeLocalSymbol,
         typeSourceSymbol,
@@ -63,17 +63,15 @@ function __deriveIntermediateSchema(
       },
     } of schemaDeriveTypeQueue
   ) {
-    const derivedOperationSchemaType =
-      (deriveOperationSchemaType as DeriveOperationSchemaType)({
-        schemaTypeChecker,
-        schemaDeriveTypeQueue,
-        schemaResult,
-        typeLocalSymbol,
-        typeSourceSymbol,
-        typeSourceDeclaration,
-      });
-    schemaResult.schemaTypes[derivedOperationSchemaType.typeName] =
-      derivedOperationSchemaType;
+    const derivedSchemaType = (deriveSchemaType as DeriveSchemaType)({
+      schemaTypeChecker,
+      schemaDeriveTypeQueue,
+      schemaResult,
+      typeLocalSymbol,
+      typeSourceSymbol,
+      typeSourceDeclaration,
+    });
+    schemaResult.schemaTypes[derivedSchemaType.typeName] = derivedSchemaType;
   }
   return schemaResult;
 }
@@ -110,11 +108,11 @@ interface __DeriveSchemaTypeOperation<
   >;
 }
 
-type DeriveOperationSchemaType = (
-  api: DeriveOperationSchemaTypeApi,
+type DeriveSchemaType = (
+  api: DeriveSchemaTypeApi,
 ) => IntermediateSchemaType;
 
-interface DeriveOperationSchemaTypeApi extends
+interface DeriveSchemaTypeApi extends
   Pick<
     Parameters<DeriveSchemaTypeOperation['operationDeriveSchemaType']>[0],
     | 'schemaTypeChecker'

@@ -23,11 +23,15 @@ interface Model__AA {
 
 type Alias__AA = Model__AA;
 
-interface Model__FF extends Model__CC, Model__GG<Model__AA> {
+interface Model__FF
+  extends Model__CC, Model__GG<Model__AA, [__ffProperty__00: number]> {
   ffProperty__AA: Model__BB;
 }
 
-interface Model__GG<GgParameter__AA> {
+interface Model__GG<
+  GgParameter__AA,
+  GgParameter__BB extends [number, ...Array<number>],
+> {
   ggProperty__AA: VerdeTable<GgParameter__AA>;
   ggProperty__BB: VerdeTable<Model__AA>;
   ggProperty__CC: VerdeTable<Model__AA | Alias__AA | GgParameter__AA>;
@@ -39,4 +43,9 @@ interface Model__GG<GgParameter__AA> {
   ggProperty__II: VerdeArray<
     boolean | number | string | Model__AA | Alias__AA | GgParameter__AA
   >;
+  ggProperty__JJ: [...Alias__CC, ...GgParameter__BB];
 }
+
+type Alias__BB = [bbProperty__00: number];
+
+type Alias__CC = [...Alias__BB, ccProperty__11: string];

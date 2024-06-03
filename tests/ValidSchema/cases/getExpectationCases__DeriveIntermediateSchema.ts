@@ -566,7 +566,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(777, 1289),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeTable<Model__AA>/,
@@ -609,7 +609,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeTable<GgParameter__AA>/,
@@ -656,7 +656,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -737,7 +737,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -820,7 +820,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -897,7 +897,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeArray<boolean>/,
@@ -940,7 +940,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeArray<number>/,
@@ -1025,7 +1025,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeArray<Model__AA>/,
@@ -1068,7 +1068,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeArray<Alias__AA>/,
@@ -1113,7 +1113,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /VerdeArray<GgParameter__AA>/,
@@ -1160,7 +1160,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -1241,7 +1241,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -1322,7 +1322,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -1403,7 +1403,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -1484,7 +1484,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -1567,7 +1567,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(776, 1288),
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
           textPatterns: [
             {
               patternStyle: [3, 1, 44],
@@ -2112,7 +2112,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(0, 775),
+          textSource: schemaSources['Schema__AA.ts']!.substring(0, 1432),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /Model__CC/,
@@ -2145,7 +2145,7 @@ export function getExpectationCases__DeriveIntermediateSchema(
           ],
         }),
         styledText({
-          textSource: schemaSources['Schema__AA.ts']!.substring(0, 775),
+          textSource: schemaSources['Schema__AA.ts']!.substring(0, 1432),
           textPatterns: [{
             patternStyle: [3, 1, 44],
             patternRegex: /Model__BB/,

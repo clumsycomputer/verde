@@ -212,6 +212,19 @@ export const expectedIntermediateSchema = {
                 elementName: 'Model__AA',
               },
             },
+            GgParameter__BB: {
+              argumentIndex: 1,
+              argumentParameterName: 'GgParameter__BB',
+              argumentElement: {
+                elementKind: 'tupleStructure',
+                elementStructure: [{
+                  propertyKey: '__ffProperty__00',
+                  propertyElement: {
+                    elementKind: 'numberPrimitive'
+                  }
+                }]
+              }
+            }
           },
         },
       ],
@@ -325,10 +338,17 @@ export const expectedIntermediateSchema = {
       typeKind: 'genericTemplateModel',
       typeName: 'Model__GG',
       typeSourcePath: '/home/verde/tests/ValidSchema/schema/Schema__AA.ts',
-      typeModelParameters: [{
+      typeModelParameters: [
+        {
         parameterKind: 'basic',
         parameterName: 'GgParameter__AA',
-      }],
+      },
+      {
+        parameterKind: 'constrained',
+        parameterName: 'GgParameter__BB',
+        parameterConstraint: '[number, ...number[]]'
+      }
+    ],
       typeModelTemplates: [],
       typeModelProperties: {
         ggProperty__AA: {
@@ -454,6 +474,26 @@ export const expectedIntermediateSchema = {
             }],
           },
         },
+        ggProperty__JJ: {
+          propertyKey: 'ggProperty__JJ',
+          propertyElement: {
+            elementKind: 'tupleStructure',
+            elementStructure: [
+              {
+                spreadElement: {
+                  elementKind: 'aliasReference',
+                  elementName: 'Alias__CC'
+                },
+              },
+              {
+                spreadElement: {
+                  elementKind: 'parameterReference',
+                  elementName: 'GgParameter__BB'
+                }
+              }
+            ]
+          }
+        }
       },
     },
     Alias__AA: {
@@ -463,6 +503,41 @@ export const expectedIntermediateSchema = {
       typeAliasElement: {
         elementKind: 'dataModelReference',
         elementName: 'Model__AA',
+      },
+    },
+    Alias__BB: {
+      typeKind: 'alias',
+      typeName: 'Alias__BB',
+      typeSourcePath: '/home/verde/tests/ValidSchema/schema/Schema__AA.ts',
+      typeAliasElement: {
+        elementKind: 'tupleStructure',
+        elementStructure: [{
+          propertyKey: 'bbProperty__00',
+          propertyElement: {
+            elementKind: 'numberPrimitive',
+          },
+        }],
+      },
+    },
+    Alias__CC: {
+      typeKind: 'alias',
+      typeName: 'Alias__CC',
+      typeSourcePath: '/home/verde/tests/ValidSchema/schema/Schema__AA.ts',
+      typeAliasElement: {
+        elementKind: 'tupleStructure',
+        elementStructure: [
+          {
+            spreadElement: {
+              elementKind: 'aliasReference',
+              elementName: 'Alias__BB'
+            }
+          },
+          {
+          propertyKey: 'ccProperty__11',
+          propertyElement: {
+            elementKind: 'stringPrimitive',
+          },
+        }],
       },
     },
   },
