@@ -116,9 +116,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource:
-            expectedIntermediateSchema.schemaTypes['Model__AA']!
-              .typeModelProperties['aaProperty__AA'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__AA']!
+            .typeModelProperties['aaProperty__AA'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -152,9 +151,8 @@ export function getExpectationCases__DeriveIntermediateSchema(
           }],
         }),
         styledJson({
-          jsonSource:
-            expectedIntermediateSchema.schemaTypes['Model__AA']
-              .typeModelProperties['aaProperty__BB'],
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__AA']
+            .typeModelProperties['aaProperty__BB'],
           jsonNodes: [leafJsonNode({
             nodeKey: 'propertyElement',
             nodeStyle: [3, 1, 44],
@@ -2363,6 +2361,131 @@ export function getExpectationCases__DeriveIntermediateSchema(
                 nodeChildren: [leafJsonNode({
                   nodeKey: 'propertyElement',
                   nodeStyle: [3, 1, 44],
+                })],
+              })],
+            }),
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey:
+        'tupleSpreadReference-aliasReferenceElement__genericTemplateModelProperty',
+      caseNotes: [
+        styledText({
+          textSource:
+            'tuple spread reference => alias reference element (generic template model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            'GenericTemplateIntermediateModel["typeModelProperties"][string] => TupleStructureElement["elementStructure"][number] => TupleSpreadReference["spreadElement"] => AliasReferenceElement',
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /TupleSpreadReference/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /AliasReferenceElement/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(1379, 1430),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /\.\.\.Alias__CC/,
+            },
+          ],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG']
+            .typeModelProperties['ggProperty__JJ'],
+          jsonNodes: [
+            branchJsonNode({
+              nodeKey: 'propertyElement',
+              nodeChildren: [branchJsonNode({
+                nodeKey: 'elementStructure',
+                nodeChildren: [leafJsonNode({
+                  nodeKey: 0,
+                  nodeStyle: [3, 1, 44],
+                })],
+              })],
+            }),
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'parameterTupleSpreadElement',
+      caseNotes: [
+        styledText({
+          textSource: 'parameter tuple spread element',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource:
+            'GenericTemplateIntermediateModel["typeModelProperties"][string] => TupleStructureElement["elementStructure"][number] => TupleSpreadReference["spreadElement"] => ParameterReferenceElement',
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /TupleSpreadReference/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /ParameterReferenceElement/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AA.ts']!.substring(807, 1432),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /GgParameter__BB/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(0, 1),
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /\.\.\.GgParameter__BB/,
+            },
+          ],
+        }),
+        styledJson({
+          jsonSource: expectedIntermediateSchema.schemaTypes['Model__GG'],
+          jsonNodes: [
+            branchJsonNode({
+              nodeKey: 'typeModelParameters',
+              nodeChildren: [branchJsonNode({
+                nodeKey: 1,
+                nodeChildren: [leafJsonNode({
+                  nodeKey: 'parameterName',
+                  nodeStyle: [3, 1, 44],
+                })],
+              })],
+            }),
+            branchJsonNode({
+              nodeKey: 'typeModelProperties',
+              nodeChildren: [branchJsonNode({
+                nodeKey: 'ggProperty__JJ',
+                nodeChildren: [branchJsonNode({
+                  nodeKey: 'propertyElement',
+                  nodeChildren: [branchJsonNode({
+                    nodeKey: 'elementStructure',
+                    nodeChildren: [leafJsonNode({
+                      nodeKey: 1,
+                      nodeStyle: [3, 1, 44],
+                    })],
+                  })],
                 })],
               })],
             }),

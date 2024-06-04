@@ -4,5 +4,5 @@
     "deno.disablePaths": [
         "./.code-server"
     ],
-    "terminal.integrated.scrollback": 3000
+    "terminal.integrated.scrollback": 5000
 }
