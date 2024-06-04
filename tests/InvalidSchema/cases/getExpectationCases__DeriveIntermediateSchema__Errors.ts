@@ -406,15 +406,23 @@ export function getExpectationCases__DeriveIntermediateSchema__Errors(
           textPatterns: [
             {
               patternStyle: [3, 1, 41],
-              patternRegex: /invalid model usage/,
+              patternRegex: /invalid type usage/,
             },
             {
               patternStyle: [3, 1, 41],
-              patternRegex: /registered as data model/,
+              patternRegex: /concreteTemplateModel/,
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /already registered/,
             },
             {
               patternStyle: [3, 1, 44],
               patternRegex: /Model__AA/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /dataModel/,
             },
           ],
         }),
@@ -424,28 +432,30 @@ export function getExpectationCases__DeriveIntermediateSchema__Errors(
       caseKey: 'concreteTemplateModelUsedAsDataModel__schemaExportMember',
       caseNotes: [
         styledText({
-          textSource: 'concrete template model used as data model (schema export member)',
+          textSource:
+            'concrete template model used as data model (schema export member)',
           textPatterns: [{
             patternStyle: [1, 4],
             patternRegex: /^.*$/,
           }],
         }),
         styledText({
-          textSource: schemaSources['Schema__ConcreteTemplateModelRegistered.ts']!
-            .trim(),
+          textSource:
+            schemaSources['Schema__ConcreteTemplateModelRegistered.ts']!
+              .trim(),
           textPatterns: [
-            {
-              patternStyle: [3, 1, 41],
-              patternRegex: /Model__BB/,
-              getFilteredPattern: ({ patternMatches }) =>
-                patternMatches.slice(0, 1),
-            },
             {
               patternStyle: [3, 1, 44],
               patternRegex: /Model__BB/,
               getFilteredPattern: ({ patternMatches }) =>
-                patternMatches.slice(1, 2),
-            }
+                patternMatches.slice(0, 2),
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /Model__BB/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(2, 3),
+            },
           ],
         }),
         styledText({
@@ -455,15 +465,367 @@ export function getExpectationCases__DeriveIntermediateSchema__Errors(
           textPatterns: [
             {
               patternStyle: [3, 1, 41],
-              patternRegex: /invalid model usage/,
+              patternRegex: /invalid type usage/,
             },
             {
               patternStyle: [3, 1, 41],
-              patternRegex: /registered as concrete template model/,
+              patternRegex: /dataModel/,
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /already registered/,
             },
             {
               patternStyle: [3, 1, 44],
               patternRegex: /Model__BB/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /concreteTemplateModel/,
+            },
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'aliasUsedAsDataModel__modelProperty',
+      caseNotes: [
+        styledText({
+          textSource: 'alias used as data model (model property)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__AliasRegistered.ts']!
+            .trim(),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /SharedReferenceTypeName/,
+            },
+            {
+              patternStyle: [3, 1, 45],
+              patternRegex: /Model__BB/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.splice(0, 1),
+            },
+            {
+              patternStyle: [3, 1, 45],
+              patternRegex: /Model__BB/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.splice(2, 3),
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['AliasRegisteredModel__BB.ts']!
+            .trim(),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 45],
+              patternRegex: /Model__BB/,
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /SharedReferenceTypeName/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: expectedDeriveIntermediateSchemaErrors[
+            'Schema__AliasRegistered.ts'
+          ]!,
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /invalid type usage/,
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /dataModel/,
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /already registered/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /SharedReferenceTypeName/,
+            },
+            {
+              patternStyle: [3, 1, 44],
+              patternRegex: /alias/,
+            },
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'modelDeclaredMultipleFiles',
+      caseNotes: [
+        styledText({
+          textSource: 'model declared in multiple files',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__PrivateDoubleDeclaration.ts']!
+            .trim(),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /interface Model__AA/,
+            },
+            {
+              patternStyle: [3, 1, 45],
+              patternRegex: /Model__BB/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(0, 1),
+            },
+          ],
+        }),
+        styledText({
+          textSource: schemaSources['PrivateDoubleDeclarationModel__BB.ts']!
+            .trim(),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 45],
+              patternRegex: /Model__BB/,
+              getFilteredPattern: ({ patternMatches }) =>
+                patternMatches.slice(0, 1),
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /interface Model__AA/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: expectedDeriveIntermediateSchemaErrors[
+            'Schema__PrivateDoubleDeclaration.ts'
+          ]!,
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /invalid type declaration/,
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /Model__AA/,
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /multiple files/,
+            },
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'defaultParameterArgument__modelTemplate',
+      caseNotes: [
+        styledText({
+          textSource: 'default parameter argument (model template)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__DefaultParameterArgumentEmpty.ts']!
+            .trim(),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /extends Model__BB/,
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /BbParameter__AA = number/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: expectedDeriveIntermediateSchemaErrors[
+            'Schema__DefaultParameterArgumentEmpty.ts'
+          ]!,
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /extends Model__BB/,
+            },
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'defaultParameterArgument__genericTemplateModel',
+      caseNotes: [
+        styledText({
+          textSource: 'default parameter argument (generic template model)',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__DefaultParameterArgument.ts']!
+            .trim(),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /= number/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: expectedDeriveIntermediateSchemaErrors[
+            'Schema__DefaultParameterArgument.ts'
+          ]!,
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /BbParameter__AA/,
+            },
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /default arguments/,
+            },
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'unnamedTupleProperty',
+      caseNotes: [
+        styledText({
+          textSource: 'unnamed tuple property',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__UnnamedTupleProperty.ts']!
+            .trim(),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /\[number\]/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: expectedDeriveIntermediateSchemaErrors[
+            'Schema__UnnamedTupleProperty.ts'
+          ]!,
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /must have a name/,
+            },
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'tupleArraySpread',
+      caseNotes: [
+        styledText({
+          textSource: 'tuple array spread',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__TupleArraySpread.ts']!
+            .trim(),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /\.\.\.Array<string>/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: expectedDeriveIntermediateSchemaErrors[
+            'Schema__TupleArraySpread.ts'
+          ]!,
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /\.\.\.Array<string>/,
+            },
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'modelIndexProperty',
+      caseNotes: [
+        styledText({
+          textSource: 'model index property',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__ModelIndexProperty.ts']!
+            .trim(),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /\[aaKey: string\]: string;/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: expectedDeriveIntermediateSchemaErrors[
+            'Schema__ModelIndexProperty.ts'
+          ]!,
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /non-property signature/,
+            },
+          ],
+        }),
+      ],
+    },
+    {
+      caseKey: 'objectIndexProperty',
+      caseNotes: [
+        styledText({
+          textSource: 'object index property',
+          textPatterns: [{
+            patternStyle: [1, 4],
+            patternRegex: /^.*$/,
+          }],
+        }),
+        styledText({
+          textSource: schemaSources['Schema__ObjectIndexProperty.ts']!
+            .trim(),
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /\[__aaKey: string\]: string;/,
+            },
+          ],
+        }),
+        styledText({
+          textSource: expectedDeriveIntermediateSchemaErrors[
+            'Schema__ObjectIndexProperty.ts'
+          ]!,
+          textPatterns: [
+            {
+              patternStyle: [3, 1, 41],
+              patternRegex: /non-property signature/,
             },
           ],
         }),

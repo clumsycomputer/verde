@@ -176,20 +176,6 @@ export function throwInvalidObjectStructure__NonPropertySignature(
   );
 }
 
-
-interface ThrowInvalidTupleStructureApi__UnnamedTupleProperty {
-  tupleStructureNode: Typescript.TypeNode;
-}
-
-export function throwInvalidTupleStructure__UnnamedTupleProperty(
-  api: ThrowInvalidTupleStructureApi__UnnamedTupleProperty,
-): never {
-  const { tupleStructureNode } = api;
-  throwUserError(
-    `invalid tuple structure: tuple properties must have a name ("${tupleStructureNode.getText()}" in "${tupleStructureNode.parent.getText()}")`,
-  );
-}
-
 interface ThrowInvalidModelApi__NonPropertySignature {
   modelMemberNode: Typescript.TypeElement;
 }
@@ -200,5 +186,18 @@ export function throwInvalidModel__NonPropertySignature(
   const { modelMemberNode } = api;
   throwUserError(
     `invalid model: non-property signature ("${modelMemberNode.getText()}" in "${modelMemberNode.parent.getText()}")`,
+  );
+}
+
+interface ThrowInvalidTupleStructureApi__UnnamedTupleProperty {
+  tupleStructureNode: Typescript.TypeNode;
+}
+
+export function throwInvalidTupleStructure__UnnamedTupleProperty(
+  api: ThrowInvalidTupleStructureApi__UnnamedTupleProperty,
+): never {
+  const { tupleStructureNode } = api;
+  throwUserError(
+    `invalid tuple structure: tuple properties must have a name ("${tupleStructureNode.parent.getText()}")`,
   );
 }
