@@ -1,12 +1,4 @@
-export type GenericSchemaElement = SchemaElement<
-  TerminalElement<ParameterReferenceElement>
->;
-
-export type DefinitiveSchemaElement = SchemaElement<
-  TerminalElement<never>
->;
-
-type SchemaElement<ThisTerminalElement> =
+export type SchemaElement<ThisTerminalElement> =
   | ThisTerminalElement
   | StructureElement<ThisTerminalElement>
   | GeneralUnionElement<ThisTerminalElement>;
@@ -18,25 +10,25 @@ export interface GeneralUnionElement<ThisTerminalElement>
       ThisTerminalElement | StructureElement<ThisTerminalElement> | NullElement
     > {}
 
-export interface VerdeTableUnionElement<ThisParameterReferenceElement>
+export interface VerdeTableUnionElement<ThisIndirectReferenceElement>
   extends
     __UnionElement<
       'verdeTableUnion',
-      ReferenceElement<ThisParameterReferenceElement>
+      ReferenceElement<ThisIndirectReferenceElement>
     > {}
 
-export interface VerdeArrayUnionElement<ThisParameterReferenceElement>
+export interface VerdeArrayUnionElement<ThisIndirectReferenceElement>
   extends
     __UnionElement<
       'verdeArrayUnion',
       | PrimitiveElement
-      | ReferenceElement<ThisParameterReferenceElement>
+      | ReferenceElement<ThisIndirectReferenceElement>
     > {}
 
-export interface ExportUnionElement extends
+export interface ExportUnionElement<ThisIndirectReferenceElement> extends
   __UnionElement<
     'exportUnion',
-    ReferenceElement<never>
+    ReferenceElement<ThisIndirectReferenceElement>
   > {}
 
 export interface __UnionElement<ThisElementKind, ThisMemberElement>
@@ -83,32 +75,32 @@ export interface StructureProperty<ThisTerminalElement> {
   propertyElement: SchemaElement<ThisTerminalElement>;
 }
 
-export type TerminalElement<ThisParameterReferenceElement> =
+export type TerminalElement<ThisIndirectReferenceElement> =
   | LiteralElement
   | PrimitiveElement
-  | ReferenceElement<ThisParameterReferenceElement>
-  | VerdeElement<ThisParameterReferenceElement>;
+  | ReferenceElement<ThisIndirectReferenceElement>
+  | VerdeElement<ThisIndirectReferenceElement>;
 
-export type VerdeElement<ThisParameterReferenceElement> =
-  | VerdeTableElement<ThisParameterReferenceElement>
-  | VerdeArrayElement<ThisParameterReferenceElement>;
+export type VerdeElement<ThisIndirectReferenceElement> =
+  | VerdeTableElement<ThisIndirectReferenceElement>
+  | VerdeArrayElement<ThisIndirectReferenceElement>;
 
-export interface VerdeTableElement<ThisParameterReferenceElement>
+export interface VerdeTableElement<ThisIndirectReferenceElement>
   extends
     __CollectionElement<
       'verdeTable',
-      | ReferenceElement<ThisParameterReferenceElement>
-      | VerdeTableUnionElement<ThisParameterReferenceElement>
+      | ReferenceElement<ThisIndirectReferenceElement>
+      | VerdeTableUnionElement<ThisIndirectReferenceElement>
     > {}
 
-export interface VerdeArrayElement<ThisParameterReferenceElement>
+export interface VerdeArrayElement<ThisIndirectReferenceElement>
   extends
     __CollectionElement<
       'verdeArray',
       SchemaElement<
         | PrimitiveElement
-        | ReferenceElement<ThisParameterReferenceElement>
-        | VerdeArrayUnionElement<ThisParameterReferenceElement>
+        | ReferenceElement<ThisIndirectReferenceElement>
+        | VerdeArrayUnionElement<ThisIndirectReferenceElement>
       >
     > {}
 
@@ -122,10 +114,9 @@ interface __VerdeElement<ThisElementKind, ThisElementArguments>
   elementArguments: ThisElementArguments;
 }
 
-export type ReferenceElement<ThisParameterReferenceElement> =
+export type ReferenceElement<ThisIndirectReferenceElement> =
   | DataModelReferenceElement
-  | AliasReferenceElement
-  | ThisParameterReferenceElement;
+  | ThisIndirectReferenceElement;
 
 export interface ParameterReferenceElement
   extends __ReferenceElement<'parameterReference'> {}

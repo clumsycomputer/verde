@@ -1,31 +1,36 @@
 import {
   AliasReferenceElement,
   DataModelReferenceElement,
-  DefinitiveSchemaElement,
   ExportUnionElement,
-  GenericSchemaElement,
+  ParameterReferenceElement,
+  SchemaElement,
+  TerminalElement,
 } from './SchemaElement.ts';
 import {
-  __SchemaAlias,
   __SchemaExport,
   __SchemaModel,
+  __SchemaType,
   __StructuredSchema,
 } from './__StructuredSchema.ts';
 
 export interface IntermediateSchema
-  extends __StructuredSchema<IntermediateSchemaExport, IntermediateSchemaType> {}
+  extends
+    __StructuredSchema<IntermediateSchemaExport, IntermediateSchemaType> {}
 
-interface IntermediateSchemaExport extends
-  __SchemaExport<
-    DataModelReferenceElement | AliasReferenceElement | ExportUnionElement
-  > {}
+interface IntermediateSchemaExport
+  extends __SchemaExport<IntermediateExportElement> {}
 
-export type IntermediateSchemaType = IntermediateSchemaModel | IntermediateSchemaAlias;
+export type IntermediateSchemaType =
+  | IntermediateSchemaModel
+  | IntermediateSchemaAlias;
 
-export type IntermediateSchemaModel = DataIntermediateSchemaModel | TemplateIntermediateSchemaModel;
+export type IntermediateSchemaModel =
+  | DataIntermediateSchemaModel
+  | TemplateIntermediateSchemaModel;
 
 export interface DataIntermediateSchemaModel
-  extends __IntermediateModel<'dataModel', DefinitiveSchemaElement> {}
+  extends
+    __IntermediateModel<'dataModel', DefinitiveIntermediateSchemaElement> {}
 
 type TemplateIntermediateSchemaModel =
   | ConcreteTemplateIntermediateSchemaModel
@@ -33,14 +38,17 @@ type TemplateIntermediateSchemaModel =
 
 export interface ConcreteTemplateIntermediateSchemaModel
   extends
-  __TemplateIntermediateSchemaModel<
+    __TemplateIntermediateSchemaModel<
       'concreteTemplateModel',
-      DefinitiveSchemaElement
+      DefinitiveIntermediateSchemaElement
     > {}
 
 export interface GenericTemplateIntermediateSchemaModel
   extends
-  __TemplateIntermediateSchemaModel<'genericTemplateModel', GenericSchemaElement> {
+    __TemplateIntermediateSchemaModel<
+      'genericTemplateModel',
+      GenericIntermediateSchemaElement
+    > {
   typeModelParameters: Array<GenericTemplateModelParameter>;
 }
 
@@ -65,7 +73,9 @@ interface __TemplateIntermediateSchemaModel<ThisTypeKind, ThisModelElement>
   extends __IntermediateModel<ThisTypeKind, ThisModelElement> {}
 
 interface __IntermediateModel<ThisTypeKind, ThisModelElement>
-  extends __SchemaModel<ThisTypeKind, ThisModelElement>, __IntermediateSchemaType {
+  extends
+    __SchemaModel<ThisTypeKind, ThisModelElement>,
+    __IntermediateSchemaType {
   typeModelTemplates: Array<ModelTemplate<ThisModelElement>>;
 }
 
@@ -86,7 +96,7 @@ export interface GenericModelTemplate<ThisArgumentElement>
 
 interface GenericTemplateArgument<ThisModelElement> {
   argumentIndex: number;
-  argumentParameterName: string;  
+  argumentParameterName: string;
   argumentElement: ThisModelElement;
 }
 
@@ -97,8 +107,32 @@ interface __ModelTemplate<
   templateModelName: TemplateIntermediateSchemaModel['typeName'];
 }
 
-export interface IntermediateSchemaAlias extends __SchemaAlias<'alias'>, __IntermediateSchemaType {}
+export interface IntermediateSchemaAlias
+  extends __SchemaType<'alias'>, __IntermediateSchemaType {
+  typeAliasElement: DefinitiveIntermediateSchemaElement;
+}
 
 interface __IntermediateSchemaType {
   typeSourcePath: string;
 }
+
+type GenericIntermediateSchemaElement = SchemaElement<
+  GenericIntermediateTerminalElement
+>;
+
+export type GenericIntermediateTerminalElement = TerminalElement<
+  AliasReferenceElement | ParameterReferenceElement
+>;
+
+type DefinitiveIntermediateSchemaElement = SchemaElement<
+  DefinitiveIntermediateTerminalElement
+>;
+
+export type DefinitiveIntermediateTerminalElement = TerminalElement<
+  AliasReferenceElement
+>;
+
+export type IntermediateExportElement =
+  | DataModelReferenceElement
+  | AliasReferenceElement
+  | ExportUnionElement<AliasReferenceElement>;

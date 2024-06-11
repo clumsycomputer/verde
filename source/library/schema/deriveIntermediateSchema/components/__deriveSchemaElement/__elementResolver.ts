@@ -1,8 +1,10 @@
 import { genericAny, irrelevantAny } from '../../../../../helpers/types.ts';
 import { Typescript } from '../../../../../imports/Typescript.ts';
 import {
-  __CollectionElement,
-  __UnionElement,
+  DefinitiveIntermediateTerminalElement,
+  GenericIntermediateTerminalElement
+} from '../../../types/IntermediateSchema.ts';
+import {
   AliasReferenceElement,
   BooleanLiteralElement,
   BooleanPrimitiveElement,
@@ -24,6 +26,8 @@ import {
   VerdeArrayUnionElement,
   VerdeTableElement,
   VerdeTableUnionElement,
+  __CollectionElement,
+  __UnionElement,
 } from '../../../types/SchemaElement.ts';
 import {
   throwInvalidObjectStructure__NonPropertySignature,
@@ -250,11 +254,11 @@ export function genericTemplateModelVerdeTableElementResolver(
   });
 }
 
-interface __VerdeTableElementResolverApi<ThisParameterReferenceElement>
+interface __VerdeTableElementResolverApi<ThisIndirectReferenceElement>
   extends
     Pick<
       __CollectionElementResolverApi<
-        VerdeTableElement<ThisParameterReferenceElement>
+        VerdeTableElement<ThisIndirectReferenceElement>
       >,
       | 'schemaTypeChecker'
       | 'schemaDeriveTypeQueue'
@@ -265,8 +269,8 @@ interface __VerdeTableElementResolverApi<ThisParameterReferenceElement>
       | 'deriveArgumentElement__'
     > {}
 
-function __verdeTableElementResolver<ThisParameterReferenceElement>(
-  api: __VerdeTableElementResolverApi<ThisParameterReferenceElement>,
+function __verdeTableElementResolver<ThisIndirectReferenceElement>(
+  api: __VerdeTableElementResolverApi<ThisIndirectReferenceElement>,
 ) {
   const {
     schemaTypeChecker,
@@ -288,18 +292,18 @@ function __verdeTableElementResolver<ThisParameterReferenceElement>(
     elementDeclarationName: 'VerdeTable',
     createCollectionElement__:
       createCollectionElement__verdeTableElementResolver__<
-        ThisParameterReferenceElement
+        ThisIndirectReferenceElement
       >,
   });
 }
 
 function createCollectionElement__verdeTableElementResolver__<
-  ThisParameterReferenceElement,
+  ThisIndirectReferenceElement,
 >(
   api: CreateCollectionElementApi__<
-    VerdeTableElement<ThisParameterReferenceElement>
+    VerdeTableElement<ThisIndirectReferenceElement>
   >,
-): VerdeTableElement<ThisParameterReferenceElement> {
+): VerdeTableElement<ThisIndirectReferenceElement> {
   const { elementArguments } = api;
   return {
     elementArguments,
@@ -351,11 +355,11 @@ export function genericTemplateModelVerdeArrayElementResolver(
   });
 }
 
-interface __VerdeArrayElementResolverApi<ThisParameterReferenceElement>
+interface __VerdeArrayElementResolverApi<ThisIndirectReferenceElement>
   extends
     Pick<
       __CollectionElementResolverApi<
-        VerdeArrayElement<ThisParameterReferenceElement>
+        VerdeArrayElement<ThisIndirectReferenceElement>
       >,
       | 'schemaTypeChecker'
       | 'schemaDeriveTypeQueue'
@@ -366,8 +370,8 @@ interface __VerdeArrayElementResolverApi<ThisParameterReferenceElement>
       | 'deriveArgumentElement__'
     > {}
 
-function __verdeArrayElementResolver<ThisParameterReferenceElement>(
-  api: __VerdeArrayElementResolverApi<ThisParameterReferenceElement>,
+function __verdeArrayElementResolver<ThisIndirectReferenceElement>(
+  api: __VerdeArrayElementResolverApi<ThisIndirectReferenceElement>,
 ) {
   const {
     schemaTypeChecker,
@@ -389,18 +393,18 @@ function __verdeArrayElementResolver<ThisParameterReferenceElement>(
     elementDeclarationName: 'VerdeArray',
     createCollectionElement__:
       createCollectionElement__verdeArrayElementResolver__<
-        ThisParameterReferenceElement
+        ThisIndirectReferenceElement
       >,
   });
 }
 
 function createCollectionElement__verdeArrayElementResolver__<
-  ThisParameterReferenceElement,
+  ThisIndirectReferenceElement,
 >(
   api: CreateCollectionElementApi__<
-    VerdeArrayElement<ThisParameterReferenceElement>
+    VerdeArrayElement<ThisIndirectReferenceElement>
   >,
-): VerdeArrayElement<ThisParameterReferenceElement> {
+): VerdeArrayElement<ThisIndirectReferenceElement> {
   const { elementArguments } = api;
   return {
     elementArguments,
@@ -469,7 +473,7 @@ function __collectionElementResolver<
 export function definitiveObjectElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<
-  ObjectElement<TerminalElement<never>>
+  ObjectElement<DefinitiveIntermediateTerminalElement>
 > {
   const {
     schemaTypeChecker,
@@ -493,7 +497,7 @@ export function definitiveObjectElementResolver(
 export function genericTemplateModelObjectElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<
-  ObjectElement<TerminalElement<ParameterReferenceElement>>
+  ObjectElement<GenericIntermediateTerminalElement>
 > {
   const {
     schemaTypeChecker,
@@ -515,12 +519,12 @@ export function genericTemplateModelObjectElementResolver(
 }
 
 interface __ObjectElementResolverApi<
-  ThisParameterReferenceElement,
+  ThisIndirectReferenceElement,
 > extends ElementResolverApi {
   derivePropertyElement__: (
     api: DeriveObjectPropertyElementApi__,
   ) => ObjectElement<
-    TerminalElement<ThisParameterReferenceElement>
+    TerminalElement<ThisIndirectReferenceElement>
   >['elementStructure'][string]['propertyElement'];
 }
 
@@ -530,10 +534,10 @@ interface DeriveObjectPropertyElementApi__ extends
     'schemaTypeChecker' | 'schemaDeriveTypeQueue' | 'elementLocalNode'
   > {}
 
-function __objectElementResolver<ThisParameterReferenceElement>(
-  api: __ObjectElementResolverApi<ThisParameterReferenceElement>,
+function __objectElementResolver<ThisIndirectReferenceElement>(
+  api: __ObjectElementResolverApi<ThisIndirectReferenceElement>,
 ): ElementResolverResult<
-  ObjectElement<TerminalElement<ThisParameterReferenceElement>>
+  ObjectElement<TerminalElement<ThisIndirectReferenceElement>>
 > {
   const {
     elementLocalNode,
@@ -546,7 +550,7 @@ function __objectElementResolver<ThisParameterReferenceElement>(
       elementKind: 'objectStructure',
       elementStructure: elementLocalNode.members.reduce<
         ObjectElement<
-          TerminalElement<ThisParameterReferenceElement>
+          TerminalElement<ThisIndirectReferenceElement>
         >['elementStructure']
       >(
         (elementStructureResult, someObjectStructureNode) => {
@@ -580,7 +584,7 @@ function __objectElementResolver<ThisParameterReferenceElement>(
 
 export function definitiveTupleElementResolver(
   api: ElementResolverApi,
-): ElementResolverResult<TupleElement<TerminalElement<never>>> {
+): ElementResolverResult<TupleElement<DefinitiveIntermediateTerminalElement>> {
   const {
     schemaTypeChecker,
     schemaDeriveTypeQueue,
@@ -604,7 +608,7 @@ export function definitiveTupleElementResolver(
 export function genericTemplateModelTupleElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<
-  TupleElement<TerminalElement<ParameterReferenceElement>>
+  TupleElement<GenericIntermediateTerminalElement>
 > {
   const {
     schemaTypeChecker,
@@ -627,17 +631,17 @@ export function genericTemplateModelTupleElementResolver(
 }
 
 interface __TupleElementResolverApi<
-  ThisParameterReferenceElement,
+  ThisIndirectReferenceElement,
 > extends ElementResolverApi {
   derivePropertyElement__: (
     api: DeriveTuplePropertyElementApi__,
   ) => StructureProperty<
-    TerminalElement<ThisParameterReferenceElement>
+    TerminalElement<ThisIndirectReferenceElement>
   >['propertyElement'];
   deriveSpreadElement__: (
     api: DeriveSpreadElementApi__,
   ) => TupleSpreadReference<
-    TerminalElement<ThisParameterReferenceElement>
+    TerminalElement<ThisIndirectReferenceElement>
   >['spreadElement'];
 }
 
@@ -654,12 +658,12 @@ interface DeriveSpreadElementApi__ extends
   > {}
 
 function __tupleElementResolver<
-  ThisParameterReferenceElement,
+  ThisIndirectReferenceElement,
 >(
-  api: __TupleElementResolverApi<ThisParameterReferenceElement>,
+  api: __TupleElementResolverApi<ThisIndirectReferenceElement>,
 ): ElementResolverResult<
   TupleElement<
-    TerminalElement<ThisParameterReferenceElement>
+    TerminalElement<ThisIndirectReferenceElement>
   >
 > {
   const {
@@ -674,7 +678,7 @@ function __tupleElementResolver<
       elementKind: 'tupleStructure',
       elementStructure: elementLocalNode.elements.map<
         TupleElement<
-          TerminalElement<ThisParameterReferenceElement>
+          TerminalElement<ThisIndirectReferenceElement>
         >['elementStructure'][number]
       >(
         (someTupleStructureNode) => {
@@ -744,8 +748,8 @@ export function exportUnionElementResolver(api: ElementResolverApi) {
 }
 
 function createUnionElement__exportUnionElementResolver__(
-  api: CreateUnionElementApi__<ExportUnionElement>,
-): ExportUnionElement {
+  api: CreateUnionElementApi__<ExportUnionElement<AliasReferenceElement>>,
+): ExportUnionElement<AliasReferenceElement> {
   const { elementMembers } = api;
   return {
     elementMembers,
@@ -755,7 +759,9 @@ function createUnionElement__exportUnionElementResolver__(
 
 export function definitiveGeneralUnionElementResolver(
   api: ElementResolverApi,
-): ElementResolverResult<GeneralUnionElement<TerminalElement<never>>> {
+): ElementResolverResult<
+  GeneralUnionElement<DefinitiveIntermediateTerminalElement>
+> {
   const {
     schemaTypeChecker,
     schemaDeriveTypeQueue,
@@ -778,7 +784,7 @@ export function definitiveGeneralUnionElementResolver(
 export function genericTemplateModelGeneralUnionElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<
-  GeneralUnionElement<TerminalElement<ParameterReferenceElement>>
+  GeneralUnionElement<GenericIntermediateTerminalElement>
 > {
   const {
     schemaTypeChecker,
@@ -800,11 +806,11 @@ export function genericTemplateModelGeneralUnionElementResolver(
 }
 
 interface __GeneralUnionElementResolverApi<
-  ThisParameterReferenceElement,
+  ThisIndirectReferenceElement,
 > extends
   Pick<
     __UnionElementResolverApi<
-      GeneralUnionElement<TerminalElement<ThisParameterReferenceElement>>
+      GeneralUnionElement<TerminalElement<ThisIndirectReferenceElement>>
     >,
     | 'schemaTypeChecker'
     | 'schemaDeriveTypeQueue'
@@ -816,11 +822,11 @@ interface __GeneralUnionElementResolverApi<
   > {}
 
 function __generalUnionElementResolver<
-  ThisParameterReferenceElement,
+  ThisIndirectReferenceElement,
 >(
-  api: __GeneralUnionElementResolverApi<ThisParameterReferenceElement>,
+  api: __GeneralUnionElementResolverApi<ThisIndirectReferenceElement>,
 ): ElementResolverResult<
-  GeneralUnionElement<TerminalElement<ThisParameterReferenceElement>>
+  GeneralUnionElement<TerminalElement<ThisIndirectReferenceElement>>
 > {
   const {
     schemaTypeChecker,
@@ -840,18 +846,18 @@ function __generalUnionElementResolver<
     elementSourceDeclaration,
     deriveMemberElement__,
     createUnionElement__: createUnionElement__generalUnionElementResolver__<
-      ThisParameterReferenceElement
+      ThisIndirectReferenceElement
     >,
   });
 }
 
 function createUnionElement__generalUnionElementResolver__<
-  ThisParameterReferenceElement,
+  ThisIndirectReferenceElement,
 >(
   api: CreateUnionElementApi__<
-    GeneralUnionElement<TerminalElement<ThisParameterReferenceElement>>
+    GeneralUnionElement<TerminalElement<ThisIndirectReferenceElement>>
   >,
-): GeneralUnionElement<TerminalElement<ThisParameterReferenceElement>> {
+): GeneralUnionElement<TerminalElement<ThisIndirectReferenceElement>> {
   const { elementMembers } = api;
   return {
     elementMembers,
@@ -870,7 +876,7 @@ export function definitiveVerdeTableUnionElementResolver(
     elementSourceSymbol,
     elementSourceDeclaration,
   } = api;
-  return __verdeTableUnionElementResolver<never>({
+  return __verdeTableUnionElementResolver<AliasReferenceElement>({
     schemaTypeChecker,
     schemaDeriveTypeQueue,
     elementLocalNode,
@@ -903,11 +909,11 @@ export function genericTemplateModelVerdeTableUnionElementResolver(
   });
 }
 
-interface __VerdeTableUnionElementResolverApi<ThisParameterReferenceElement>
+interface __VerdeTableUnionElementResolverApi<ThisIndirectReferenceElement>
   extends
     Pick<
       __UnionElementResolverApi<
-        VerdeTableUnionElement<ThisParameterReferenceElement>
+        VerdeTableUnionElement<ThisIndirectReferenceElement>
       >,
       | 'schemaTypeChecker'
       | 'schemaDeriveTypeQueue'
@@ -918,8 +924,8 @@ interface __VerdeTableUnionElementResolverApi<ThisParameterReferenceElement>
       | 'deriveMemberElement__'
     > {}
 
-function __verdeTableUnionElementResolver<ThisParameterReferenceElement>(
-  api: __VerdeTableUnionElementResolverApi<ThisParameterReferenceElement>,
+function __verdeTableUnionElementResolver<ThisIndirectReferenceElement>(
+  api: __VerdeTableUnionElementResolverApi<ThisIndirectReferenceElement>,
 ) {
   const {
     schemaTypeChecker,
@@ -939,18 +945,18 @@ function __verdeTableUnionElementResolver<ThisParameterReferenceElement>(
     elementSourceDeclaration,
     deriveMemberElement__,
     createUnionElement__: createUnionElement__verdeTableUnionElementResolver__<
-      ThisParameterReferenceElement
+      ThisIndirectReferenceElement
     >,
   });
 }
 
 function createUnionElement__verdeTableUnionElementResolver__<
-  ThisParameterReferenceElement,
+  ThisIndirectReferenceElement,
 >(
   api: CreateUnionElementApi__<
-    VerdeTableUnionElement<ThisParameterReferenceElement>
+    VerdeTableUnionElement<ThisIndirectReferenceElement>
   >,
-): VerdeTableUnionElement<ThisParameterReferenceElement> {
+): VerdeTableUnionElement<ThisIndirectReferenceElement> {
   const { elementMembers } = api;
   return {
     elementMembers,
@@ -969,7 +975,7 @@ export function definitiveVerdeArrayUnionElementResolver(
     elementSourceSymbol,
     elementSourceDeclaration,
   } = api;
-  return __verdeArrayUnionElementResolver<never>({
+  return __verdeArrayUnionElementResolver({
     schemaTypeChecker,
     schemaDeriveTypeQueue,
     elementLocalNode,
@@ -1004,11 +1010,11 @@ export function genericTemplateModelVerdeArrayUnionElementResolver(
 }
 
 interface __VerdeArrayUnionElementResolverApi<
-  ThisParameterReferenceElement,
+  ThisIndirectReferenceElement,
 > extends
   Pick<
     __UnionElementResolverApi<
-      VerdeArrayUnionElement<ThisParameterReferenceElement>
+      VerdeArrayUnionElement<ThisIndirectReferenceElement>
     >,
     | 'schemaTypeChecker'
     | 'schemaDeriveTypeQueue'
@@ -1019,8 +1025,8 @@ interface __VerdeArrayUnionElementResolverApi<
     | 'deriveMemberElement__'
   > {}
 
-function __verdeArrayUnionElementResolver<ThisParameterReferenceElement>(
-  api: __VerdeArrayUnionElementResolverApi<ThisParameterReferenceElement>,
+function __verdeArrayUnionElementResolver<ThisIndirectReferenceElement>(
+  api: __VerdeArrayUnionElementResolverApi<ThisIndirectReferenceElement>,
 ) {
   const {
     schemaTypeChecker,
@@ -1040,18 +1046,18 @@ function __verdeArrayUnionElementResolver<ThisParameterReferenceElement>(
     elementSourceDeclaration,
     deriveMemberElement__,
     createUnionElement__: createUnionElement__verdeArrayUnionElementResolver__<
-      ThisParameterReferenceElement
+      ThisIndirectReferenceElement
     >,
   });
 }
 
 function createUnionElement__verdeArrayUnionElementResolver__<
-  ThisParameterReferenceElement,
+  ThisIndirectReferenceElement,
 >(
   api: CreateUnionElementApi__<
-    VerdeArrayUnionElement<ThisParameterReferenceElement>
+    VerdeArrayUnionElement<ThisIndirectReferenceElement>
   >,
-): VerdeArrayUnionElement<ThisParameterReferenceElement> {
+): VerdeArrayUnionElement<ThisIndirectReferenceElement> {
   const { elementMembers } = api;
   return {
     elementMembers,
