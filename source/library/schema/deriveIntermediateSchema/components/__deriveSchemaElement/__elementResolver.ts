@@ -2,7 +2,9 @@ import { genericAny, irrelevantAny } from '../../../../../helpers/types.ts';
 import { Typescript } from '../../../../../imports/Typescript.ts';
 import {
   DefinitiveIntermediateTerminalElement,
-  GenericIntermediateTerminalElement
+  DefinitiveIntermediateTupleSpreadReference,
+  GenericIntermediateTerminalElement,
+  GenericIntermediateTupleSpreadReference,
 } from '../../../types/IntermediateSchema.ts';
 import {
   AliasReferenceElement,
@@ -19,7 +21,6 @@ import {
   StringLiteralElement,
   StringPrimitiveElement,
   StructureProperty,
-  TerminalElement,
   TupleElement,
   TupleSpreadReference,
   VerdeArrayElement,
@@ -27,7 +28,7 @@ import {
   VerdeTableElement,
   VerdeTableUnionElement,
   __CollectionElement,
-  __UnionElement,
+  __UnionElement
 } from '../../../types/SchemaElement.ts';
 import {
   throwInvalidObjectStructure__NonPropertySignature,
@@ -355,23 +356,25 @@ export function genericTemplateModelVerdeArrayElementResolver(
   });
 }
 
-interface __VerdeArrayElementResolverApi<ThisIndirectReferenceElement>
-  extends
-    Pick<
-      __CollectionElementResolverApi<
-        VerdeArrayElement<ThisIndirectReferenceElement>
-      >,
-      | 'schemaTypeChecker'
-      | 'schemaDeriveTypeQueue'
-      | 'elementLocalNode'
-      | 'elementLocalSymbol'
-      | 'elementSourceSymbol'
-      | 'elementSourceDeclaration'
-      | 'deriveArgumentElement__'
-    > {}
+interface __VerdeArrayElementResolverApi<ThisTerminalElement> extends
+  Pick<
+    __CollectionElementResolverApi<
+      VerdeArrayElement<
+        ThisTerminalElement,
+        TupleSpreadReference<ThisTerminalElement>
+      >
+    >,
+    | 'schemaTypeChecker'
+    | 'schemaDeriveTypeQueue'
+    | 'elementLocalNode'
+    | 'elementLocalSymbol'
+    | 'elementSourceSymbol'
+    | 'elementSourceDeclaration'
+    | 'deriveArgumentElement__'
+  > {}
 
-function __verdeArrayElementResolver<ThisIndirectReferenceElement>(
-  api: __VerdeArrayElementResolverApi<ThisIndirectReferenceElement>,
+function __verdeArrayElementResolver<ThisTerminalElement>(
+  api: __VerdeArrayElementResolverApi<ThisTerminalElement>,
 ) {
   const {
     schemaTypeChecker,
@@ -393,18 +396,24 @@ function __verdeArrayElementResolver<ThisIndirectReferenceElement>(
     elementDeclarationName: 'VerdeArray',
     createCollectionElement__:
       createCollectionElement__verdeArrayElementResolver__<
-        ThisIndirectReferenceElement
+        ThisTerminalElement
       >,
   });
 }
 
 function createCollectionElement__verdeArrayElementResolver__<
-  ThisIndirectReferenceElement,
+  ThisTerminalElement,
 >(
   api: CreateCollectionElementApi__<
-    VerdeArrayElement<ThisIndirectReferenceElement>
+    VerdeArrayElement<
+      ThisTerminalElement,
+      TupleSpreadReference<ThisTerminalElement>
+    >
   >,
-): VerdeArrayElement<ThisIndirectReferenceElement> {
+): VerdeArrayElement<
+  ThisTerminalElement,
+  TupleSpreadReference<ThisTerminalElement>
+> {
   const { elementArguments } = api;
   return {
     elementArguments,
@@ -473,7 +482,10 @@ function __collectionElementResolver<
 export function definitiveObjectElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<
-  ObjectElement<DefinitiveIntermediateTerminalElement>
+  ObjectElement<
+    DefinitiveIntermediateTerminalElement,
+    DefinitiveIntermediateTupleSpreadReference
+  >
 > {
   const {
     schemaTypeChecker,
@@ -497,7 +509,10 @@ export function definitiveObjectElementResolver(
 export function genericTemplateModelObjectElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<
-  ObjectElement<GenericIntermediateTerminalElement>
+  ObjectElement<
+    GenericIntermediateTerminalElement,
+    GenericIntermediateTupleSpreadReference
+  >
 > {
   const {
     schemaTypeChecker,
@@ -518,13 +533,13 @@ export function genericTemplateModelObjectElementResolver(
   });
 }
 
-interface __ObjectElementResolverApi<
-  ThisIndirectReferenceElement,
-> extends ElementResolverApi {
+interface __ObjectElementResolverApi<ThisTerminalElement>
+  extends ElementResolverApi {
   derivePropertyElement__: (
     api: DeriveObjectPropertyElementApi__,
   ) => ObjectElement<
-    TerminalElement<ThisIndirectReferenceElement>
+    ThisTerminalElement,
+    TupleSpreadReference<ThisTerminalElement>
   >['elementStructure'][string]['propertyElement'];
 }
 
@@ -534,10 +549,13 @@ interface DeriveObjectPropertyElementApi__ extends
     'schemaTypeChecker' | 'schemaDeriveTypeQueue' | 'elementLocalNode'
   > {}
 
-function __objectElementResolver<ThisIndirectReferenceElement>(
-  api: __ObjectElementResolverApi<ThisIndirectReferenceElement>,
+function __objectElementResolver<ThisTerminalElement>(
+  api: __ObjectElementResolverApi<ThisTerminalElement>,
 ): ElementResolverResult<
-  ObjectElement<TerminalElement<ThisIndirectReferenceElement>>
+  ObjectElement<
+    ThisTerminalElement,
+    TupleSpreadReference<ThisTerminalElement>
+  >
 > {
   const {
     elementLocalNode,
@@ -550,7 +568,8 @@ function __objectElementResolver<ThisIndirectReferenceElement>(
       elementKind: 'objectStructure',
       elementStructure: elementLocalNode.members.reduce<
         ObjectElement<
-          TerminalElement<ThisIndirectReferenceElement>
+          ThisTerminalElement,
+          TupleSpreadReference<ThisTerminalElement>
         >['elementStructure']
       >(
         (elementStructureResult, someObjectStructureNode) => {
@@ -584,7 +603,12 @@ function __objectElementResolver<ThisIndirectReferenceElement>(
 
 export function definitiveTupleElementResolver(
   api: ElementResolverApi,
-): ElementResolverResult<TupleElement<DefinitiveIntermediateTerminalElement>> {
+): ElementResolverResult<
+  TupleElement<
+    DefinitiveIntermediateTerminalElement,
+    DefinitiveIntermediateTupleSpreadReference
+  >
+> {
   const {
     schemaTypeChecker,
     schemaDeriveTypeQueue,
@@ -608,7 +632,10 @@ export function definitiveTupleElementResolver(
 export function genericTemplateModelTupleElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<
-  TupleElement<GenericIntermediateTerminalElement>
+  TupleElement<
+    GenericIntermediateTerminalElement,
+    GenericIntermediateTupleSpreadReference
+  >
 > {
   const {
     schemaTypeChecker,
@@ -630,19 +657,17 @@ export function genericTemplateModelTupleElementResolver(
   });
 }
 
-interface __TupleElementResolverApi<
-  ThisIndirectReferenceElement,
-> extends ElementResolverApi {
+interface __TupleElementResolverApi<ThisTerminalElement>
+  extends ElementResolverApi {
   derivePropertyElement__: (
     api: DeriveTuplePropertyElementApi__,
   ) => StructureProperty<
-    TerminalElement<ThisIndirectReferenceElement>
+    ThisTerminalElement,
+    TupleSpreadReference<ThisTerminalElement>
   >['propertyElement'];
   deriveSpreadElement__: (
     api: DeriveSpreadElementApi__,
-  ) => TupleSpreadReference<
-    TerminalElement<ThisIndirectReferenceElement>
-  >['spreadElement'];
+  ) => TupleSpreadReference<ThisTerminalElement>['spreadElement'];
 }
 
 interface DeriveTuplePropertyElementApi__ extends
@@ -657,14 +682,10 @@ interface DeriveSpreadElementApi__ extends
     'schemaTypeChecker' | 'schemaDeriveTypeQueue' | 'elementLocalNode'
   > {}
 
-function __tupleElementResolver<
-  ThisIndirectReferenceElement,
->(
-  api: __TupleElementResolverApi<ThisIndirectReferenceElement>,
+function __tupleElementResolver<ThisTerminalElement>(
+  api: __TupleElementResolverApi<ThisTerminalElement>,
 ): ElementResolverResult<
-  TupleElement<
-    TerminalElement<ThisIndirectReferenceElement>
-  >
+  TupleElement<ThisTerminalElement, TupleSpreadReference<ThisTerminalElement>>
 > {
   const {
     elementLocalNode,
@@ -678,7 +699,8 @@ function __tupleElementResolver<
       elementKind: 'tupleStructure',
       elementStructure: elementLocalNode.elements.map<
         TupleElement<
-          TerminalElement<ThisIndirectReferenceElement>
+          ThisTerminalElement,
+          TupleSpreadReference<ThisTerminalElement>
         >['elementStructure'][number]
       >(
         (someTupleStructureNode) => {
@@ -760,7 +782,10 @@ function createUnionElement__exportUnionElementResolver__(
 export function definitiveGeneralUnionElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<
-  GeneralUnionElement<DefinitiveIntermediateTerminalElement>
+  GeneralUnionElement<
+    DefinitiveIntermediateTerminalElement,
+    DefinitiveIntermediateTupleSpreadReference
+  >
 > {
   const {
     schemaTypeChecker,
@@ -784,7 +809,10 @@ export function definitiveGeneralUnionElementResolver(
 export function genericTemplateModelGeneralUnionElementResolver(
   api: ElementResolverApi,
 ): ElementResolverResult<
-  GeneralUnionElement<GenericIntermediateTerminalElement>
+  GeneralUnionElement<
+    GenericIntermediateTerminalElement,
+    GenericIntermediateTupleSpreadReference
+  >
 > {
   const {
     schemaTypeChecker,
@@ -805,12 +833,13 @@ export function genericTemplateModelGeneralUnionElementResolver(
   });
 }
 
-interface __GeneralUnionElementResolverApi<
-  ThisIndirectReferenceElement,
-> extends
+interface __GeneralUnionElementResolverApi<ThisTerminalElement> extends
   Pick<
     __UnionElementResolverApi<
-      GeneralUnionElement<TerminalElement<ThisIndirectReferenceElement>>
+      GeneralUnionElement<
+        ThisTerminalElement,
+        TupleSpreadReference<ThisTerminalElement>
+      >
     >,
     | 'schemaTypeChecker'
     | 'schemaDeriveTypeQueue'
@@ -821,12 +850,13 @@ interface __GeneralUnionElementResolverApi<
     | 'deriveMemberElement__'
   > {}
 
-function __generalUnionElementResolver<
-  ThisIndirectReferenceElement,
->(
-  api: __GeneralUnionElementResolverApi<ThisIndirectReferenceElement>,
+function __generalUnionElementResolver<ThisTerminalElement>(
+  api: __GeneralUnionElementResolverApi<ThisTerminalElement>,
 ): ElementResolverResult<
-  GeneralUnionElement<TerminalElement<ThisIndirectReferenceElement>>
+  GeneralUnionElement<
+    ThisTerminalElement,
+    TupleSpreadReference<ThisTerminalElement>
+  >
 > {
   const {
     schemaTypeChecker,
@@ -846,18 +876,22 @@ function __generalUnionElementResolver<
     elementSourceDeclaration,
     deriveMemberElement__,
     createUnionElement__: createUnionElement__generalUnionElementResolver__<
-      ThisIndirectReferenceElement
+      ThisTerminalElement
     >,
   });
 }
 
-function createUnionElement__generalUnionElementResolver__<
-  ThisIndirectReferenceElement,
->(
+function createUnionElement__generalUnionElementResolver__<ThisTerminalElement>(
   api: CreateUnionElementApi__<
-    GeneralUnionElement<TerminalElement<ThisIndirectReferenceElement>>
+    GeneralUnionElement<
+      ThisTerminalElement,
+      TupleSpreadReference<ThisTerminalElement>
+    >
   >,
-): GeneralUnionElement<TerminalElement<ThisIndirectReferenceElement>> {
+): GeneralUnionElement<
+  ThisTerminalElement,
+  TupleSpreadReference<ThisTerminalElement>
+> {
   const { elementMembers } = api;
   return {
     elementMembers,

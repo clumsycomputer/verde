@@ -1,14 +1,18 @@
-export type SchemaElement<ThisTerminalElement> =
+export type SchemaElement<ThisTerminalElement, ThisTupleSpreadReference> =
   | ThisTerminalElement
-  | StructureElement<ThisTerminalElement>
-  | GeneralUnionElement<ThisTerminalElement>;
+  | StructureElement<ThisTerminalElement, ThisTupleSpreadReference>
+  | GeneralUnionElement<ThisTerminalElement, ThisTupleSpreadReference>;
 
-export interface GeneralUnionElement<ThisTerminalElement>
-  extends
-    __UnionElement<
-      'generalUnion',
-      ThisTerminalElement | StructureElement<ThisTerminalElement> | NullElement
-    > {}
+export interface GeneralUnionElement<
+  ThisTerminalElement,
+  ThisTupleSpreadReference,
+> extends
+  __UnionElement<
+    'generalUnion',
+    | ThisTerminalElement
+    | StructureElement<ThisTerminalElement, ThisTupleSpreadReference>
+    | NullElement
+  > {}
 
 export interface VerdeTableUnionElement<ThisIndirectReferenceElement>
   extends
@@ -25,11 +29,12 @@ export interface VerdeArrayUnionElement<ThisIndirectReferenceElement>
       | ReferenceElement<ThisIndirectReferenceElement>
     > {}
 
-export interface ExportUnionElement<ThisIndirectReferenceElement> extends
-  __UnionElement<
-    'exportUnion',
-    ReferenceElement<ThisIndirectReferenceElement>
-  > {}
+export interface ExportUnionElement<ThisIndirectReferenceElement>
+  extends
+    __UnionElement<
+      'exportUnion',
+      ReferenceElement<ThisIndirectReferenceElement>
+    > {}
 
 export interface __UnionElement<ThisElementKind, ThisMemberElement>
   extends __SchemaElement<ThisElementKind> {
@@ -38,29 +43,39 @@ export interface __UnionElement<ThisElementKind, ThisMemberElement>
 
 export interface NullElement extends __SchemaElement<'null'> {}
 
-export type StructureElement<ThisTerminalElement> =
-  | ObjectElement<ThisTerminalElement>
-  | TupleElement<ThisTerminalElement>;
+export type StructureElement<
+  ThisTerminalElement,
+  ThisTupleSpreadReference,
+> =
+  | ObjectElement<ThisTerminalElement, ThisTupleSpreadReference>
+  | TupleElement<ThisTerminalElement, ThisTupleSpreadReference>;
 
-export interface ObjectElement<ThisTerminalElement> extends
-  __StructureElement<
-    'objectStructure',
-    Record<string, StructureProperty<ThisTerminalElement>>
-  > {}
+export interface ObjectElement<ThisTerminalElement, ThisTupleSpreadReference>
+  extends
+    __StructureElement<
+      'objectStructure',
+      Record<
+        string,
+        StructureProperty<ThisTerminalElement, ThisTupleSpreadReference>
+      >
+    > {}
 
-export interface TupleElement<ThisTerminalElement> extends
+export interface TupleElement<
+  ThisTerminalElement,
+  ThisTupleSpreadReference,
+> extends
   __StructureElement<
     'tupleStructure',
     Array<
-      | StructureProperty<ThisTerminalElement>
-      | TupleSpreadReference<ThisTerminalElement>
+      | StructureProperty<ThisTerminalElement, ThisTupleSpreadReference>
+      | ThisTupleSpreadReference
     >
   > {}
 
 export interface TupleSpreadReference<ThisTerminalElement> {
   spreadElement:
     | AliasReferenceElement
-    | Include<ThisTerminalElement, ParameterReferenceElement>
+    | Include<ThisTerminalElement, ParameterReferenceElement>;
 }
 
 type Include<T, U> = T extends U ? T : never;
@@ -70,20 +85,26 @@ interface __StructureElement<ThisElementKind, ThisElementStructure>
   elementStructure: ThisElementStructure;
 }
 
-export interface StructureProperty<ThisTerminalElement> {
+export interface StructureProperty<
+  ThisTerminalElement,
+  ThisTupleSpreadReference,
+> {
   propertyKey: string;
-  propertyElement: SchemaElement<ThisTerminalElement>;
+  propertyElement: SchemaElement<ThisTerminalElement, ThisTupleSpreadReference>;
 }
 
-export type TerminalElement<ThisIndirectReferenceElement> =
+export type TerminalElement<
+  ThisIndirectReferenceElement,
+  ThisTupleSpreadReference,
+> =
   | LiteralElement
   | PrimitiveElement
   | ReferenceElement<ThisIndirectReferenceElement>
-  | VerdeElement<ThisIndirectReferenceElement>;
+  | VerdeElement<ThisIndirectReferenceElement, ThisTupleSpreadReference>;
 
-export type VerdeElement<ThisIndirectReferenceElement> =
+export type VerdeElement<ThisIndirectReferenceElement, ThisTupleSpreadReference> =
   | VerdeTableElement<ThisIndirectReferenceElement>
-  | VerdeArrayElement<ThisIndirectReferenceElement>;
+  | VerdeArrayElement<ThisIndirectReferenceElement, ThisTupleSpreadReference>;
 
 export interface VerdeTableElement<ThisIndirectReferenceElement>
   extends
@@ -93,16 +114,22 @@ export interface VerdeTableElement<ThisIndirectReferenceElement>
       | VerdeTableUnionElement<ThisIndirectReferenceElement>
     > {}
 
-export interface VerdeArrayElement<ThisIndirectReferenceElement>
-  extends
-    __CollectionElement<
-      'verdeArray',
-      SchemaElement<
-        | PrimitiveElement
-        | ReferenceElement<ThisIndirectReferenceElement>
-        | VerdeArrayUnionElement<ThisIndirectReferenceElement>
-      >
-    > {}
+export interface VerdeArrayElement<
+  ThisIndirectReferenceElement,
+  ThisTupleSpreadReference,
+> extends
+  __CollectionElement<
+    'verdeArray',
+    SchemaElement<
+      VerdeArrayTerminalElement<ThisIndirectReferenceElement>,
+      ThisTupleSpreadReference
+    >
+  > {}
+
+type VerdeArrayTerminalElement<ThisIndirectReferenceElement> =
+  | PrimitiveElement
+  | ReferenceElement<ThisIndirectReferenceElement>
+  | VerdeArrayUnionElement<ThisIndirectReferenceElement>;
 
 export interface __CollectionElement<
   ThisElementKind,

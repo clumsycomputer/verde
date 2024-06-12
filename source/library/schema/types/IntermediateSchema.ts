@@ -5,6 +5,7 @@ import {
   ParameterReferenceElement,
   SchemaElement,
   TerminalElement,
+  TupleSpreadReference,
 } from './SchemaElement.ts';
 import {
   __SchemaExport,
@@ -116,23 +117,35 @@ interface __IntermediateSchemaType {
   typeSourcePath: string;
 }
 
-type GenericIntermediateSchemaElement = SchemaElement<
-  GenericIntermediateTerminalElement
->;
-
-export type GenericIntermediateTerminalElement = TerminalElement<
-  AliasReferenceElement | ParameterReferenceElement
->;
-
-type DefinitiveIntermediateSchemaElement = SchemaElement<
-  DefinitiveIntermediateTerminalElement
->;
-
-export type DefinitiveIntermediateTerminalElement = TerminalElement<
-  AliasReferenceElement
->;
-
 export type IntermediateExportElement =
   | DataModelReferenceElement
   | AliasReferenceElement
   | ExportUnionElement<AliasReferenceElement>;
+
+type GenericIntermediateSchemaElement = SchemaElement<
+  GenericIntermediateTerminalElement,
+  GenericIntermediateTupleSpreadReference
+>;
+
+export type GenericIntermediateTerminalElement = TerminalElement<
+  AliasReferenceElement | ParameterReferenceElement,
+  GenericIntermediateTupleSpreadReference
+>;
+
+export type GenericIntermediateTupleSpreadReference = TupleSpreadReference<
+  GenericIntermediateTerminalElement
+>;
+
+type DefinitiveIntermediateSchemaElement = SchemaElement<
+  DefinitiveIntermediateTerminalElement,
+  TupleSpreadReference<DefinitiveIntermediateTerminalElement>
+>;
+
+export type DefinitiveIntermediateTerminalElement = TerminalElement<
+  AliasReferenceElement,
+  DefinitiveIntermediateTupleSpreadReference
+>;
+
+export type DefinitiveIntermediateTupleSpreadReference = TupleSpreadReference<
+  DefinitiveIntermediateTerminalElement
+>;
