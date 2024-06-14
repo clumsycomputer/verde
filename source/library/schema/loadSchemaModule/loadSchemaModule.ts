@@ -1,10 +1,7 @@
-import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
-import { FileSystem } from '../../../../imports/FileSystem.ts';
-import { Path } from '../../../../imports/Path.ts';
-import { Typescript } from '../../../../imports/Typescript.ts';
-import {
-  DeriveIntermediateSchemaApi
-} from '../deriveIntermediateSchema.ts';
+import { throwInvalidPathError } from '../../../helpers/throwError.ts';
+import { FileSystem } from '../../../imports/FileSystem.ts';
+import { Path } from '../../../imports/Path.ts';
+import { Typescript } from '../../../imports/Typescript.ts';
 import {
   throwInvalidSchemaModule_PathDoesNotExist,
   throwInvalidSchemaModule__CodeExport,
@@ -12,10 +9,11 @@ import {
   throwInvalidSchemaModule__MultipleExports,
   throwInvalidSchemaModule__NoExports,
   throwInvalidSchemaModule__NonTypeAliasExport,
-} from '../errors.ts';
+} from './errors.ts';
 
-export interface LoadSchemaModuleApi
-  extends Pick<DeriveIntermediateSchemaApi, 'schemaModulePath'> {}
+export interface LoadSchemaModuleApi {
+  schemaModulePath: string;
+}
 
 export interface LoadSchemaModuleResult {
   schemaTypeChecker: Typescript.TypeChecker;

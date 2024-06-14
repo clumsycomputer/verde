@@ -1,6 +1,6 @@
 import { throwInvalidPathError } from '../../../../helpers/throwError.ts';
 import { Typescript } from '../../../../imports/Typescript.ts';
-import { __DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
+import { DeriveIntermediateSchemaApi } from '../deriveIntermediateSchema.ts';
 
 export interface ResolveElementSourceDeclarationApi
   extends __Data__ResolveSourceDeclarationApi<Typescript.EntityName> {}
@@ -41,7 +41,7 @@ interface __ResolveSourceDeclarationApi<ThisLocalNode extends Typescript.Node>
 
 interface __Data__ResolveSourceDeclarationApi<
   ThisLocalNode extends Typescript.Node,
-> extends Pick<__DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {
+> extends Pick<DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {
   localNode: ThisLocalNode;
 }
 

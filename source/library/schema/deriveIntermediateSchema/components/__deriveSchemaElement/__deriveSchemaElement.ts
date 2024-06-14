@@ -1,7 +1,7 @@
 import { genericAny, irrelevantAny } from '../../../../../helpers/types.ts';
 import { Typescript } from '../../../../../imports/Typescript.ts';
 import {
-  __DeriveIntermediateSchemaApi,
+  DeriveIntermediateSchemaApi,
   DeriveSchemaTypeOperation,
 } from '../../deriveIntermediateSchema.ts';
 import { throwInvalidSchemaElement } from '../../errors.ts';
@@ -298,7 +298,7 @@ export interface __DeriveSchemaElementApi<
     ElementResolver<genericAny>,
     ...Array<ElementResolver<genericAny>>,
   ],
-> extends Pick<__DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {
+> extends Pick<DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {
   schemaDeriveTypeQueue: Array<DeriveSchemaTypeOperation>;
   elementLocalNode: Typescript.Node;
   elementResolvers__: ThisElementResolvers;

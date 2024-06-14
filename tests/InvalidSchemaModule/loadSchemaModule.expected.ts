@@ -1,0 +1,16 @@
+export const expectedLoadSchemaModuleErrors = {
+  'Schema__CodeExport.ts':
+    'invalid schema module: code export at "/home/verde/tests/InvalidSchemaModule/schemas/Schema__CodeExport.ts"',
+  'Schema__DefaultCodeExport.ts':
+    'invalid schema module: code export at "/home/verde/tests/InvalidSchemaModule/schemas/Schema__DefaultCodeExport.ts"',
+  'Schema__GenericTypeAliasExport.ts':
+    'invalid schema module: generic type-alias export at "/home/verde/tests/InvalidSchemaModule/schemas/Schema__GenericTypeAliasExport.ts"',
+  'Schema__MultipleExports.ts':
+    'invalid schema module: multiple exports at "/home/verde/tests/InvalidSchemaModule/schemas/Schema__MultipleExports.ts"',
+  'Schema__NoExports.ts':
+    'invalid schema module: no exports at "/home/verde/tests/InvalidSchemaModule/schemas/Schema__NoExports.ts"',
+  'Schema__NonTypeAliasExport.ts':
+    'invalid schema module: non type-alias export at "/home/verde/tests/InvalidSchemaModule/schemas/Schema__NonTypeAliasExport.ts"',
+  'Schema__Undefined.ts':
+    'invalid schema module: "/home/verde/tests/InvalidSchemaModule/schemas/Schema__Undefined.ts" does not exist',
+};

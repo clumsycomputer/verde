@@ -12,7 +12,7 @@ import {
 } from '../../../types/IntermediateSchema.ts';
 import {
 DeriveSchemaTypeOperation,
-  __DeriveIntermediateSchemaApi,
+DeriveIntermediateSchemaApi,
 } from '../../deriveIntermediateSchema.ts';
 import {
   throwInvalidGenericTemplateModelParameter__DefaultArgument,
@@ -538,7 +538,7 @@ export interface __DeriveSchemaTypeApi<
   ThisSourceDeclaration extends
     | Typescript.InterfaceDeclaration
     | Typescript.TypeAliasDeclaration,
-> extends Pick<__DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {
+> extends Pick<DeriveIntermediateSchemaApi, 'schemaTypeChecker'> {
   schemaDeriveTypeQueue: Array<DeriveSchemaTypeOperation>;
   schemaResult: IntermediateSchema;
   typeLocalSymbol: Typescript.Symbol;

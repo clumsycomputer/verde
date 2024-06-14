@@ -1,188 +1,16 @@
-import { ExpectationCase } from '../../helpers/assertAndLogExpectations.ts';
-import { styledText } from '../../helpers/getStyledText.ts';
-import { expectedDeriveIntermediateSchemaErrors } from '../expectations/deriveIntermediateSchema.expected.ts';
+import { ExpectationCase } from '../helpers/assertAndLogExpectations.ts';
+import { styledText } from '../helpers/getStyledText.ts';
+import { expectedDeriveIntermediateSchemaErrors } from './deriveIntermediateSchema.expected.ts';
 
-export interface getExpectationCasesApi__DeriveIntermediateSchema__Errors {
+export interface getExpectationCasesApi__deriveIntermediateSchema__Errors {
   schemaSources: Record<string, string>;
 }
 
-export function getExpectationCases__DeriveIntermediateSchema__Errors(
-  api: getExpectationCasesApi__DeriveIntermediateSchema__Errors,
+export function getExpectationCases__deriveIntermediateSchema__Errors(
+  api: getExpectationCasesApi__deriveIntermediateSchema__Errors,
 ): Array<ExpectationCase> {
   const { schemaSources } = api;
   return [
-    {
-      caseKey: 'noExports__schemaModule',
-      caseNotes: [
-        styledText({
-          textSource: 'no exports (schema module)',
-          textPatterns: [{
-            patternStyle: [1, 4],
-            patternRegex: /^.*$/,
-          }],
-        }),
-        styledText({
-          textSource: schemaSources['Schema__NoExports.ts']!.trim(),
-          textPatterns: [{
-            patternStyle: [],
-            patternRegex: /^.*$/,
-          }],
-        }),
-        styledText({
-          textSource:
-            expectedDeriveIntermediateSchemaErrors['Schema__NoExports.ts']!,
-          textPatterns: [{
-            patternStyle: [3, 1, 41],
-            patternRegex: /no exports/,
-          }],
-        }),
-      ],
-    },
-    {
-      caseKey: 'multipleExports__schemaModule',
-      caseNotes: [
-        styledText({
-          textSource: 'multiple exports (schema module)',
-          textPatterns: [{
-            patternStyle: [1, 4],
-            patternRegex: /^.*$/,
-          }],
-        }),
-        styledText({
-          textSource: schemaSources['Schema__MultipleExports.ts']!.trim(),
-          textPatterns: [{
-            patternStyle: [3, 1, 41],
-            patternRegex: /export/,
-          }],
-        }),
-        styledText({
-          textSource: expectedDeriveIntermediateSchemaErrors[
-            'Schema__MultipleExports.ts'
-          ]!,
-          textPatterns: [{
-            patternStyle: [3, 1, 41],
-            patternRegex: /multiple exports/,
-          }],
-        }),
-      ],
-    },
-    {
-      caseKey: 'codeExport__schemaModule',
-      caseNotes: [
-        styledText({
-          textSource: 'code export (schema module)',
-          textPatterns: [{
-            patternStyle: [1, 4],
-            patternRegex: /^.*$/,
-          }],
-        }),
-        styledText({
-          textSource: schemaSources['Schema__CodeExport.ts']!.trim(),
-          textPatterns: [{
-            patternStyle: [3, 1, 41],
-            patternRegex: /^.*$/,
-          }],
-        }),
-        styledText({
-          textSource:
-            expectedDeriveIntermediateSchemaErrors['Schema__CodeExport.ts']!,
-          textPatterns: [{
-            patternStyle: [3, 1, 41],
-            patternRegex: /code export/,
-          }],
-        }),
-      ],
-    },
-    {
-      caseKey: 'defaultCodeExport__schemaModule',
-      caseNotes: [
-        styledText({
-          textSource: 'default code export (schema module)',
-          textPatterns: [{
-            patternStyle: [1, 4],
-            patternRegex: /^.*$/,
-          }],
-        }),
-        styledText({
-          textSource: schemaSources['Schema__DefaultCodeExport.ts']!.trim(),
-          textPatterns: [{
-            patternStyle: [3, 1, 41],
-            patternRegex: /^.*$/,
-          }],
-        }),
-        styledText({
-          textSource:
-            expectedDeriveIntermediateSchemaErrors['Schema__CodeExport.ts']!,
-          textPatterns: [{
-            patternStyle: [3, 1, 41],
-            patternRegex: /code export/,
-          }],
-        }),
-      ],
-    },
-    {
-      caseKey: 'nonTypeAliasExport__schemaModule',
-      caseNotes: [
-        styledText({
-          textSource: 'non type-alias export (schema module)',
-          textPatterns: [{
-            patternStyle: [1, 4],
-            patternRegex: /^.*$/,
-          }],
-        }),
-        styledText({
-          textSource: schemaSources['Schema__NonTypeAliasExport.ts']!.trim(),
-          textPatterns: [{
-            patternStyle: [3, 1, 41],
-            patternRegex: /export interface/,
-          }],
-        }),
-        styledText({
-          textSource: expectedDeriveIntermediateSchemaErrors[
-            'Schema__NonTypeAliasExport.ts'
-          ]!,
-          textPatterns: [{
-            patternStyle: [3, 1, 41],
-            patternRegex: /non type-alias export/,
-          }],
-        }),
-      ],
-    },
-    {
-      caseKey: 'genericTypeAliasExport__schemaModule',
-      caseNotes: [
-        styledText({
-          textSource: 'generic type-alias export (schema module)',
-          textPatterns: [{
-            patternStyle: [1, 4],
-            patternRegex: /^.*$/,
-          }],
-        }),
-        styledText({
-          textSource: schemaSources['Schema__GenericTypeAliasExport.ts']!
-            .trim(),
-          textPatterns: [
-            {
-              patternStyle: [3, 1, 41],
-              patternRegex: /export/,
-            },
-            {
-              patternStyle: [3, 1, 41],
-              patternRegex: /<T>/,
-            },
-          ],
-        }),
-        styledText({
-          textSource: expectedDeriveIntermediateSchemaErrors[
-            'Schema__GenericTypeAliasExport.ts'
-          ]!,
-          textPatterns: [{
-            patternStyle: [3, 1, 41],
-            patternRegex: /generic type-alias export/,
-          }],
-        }),
-      ],
-    },
     {
       caseKey: 'undefinedTemplateArgument',
       caseNotes: [
@@ -341,33 +169,6 @@ export function getExpectationCases__DeriveIntermediateSchema__Errors(
             {
               patternStyle: [3, 1, 41],
               patternRegex: /multiple declarations/,
-            },
-          ],
-        }),
-      ],
-    },
-    {
-      caseKey: 'schemaModulePathDoesNotExist',
-      caseNotes: [
-        styledText({
-          textSource: 'schema module path does not exist',
-          textPatterns: [{
-            patternStyle: [1, 4],
-            patternRegex: /^.*$/,
-          }],
-        }),
-        styledText({
-          textSource: expectedDeriveIntermediateSchemaErrors[
-            'Schema__Undefined.ts'
-          ]!,
-          textPatterns: [
-            {
-              patternStyle: [3, 1, 41],
-              patternRegex: /invalid schema module/,
-            },
-            {
-              patternStyle: [3, 1, 41],
-              patternRegex: /does not exist/,
             },
           ],
         }),

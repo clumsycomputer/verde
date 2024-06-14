@@ -1,3 +1,4 @@
+import { LoadSchemaModuleResult } from '../loadSchemaModule/loadSchemaModule.ts';
 import {
   IntermediateSchema,
   IntermediateSchemaType,
@@ -9,36 +10,15 @@ import {
   deriveDataModelType,
   deriveGenericTemplateModelType,
 } from './components/__deriveSchemaType/__deriveSchemaType.ts';
-import {
-  loadSchemaModule,
-  LoadSchemaModuleResult,
-} from './components/loadSchemaModule.ts';
 
-export interface DeriveIntermediateSchemaApi {
-  schemaModulePath: string;
-}
-
-export function deriveIntermediateSchema(
-  api: DeriveIntermediateSchemaApi,
-): IntermediateSchema {
-  const { schemaModulePath } = api;
-  const { schemaTypeChecker, schemaExportNode } = loadSchemaModule({
-    schemaModulePath,
-  });
-  return __deriveIntermediateSchema({
-    schemaTypeChecker,
-    schemaExportNode,
-  });
-}
-
-export interface __DeriveIntermediateSchemaApi extends
+export interface DeriveIntermediateSchemaApi extends
   Pick<
     LoadSchemaModuleResult,
     'schemaTypeChecker' | 'schemaExportNode'
   > {}
 
-function __deriveIntermediateSchema(
-  api: __DeriveIntermediateSchemaApi,
+export function deriveIntermediateSchema(
+  api: DeriveIntermediateSchemaApi,
 ): IntermediateSchema {
   const { schemaTypeChecker, schemaExportNode } = api;
   const schemaDeriveTypeQueue: Array<DeriveSchemaTypeOperation> = [];
