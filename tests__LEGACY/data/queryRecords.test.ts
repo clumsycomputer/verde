@@ -1,4 +1,4 @@
-import { queryRecords } from '../../source/library/data/queryRecords/queryRecords.ts';
+import { queryRecords } from '../../source/library/data__LEGACY/queryRecords/queryRecords.ts';
 import { Path } from '../imports/Path.ts';
 import { dataSchema__EXAMPLE } from './helpers/dataSchema__EXAMPLE.ts';
 import { setupTestDatabase } from './helpers/setupTestDatabase.ts';

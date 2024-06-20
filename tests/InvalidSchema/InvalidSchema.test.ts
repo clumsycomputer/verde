@@ -1,5 +1,4 @@
-import { deriveIntermediateSchema } from '../../source/library/module.ts';
-import { loadSchemaModule } from '../../source/library/schema/loadSchemaModule/loadSchemaModule.ts';
+import { deriveIntermediateSchema, loadSchemaModule } from '../../source/library/module.ts';
 import { assertAndLogExpectations } from '../helpers/assertAndLogExpectations.ts';
 import { getPathFromThisDirectory } from '../helpers/getPathFromThisDirectory.ts';
 import { readSchemaSources } from '../helpers/readSchemaSources.ts';

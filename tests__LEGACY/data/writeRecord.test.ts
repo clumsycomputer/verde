@@ -1,6 +1,6 @@
 import {
   getEncodedString,
-} from '../../source/library/data/helpers/getEncodedData.ts';
+} from '../../source/library/data__LEGACY/helpers/getEncodedData.ts';
 import { writeRecord } from '../../source/library/module.ts';
 import { Assert } from '../imports/Assert.ts';
 import { Path } from '../imports/Path.ts';
@@ -11,7 +11,7 @@ import {
   TopLevelPropertyModelRecord,
 } from './helpers/dataSchema__EXAMPLE.ts';
 import { dataSchema__EXAMPLE } from './helpers/dataSchema__EXAMPLE.ts';
-import { FiledShallowWellFormedRecord } from '../../source/library/data/helpers/isShallowWellFormedRecord.ts';
+import { FiledShallowWellFormedRecord } from '../../source/library/data__LEGACY/helpers/isShallowWellFormedRecord.ts';
 
 Deno.test('writeRecord', async (writeRecordContext) => {
   const writeRecordTableFileFinishlineSize = 4096;

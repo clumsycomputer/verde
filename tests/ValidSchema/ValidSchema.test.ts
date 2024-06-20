@@ -1,11 +1,10 @@
-import { deriveIntermediateSchema } from '../../source/library/module.ts';
+import { deriveIntermediateSchema, loadSchemaModule } from '../../source/library/module.ts';
 import { assertAndLogExpectations } from '../helpers/assertAndLogExpectations.ts';
+import { getPathFromThisDirectory } from '../helpers/getPathFromThisDirectory.ts';
+import { readSchemaSources } from '../helpers/readSchemaSources.ts';
 import { Path } from '../imports/Path.ts';
 import { getExpectationCases__DeriveIntermediateSchema } from './cases/getExpectationCases__DeriveIntermediateSchema.ts';
 import { expectedIntermediateSchema } from './expectations/deriveIntermediateSchema.expected.ts';
-import { readSchemaSources } from '../helpers/readSchemaSources.ts';
-import { getPathFromThisDirectory } from '../helpers/getPathFromThisDirectory.ts';
-import { loadSchemaModule } from '../../source/library/schema/loadSchemaModule/loadSchemaModule.ts';
 
 Deno.test(validSchemaTest);
 

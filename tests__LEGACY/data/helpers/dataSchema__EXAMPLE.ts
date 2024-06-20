@@ -1,7 +1,7 @@
 import {
   createRecordUuid,
   RecordUuid,
-} from '../../../source/library/data/helpers/createRecordUuid.ts';
+} from '../../../source/library/data__LEGACY/helpers/createRecordUuid.ts';
 import { DataSchema } from '../../../source/library/module.ts';
 
 export const dataSchema__EXAMPLE: DataSchema = {
