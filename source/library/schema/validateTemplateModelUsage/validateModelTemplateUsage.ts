@@ -1,0 +1,2 @@
+// make sure a template model only used once in context of data model inheritance ??? 
+// typescript errors when an interface extends directly or indirectly a generic interface with overlapping generic arguments that are used in property definitions
