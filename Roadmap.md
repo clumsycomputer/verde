@@ -42,7 +42,7 @@
 
     - entries can be a create, update, delete, or removal
 
-      - to remove an entry without deleting it, assign null instead of undefined
+      - to remove an entry without deleting it, assign null (??? not sure null would be valid) instead of undefined
 
 #### deletions
 
@@ -54,7 +54,10 @@
 interface User {
   firstName: string;
   lastName: string;
-  email: string;
+  email: {
+    emailName: string;
+    emailDomain: string;
+  }
 }
 
 const newUser = createUser({
@@ -64,7 +67,7 @@ const newUser = createUser({
 })
 
 await commitData({
-  dataSchema: <dataSchema>,
+  dataEncodingSchema: <dataSchema>,
   dataUpdates: {
     [newUser.__uuid]: newUser
   }
@@ -72,3 +75,68 @@ await commitData({
 ```
 
 ### queryData
+
+- a `dataQuery` has two main types of filters/operations, model-level and value-level
+
+  - model-level operations include `AND`, `OR`, `MODEL`
+
+  - property-level operations depend on type
+
+    - booleanLiteral:
+
+    - numberLiteral:
+
+    - stringLiteral: `ALL`, `EQUALS`, `OR`, `NOT`
+
+    - boolean: `ALL`, `EQUALS`
+
+    - number: `ALL`, `EQUALS`, `GREATER_THAN`, `LESSER_THAN`, `RANGE`
+
+    - string: `ALL`, `EQUALS`, `OR`
+
+    - object: 
+
+    - tuple:
+
+    - general union:
+
+    - VerdeArray:
+
+      - VerdeArrayUnionElement
+
+    - VerdeTable:
+
+      - VerdeTableUnionElement
+
+    - DataModel: 
+
+
+
+  - trying to figure out `NOT` operations for both model and value
+
+  - thinking about as a possible future feature enable high-level string functions like startsWith, endsWith, contains, .etc
+
+- to include / query properties include them in `queryProperties` for `MODEL`, if the value doesn't have constraints make it a `ALL`
+
+```typescript
+await queryData({
+  dataDecodingSchema: <dataSchema>,
+  dataQuery: {
+    queryKind: 'AND',
+    querySubOperations: [
+      {
+        queryKind: 'MODEL',
+        queryModel: 'User',
+        queryProperties: {
+          firstName: '*',
+          lastName: '*',
+          email: {
+            emailName: '*',
+            emailDomain: 'gmail.com'
+          }
+        }
+      }
+    ]
+  }
+})
+```
