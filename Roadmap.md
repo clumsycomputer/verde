@@ -68,11 +68,15 @@ const newUser = createUser({
 
 await commitData({
   dataEncodingSchema: <dataSchema>,
-  dataUpdates: {
-    [newUser.__uuid]: newUser
-  }
+  dataRecord: newUser
 })
 ```
+
+#### EncodingDataSchema
+
+- just need DataModels
+
+- flatten solidified template heirarchy into DataModel
 
 ### queryData
 
@@ -140,3 +144,15 @@ await queryData({
   }
 })
 ```
+
+#### DecodingDataSchema
+
+- need all models
+
+- each template model needs map of data models and then a map of direct extenders
+
+- each data model needs map of flattened template model heirarchy
+
+- each model needs to flatten its underlying template heirarchy (solidified???)
+
+??? do decoding models need map/s of underlying templates
